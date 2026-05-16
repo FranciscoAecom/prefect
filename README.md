@@ -134,11 +134,14 @@ bases especificas pelo painel.
 
 ### Painel Local
 
-Inicie o servidor local:
+No primeiro terminal, dentro da pasta do projeto, inicie o servidor local:
 
 ```powershell
-uv run prefect server start --host 127.0.0.1 --port 4200
+cd C:\Temp\Repositórios\prefect
+uv run python -m prefect server start --host 127.0.0.1 --port 4200
 ```
+
+Deixe esse terminal aberto. Ele fica segurando o servidor do Prefect.
 
 Abra no navegador:
 
@@ -146,8 +149,30 @@ Abra no navegador:
 http://127.0.0.1:4200
 ```
 
+Em outro terminal, entre novamente na pasta do projeto:
+
+```powershell
+cd C:\Temp\Repositórios\prefect
+```
+
+Configure a API local do Prefect, se ainda nao estiver configurada:
+
+```powershell
+uv run python -m prefect config set PREFECT_API_URL=http://127.0.0.1:4200/api
+```
+
+Depois execute o pipeline:
+
+```powershell
+uv run python main.py
+```
+
 Se o navegador mostrar `ERR_CONNECTION_REFUSED`, o servidor nao esta rodando
 ou caiu. Inicie novamente o comando acima em um terminal separado.
+
+Em alguns ambientes Windows, o comando `uv run prefect ...` pode falhar com
+`uv trampoline failed to canonicalize script path`. Quando isso acontecer, use
+sempre `uv run python -m prefect ...`.
 
 Se a porta 4200 ja estiver ocupada, veja o processo que esta usando a porta:
 
@@ -170,7 +195,7 @@ Stop-Process -Id <PID> -Force
 Tambem e possivel iniciar em outra porta:
 
 ```powershell
-uv run prefect server start --host 127.0.0.1 --port 4201
+uv run python -m prefect server start --host 127.0.0.1 --port 4201
 ```
 
 ### Agendamento UR CAR
