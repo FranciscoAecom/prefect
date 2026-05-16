@@ -78,7 +78,14 @@ Componentes principais:
 - Ambiente recomendado com `uv`.
 - Prefect 3 para orquestracao do pipeline.
 
-Instalacao:
+Clone do repositorio:
+
+```powershell
+git clone https://github.com/FranciscoAecom/prefect.git
+cd prefect
+```
+
+Instalacao das dependencias:
 
 ```powershell
 uv sync
@@ -108,11 +115,65 @@ uv run python main.py
 O comando acima executa o flow Prefect `Data Pipeline`, com uma task para
 preparar a fila e uma task para cada registro processado.
 
-Para abrir a interface local do Prefect, em outro terminal:
+Ou, usando o Python instalado diretamente:
 
 ```powershell
-uv run prefect server start
+py -3.14 main.py
 ```
+
+As saidas ficam em:
+
+```text
+output/<theme_folder>/
+```
+
+## Prefect
+
+O projeto usa Prefect 3 para visualizar execucoes, agendar rotinas e disparar
+bases especificas pelo painel.
+
+### Painel Local
+
+Inicie o servidor local:
+
+```powershell
+uv run prefect server start --host 127.0.0.1 --port 4200
+```
+
+Abra no navegador:
+
+```text
+http://127.0.0.1:4200
+```
+
+Se o navegador mostrar `ERR_CONNECTION_REFUSED`, o servidor nao esta rodando
+ou caiu. Inicie novamente o comando acima em um terminal separado.
+
+Se a porta 4200 ja estiver ocupada, veja o processo que esta usando a porta:
+
+```powershell
+Get-NetTCPConnection -LocalPort 4200 | Select-Object LocalAddress,LocalPort,State,OwningProcess
+```
+
+Depois veja o nome do processo:
+
+```powershell
+Get-Process -Id <PID>
+```
+
+Para encerrar o processo:
+
+```powershell
+Stop-Process -Id <PID> -Force
+```
+
+Tambem e possivel iniciar em outra porta:
+
+```powershell
+uv run prefect server start --host 127.0.0.1 --port 4201
+```
+
+### Agendamento UR CAR
 
 Para servir os agendamentos mensais das 27 bases `ur_car`, uma por dia do mes:
 
@@ -126,33 +187,75 @@ flow, entao a execucao do dia 1 roda apenas `ur_car_ac`, a do dia 2 roda
 apenas `ur_car_al`, e assim por diante ate `ur_car_to` no dia 27.
 
 Os runs agendados sao renomeados automaticamente para o nome da base, por
-exemplo `ur_car_pi`. Para aplicar a renomeacao manualmente:
+exemplo `ur_car_pi`. O nome mostrado na lista de runs pode aparecer primeiro
+como um nome aleatorio do Prefect; depois o script de renomeacao troca para o
+valor da base.
+
+Para aplicar a renomeacao manualmente:
 
 ```powershell
 uv run python rename_prefect_scheduled_runs.py
 ```
 
-Para executar uma base especifica manualmente pelo Prefect:
+### Execucao Manual Pelo Terminal
+
+Para executar uma base especifica pelo deployment:
 
 ```powershell
 '{"theme_folders":["ur_car_pi"]}' | uv run prefect deployment run "Data Pipeline/UR CAR - 27 bases" --params -
 ```
 
-O flow tambem aceita multiplas bases via `theme_folders`. Quando uma base e
-filtrada, o pipeline cria um lock local por base para evitar duas execucoes
-concorrentes da mesma saida.
-
-Ou, usando o Python instalado diretamente:
+Para executar todas as 27 bases `ur_car` de uma vez, informe todos os perfis
+em `theme_folders`:
 
 ```powershell
-py -3.14 main.py
+'{"theme_folders":["ur_car_ac","ur_car_al","ur_car_am","ur_car_ap","ur_car_ba","ur_car_ce","ur_car_df","ur_car_es","ur_car_go","ur_car_ma","ur_car_mg","ur_car_ms","ur_car_mt","ur_car_pa","ur_car_pb","ur_car_pe","ur_car_pi","ur_car_pr","ur_car_rj","ur_car_rn","ur_car_ro","ur_car_rr","ur_car_rs","ur_car_sc","ur_car_se","ur_car_sp","ur_car_to"]}' | uv run prefect deployment run "Data Pipeline/UR CAR - 27 bases" --params -
 ```
 
-As saidas ficam em:
+Para listar flow runs:
+
+```powershell
+uv run prefect flow-run ls
+```
+
+Para ver deployments:
+
+```powershell
+uv run prefect deployment ls
+```
+
+### Alterar Horario Pelo Painel
+
+No painel:
+
+1. Va em `Deployments`.
+2. Abra `UR CAR - 27 bases`.
+3. Entre em `Configuration`.
+4. Edite o cron da agenda desejada.
+5. Salve.
+
+O cron usa o formato:
 
 ```text
-output/<theme_folder>/
+minuto hora dia-do-mes mes dia-da-semana
 ```
+
+Exemplo para rodar todo dia 17 as 02:00:
+
+```text
+0 2 17 * *
+```
+
+Exemplo para rodar todo dia 16 as 15:19:
+
+```text
+19 15 16 * *
+```
+
+O agendamento usa o fuso `America/Sao_Paulo`.
+
+Quando uma base e filtrada, o pipeline cria um lock local por base para evitar
+duas execucoes concorrentes da mesma saida.
 
 ## Regras Modulares
 
