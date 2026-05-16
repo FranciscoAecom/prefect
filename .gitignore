@@ -1,0 +1,11 @@
+.venv/
+*.egg-info/
+/output/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.prefect-local/
+.pipeline-locks/
+*.lock
