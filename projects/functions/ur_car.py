@@ -1,8 +1,8 @@
 from difflib import get_close_matches
 
-from core.schema import target_column_name
 from core.text import normalize_for_compare
 from core.utils import log
+from core.validation.schema import target_column_name
 
 
 def ur_car_transform_desc_condic(gdf, column, **_context):

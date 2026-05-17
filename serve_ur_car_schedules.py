@@ -1,8 +1,9 @@
+import logging
 import threading
 
 from core.prefect_flow import data_pipeline_flow
 from core.prefect_support.admin import scheduled_run_renamer_loop
-from core.prefect_support.schedules import UR_CAR_THEME_FOLDERS, build_ur_car_schedules
+from core.prefect_support.schedules import build_ur_car_schedules
 
 
 def start_scheduled_run_renamer(interval_seconds=30):
@@ -15,6 +16,7 @@ def start_scheduled_run_renamer(interval_seconds=30):
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
     start_scheduled_run_renamer()
     data_pipeline_flow.serve(
         name="UR CAR - 27 bases",

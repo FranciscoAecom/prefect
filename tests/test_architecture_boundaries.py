@@ -37,7 +37,7 @@ class ArchitectureBoundaryTests(unittest.TestCase):
 
         self.assertEqual([str(path) for path in offenders], [])
 
-    def test_root_compatibility_facades_stay_thin(self):
+    def test_root_compatibility_facades_have_been_removed(self):
         facade_paths = [
             Path("core/batch_processor.py"),
             Path("core/dataset_io.py"),
@@ -58,12 +58,12 @@ class ArchitectureBoundaryTests(unittest.TestCase):
             Path("core/output_paths.py"),
             Path("core/output_quality.py"),
             Path("core/output_writer.py"),
+            Path("core/input_preparation.py"),
         ]
 
-        for path in facade_paths:
-            text = path.read_text(encoding="utf-8")
-            self.assertNotIn("\ndef ", text, path)
-            self.assertNotIn("\nclass ", text, path)
+        existing_facades = [str(path) for path in facade_paths if path.exists()]
+
+        self.assertEqual(existing_facades, [])
 
     def test_runtime_code_uses_new_queue_and_processing_modules(self):
         offenders = self._files_containing(
@@ -81,8 +81,15 @@ class ArchitectureBoundaryTests(unittest.TestCase):
                 "from core.queue_runner import",
                 "from core.record_processor import",
                 "from core.processing_service import",
+                "from core.processing_events import",
+                "from core.processing_errors import",
                 "from core.rule_runtime import",
                 "from core.schema import",
+                "from core.output_manager import",
+                "from core.output_paths import",
+                "from core.output_quality import",
+                "from core.output_writer import",
+                "from core.input_preparation import",
             ],
         )
 

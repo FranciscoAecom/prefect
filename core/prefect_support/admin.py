@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from time import sleep
 
 from prefect.client.orchestration import get_client
@@ -7,6 +8,7 @@ from core.prefect_support.run_names import scheduled_flow_run_name
 
 
 DEPLOYMENT_NAME = "Data Pipeline/UR CAR - 27 bases"
+LOGGER = logging.getLogger(__name__)
 
 
 async def rename_scheduled_runs(deployment_name=DEPLOYMENT_NAME, print_summary=True):
@@ -36,7 +38,7 @@ async def rename_scheduled_runs(deployment_name=DEPLOYMENT_NAME, print_summary=T
             offset += len(flow_runs)
 
         if print_summary:
-            print(f"Renamed scheduled flow runs: {renamed_count}")
+            LOGGER.info("Renamed scheduled flow runs: %s", renamed_count)
         return renamed_count
 
 
@@ -50,9 +52,9 @@ def scheduled_run_renamer_loop(interval_seconds=30, deployment_name=DEPLOYMENT_N
                 )
             )
             if renamed_count:
-                print(f"Renamed scheduled flow runs: {renamed_count}")
+                LOGGER.info("Renamed scheduled flow runs: %s", renamed_count)
         except Exception as exc:
-            print(f"Erro ao renomear flow runs agendados: {exc}")
+            LOGGER.warning("Erro ao renomear flow runs agendados: %s", exc)
         sleep(interval_seconds)
 
 
