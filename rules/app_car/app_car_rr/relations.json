@@ -2,6 +2,7 @@
   "relations": {
     "cod_tema_to_nom_tema": {
       "APP_AREA_AC": "Area de Preservacao Permanente em area consolidada",
+      "APP_AREA_ALTITUDE_SUPERIOR_1800": "Area de Preservacao Permanente de Areas com Altitude Superior a 1800 metros",
       "APP_AREA_DECLIVIDADE_MAIOR_45": "Area de Preservacao Permanente de Areas com Declividades Superiores a 45 graus",
       "APP_AREA_TOPO_MORRO": "Area de Preservacao Permanente de Topos de Morro",
       "APP_AREA_VN": "Area de Preservacao Permanente em area de Vegetacao Nativa",

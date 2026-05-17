@@ -1,9 +1,11 @@
 {
   "relations": {
     "cod_tema_to_nom_tema": {
+      "APP_AREA_AC": "Area de Preservacao Permanente em area consolidada",
       "APP_AREA_DECLIVIDADE_MAIOR_45": "Area de Preservacao Permanente de Areas com Declividades Superiores a 45 graus",
       "APP_AREA_TOPO_MORRO": "Area de Preservacao Permanente de Topos de Morro",
       "APP_AREA_VN": "Area de Preservacao Permanente em area de Vegetacao Nativa",
+      "APP_BANHADO": "Area de Preservacao Permanente de Banhado",
       "APP_BORDA_CHAPADA": "Area de Preservacao Permanente de Bordas de Chapada",
       "APP_ESCADINHA": "APP segundo art. 61-A da Lei n 12.651/2012",
       "APP_ESCADINHA_LAGO_NATURAL": "Area de Preservacao Permanente a Recompor de Lagos e Lagoas Naturais",

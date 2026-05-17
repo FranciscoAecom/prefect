@@ -6,7 +6,8 @@
         "CA",
         "PE",
         "SU"
-      ]
+      ],
+      "aliases": {}
     },
     "sdb_cod_tema": {
       "accepted_values": [
@@ -55,6 +56,7 @@
       "accepted_values": [
         "APP Total",
         "APP segundo art. 61-A da Lei n 12.651/2012",
+        "Area com altitude superior a 1.800 metros",
         "Area de Preservacao Permanente a Recompor de Lagos e Lagoas Naturais",
         "Area de Preservacao Permanente a Recompor de Nascentes ou Olhos D'agua Perenes",
         "Area de Preservacao Permanente a Recompor de Rios ate 10 metros",
@@ -63,6 +65,7 @@
         "Area de Preservacao Permanente a Recompor de Rios de 200 ate 600 metros",
         "Area de Preservacao Permanente a Recompor de Rios de 50 ate 200 metros",
         "Area de Preservacao Permanente a Recompor de Veredas",
+        "Area de Preservacao Permanente de Areas com Altitude Superior a 1800 metros",
         "Area de Preservacao Permanente de Areas com Declividades Superiores a 45 graus",
         "Area de Preservacao Permanente de Banhado",
         "Area de Preservacao Permanente de Bordas de Chapada",

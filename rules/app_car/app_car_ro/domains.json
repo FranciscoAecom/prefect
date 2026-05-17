@@ -6,13 +6,16 @@
         "CA",
         "PE",
         "SU"
-      ]
+      ],
+      "aliases": {}
     },
     "sdb_cod_tema": {
       "accepted_values": [
+        "APP_AREA_AC",
         "APP_AREA_DECLIVIDADE_MAIOR_45",
         "APP_AREA_TOPO_MORRO",
         "APP_AREA_VN",
+        "APP_BANHADO",
         "APP_BORDA_CHAPADA",
         "APP_ESCADINHA",
         "APP_ESCADINHA_LAGO_NATURAL",
@@ -40,6 +43,7 @@
       "aliases": {
         "AREA_DECLIVIDADE_MAIOR_45": "APP_AREA_DECLIVIDADE_MAIOR_45",
         "AREA_TOPO_MORRO": "APP_AREA_TOPO_MORRO",
+        "BANHADO": "APP_BANHADO",
         "BORDA_CHAPADA": "APP_BORDA_CHAPADA",
         "MANGUEZAL": "APP_MANGUEZAL",
         "RESTINGA": "APP_RESTINGA",
@@ -59,6 +63,7 @@
         "Area de Preservacao Permanente a Recompor de Rios de 50 ate 200 metros",
         "Area de Preservacao Permanente a Recompor de Veredas",
         "Area de Preservacao Permanente de Areas com Declividades Superiores a 45 graus",
+        "Area de Preservacao Permanente de Banhado",
         "Area de Preservacao Permanente de Bordas de Chapada",
         "Area de Preservacao Permanente de Lagos e Lagoas Naturais",
         "Area de Preservacao Permanente de Manguezais",
@@ -73,7 +78,9 @@
         "Area de Preservacao Permanente de Topos de Morro",
         "Area de Preservacao Permanente de Veredas",
         "Area de Preservacao Permanente em area antropizada nao declarada como area consolidada",
-        "Area de Preservacao Permanente em area de Vegetacao Nativa"
+        "Area de Preservacao Permanente em area consolidada",
+        "Area de Preservacao Permanente em area de Vegetacao Nativa",
+        "Banhado"
       ],
       "aliases": {
         "Area de declividade maior que 45 graus": "Area de Preservacao Permanente de Areas com Declividades Superiores a 45 graus",
