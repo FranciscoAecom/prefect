@@ -19,7 +19,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
     start_scheduled_run_renamer()
     data_pipeline_flow.serve(
-        name="UR CAR - 27 bases",
+        name="CAR - Uso Restrito",
         schedules=build_ur_car_schedules(),
         tags=["ur_car", "scheduled"],
         description=(
