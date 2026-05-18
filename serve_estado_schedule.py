@@ -24,7 +24,7 @@ def start_scheduled_run_renamer(interval_seconds=30):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
-    start_scheduled_run_renamer()
+    start_scheduled_run_renamer(interval_seconds=5)
     data_pipeline_flow.serve(
         name=DEPLOYMENT_NAME,
         schedules=[
