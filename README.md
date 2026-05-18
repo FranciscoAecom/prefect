@@ -230,6 +230,24 @@ Para aplicar a renomeacao manualmente:
 uv run python rename_prefect_scheduled_runs.py
 ```
 
+### Agendamento Estado
+
+Para criar o deployment da base `estado` no painel do Prefect:
+
+```powershell
+uv run python serve_estado_schedule.py
+```
+
+Esse comando cria o deployment `Estado` com agenda diaria as 02:00, no fuso
+`America/Sao_Paulo`, passando o parametro:
+
+```json
+{"theme_folders": ["estado"]}
+```
+
+Depois disso, o deployment aparece em `http://127.0.0.1:4200/deployments` e o
+horario pode ser alterado pelo painel.
+
 ### Execucao Manual Pelo Terminal
 
 Para executar uma base especifica pelo deployment:
