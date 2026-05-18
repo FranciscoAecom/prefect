@@ -1,7 +1,6 @@
 import logging
 
 from prefect.schedules import Cron
-
 from core.prefect_flow import data_pipeline_flow
 
 
