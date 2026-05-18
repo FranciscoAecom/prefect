@@ -211,6 +211,14 @@ Esse comando cria o deployment `UR CAR - 27 bases` com execucoes mensais as
 flow, entao a execucao do dia 1 roda apenas `ur_car_ac`, a do dia 2 roda
 apenas `ur_car_al`, e assim por diante ate `ur_car_to` no dia 27.
 
+Se os flows ou deployments forem deletados no painel do Prefect, o dashboard
+ficara vazio. Para recriar o deployment e os agendamentos, deixe o servidor
+Prefect aberto e rode novamente:
+
+```powershell
+uv run python serve_ur_car_schedules.py
+```
+
 Os runs agendados sao renomeados automaticamente para o nome da base, por
 exemplo `ur_car_pi`. O nome mostrado na lista de runs pode aparecer primeiro
 como um nome aleatorio do Prefect; depois o script de renomeacao troca para o
