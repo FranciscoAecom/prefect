@@ -2,7 +2,6 @@ import logging
 import threading
 
 from prefect.schedules import Cron
-
 from core.prefect_flow import data_pipeline_flow
 from core.prefect_support.admin import scheduled_run_renamer_loop
 

@@ -206,7 +206,7 @@ Para servir os agendamentos mensais das 27 bases `ur_car`, uma por dia do mes:
 uv run python serve_ur_car_schedule.py
 ```
 
-Esse comando cria o deployment `CAR - Uso Restrito` com execucoes mensais as
+Esse comando cria o deployment `UR CAR - 27 bases` com execucoes mensais as
 02:00, no fuso `America/Sao_Paulo`. Cada agenda passa `theme_folders` para o
 flow, entao a execucao do dia 1 roda apenas `ur_car_ac`, a do dia 2 roda
 apenas `ur_car_al`, e assim por diante ate `ur_car_to` no dia 27.
@@ -216,7 +216,7 @@ ficara vazio. Para recriar o deployment e os agendamentos, deixe o servidor
 Prefect aberto e rode novamente:
 
 ```powershell
-uv run python serve_ur_car_schedule.py
+uv run python serve_ur_car_schedules.py
 ```
 
 Os runs agendados sao renomeados automaticamente para o nome da base, por
@@ -253,14 +253,14 @@ horario pode ser alterado pelo painel.
 Para executar uma base especifica pelo deployment:
 
 ```powershell
-'{"theme_folders":["ur_car_pi"]}' | uv run prefect deployment run "Data Pipeline/CAR - Uso Restrito" --params -
+'{"theme_folders":["ur_car_pi"]}' | uv run prefect deployment run "Data Pipeline/UR CAR - 27 bases" --params -
 ```
 
 Para executar todas as 27 bases `ur_car` de uma vez, informe todos os perfis
 em `theme_folders`:
 
 ```powershell
-'{"theme_folders":["ur_car_ac","ur_car_al","ur_car_am","ur_car_ap","ur_car_ba","ur_car_ce","ur_car_df","ur_car_es","ur_car_go","ur_car_ma","ur_car_mg","ur_car_ms","ur_car_mt","ur_car_pa","ur_car_pb","ur_car_pe","ur_car_pi","ur_car_pr","ur_car_rj","ur_car_rn","ur_car_ro","ur_car_rr","ur_car_rs","ur_car_sc","ur_car_se","ur_car_sp","ur_car_to"]}' | uv run prefect deployment run "Data Pipeline/CAR - Uso Restrito" --params -
+'{"theme_folders":["ur_car_ac","ur_car_al","ur_car_am","ur_car_ap","ur_car_ba","ur_car_ce","ur_car_df","ur_car_es","ur_car_go","ur_car_ma","ur_car_mg","ur_car_ms","ur_car_mt","ur_car_pa","ur_car_pb","ur_car_pe","ur_car_pi","ur_car_pr","ur_car_rj","ur_car_rn","ur_car_ro","ur_car_rr","ur_car_rs","ur_car_sc","ur_car_se","ur_car_sp","ur_car_to"]}' | uv run prefect deployment run "Data Pipeline/UR CAR - 27 bases" --params -
 ```
 
 Para listar flow runs:
@@ -280,7 +280,7 @@ uv run prefect deployment ls
 No painel:
 
 1. Va em `Deployments`.
-2. Abra `CAR - Uso Restrito`.
+2. Abra `UR CAR - 27 bases`.
 3. Entre em `Configuration`.
 4. Edite o cron da agenda desejada.
 5. Salve.
