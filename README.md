@@ -293,6 +293,7 @@ Fluxo padrao:
 Data Download
   -> resolve o dataset no catalogo
   -> chama o conector de download
+  -> salva/cacheia o ZIP em input/downloads/_archives/<dataset_key>/<theme_folder>
   -> extrai o arquivo em input/downloads/<theme_folder>
   -> emite dataset.downloaded
   -> chama Data Pipeline apenas para a base baixada
