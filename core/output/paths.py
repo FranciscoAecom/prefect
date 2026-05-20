@@ -36,3 +36,7 @@ def resolve_output_path(record, output_dir, use_configured_final_name):
 
     output_path = os.path.join(theme_output_dir, f"{base_name}.gpkg")
     return theme_output_dir, base_name, output_path
+
+
+def build_secondary_output_path(theme_output_dir, base_name, suffix):
+    return os.path.join(theme_output_dir, f"{base_name}_{suffix}.gpkg")
