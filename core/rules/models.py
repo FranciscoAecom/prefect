@@ -81,6 +81,8 @@ class RuleProfileModel:
     fields: dict[str, DomainFieldModel] = field(default_factory=dict)
     relations: dict[str, dict[str, str]] = field(default_factory=dict)
     auto_functions: dict[str, list[str]] = field(default_factory=dict)
+    postprocess_functions: list[str] = field(default_factory=list)
+    secondary_outputs: list[str] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, profile):
@@ -88,7 +90,15 @@ class RuleProfileModel:
         metadata = {
             key: value
             for key, value in profile.items()
-            if key not in {"input_schema", "fields", "relations", "auto_functions"}
+            if key
+            not in {
+                "input_schema",
+                "fields",
+                "relations",
+                "auto_functions",
+                "postprocess_functions",
+                "secondary_outputs",
+            }
         }
         return cls(
             metadata=metadata,
@@ -105,6 +115,8 @@ class RuleProfileModel:
                 column: list(functions)
                 for column, functions in (profile.get("auto_functions", {}) or {}).items()
             },
+            postprocess_functions=list(profile.get("postprocess_functions", []) or []),
+            secondary_outputs=list(profile.get("secondary_outputs", []) or []),
         )
 
     @classmethod
@@ -115,6 +127,8 @@ class RuleProfileModel:
         data["fields"] = (domains or {}).get("fields", domains or {})
         data["relations"] = (relations or {}).get("relations", relations or {})
         data["auto_functions"] = (pipeline or {}).get("auto_functions", pipeline or {})
+        data["postprocess_functions"] = (pipeline or {}).get("postprocess_functions", [])
+        data["secondary_outputs"] = (pipeline or {}).get("secondary_outputs", [])
         return cls.from_dict(data)
 
     def to_dict(self, include_empty_input_schema=True):
@@ -134,6 +148,8 @@ class RuleProfileModel:
             column: list(functions)
             for column, functions in self.auto_functions.items()
         }
+        data["postprocess_functions"] = list(self.postprocess_functions)
+        data["secondary_outputs"] = list(self.secondary_outputs)
         return data
 
     def to_components(self):
@@ -156,6 +172,8 @@ class RuleProfileModel:
                 "auto_functions": {
                     column: list(functions)
                     for column, functions in self.auto_functions.items()
-                }
+                },
+                "postprocess_functions": list(self.postprocess_functions),
+                "secondary_outputs": list(self.secondary_outputs),
             },
         )

@@ -1,4 +1,10 @@
 {
+  "postprocess_functions": [
+    "enrich_with_municipality_intersection"
+  ],
+  "secondary_outputs": [
+    "brazil_bbox"
+  ],
   "auto_functions": {
     "sdb_des_status": [
       "validate_shapefile_attribute"

@@ -12,5 +12,11 @@ PROFILE_COMPONENT_FILES = {
     PIPELINE_COMPONENT,
 }
 
-PROFILE_DATA_KEYS = {"input_schema", "fields", "relations", "auto_functions"}
-
+PROFILE_DATA_KEYS = {
+    "input_schema",
+    "fields",
+    "relations",
+    "auto_functions",
+    "postprocess_functions",
+    "secondary_outputs",
+}

@@ -1,4 +1,7 @@
 {
+  "postprocess_functions": [
+    "enforce_car_state_bounds"
+  ],
   "auto_functions": {
     "sdb_cod_tema": [
       "validate_shapefile_attribute"

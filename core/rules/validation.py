@@ -80,9 +80,29 @@ def validate_relations_component(relations, fields):
 
 def validate_pipeline_component(pipeline, fields):
     errors = []
-    auto_functions = pipeline.get("auto_functions", pipeline)
+    if _pipeline_uses_component_keys(pipeline):
+        auto_functions = pipeline.get("auto_functions", {})
+    else:
+        auto_functions = pipeline
     _validate_auto_functions_entry(auto_functions, fields, errors)
+    _validate_string_list_entry(
+        pipeline.get("postprocess_functions", []),
+        "postprocess_functions",
+        errors,
+    )
+    _validate_string_list_entry(
+        pipeline.get("secondary_outputs", []),
+        "secondary_outputs",
+        errors,
+    )
     _validate_component_errors("pipeline.json", errors)
+
+
+def _pipeline_uses_component_keys(pipeline):
+    return any(
+        key in pipeline
+        for key in ("auto_functions", "postprocess_functions", "secondary_outputs")
+    )
 
 
 def validate_modular_components(
@@ -117,6 +137,16 @@ def validate_rule_profile_structure(profile, profile_name):
     _validate_input_schema_entry(profile.get("input_schema", {}), errors)
     _validate_relations_shape(profile.get("relations", {}), errors)
     _validate_auto_functions_shape(profile.get("auto_functions", {}), errors)
+    _validate_string_list_entry(
+        profile.get("postprocess_functions", []),
+        "postprocess_functions",
+        errors,
+    )
+    _validate_string_list_entry(
+        profile.get("secondary_outputs", []),
+        "secondary_outputs",
+        errors,
+    )
     _raise_profile_errors(normalized_profile_name, errors)
 
 
@@ -130,6 +160,18 @@ def validate_rule_profile_semantics(profile, profile_name, optional_functions=No
         fields,
         errors,
         optional_functions=optional_functions,
+    )
+    _validate_registered_function_list(
+        profile.get("postprocess_functions", []),
+        "postprocess_functions",
+        _get_registered_postprocess_function_names(),
+        errors,
+    )
+    _validate_registered_function_list(
+        profile.get("secondary_outputs", []),
+        "secondary_outputs",
+        _get_registered_secondary_output_names(),
+        errors,
     )
     _raise_profile_errors(normalized_profile_name, errors)
 
@@ -271,6 +313,42 @@ def _validate_auto_functions_shape(auto_functions, errors):
                 errors.append(
                     f"'auto_functions.{column}' deve conter apenas nomes de funcao string."
                 )
+
+
+def _validate_string_list_entry(values, field_name, errors):
+    if values is None:
+        return
+    if not isinstance(values, list):
+        errors.append(f"Campo '{field_name}' deve ser uma lista.")
+        return
+    for value in values:
+        if not isinstance(value, str) or not value.strip():
+            errors.append(f"Campo '{field_name}' deve conter apenas strings nao vazias.")
+            break
+
+
+def _validate_registered_function_list(values, field_name, registered_names, errors):
+    if values is None:
+        return
+    if not isinstance(values, list):
+        return
+    for value in values:
+        if not isinstance(value, str) or not value.strip():
+            continue
+        if value not in registered_names and _resolve_qualified_function(value) is None:
+            errors.append(f"Funcao '{value}' em '{field_name}' nao esta registrada.")
+
+
+def _get_registered_postprocess_function_names():
+    from core.processing.postprocess_functions import get_registered_postprocess_function_names
+
+    return get_registered_postprocess_function_names()
+
+
+def _get_registered_secondary_output_names():
+    from core.output.secondary_outputs import get_registered_secondary_output_names
+
+    return get_registered_secondary_output_names()
 
 
 def _validate_relations_entry(relations, fields, errors):

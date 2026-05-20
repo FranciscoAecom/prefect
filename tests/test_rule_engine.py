@@ -173,6 +173,10 @@ class ValidateRuleProfileTests(unittest.TestCase):
                     "aliases": {},
                 }
                 profile["relations"]["codigo_to_nome"] = {"A": "Alpha"}
+                profile["postprocess_functions"] = [
+                    "enrich_with_municipality_intersection"
+                ]
+                profile["secondary_outputs"] = ["brazil_bbox"]
 
                 saved_path = save_rule_profile("demo/perfil", profile)
 
@@ -180,11 +184,17 @@ class ValidateRuleProfileTests(unittest.TestCase):
                 self.assertFalse((rules_base / "demo" / "perfil.json").exists())
                 domains = json.loads((profile_dir / "domains.json").read_text(encoding="utf-8"))
                 relations = json.loads((profile_dir / "relations.json").read_text(encoding="utf-8"))
+                pipeline = json.loads((profile_dir / "pipeline.json").read_text(encoding="utf-8"))
                 self.assertIn("B", domains["fields"]["sdb_codigo"]["accepted_values"])
                 self.assertEqual(
                     relations["relations"]["codigo_to_nome"],
                     {"A": "Alpha"},
                 )
+                self.assertEqual(
+                    pipeline["postprocess_functions"],
+                    ["enrich_with_municipality_intersection"],
+                )
+                self.assertEqual(pipeline["secondary_outputs"], ["brazil_bbox"])
 
     def _write_modular_profile(
         self,

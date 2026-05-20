@@ -13,5 +13,6 @@ def persist_outputs_step(
         context.output_dir,
         use_configured_final_name=use_configured_final_name,
         persist_dataset=persist_dataset,
+        rule_profile=context.rule_profile or {},
     )
     return replace_context(context, output_path=output_path)
