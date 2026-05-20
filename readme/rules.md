@@ -107,10 +107,16 @@ O nome da relacao segue o padrao `<origem>_to_<destino>`. O pipeline resolve ess
 
 ## pipeline.json
 
-Define funcoes opcionais aplicadas em cada coluna.
+Define funcoes configuraveis do perfil.
 
 ```json
 {
+  "postprocess_functions": [
+    "enforce_car_state_bounds"
+  ],
+  "secondary_outputs": [
+    "brazil_bbox"
+  ],
   "auto_functions": {
     "sdb_cod_tema": [
       "validate_shapefile_attribute"
@@ -119,7 +125,22 @@ Define funcoes opcionais aplicadas em cada coluna.
 }
 ```
 
-Funcoes podem ser nomes curtos registrados em `projects/registry.py` ou nomes qualificados como `pacote.modulo.funcao`.
+- `auto_functions`: funcoes por atributo. Cada chave e uma coluna e cada valor e a lista de funcoes que roda nessa coluna.
+- `postprocess_functions`: funcoes que rodam depois do processamento principal e alteram o GeoDataFrame final.
+- `secondary_outputs`: saidas extras geradas a partir do resultado final, sem substituir o arquivo principal.
+
+Funcoes de atributo podem ser nomes curtos registrados em `projects/registry.py` ou nomes qualificados como `pacote.modulo.funcao`.
+
+Funcoes de pos-processamento disponiveis no core:
+
+- `enforce_car_state_bounds`: valida/recorta geometrias CAR pelo bbox regional da UF inferida.
+- `enrich_with_municipality_intersection`: intersecta os pontos com a base de municipios e cria `acm_cod_munici`, `acm_municipio` e `acm_uf`.
+
+Saidas secundarias disponiveis no core:
+
+- `brazil_bbox`: cria um GeoPackage extra com sufixo `_bbox_brasil`, contendo apenas feicoes dentro do bbox do Brasil.
+
+Remova `postprocess_functions` ou `secondary_outputs` quando a base nao deve usar essas etapas.
 
 ## Validacao
 
@@ -133,7 +154,9 @@ O carregador valida cada componente separadamente e depois consolida tudo em mem
   "input_schema": {},
   "fields": {},
   "relations": {},
-  "auto_functions": {}
+  "auto_functions": {},
+  "postprocess_functions": [],
+  "secondary_outputs": []
 }
 ```
 

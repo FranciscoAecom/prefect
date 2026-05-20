@@ -21,7 +21,7 @@ def save_outputs(
     )
     export_gdf = drop_internal_output_columns(final_gdf)
     persisted_output_path = persist_output_dataset(export_gdf, output_path, persist_dataset)
-    persist_project_secondary_outputs(
+    persist_configured_secondary_outputs(
         export_gdf,
         theme_output_dir,
         base_name,
@@ -52,7 +52,7 @@ def persist_output_dataset(export_gdf, output_path, persist_dataset):
     return None
 
 
-def persist_project_secondary_outputs(
+def persist_configured_secondary_outputs(
     export_gdf,
     theme_output_dir,
     base_name,

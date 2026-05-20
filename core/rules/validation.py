@@ -340,13 +340,13 @@ def _validate_registered_function_list(values, field_name, registered_names, err
 
 
 def _get_registered_postprocess_function_names():
-    from core.processing.postprocess_functions import get_registered_postprocess_function_names
+    from core.configured_steps import get_registered_postprocess_function_names
 
     return get_registered_postprocess_function_names()
 
 
 def _get_registered_secondary_output_names():
-    from core.output.secondary_outputs import get_registered_secondary_output_names
+    from core.configured_steps import get_registered_secondary_output_names
 
     return get_registered_secondary_output_names()
 
@@ -440,16 +440,9 @@ def _validate_auto_functions_entry(auto_functions, fields, errors, optional_func
 
 
 def _resolve_qualified_function(func_name):
-    if "." not in str(func_name):
-        return None
-    try:
-        from importlib import import_module
+    from core.configured_steps import resolve_qualified_function
 
-        module_name, function_name = str(func_name).rsplit(".", 1)
-        module = import_module(module_name)
-    except ModuleNotFoundError:
-        return None
-    return getattr(module, function_name, None)
+    return resolve_qualified_function(func_name)
 
 
 def validate_rule_profile(profile, profile_name, optional_functions=None):

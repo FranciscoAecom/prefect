@@ -15,7 +15,36 @@ from settings import INGEST_WORKBOOK_PATH, INGEST_SHEET_NAME
 MUNICIPALITIES_BASE_VARIABLE = "municipios_base_path"
 MUNICIPALITY_CODE_COLUMNS = ("sdb_cd_mun", "cd_mun")
 MUNICIPALITY_NAME_COLUMNS = ("sdb_nm_mun", "nm_mun")
-MUNICIPALITY_UF_COLUMNS = ("sdb_sigla_uf", "sigla_uf")
+MUNICIPALITY_UF_COLUMNS = ("sdb_sigla_uf", "sigla_uf", "sdb_cd_uf", "cd_uf")
+UF_CODE_TO_SIGLA = {
+    "11": "RO",
+    "12": "AC",
+    "13": "AM",
+    "14": "RR",
+    "15": "PA",
+    "16": "AP",
+    "17": "TO",
+    "21": "MA",
+    "22": "PI",
+    "23": "CE",
+    "24": "RN",
+    "25": "PB",
+    "26": "PE",
+    "27": "AL",
+    "28": "SE",
+    "29": "BA",
+    "31": "MG",
+    "32": "ES",
+    "33": "RJ",
+    "35": "SP",
+    "41": "PR",
+    "42": "SC",
+    "43": "RS",
+    "50": "MS",
+    "51": "MT",
+    "52": "GO",
+    "53": "DF",
+}
 
 
 def enrich_with_municipality_intersection(gdf, municipalities_path=None):
@@ -129,7 +158,7 @@ def assign_municipality_fields_by_intersection(gdf, municipalities):
     enriched = gdf.copy()
     enriched["acm_cod_munici"] = joined["__mun_cod"].reindex(enriched.index)
     enriched["acm_municipio"] = joined["__mun_nome"].reindex(enriched.index)
-    enriched["acm_uf"] = joined["__mun_uf"].reindex(enriched.index)
+    enriched["acm_uf"] = normalize_uf_values(joined["__mun_uf"]).reindex(enriched.index)
 
     matched = int(enriched["acm_cod_munici"].notna().sum())
     log(
@@ -146,11 +175,19 @@ def first_existing_column(dataframe, candidates):
     return None
 
 
+def normalize_uf_values(values):
+    series = values.astype("string").str.strip()
+    code_series = series.str.replace(r"\.0$", "", regex=True).str.zfill(2)
+    mapped = code_series.map(UF_CODE_TO_SIGLA)
+    return mapped.fillna(series.str.upper())
+
+
 __all__ = [
     "MUNICIPALITIES_BASE_VARIABLE",
     "assign_municipality_fields_by_intersection",
     "enrich_with_municipality_intersection",
     "find_latest_municipalities_path_from_ingest",
     "load_municipalities_base",
+    "normalize_uf_values",
     "resolve_municipalities_base_path",
 ]

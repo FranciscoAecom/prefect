@@ -1,1 +1,66 @@
 17:10:02.292 | WARNING | core.prefect_support.admin - Erro ao renomear flow runs agendados: None
+17:30:04.723 | INFO    | Flow run 'ur_car_ac' - Beginning flow run 'ur_car_ac' for flow 'Data Pipeline'
+17:30:04.742 | INFO    | Flow run 'ur_car_ac' - View at http://127.0.0.1:4200/runs/flow-run/019e4702-83c3-7edb-b861-9ecd5bfcc1e3
+17:30:05.370 | INFO    | Task run 'Preparar fila de processamento-586' - [2026-05-20 17:30:05] Resumo da planilha ingest:
+17:30:05.377 | INFO    | Task run 'Preparar fila de processamento-586' - [2026-05-20 17:30:05]   Aba analisada: datas
+17:30:05.384 | INFO    | Task run 'Preparar fila de processamento-586' - [2026-05-20 17:30:05]   Caminho da planilha: C:\Temp\Repositórios\prefect\input\st_Ingest_parameter.xlsx
+17:30:05.385 | INFO    | Task run 'Preparar fila de processamento-586' - [2026-05-20 17:30:05]   Registros lidos: 619
+17:30:05.386 | INFO    | Task run 'Preparar fila de processamento-586' - [2026-05-20 17:30:05]   Status elegivel: Waiting Update
+17:30:05.387 | INFO    | Task run 'Preparar fila de processamento-586' - [2026-05-20 17:30:05]   Registros com status elegivel: 1
+17:30:05.388 | INFO    | Task run 'Preparar fila de processamento-586' - [2026-05-20 17:30:05]   Arquivos aptos para processamento: 1
+17:30:05.389 | INFO    | Task run 'Preparar fila de processamento-586' - [2026-05-20 17:30:05]   Registros ignorados com excecao: 0
+17:30:05.391 | INFO    | Task run 'Preparar fila de processamento-586' - Finished in state Completed()
+17:30:05.396 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:05]
+17:30:05.398 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:05] Processando linha 593 da ingest | ID=650 | theme_folder=ur_car_ac
+17:30:05.400 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:05] Theme informado na ingest: Uso Restrito - Imóveis Acre
+17:30:05.402 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:05] Caminho de origem informado: C:\Temp\Repositórios\prefect\input\downloads\ur_car_ac
+17:30:05.404 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:05] Arquivo de entrada resolvido: C:\Temp\Repositórios\prefect\input\downloads\ur_car_ac\USO_RESTRITO_1.shp
+17:30:05.405 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:05] Perfil de regras associado: ur_car/ur_car_ac
+17:30:05.409 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:05] Projeto resolvido: ur_car
+17:30:05.411 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:05] Iniciando leitura do arquivo de entrada: C:\Temp\Repositórios\prefect\input\downloads\ur_car_ac\USO_RESTRITO_1.shp
+17:30:05.448 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:05] Leitura do arquivo concluida em 0.03s: C:\Temp\Repositórios\prefect\input\downloads\ur_car_ac\USO_RESTRITO_1.shp
+17:30:05.451 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:05] Aliases legados aplicados: sdb_des_condic->sdb_desc_condic
+17:30:06.008 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Divergencias estruturais encontradas para theme 'Uso Restrito - Imóveis Acre'.
+17:30:06.013 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06]   Campos ausentes no arquivo: sdb_des_condic
+17:30:06.015 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06]   Campos excedentes no arquivo: sdb_desc_condic
+17:30:06.018 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Carga e preparo da base de entrada concluido em 0.61s
+17:30:06.022 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Carregamento do perfil de regras concluido em 0.00s
+17:30:06.024 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Validacao de schema tabular OK para ur_car_ac.
+17:30:06.026 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Validacao de schema tabular concluido em 0.00s
+17:30:06.029 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Atributos encontrados: 7
+17:30:06.032 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06]   - sdb_cod_tema (str)
+17:30:06.034 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06]   - sdb_nom_tema (str)
+17:30:06.036 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06]   - sdb_cod_imovel (str)
+17:30:06.038 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06]   - sdb_num_area (float64)
+17:30:06.040 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06]   - sdb_ind_status (str)
+17:30:06.042 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06]   - sdb_desc_condic (str)
+17:30:06.045 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06]   - geometry (geometry)
+17:30:06.047 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Auto_functions carregadas para 4 atributo(s).
+17:30:06.053 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Preparacao do mapeamento de validacao concluido em 0.01s
+17:30:06.055 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Iniciando processamento em batches (39 registros)
+17:30:06.057 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Processando registros 0 ate 39
+17:30:06.447 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Unindo batches...
+17:30:06.450 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Total processado: 39 registros
+17:30:06.453 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Resumo final do processamento:
+17:30:06.456 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Funcoes obrigatorias executadas: clean_whitespace, reproject_shapefile, force_geometry_2d, add_sequential_id, calculate_area_hectares, calculate_perimeter_km, add_centroid_coordinates
+17:30:06.458 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Funcoes opcionais executadas: validate_shapefile_attribute, ur_car_transform_desc_condic
+17:30:06.460 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Reprojetado para WGS84
+17:30:06.463 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Resultado final: 39 registros processados
+17:30:06.466 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Processamento principal em batches concluido em 0.41s
+17:30:06.470 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Atribuicao de identificadores finais concluido em 0.00s
+17:30:06.473 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Reparo de geometrias invalidas concluido em 0.00s
+17:30:06.477 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Complemento de metricas espaciais concluido em 0.00s
+17:30:06.481 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Ajuste automatico do perfil de regras concluido em 0.00s
+17:30:06.485 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Salvando resultado em C:\Temp\Repositórios\prefect\output\ur_car_ac\pol_pcd_ur_car_ac_20260514.gpkg
+17:30:06.559 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Escrita do arquivo concluida em 0.07s: C:\Temp\Repositórios\prefect\output\ur_car_ac\pol_pcd_ur_car_ac_20260514.gpkg
+17:30:06.562 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Arquivo salvo com sucesso
+17:30:06.569 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Relatorio duplicados atributos: nao gerado
+17:30:06.572 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Relatorio duplicados geometricos: nao gerado
+17:30:06.574 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Relatorio geometrias invalidas OGC: nao gerado
+17:30:06.576 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Total duplicados atributos: 0
+17:30:06.579 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Total duplicados geometricos: 0
+17:30:06.581 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Total geometrias invalidas OGC: 0
+17:30:06.584 | INFO    | Task run 'ur_car_ac' - [2026-05-20 17:30:06] Persistencia de saidas concluido em 0.10s
+17:30:06.589 | INFO    | Task run 'ur_car_ac' - Finished in state Completed()
+17:30:06.591 | INFO    | Flow run 'ur_car_ac' - [2026-05-20 17:30:06] Processamento finalizado
+17:30:07.020 | INFO    | Flow run 'ur_car_ac' - Finished in state Completed()

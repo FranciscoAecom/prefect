@@ -419,6 +419,12 @@ Associacoes principais:
 Use `rules/_template/` como base para novos perfis. O formato completo esta em
 `readme/rules.md`.
 
+No `pipeline.json`, o perfil explicita tudo que roda de forma configuravel:
+
+- `auto_functions`: validacoes ou transformacoes por atributo.
+- `postprocess_functions`: etapas que alteram o GeoDataFrame final, como `enforce_car_state_bounds` ou `enrich_with_municipality_intersection`.
+- `secondary_outputs`: arquivos extras, como `brazil_bbox`.
+
 ## Convencoes de Colunas
 
 - Colunas originais sao preservadas como `sdb_*`.
