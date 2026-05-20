@@ -133,13 +133,14 @@
         "Atividade",
         "Desmatamento",
         "Desmatamento e Queimada",
-        "Não se aplica",
         "Não se Aplica",
         "Outro(s)",
         "Outros",
         "Queimada"
       ],
-      "aliases": {}
+      "aliases": {
+        "Não se aplica": "Não se Aplica"
+      }
     },
     "sdb_tipo_acao": {
       "accepted_values": [

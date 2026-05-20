@@ -1,0 +1,8 @@
+Your flow 'Data Pipeline' is being served and polling for scheduled runs!
+
+To trigger a run for this flow, use the following command:
+
+        $ prefect deployment run 'Data Pipeline/CAR - Uso Restrito'
+
+You can also run your flow via the Prefect UI: http://127.0.0.1:4200/deployments/deployment/166ba44a-4d23-4604-b18c-e8a59b2b25a2
+

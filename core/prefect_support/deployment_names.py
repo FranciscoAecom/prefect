@@ -1,6 +1,6 @@
 DATA_DOWNLOAD_DEPLOYMENT_NAME = "Download de Dados"
 CAR_DOWNLOAD_DEPLOYMENT_NAME = DATA_DOWNLOAD_DEPLOYMENT_NAME
-UR_CAR_PROCESSING_DEPLOYMENT_NAME = "CAR - Uso Restrito - Tratamento"
+UR_CAR_PROCESSING_DEPLOYMENT_NAME = "CAR - Uso Restrito"
 
 DATA_PIPELINE_FLOW_NAME = "Data Pipeline"
 
@@ -8,7 +8,7 @@ CAR_DOWNLOAD_OLD_DEPLOYMENT_NAMES = (
     "CAR - Download",
     "CAR - Uso Restrito - Download",
 )
-UR_CAR_PROCESSING_OLD_DEPLOYMENT_NAMES = ("CAR - Uso Restrito",)
+UR_CAR_PROCESSING_OLD_DEPLOYMENT_NAMES = ("CAR - Uso Restrito - Tratamento",)
 
 
 def qualified_deployment_name(flow_name, deployment_name):

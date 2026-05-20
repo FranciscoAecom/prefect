@@ -207,7 +207,7 @@ Para servir os agendamentos diarios das 27 bases `ur_car`, uma por dia as
 uv run python scripts/serve.py ur-car-processing
 ```
 
-Esse comando cria o deployment `CAR - Uso Restrito - Tratamento`. Cada agenda
+Esse comando cria o deployment `CAR - Uso Restrito`. Cada agenda
 passa `theme_folders` para o flow, entao a primeira execucao roda apenas
 `ur_car_ac`, a segunda roda apenas `ur_car_al`, e assim por diante ate
 `ur_car_to`.
@@ -334,14 +334,14 @@ horario pode ser alterado pelo painel.
 Para executar uma base especifica pelo deployment:
 
 ```powershell
-'{"theme_folders":["ur_car_pi"]}' | uv run prefect deployment run "Data Pipeline/CAR - Uso Restrito - Tratamento" --params -
+'{"theme_folders":["ur_car_pi"]}' | uv run prefect deployment run "Data Pipeline/CAR - Uso Restrito" --params -
 ```
 
 Para executar todas as 27 bases `ur_car` de uma vez, informe todos os perfis
 em `theme_folders`:
 
 ```powershell
-'{"theme_folders":["ur_car_ac","ur_car_al","ur_car_am","ur_car_ap","ur_car_ba","ur_car_ce","ur_car_df","ur_car_es","ur_car_go","ur_car_ma","ur_car_mg","ur_car_ms","ur_car_mt","ur_car_pa","ur_car_pb","ur_car_pe","ur_car_pi","ur_car_pr","ur_car_rj","ur_car_rn","ur_car_ro","ur_car_rr","ur_car_rs","ur_car_sc","ur_car_se","ur_car_sp","ur_car_to"]}' | uv run prefect deployment run "Data Pipeline/CAR - Uso Restrito - Tratamento" --params -
+'{"theme_folders":["ur_car_ac","ur_car_al","ur_car_am","ur_car_ap","ur_car_ba","ur_car_ce","ur_car_df","ur_car_es","ur_car_go","ur_car_ma","ur_car_mg","ur_car_ms","ur_car_mt","ur_car_pa","ur_car_pb","ur_car_pe","ur_car_pi","ur_car_pr","ur_car_rj","ur_car_rn","ur_car_ro","ur_car_rr","ur_car_rs","ur_car_sc","ur_car_se","ur_car_sp","ur_car_to"]}' | uv run prefect deployment run "Data Pipeline/CAR - Uso Restrito" --params -
 ```
 
 Para listar flow runs:
