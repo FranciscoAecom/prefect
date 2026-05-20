@@ -106,7 +106,7 @@
       "nullable": true
     },
     "sdb_dat_hora_a": {
-      "dtype": "string",
+      "dtype": "date",
       "required": true,
       "nullable": true
     },
@@ -116,22 +116,22 @@
       "nullable": true
     },
     "sdb_dat_cienci": {
-      "dtype": "string",
+      "dtype": "date",
       "required": true,
       "nullable": true
     },
     "sdb_dt_fato_in": {
-      "dtype": "string",
+      "dtype": "date",
       "required": true,
       "nullable": true
     },
     "sdb_dt_inicio_": {
-      "dtype": "string",
+      "dtype": "date",
       "required": true,
       "nullable": true
     },
     "sdb_dt_fim_ato": {
-      "dtype": "string",
+      "dtype": "date",
       "required": true,
       "nullable": true
     },
@@ -301,12 +301,12 @@
       "nullable": true
     },
     "sdb_dt_lancame": {
-      "dtype": "string",
+      "dtype": "date",
       "required": true,
       "nullable": true
     },
     "sdb_dt_ult_alt": {
-      "dtype": "string",
+      "dtype": "date",
       "required": true,
       "nullable": true
     },
@@ -321,7 +321,7 @@
       "nullable": true
     },
     "sdb_dt_ult_al0": {
-      "dtype": "string",
+      "dtype": "date",
       "required": true,
       "nullable": true
     },
@@ -331,7 +331,7 @@
       "nullable": true
     },
     "sdb_dt_atualiz": {
-      "dtype": "string",
+      "dtype": "date",
       "required": true,
       "nullable": true
     }

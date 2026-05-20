@@ -33,6 +33,21 @@
     "sdb_forma_entr": [
       "validate_shapefile_attribute"
     ],
+    "sdb_dat_hora_a": [
+      "validate_date_fields"
+    ],
+    "sdb_dat_cienci": [
+      "validate_date_fields"
+    ],
+    "sdb_dt_fato_in": [
+      "validate_date_fields"
+    ],
+    "sdb_dt_inicio_": [
+      "validate_date_fields"
+    ],
+    "sdb_dt_fim_ato": [
+      "validate_date_fields"
+    ],
     "sdb_tipo_infra": [
       "validate_shapefile_attribute"
     ],
@@ -48,8 +63,20 @@
     "sdb_tp_ult_alt": [
       "validate_shapefile_attribute"
     ],
+    "sdb_dt_lancame": [
+      "validate_date_fields"
+    ],
+    "sdb_dt_ult_alt": [
+      "validate_date_fields"
+    ],
+    "sdb_dt_ult_al0": [
+      "validate_date_fields"
+    ],
     "sdb_tp_origem_": [
       "validate_shapefile_attribute"
+    ],
+    "sdb_dt_atualiz": [
+      "validate_date_fields"
     ]
   }
 }
