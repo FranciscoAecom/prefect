@@ -35,7 +35,7 @@ def log_dictionary_validation(record, input_attributes):
     if not result["missing_attributes"] and not result["extra_attributes"]:
         log(
             f"Validacao dictionaries OK para theme '{result['dictionary_theme']}'. "
-            "Estrutura do arquivo compativel com original_attribute_name."
+            "Estrutura do arquivo compativel com aecom_attribute_name."
         )
         return
 
@@ -50,11 +50,9 @@ def log_dictionary_validation(record, input_attributes):
 
 def load_and_prepare_input(record):
     gdf = read_input_dataset(record.input_path)
-    input_attributes = list(gdf.columns)
-    log_dictionary_validation(record, input_attributes)
-
     gdf = normalize_columns(gdf)
     gdf = apply_legacy_column_aliases(gdf)
+    log_dictionary_validation(record, list(gdf.columns))
     gdf = clean_whitespace(gdf)
     return gdf
 

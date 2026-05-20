@@ -12,23 +12,25 @@ _DICTIONARY_THEME_CACHE = None
 
 
 def load_dictionary_theme_map(
-    workbook_path=INGEST_WORKBOOK_PATH,
-    sheet_name=DICTIONARIES_SHEET_NAME,
+    workbook_path=None,
+    sheet_name=None,
 ):
     global _DICTIONARY_THEME_CACHE
     if _DICTIONARY_THEME_CACHE is not None:
         return _DICTIONARY_THEME_CACHE
 
+    workbook_path = workbook_path or INGEST_WORKBOOK_PATH
+    sheet_name = sheet_name or DICTIONARIES_SHEET_NAME
     dataframe = pd.read_excel(workbook_path, sheet_name=sheet_name)
     theme_map = {}
 
     for _, row in dataframe.iterrows():
         raw_theme = stringify(row.get("theme"))
-        raw_attribute = stringify(row.get("original_attribute_name"))
+        raw_attribute = stringify(row.get("aecom_attribute_name"))
         normalized_theme = normalize_lookup_value(raw_theme)
         normalized_attribute = normalize_attribute_name(raw_attribute)
 
-        if not normalized_theme or not normalized_attribute or normalized_attribute == "-":
+        if not normalized_theme or not is_input_dictionary_attribute(normalized_attribute):
             continue
 
         entry = theme_map.setdefault(
@@ -44,6 +46,16 @@ def load_dictionary_theme_map(
 
     _DICTIONARY_THEME_CACHE = theme_map
     return theme_map
+
+
+def is_input_dictionary_attribute(normalized_attribute):
+    if not normalized_attribute or normalized_attribute == "-":
+        return False
+    if normalized_attribute == "fid":
+        return False
+    if normalized_attribute.startswith("acm_"):
+        return False
+    return True
 
 
 def validate_theme_and_attributes(theme_value, input_attributes):
@@ -80,6 +92,7 @@ def validate_theme_and_attributes(theme_value, input_attributes):
 
 
 __all__ = [
+    "is_input_dictionary_attribute",
     "load_dictionary_theme_map",
     "validate_theme_and_attributes",
 ]
