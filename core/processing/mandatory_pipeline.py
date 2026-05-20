@@ -8,12 +8,13 @@ from core.spatial.metrics import (
     calculate_perimeter_km,
 )
 from core.spatial.repair import force_geometry_2d
-from core.transforms.attribute_transforms import add_sequential_id
+from core.transforms.attribute_transforms import add_sequential_id, clean_whitespace
 from core.utils import log
 from settings import DEFAULT_INPUT_CRS
 
 
 MANDATORY_FUNCTIONS = [
+    "clean_whitespace",
     "reproject_shapefile",
     "force_geometry_2d",
     "add_sequential_id",
@@ -52,6 +53,7 @@ def run_pipeline(
     }
 
     gdf = _ensure_geodataframe(gdf)
+    gdf = clean_whitespace(gdf)
     gdf = _ensure_crs(gdf)
 
     gdf, reprojected = reproject_shapefile(gdf)

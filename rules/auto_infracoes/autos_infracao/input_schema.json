@@ -1,0 +1,341 @@
+{
+  "columns": {
+    "sdb_rid": {
+      "dtype": "integer",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_seq_auto_i": {
+      "dtype": "integer",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_des_status": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_ds_sit_aut": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_sit_cancel": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_num_auto_i": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_ser_auto_i": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_origina": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_tipo_auto": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_tipo_multa": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_val_auto_i": {
+      "dtype": "number",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_fundamenta": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_patrimonio": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_gravidade_": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_nivel_g": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_motivacao_": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_efeito_mei": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_efeito_sau": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_passivel_r": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_unid_arrec": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_des_auto_i": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_dat_hora_a": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_forma_entr": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_dat_cienci": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_dt_fato_in": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_dt_inicio_": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_dt_fim_ato": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cod_munici": {
+      "dtype": "integer",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_municipio": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_uf": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_num_proces": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cod_infrac": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_des_infrac": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_tipo_infra": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_des_receit": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_num_pessoa": {
+      "dtype": "integer",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_nome_infra": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cpf_cnpj_i": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_qt_area": {
+      "dtype": "number",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_infracao_a": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_des_outros": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_classifica": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_num_longit": {
+      "dtype": "number",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_num_latitu": {
+      "dtype": "number",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_des_local_": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_unidade_co": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_ds_biomas_": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_seq_notifi": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_seq_acao_f": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_acao_fi": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_unid_contr": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_tipo_acao": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_operacao": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_denuncia_s": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_seq_ordem_": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_ordem_fisc": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_unid_orden": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_seq_solici": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_solicitaca": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_operacao_s": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_dt_lancame": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_dt_ult_alt": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_tp_ult_alt": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_justificat": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_dt_ult_al0": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_tp_origem_": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_dt_atualiz": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    }
+  },
+  "require_geometry": true,
+  "allow_extra_columns": true
+}

@@ -1,0 +1,55 @@
+{
+  "auto_functions": {
+    "sdb_des_status": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_ds_sit_aut": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_sit_cancel": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_tipo_auto": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_patrimonio": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_gravidade_": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_cd_nivel_g": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_motivacao_": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_efeito_mei": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_efeito_sau": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_forma_entr": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_tipo_infra": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_des_receit": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_infracao_a": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_tipo_acao": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_tp_ult_alt": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_tp_origem_": [
+      "validate_shapefile_attribute"
+    ]
+  }
+}

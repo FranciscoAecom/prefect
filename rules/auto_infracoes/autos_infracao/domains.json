@@ -1,0 +1,172 @@
+{
+  "fields": {
+    "sdb_des_status": {
+      "accepted_values": [
+        "Cancelado",
+        "Excluído",
+        "Lavrado",
+        "Substituído por outro"
+      ],
+      "aliases": {}
+    },
+    "sdb_ds_sit_aut": {
+      "accepted_values": [
+        "Excluído",
+        "Impresso"
+      ],
+      "aliases": {}
+    },
+    "sdb_sit_cancel": {
+      "accepted_values": [
+        "N",
+        "S"
+      ],
+      "aliases": {}
+    },
+    "sdb_tipo_auto": {
+      "accepted_values": [
+        "Advertência",
+        "Multa diária",
+        "Multa simples"
+      ],
+      "aliases": {}
+    },
+    "sdb_patrimonio": {
+      "accepted_values": [
+        "Capacidade Aparente",
+        "Patrimônio Comprovado"
+      ],
+      "aliases": {}
+    },
+    "sdb_gravidade_": {
+      "accepted_values": [
+        "Baixa",
+        "Grave",
+        "Média"
+      ],
+      "aliases": {}
+    },
+    "sdb_cd_nivel_g": {
+      "accepted_values": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "aliases": {}
+    },
+    "sdb_motivacao_": {
+      "accepted_values": [
+        "Intencional",
+        "Não intencional"
+      ],
+      "aliases": {}
+    },
+    "sdb_efeito_mei": {
+      "accepted_values": [
+        "Desprezível",
+        "Fraca",
+        "Moderada",
+        "Potencial",
+        "Significativa"
+      ],
+      "aliases": {}
+    },
+    "sdb_efeito_sau": {
+      "accepted_values": [
+        "Desprezível",
+        "Fraca",
+        "Moderada",
+        "Potencial",
+        "Significativa"
+      ],
+      "aliases": {}
+    },
+    "sdb_forma_entr": {
+      "accepted_values": [
+        "Correios",
+        "Edital",
+        "O Autuado se recusou a assinar",
+        "Pessoalmente",
+        "Representante"
+      ],
+      "aliases": {}
+    },
+    "sdb_tipo_infra": {
+      "accepted_values": [
+        "Administração Ambiental",
+        "Cadastro Técnico Federal",
+        "Controle Ambiental",
+        "Fauna",
+        "Flora",
+        "Licenciamento",
+        "Ord. Urbano e Patr. Cultural",
+        "Org. Gen. Modific. e Biopirataria",
+        "Outras",
+        "Pesca",
+        "Qualidade Ambiental",
+        "Unidade de Conservação"
+      ],
+      "aliases": {}
+    },
+    "sdb_des_receit": {
+      "accepted_values": [
+        "Penalidade pecuniária - Administração Ambiental",
+        "Penalidade pecuniária - Cadastro Técnico Federal",
+        "Penalidade pecuniária - Controle ambiental",
+        "Penalidade pecuniária - Ecossistema",
+        "Penalidade pecuniária - Fauna",
+        "Penalidade pecuniária - Flora",
+        "Penalidade pecuniária - Licenciamento",
+        "Penalidade pecuniária - Ordenamento urbano e Contr. patrim.",
+        "Penalidade pecuniária - Org. Gen. Modific. e Biopirataria",
+        "Penalidade pecuniária - Outras",
+        "Penalidade pecuniária - Pesca",
+        "Penalidade pecuniária - Qualidade Ambiental",
+        "Penalidade pecuniária - Unidades de conservação"
+      ],
+      "aliases": {}
+    },
+    "sdb_infracao_a": {
+      "accepted_values": [
+        "Atividade",
+        "Desmatamento",
+        "Desmatamento e Queimada",
+        "Não se aplica",
+        "Não se Aplica",
+        "Outro(s)",
+        "Outros",
+        "Queimada"
+      ],
+      "aliases": {}
+    },
+    "sdb_tipo_acao": {
+      "accepted_values": [
+        "Demanda Jud/MP",
+        "Fortuito",
+        "Linha Verde",
+        "Operação",
+        "Rotina"
+      ],
+      "aliases": {}
+    },
+    "sdb_tp_ult_alt": {
+      "accepted_values": [
+        "Alterado",
+        "Cancelado",
+        "Cancelamento estornado",
+        "Preenchido",
+        "Redistribuido"
+      ],
+      "aliases": {}
+    },
+    "sdb_tp_origem_": {
+      "accepted_values": [
+        "AI-e Aplicativo",
+        "AI-e Cadastro de Formulários"
+      ],
+      "aliases": {}
+    }
+  }
+}

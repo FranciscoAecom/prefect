@@ -1,3 +1,6 @@
+from pandas.api.types import is_object_dtype, is_string_dtype
+
+
 def normalize_columns(gdf):
     new = []
     for c in gdf.columns:
@@ -21,9 +24,15 @@ def is_normalized_columns(gdf):
 
 def clean_whitespace(gdf):
     for c in gdf.columns:
-        if gdf[c].dtype == "object":
-            gdf[c] = gdf[c].str.strip()
+        if is_object_dtype(gdf[c]) or is_string_dtype(gdf[c]):
+            gdf[c] = gdf[c].map(_clean_text_value)
     return gdf
+
+
+def _clean_text_value(value):
+    if not isinstance(value, str):
+        return value
+    return " ".join(value.split())
 
 
 def add_sequential_id(gdf, start=1):
