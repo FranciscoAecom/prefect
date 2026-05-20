@@ -17,7 +17,7 @@ DOWNLOAD_TARGETS = {
     "car_app": DownloadTarget(
         key="car_app",
         display_name="CAR - Area de Preservacao Permanente",
-        connector="car_api",
+        connector="car_public_api",
         theme_folder_prefix="app_car",
         car_theme_code="APPS",
         car_theme_slug="area_preservacao_permanente",
@@ -25,7 +25,7 @@ DOWNLOAD_TARGETS = {
     "car_reserva_legal": DownloadTarget(
         key="car_reserva_legal",
         display_name="CAR - Reserva Legal",
-        connector="car_api",
+        connector="car_public_api",
         theme_folder_prefix="rl_car",
         car_theme_code="RESERVA_LEGAL",
         car_theme_slug="reserva_legal",
@@ -33,7 +33,7 @@ DOWNLOAD_TARGETS = {
     "car_servidao_administrativa": DownloadTarget(
         key="car_servidao_administrativa",
         display_name="CAR - Servidao Administrativa",
-        connector="car_api",
+        connector="car_public_api",
         theme_folder_prefix="sa_car",
         car_theme_code="SERVIDAO_ADMINISTRATIVA",
         car_theme_slug="servidao_administrativa",
@@ -41,7 +41,7 @@ DOWNLOAD_TARGETS = {
     "car_uso_restrito": DownloadTarget(
         key="car_uso_restrito",
         display_name="CAR - Uso Restrito",
-        connector="car_api",
+        connector="car_public_api",
         theme_folder_prefix="ur_car",
         car_theme_code="USO_RESTRITO",
         car_theme_slug="uso_restrito",

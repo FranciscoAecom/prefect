@@ -250,7 +250,8 @@ uv run python scripts/prefect_admin.py set-default-variables
 Variables usadas:
 
 ```text
-api_car_root
+car_public_api_base
+download_archive_base
 download_extract_base
 ur_car_sequence_start_date
 ur_car_sequence_hour
@@ -262,8 +263,8 @@ Esses valores tambem podem ser alterados pelo painel em `Variables`.
 
 ### Download de dados + tratamento
 
-O download passa por um catalogo de datasets. Hoje o conector implementado e o
-CAR via projeto externo `C:\Temp\Repositórios\api-car`; outros projetos, como
+O download passa por um catalogo de datasets. Hoje o conector CAR usa a API
+publica do SICAR diretamente em Python; outros projetos, como
 municipios, estados e terras indigenas, entram como novos itens/conectores sem
 alterar o flow principal.
 
@@ -280,7 +281,7 @@ O flow aceita os principais parametros:
 ```text
 dataset_key: car_uso_restrito | car_reserva_legal | car_servidao_administrativa | car_app
 region: MG, SP, BA, ...
-source_root: caminho opcional para o repo/fonte do conector
+source_root: base opcional da API/fonte do conector
 force: baixa novamente mesmo se o ZIP ja existir
 process_after_download: quando true, dispara o Data Pipeline automaticamente
 emit_download_event: quando true, emite o evento Prefect dataset.downloaded

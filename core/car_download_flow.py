@@ -1,28 +1,27 @@
 from core.downloads.catalog import DOWNLOAD_TARGETS
 from core.downloads.catalog import get_download_target
 from core.downloads.catalog import normalize_region as normalize_uf
-from core.downloads.car_api import expected_car_zip_path
 from core.downloads.flow import data_download_flow
 
 
 CAR_THEME_TO_DATASET_KEY = {
     target.car_theme_code: target.key
     for target in DOWNLOAD_TARGETS.values()
-    if target.connector == "car_api"
+    if target.connector == "car_public_api"
 }
 
 
 CAR_THEMES = {
     target.car_theme_code: target
     for target in DOWNLOAD_TARGETS.values()
-    if target.connector == "car_api"
+    if target.connector == "car_public_api"
 }
 
 
 def car_download_flow(
     theme_code="USO_RESTRITO",
     uf="MG",
-    api_car_root=None,
+    api_base=None,
     output_dir=None,
     extract_base=None,
     output_base=None,
@@ -41,7 +40,7 @@ def car_download_flow(
     return data_download_flow(
         dataset_key=dataset_key,
         region=uf,
-        source_root=api_car_root,
+        source_root=api_base,
         output_dir=output_dir,
         extract_base=extract_base,
         output_base=output_base,
@@ -63,7 +62,10 @@ def resolve_car_theme(theme_code):
 
 
 def expected_download_zip_path(download_dir, theme, state):
-    return expected_car_zip_path(download_dir, theme, state)
+    folder_name = f"{theme.theme_folder_prefix}_{normalize_uf(state).lower()}"
+    from pathlib import Path
+
+    return Path(download_dir) / theme.key / folder_name / f"{folder_name}.zip"
 
 
 __all__ = [

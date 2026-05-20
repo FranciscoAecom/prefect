@@ -26,7 +26,11 @@ from core.prefect_support.schedules import (
     get_ur_car_sequence_config,
 )
 from core.prefect_support.variables import set_prefect_variable
-from settings import DEFAULT_API_CAR_ROOT, DEFAULT_DOWNLOAD_EXTRACT_BASE
+from settings import (
+    DEFAULT_CAR_PUBLIC_API_BASE,
+    DEFAULT_DOWNLOAD_ARCHIVE_BASE,
+    DEFAULT_DOWNLOAD_EXTRACT_BASE,
+)
 
 
 DOWNLOAD_AUTOMATION_NAME = "Dataset baixado -> tratamento de dados"
@@ -172,7 +176,8 @@ def reschedule_ur_car_daily_17h():
 
 def set_default_variables():
     variables = {
-        "api_car_root": str(DEFAULT_API_CAR_ROOT),
+        "car_public_api_base": DEFAULT_CAR_PUBLIC_API_BASE,
+        "download_archive_base": str(DEFAULT_DOWNLOAD_ARCHIVE_BASE),
         "download_extract_base": str(DEFAULT_DOWNLOAD_EXTRACT_BASE),
         "ur_car_sequence_start_date": DEFAULT_UR_CAR_SEQUENCE_START_DATE.isoformat(),
         "ur_car_sequence_hour": DEFAULT_UR_CAR_SEQUENCE_HOUR,

@@ -7,7 +7,7 @@ from pathlib import Path
 from prefect import flow, task
 from prefect.events import emit_event
 
-from core.downloads.car_api import download_car_api_target
+from core.downloads.connectors.car_public_api import download_car_public_api_target
 from core.downloads.catalog import get_download_target, resolve_theme_folder
 from core.prefect_flow import data_pipeline_flow
 from core.prefect_support.variables import get_path_variable
@@ -24,11 +24,11 @@ def download_dataset_task(
     force=False,
 ):
     target = get_download_target(dataset_key)
-    if target.connector == "car_api":
-        return download_car_api_target(
+    if target.connector == "car_public_api":
+        return download_car_public_api_target(
             target,
             region,
-            api_car_root=source_root,
+            api_base=source_root,
             output_dir=output_dir,
             force=force,
         )
@@ -82,7 +82,7 @@ def emit_dataset_downloaded_event_task(download_result):
         },
         payload=payload,
     )
-    if download_result["connector"] == "car_api":
+    if download_result["connector"] == "car_public_api":
         emit_event(
             event="car.downloaded",
             resource={

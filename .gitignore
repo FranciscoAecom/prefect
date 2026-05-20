@@ -2,6 +2,7 @@
 *.egg-info/
 /output/
 /input/car_downloads/
+/input/download_archives/
 /input/downloads/
 __pycache__/
 *.pyc
