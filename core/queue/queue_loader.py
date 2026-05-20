@@ -12,11 +12,17 @@ class QueueRunContext:
     output_dir: str
 
 
-def prepare_processing_queue(output_base, theme_folders=None, queue_filter=None):
+def prepare_processing_queue(
+    output_base,
+    theme_folders=None,
+    queue_filter=None,
+    source_path_overrides=None,
+):
     try:
         processing_queue, queue_issues, queue_summary = load_processing_queue(
             theme_folders=theme_folders,
             queue_filter=queue_filter,
+            source_path_overrides=source_path_overrides,
         )
     except Exception as exc:
         log(f"Erro ao carregar a fila ingest: {exc}")

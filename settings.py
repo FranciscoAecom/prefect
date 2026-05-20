@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 
@@ -8,6 +9,10 @@ DICTIONARIES_SHEET_NAME = "dictionaries"
 INGEST_READY_STATUS = "Waiting Update"
 
 OUTPUT_BASE = PROJECT_ROOT / "output"
+
+API_CAR_ROOT = Path(os.environ.get("API_CAR_ROOT", r"C:\Temp\Repositórios\api-car"))
+DOWNLOAD_EXTRACT_BASE = PROJECT_ROOT / "input" / "downloads"
+CAR_DOWNLOAD_EXTRACT_BASE = DOWNLOAD_EXTRACT_BASE
 
 RULES_BASE = PROJECT_ROOT / "rules"
 DEFAULT_RULE_PROFILE = "default"

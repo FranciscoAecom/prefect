@@ -1,5 +1,13 @@
-from prefect.schedules import Cron
+from datetime import date, datetime, timedelta
 
+from prefect.schedules import Cron
+from prefect.schedules import RRule
+
+
+UR_CAR_SEQUENCE_START_DATE = date(2026, 5, 20)
+UR_CAR_SEQUENCE_HOUR = 17
+UR_CAR_SEQUENCE_MINUTE = 0
+UR_CAR_SEQUENCE_TIMEZONE = "America/Sao_Paulo"
 
 UR_CAR_THEME_FOLDERS = [
     "ur_car_ac",
@@ -32,7 +40,11 @@ UR_CAR_THEME_FOLDERS = [
 ]
 
 
-def build_ur_car_schedules(hour=2, minute=0, timezone="America/Sao_Paulo"):
+def build_monthly_day_of_month_ur_car_schedules(
+    hour=2,
+    minute=0,
+    timezone=UR_CAR_SEQUENCE_TIMEZONE,
+):
     return [
         Cron(
             f"{minute} {hour} {day} * *",
@@ -44,4 +56,46 @@ def build_ur_car_schedules(hour=2, minute=0, timezone="America/Sao_Paulo"):
     ]
 
 
-__all__ = ["UR_CAR_THEME_FOLDERS", "build_ur_car_schedules"]
+def build_daily_one_shot_ur_car_schedules(
+    start_date=UR_CAR_SEQUENCE_START_DATE,
+    hour=UR_CAR_SEQUENCE_HOUR,
+    minute=UR_CAR_SEQUENCE_MINUTE,
+    timezone=UR_CAR_SEQUENCE_TIMEZONE,
+):
+    return [
+        RRule(
+            _single_run_rrule(start_date + timedelta(days=index), hour, minute),
+            timezone=timezone,
+            slug=theme_folder,
+            parameters={"theme_folders": [theme_folder]},
+        )
+        for index, theme_folder in enumerate(UR_CAR_THEME_FOLDERS)
+    ]
+
+
+def _single_run_rrule(scheduled_date, hour, minute):
+    scheduled_at = datetime(
+        scheduled_date.year,
+        scheduled_date.month,
+        scheduled_date.day,
+        hour,
+        minute,
+    )
+    return f"DTSTART:{scheduled_at:%Y%m%dT%H%M%S}\nRRULE:FREQ=DAILY;COUNT=1"
+
+
+build_ur_car_schedules = build_monthly_day_of_month_ur_car_schedules
+build_ur_car_daily_sequence_schedules = build_daily_one_shot_ur_car_schedules
+
+
+__all__ = [
+    "UR_CAR_SEQUENCE_HOUR",
+    "UR_CAR_SEQUENCE_MINUTE",
+    "UR_CAR_SEQUENCE_START_DATE",
+    "UR_CAR_SEQUENCE_TIMEZONE",
+    "UR_CAR_THEME_FOLDERS",
+    "build_daily_one_shot_ur_car_schedules",
+    "build_monthly_day_of_month_ur_car_schedules",
+    "build_ur_car_daily_sequence_schedules",
+    "build_ur_car_schedules",
+]

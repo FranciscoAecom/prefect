@@ -13,10 +13,11 @@ from core.utils import log
 
 
 @task(name="Preparar fila de processamento", log_prints=True)
-def prepare_queue_task(output_base, theme_folders=None):
+def prepare_queue_task(output_base, theme_folders=None, source_path_overrides=None):
     return prepare_processing_queue(
         output_base,
         queue_filter=QueueFilter.from_theme_folders(theme_folders),
+        source_path_overrides=source_path_overrides,
     )
 
 
@@ -40,12 +41,16 @@ def run_queue_record_task(
 
 
 @flow(name="Data Pipeline", flow_run_name=flow_run_name, log_prints=True)
-def data_pipeline_flow(output_base=None, theme_folders=None):
+def data_pipeline_flow(output_base=None, theme_folders=None, source_path_overrides=None):
     settings = QueueRunSettings.from_output_base(output_base)
     queue_filter = QueueFilter.from_theme_folders(theme_folders)
 
     with _queue_filter_locks(queue_filter):
-        queue_context = prepare_queue_task(settings.output_base, theme_folders)
+        queue_context = prepare_queue_task(
+            settings.output_base,
+            theme_folders,
+            source_path_overrides,
+        )
         if queue_context is None:
             return
 

@@ -5,7 +5,7 @@ from core.ingest.dataset_resolver import (
     resolve_input_dataset_paths_cached,
 )
 from core.ingest.models import IngestIssue, IngestRecord
-from core.ingest.normalization import normalize_status, stringify
+from core.ingest.normalization import normalize_status, normalize_theme_folder, stringify
 from core.queue.filters import QueueFilter
 from core.rules.engine import (
     RuleProfileResolutionError,
@@ -27,10 +27,12 @@ def load_processing_queue(
     ready_status=INGEST_READY_STATUS,
     theme_folders=None,
     queue_filter=None,
+    source_path_overrides=None,
 ):
     dataframe = pd.read_excel(workbook_path, sheet_name=sheet_name)
     ready_status_normalized = normalize_status(ready_status)
     queue_filter = queue_filter or QueueFilter.from_theme_folders(theme_folders)
+    source_path_overrides = _normalize_source_path_overrides(source_path_overrides)
 
     eligible_records = []
     issues = []
@@ -42,9 +44,10 @@ def load_processing_queue(
         theme = stringify(row.get("theme"))
         theme_folder = stringify(row.get("theme_folder"))
         status = stringify(row.get("status"))
-        source_path = stringify(row.get("path_shapefile_temp"))
+        override_source_path = source_path_overrides.get(normalize_theme_folder(theme_folder))
+        source_path = override_source_path or stringify(row.get("path_shapefile_temp"))
 
-        if normalize_status(status) != ready_status_normalized:
+        if normalize_status(status) != ready_status_normalized and not override_source_path:
             continue
 
         ready_candidates += 1
@@ -153,6 +156,16 @@ def load_processing_queue(
     }
 
     return eligible_records, issues, summary
+
+
+def _normalize_source_path_overrides(source_path_overrides):
+    if not source_path_overrides:
+        return {}
+    return {
+        normalize_theme_folder(theme_folder): stringify(source_path)
+        for theme_folder, source_path in dict(source_path_overrides).items()
+        if normalize_theme_folder(theme_folder) and stringify(source_path)
+    }
 
 
 __all__ = ["load_processing_queue"]

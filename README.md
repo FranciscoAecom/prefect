@@ -200,23 +200,24 @@ uv run python -m prefect server start --host 127.0.0.1 --port 4201
 
 ### Agendamento UR CAR
 
-Para servir os agendamentos mensais das 27 bases `ur_car`, uma por dia do mes:
+Para servir os agendamentos diarios das 27 bases `ur_car`, uma por dia as
+17:00 no fuso `America/Sao_Paulo`:
 
 ```powershell
-uv run python serve_ur_car_schedule.py
+uv run python scripts/serve.py ur-car-processing
 ```
 
-Esse comando cria o deployment `UR CAR - 27 bases` com execucoes mensais as
-02:00, no fuso `America/Sao_Paulo`. Cada agenda passa `theme_folders` para o
-flow, entao a execucao do dia 1 roda apenas `ur_car_ac`, a do dia 2 roda
-apenas `ur_car_al`, e assim por diante ate `ur_car_to` no dia 27.
+Esse comando cria o deployment `CAR - Uso Restrito - Tratamento`. Cada agenda
+passa `theme_folders` para o flow, entao a primeira execucao roda apenas
+`ur_car_ac`, a segunda roda apenas `ur_car_al`, e assim por diante ate
+`ur_car_to`.
 
 Se os flows ou deployments forem deletados no painel do Prefect, o dashboard
 ficara vazio. Para recriar o deployment e os agendamentos, deixe o servidor
 Prefect aberto e rode novamente:
 
 ```powershell
-uv run python serve_ur_car_schedules.py
+uv run python scripts/serve.py ur-car-processing
 ```
 
 Os runs agendados sao renomeados automaticamente para o nome da base, por
@@ -227,15 +228,70 @@ valor da base.
 Para aplicar a renomeacao manualmente:
 
 ```powershell
-uv run python rename_prefect_scheduled_runs.py
+uv run python scripts/prefect_admin.py rename-scheduled-runs
 ```
+
+Para apagar a agenda atual de UR CAR e recriar a sequencia diaria as 17:00:
+
+```powershell
+uv run python scripts/prefect_admin.py reschedule-ur-car-daily-17h
+```
+
+### Download de dados + tratamento
+
+O download passa por um catalogo de datasets. Hoje o conector implementado e o
+CAR via projeto externo `C:\Temp\Repositórios\api-car`; outros projetos, como
+municipios, estados e terras indigenas, entram como novos itens/conectores sem
+alterar o flow principal.
+
+Para subir o deployment de download:
+
+```powershell
+uv run python scripts/serve.py data-download
+```
+
+Esse comando cria o deployment `Download de Dados`.
+
+O flow aceita os principais parametros:
+
+```text
+dataset_key: car_uso_restrito | car_reserva_legal | car_servidao_administrativa | car_app
+region: MG, SP, BA, ...
+source_root: caminho opcional para o repo/fonte do conector
+force: baixa novamente mesmo se o ZIP ja existir
+process_after_download: quando true, dispara o Data Pipeline automaticamente
+emit_download_event: quando true, emite o evento Prefect dataset.downloaded
+```
+
+Fluxo padrao:
+
+```text
+Data Download
+  -> resolve o dataset no catalogo
+  -> chama o conector de download
+  -> extrai o arquivo em input/downloads/<theme_folder>
+  -> emite dataset.downloaded
+  -> chama Data Pipeline apenas para a base baixada
+```
+
+Para usar Prefect Automations em vez do encadeamento direto, configure
+`process_after_download=false` no deployment de download e crie a Automation:
+
+```powershell
+uv run python scripts/prefect_admin.py create-download-automation
+```
+
+A Automation ouve o evento `dataset.downloaded` e executa o deployment de
+tratamento. O evento carrega no payload `theme_folders` e
+`source_path_overrides`, que sao os parametros necessarios para tratar
+exatamente o arquivo baixado.
 
 ### Agendamento Estado
 
 Para criar o deployment da base `estado` no painel do Prefect:
 
 ```powershell
-uv run python serve_estado_schedule.py
+uv run python scripts/serve.py estado
 ```
 
 Esse comando cria o deployment `Estado` com agenda diaria as 02:00, no fuso
@@ -253,14 +309,14 @@ horario pode ser alterado pelo painel.
 Para executar uma base especifica pelo deployment:
 
 ```powershell
-'{"theme_folders":["ur_car_pi"]}' | uv run prefect deployment run "Data Pipeline/UR CAR - 27 bases" --params -
+'{"theme_folders":["ur_car_pi"]}' | uv run prefect deployment run "Data Pipeline/CAR - Uso Restrito - Tratamento" --params -
 ```
 
 Para executar todas as 27 bases `ur_car` de uma vez, informe todos os perfis
 em `theme_folders`:
 
 ```powershell
-'{"theme_folders":["ur_car_ac","ur_car_al","ur_car_am","ur_car_ap","ur_car_ba","ur_car_ce","ur_car_df","ur_car_es","ur_car_go","ur_car_ma","ur_car_mg","ur_car_ms","ur_car_mt","ur_car_pa","ur_car_pb","ur_car_pe","ur_car_pi","ur_car_pr","ur_car_rj","ur_car_rn","ur_car_ro","ur_car_rr","ur_car_rs","ur_car_sc","ur_car_se","ur_car_sp","ur_car_to"]}' | uv run prefect deployment run "Data Pipeline/UR CAR - 27 bases" --params -
+'{"theme_folders":["ur_car_ac","ur_car_al","ur_car_am","ur_car_ap","ur_car_ba","ur_car_ce","ur_car_df","ur_car_es","ur_car_go","ur_car_ma","ur_car_mg","ur_car_ms","ur_car_mt","ur_car_pa","ur_car_pb","ur_car_pe","ur_car_pi","ur_car_pr","ur_car_rj","ur_car_rn","ur_car_ro","ur_car_rr","ur_car_rs","ur_car_sc","ur_car_se","ur_car_sp","ur_car_to"]}' | uv run prefect deployment run "Data Pipeline/CAR - Uso Restrito - Tratamento" --params -
 ```
 
 Para listar flow runs:
