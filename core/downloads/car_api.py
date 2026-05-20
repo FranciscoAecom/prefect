@@ -2,8 +2,9 @@ import subprocess
 from pathlib import Path
 
 from core.downloads.catalog import normalize_region, resolve_theme_folder
+from core.prefect_support.variables import get_path_variable
 from core.utils import log
-from settings import API_CAR_ROOT
+from settings import DEFAULT_API_CAR_ROOT
 
 
 def download_car_api_target(
@@ -14,7 +15,10 @@ def download_car_api_target(
     force=False,
 ):
     state = normalize_region(region)
-    api_root = Path(api_car_root or API_CAR_ROOT)
+    api_root = Path(api_car_root) if api_car_root else get_path_variable(
+        "api_car_root",
+        DEFAULT_API_CAR_ROOT,
+    )
     script_path = api_root / "scripts" / "download_tema_car.ps1"
 
     if not script_path.exists():

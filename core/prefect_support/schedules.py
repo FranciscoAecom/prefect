@@ -3,11 +3,21 @@ from datetime import date, datetime, timedelta
 from prefect.schedules import Cron
 from prefect.schedules import RRule
 
+from core.prefect_support.variables import (
+    get_date_variable,
+    get_int_variable,
+    get_str_variable,
+)
 
-UR_CAR_SEQUENCE_START_DATE = date(2026, 5, 20)
-UR_CAR_SEQUENCE_HOUR = 17
-UR_CAR_SEQUENCE_MINUTE = 0
-UR_CAR_SEQUENCE_TIMEZONE = "America/Sao_Paulo"
+DEFAULT_UR_CAR_SEQUENCE_START_DATE = date(2026, 5, 20)
+DEFAULT_UR_CAR_SEQUENCE_HOUR = 17
+DEFAULT_UR_CAR_SEQUENCE_MINUTE = 0
+DEFAULT_UR_CAR_SEQUENCE_TIMEZONE = "America/Sao_Paulo"
+
+UR_CAR_SEQUENCE_START_DATE = DEFAULT_UR_CAR_SEQUENCE_START_DATE
+UR_CAR_SEQUENCE_HOUR = DEFAULT_UR_CAR_SEQUENCE_HOUR
+UR_CAR_SEQUENCE_MINUTE = DEFAULT_UR_CAR_SEQUENCE_MINUTE
+UR_CAR_SEQUENCE_TIMEZONE = DEFAULT_UR_CAR_SEQUENCE_TIMEZONE
 
 UR_CAR_THEME_FOLDERS = [
     "ur_car_ac",
@@ -57,11 +67,17 @@ def build_monthly_day_of_month_ur_car_schedules(
 
 
 def build_daily_one_shot_ur_car_schedules(
-    start_date=UR_CAR_SEQUENCE_START_DATE,
-    hour=UR_CAR_SEQUENCE_HOUR,
-    minute=UR_CAR_SEQUENCE_MINUTE,
-    timezone=UR_CAR_SEQUENCE_TIMEZONE,
+    start_date=None,
+    hour=None,
+    minute=None,
+    timezone=None,
 ):
+    start_date, hour, minute, timezone = get_ur_car_sequence_config(
+        start_date=start_date,
+        hour=hour,
+        minute=minute,
+        timezone=timezone,
+    )
     return [
         RRule(
             _single_run_rrule(start_date + timedelta(days=index), hour, minute),
@@ -84,11 +100,44 @@ def _single_run_rrule(scheduled_date, hour, minute):
     return f"DTSTART:{scheduled_at:%Y%m%dT%H%M%S}\nRRULE:FREQ=DAILY;COUNT=1"
 
 
+def get_ur_car_sequence_config(
+    start_date=None,
+    hour=None,
+    minute=None,
+    timezone=None,
+):
+    return (
+        start_date
+        or get_date_variable(
+            "ur_car_sequence_start_date",
+            DEFAULT_UR_CAR_SEQUENCE_START_DATE,
+        ),
+        hour
+        if hour is not None
+        else get_int_variable("ur_car_sequence_hour", DEFAULT_UR_CAR_SEQUENCE_HOUR),
+        minute
+        if minute is not None
+        else get_int_variable(
+            "ur_car_sequence_minute",
+            DEFAULT_UR_CAR_SEQUENCE_MINUTE,
+        ),
+        timezone
+        or get_str_variable(
+            "ur_car_sequence_timezone",
+            DEFAULT_UR_CAR_SEQUENCE_TIMEZONE,
+        ),
+    )
+
+
 build_ur_car_schedules = build_monthly_day_of_month_ur_car_schedules
 build_ur_car_daily_sequence_schedules = build_daily_one_shot_ur_car_schedules
 
 
 __all__ = [
+    "DEFAULT_UR_CAR_SEQUENCE_HOUR",
+    "DEFAULT_UR_CAR_SEQUENCE_MINUTE",
+    "DEFAULT_UR_CAR_SEQUENCE_START_DATE",
+    "DEFAULT_UR_CAR_SEQUENCE_TIMEZONE",
     "UR_CAR_SEQUENCE_HOUR",
     "UR_CAR_SEQUENCE_MINUTE",
     "UR_CAR_SEQUENCE_START_DATE",
@@ -98,4 +147,5 @@ __all__ = [
     "build_monthly_day_of_month_ur_car_schedules",
     "build_ur_car_daily_sequence_schedules",
     "build_ur_car_schedules",
+    "get_ur_car_sequence_config",
 ]

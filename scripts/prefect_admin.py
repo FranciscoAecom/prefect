@@ -18,12 +18,15 @@ from core.prefect_support.deployment_names import (
     UR_CAR_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
 )
 from core.prefect_support.schedules import (
-    UR_CAR_SEQUENCE_HOUR,
-    UR_CAR_SEQUENCE_MINUTE,
-    UR_CAR_SEQUENCE_START_DATE,
-    UR_CAR_SEQUENCE_TIMEZONE,
+    DEFAULT_UR_CAR_SEQUENCE_HOUR,
+    DEFAULT_UR_CAR_SEQUENCE_MINUTE,
+    DEFAULT_UR_CAR_SEQUENCE_START_DATE,
+    DEFAULT_UR_CAR_SEQUENCE_TIMEZONE,
     UR_CAR_THEME_FOLDERS,
+    get_ur_car_sequence_config,
 )
+from core.prefect_support.variables import set_prefect_variable
+from settings import DEFAULT_API_CAR_ROOT, DEFAULT_DOWNLOAD_EXTRACT_BASE
 
 
 DOWNLOAD_AUTOMATION_NAME = "Dataset baixado -> tratamento de dados"
@@ -54,6 +57,10 @@ def main():
         "rename-scheduled-runs",
         help="Renomeia runs agendados para o theme_folder.",
     )
+    subparsers.add_parser(
+        "set-default-variables",
+        help="Grava as Variables padrao usadas pelos flows.",
+    )
 
     args = parser.parse_args()
     if args.command in {"create-download-automation", "create-car-download-automation"}:
@@ -62,6 +69,8 @@ def main():
         reschedule_ur_car_daily_17h()
     elif args.command == "rename-scheduled-runs":
         rename_scheduled_runs()
+    elif args.command == "set-default-variables":
+        set_default_variables()
 
 
 def create_download_automation():
@@ -117,6 +126,7 @@ def read_existing_automation(names):
 
 
 def reschedule_ur_car_daily_17h():
+    start_date, hour, minute, timezone = get_ur_car_sequence_config()
     with get_client(sync_client=True) as client:
         deployment = read_first_existing_deployment(client, PROCESSING_DEPLOYMENT_CANDIDATES)
 
@@ -132,9 +142,11 @@ def reschedule_ur_car_daily_17h():
             DeploymentScheduleCreate(
                 schedule=RRuleSchedule(
                     rrule=build_single_run_rrule(
-                        UR_CAR_SEQUENCE_START_DATE + timedelta(days=index)
+                        start_date + timedelta(days=index),
+                        hour=hour,
+                        minute=minute,
                     ),
-                    timezone=UR_CAR_SEQUENCE_TIMEZONE,
+                    timezone=timezone,
                 ),
                 active=True,
                 max_scheduled_runs=1,
@@ -150,12 +162,26 @@ def reschedule_ur_car_daily_17h():
     print(f"Flow runs scheduled apagados: {len(scheduled_runs)}")
     print(f"Schedules criados: {len(created)}")
     for index, theme_folder in enumerate(UR_CAR_THEME_FOLDERS):
-        scheduled_for = UR_CAR_SEQUENCE_START_DATE + timedelta(days=index)
+        scheduled_for = start_date + timedelta(days=index)
         print(
             f"{scheduled_for.isoformat()} "
-            f"{UR_CAR_SEQUENCE_HOUR:02d}:{UR_CAR_SEQUENCE_MINUTE:02d} - "
+            f"{hour:02d}:{minute:02d} - "
             f"{theme_folder}"
         )
+
+
+def set_default_variables():
+    variables = {
+        "api_car_root": str(DEFAULT_API_CAR_ROOT),
+        "download_extract_base": str(DEFAULT_DOWNLOAD_EXTRACT_BASE),
+        "ur_car_sequence_start_date": DEFAULT_UR_CAR_SEQUENCE_START_DATE.isoformat(),
+        "ur_car_sequence_hour": DEFAULT_UR_CAR_SEQUENCE_HOUR,
+        "ur_car_sequence_minute": DEFAULT_UR_CAR_SEQUENCE_MINUTE,
+        "ur_car_sequence_timezone": DEFAULT_UR_CAR_SEQUENCE_TIMEZONE,
+    }
+    for name, value in variables.items():
+        set_prefect_variable(name, value, tags=["data-pipeline", "config"])
+        print(f"Variable definida: {name}={value}")
 
 
 def rename_scheduled_runs():
@@ -197,13 +223,13 @@ def read_scheduled_runs(client, deployment_id):
     )
 
 
-def build_single_run_rrule(scheduled_date):
+def build_single_run_rrule(scheduled_date, hour, minute):
     scheduled_at = datetime(
         scheduled_date.year,
         scheduled_date.month,
         scheduled_date.day,
-        UR_CAR_SEQUENCE_HOUR,
-        UR_CAR_SEQUENCE_MINUTE,
+        hour,
+        minute,
     )
     return f"DTSTART:{scheduled_at:%Y%m%dT%H%M%S}\nRRULE:FREQ=DAILY;COUNT=1"
 

@@ -10,8 +10,9 @@ from prefect.events import emit_event
 from core.downloads.car_api import download_car_api_target
 from core.downloads.catalog import get_download_target, resolve_theme_folder
 from core.prefect_flow import data_pipeline_flow
+from core.prefect_support.variables import get_path_variable
 from core.utils import log
-from settings import DOWNLOAD_EXTRACT_BASE
+from settings import DEFAULT_DOWNLOAD_EXTRACT_BASE
 
 
 @task(name="Baixar dataset", log_prints=True)
@@ -38,7 +39,10 @@ def download_dataset_task(
 def extract_download_task(download_result, extract_base=None):
     archive_path = Path(download_result["archive_path"])
     theme_folder = download_result["theme_folder"]
-    extract_root = Path(extract_base or DOWNLOAD_EXTRACT_BASE)
+    extract_root = Path(extract_base) if extract_base else get_path_variable(
+        "download_extract_base",
+        DEFAULT_DOWNLOAD_EXTRACT_BASE,
+    )
     extract_dir = extract_root / theme_folder
 
     if extract_dir.exists():

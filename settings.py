@@ -10,8 +10,13 @@ INGEST_READY_STATUS = "Waiting Update"
 
 OUTPUT_BASE = PROJECT_ROOT / "output"
 
-API_CAR_ROOT = Path(os.environ.get("API_CAR_ROOT", r"C:\Temp\Repositórios\api-car"))
-DOWNLOAD_EXTRACT_BASE = PROJECT_ROOT / "input" / "downloads"
+DEFAULT_API_CAR_ROOT = Path(
+    os.environ.get("API_CAR_ROOT", r"C:\Temp\Repositórios\api-car")
+)
+DEFAULT_DOWNLOAD_EXTRACT_BASE = PROJECT_ROOT / "input" / "downloads"
+
+API_CAR_ROOT = DEFAULT_API_CAR_ROOT
+DOWNLOAD_EXTRACT_BASE = DEFAULT_DOWNLOAD_EXTRACT_BASE
 CAR_DOWNLOAD_EXTRACT_BASE = DOWNLOAD_EXTRACT_BASE
 
 RULES_BASE = PROJECT_ROOT / "rules"

@@ -237,6 +237,29 @@ Para apagar a agenda atual de UR CAR e recriar a sequencia diaria as 17:00:
 uv run python scripts/prefect_admin.py reschedule-ur-car-daily-17h
 ```
 
+### Variables
+
+Algumas configuracoes operacionais ficam em Prefect Variables, com fallback
+local quando o servidor Prefect nao estiver disponivel. Para gravar os valores
+padrao no Prefect:
+
+```powershell
+uv run python scripts/prefect_admin.py set-default-variables
+```
+
+Variables usadas:
+
+```text
+api_car_root
+download_extract_base
+ur_car_sequence_start_date
+ur_car_sequence_hour
+ur_car_sequence_minute
+ur_car_sequence_timezone
+```
+
+Esses valores tambem podem ser alterados pelo painel em `Variables`.
+
 ### Download de dados + tratamento
 
 O download passa por um catalogo de datasets. Hoje o conector implementado e o
