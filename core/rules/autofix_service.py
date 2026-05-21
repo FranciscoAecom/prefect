@@ -1,6 +1,6 @@
 import os
 
-from core.output.naming import build_theme_output_dir
+from core.output.paths import resolve_theme_output_dir
 from core.rules.autofix import autofix_rule_profile_from_invalid_domains
 from core.utils import log, timed_log_step
 
@@ -22,10 +22,7 @@ class RuleAutofixService:
                 return None
 
     def build_support_report_path(self, context):
-        theme_output_dir = build_theme_output_dir(
-            context.output_dir,
-            context.record.theme_folder,
-        )
+        theme_output_dir = resolve_theme_output_dir(context.record, context.output_dir)
         os.makedirs(theme_output_dir, exist_ok=True)
         base_name = os.path.splitext(os.path.basename(context.record.input_path))[0]
         return os.path.join(
