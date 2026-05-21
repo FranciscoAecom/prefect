@@ -114,7 +114,7 @@ class MunicipalityIntersectionTests(unittest.TestCase):
         self.assertIn("sdb_cd_uf", municipalities.columns)
 
     @patch("core.configured_steps.enrich_with_municipality_intersection")
-    def test_postprocess_enriches_auto_infracoes_with_municipalities(self, mock_enrich):
+    def test_postprocess_enriches_autos_infracao_with_municipalities(self, mock_enrich):
         gdf = gpd.GeoDataFrame(
             {"geometry": [Point(0, 0)]},
             geometry="geometry",
@@ -126,8 +126,8 @@ class MunicipalityIntersectionTests(unittest.TestCase):
         context = ProcessingContext(
             record=SimpleNamespace(theme_folder="autos_infracao"),
             output_dir="tests/_tmp_output",
-            project_config={"project_name": "auto_infracoes"},
-            rule_profile_name="auto_infracoes/autos_infracao",
+            project_config={"project_name": "autos_infracao"},
+            rule_profile_name="autos_infracao/autos_infracao",
             rule_profile={
                 "postprocess_functions": ["enrich_with_municipality_intersection"],
             },

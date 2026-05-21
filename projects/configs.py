@@ -52,17 +52,13 @@ PROJECT_CONFIGS = {
         "output_name_template": "pol_env_{theme_folder}_{date_yyyymmdd}",
         "reference_date": "20250701",
     },
-    "auto_infracoes": {
-        "project_name": "auto_infracoes",
+    "autos_infracao": {
+        "project_name": "autos_infracao",
         "display_name": "Autos de infracao ambiental",
         "theme_prefixes": ("enov",),
-        "output_name_template": "pnt_pcd_{theme_folder}_{date_yyyymmdd}",
+        "output_name_template": "pnt_pcd_enov_{date_yyyymmdd}",
         "reference_date": "20260514",
     },
-}
-
-THEME_PROJECT_ALIASES = {
-    "autos_infracao": "auto_infracoes",
 }
 
 
@@ -77,8 +73,8 @@ def get_project_config(project_name=None):
 
 def resolve_project_name(theme_folder):
     theme_folder_text = str(theme_folder or "").strip().lower()
-    if theme_folder_text in THEME_PROJECT_ALIASES:
-        return THEME_PROJECT_ALIASES[theme_folder_text]
+    if theme_folder_text in PROJECT_CONFIGS:
+        return theme_folder_text
     for project_name, config in PROJECT_CONFIGS.items():
         for prefix in config.get("theme_prefixes", ()):
             if theme_folder_text.startswith(str(prefix).lower()):

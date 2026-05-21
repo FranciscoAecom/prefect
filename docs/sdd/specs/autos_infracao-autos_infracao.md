@@ -1,4 +1,4 @@
-# Spec: auto_infracoes/autos_infracao
+# Spec: autos_infracao/autos_infracao
 
 Status: Implementado
 Responsavel: Ribeiro / Codex
@@ -14,7 +14,7 @@ com os pontos dentro do limite Brasil / zona costeira.
 ## Entrada
 
 - Theme folder: `autos_infracao`
-- Projeto: `auto_infracoes`
+- Projeto: `autos_infracao`
 - Status esperado na ingest: `waiting update`
 - Formato esperado: camada vetorial de pontos
 - Geometria esperada: ponto
@@ -26,16 +26,16 @@ com os pontos dentro do limite Brasil / zona costeira.
 - Arquivo: `projects/configs.py`
 - `display_name`: `Autos de infracao ambiental`
 - `theme_prefixes`: `("autos_infracao",)`
-- `output_name_template`: `pnt_pcd_{theme_folder}_{date_yyyymmdd}`
+- `output_name_template`: `pnt_pcd_enov_{date_yyyymmdd}`
 - `reference_date`: `20260514`
 
 ## Regras Do Perfil
 
-- `rules/auto_infracoes/autos_infracao/profile.json`
-- `rules/auto_infracoes/autos_infracao/input_schema.json`
-- `rules/auto_infracoes/autos_infracao/domains.json`
-- `rules/auto_infracoes/autos_infracao/relations.json`
-- `rules/auto_infracoes/autos_infracao/pipeline.json`
+- `rules/autos_infracao/autos_infracao/profile.json`
+- `rules/autos_infracao/autos_infracao/input_schema.json`
+- `rules/autos_infracao/autos_infracao/domains.json`
+- `rules/autos_infracao/autos_infracao/relations.json`
+- `rules/autos_infracao/autos_infracao/pipeline.json`
 
 ## Datas
 
@@ -118,13 +118,13 @@ L:\Secure_DCS\BRBLH1PINFW001\COE_Digital\others\bouding_box\brasil\pol_br_zona_c
 Arquivo principal:
 
 ```text
-output\autos_infracao\pnt_pcd_autos_infracao_20260514.gpkg
+output\autos_infracao\pnt_pcd_enov_20260514.gpkg
 ```
 
 Arquivo secundario:
 
 ```text
-output\autos_infracao\pnt_pcd_autos_infracao_20260514_bbox_brasil.gpkg
+output\autos_infracao\pnt_pcd_enov_20260514_bbox_brasil.gpkg
 ```
 
 O arquivo principal deve conter todos os pontos tratados. O arquivo secundario

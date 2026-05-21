@@ -59,7 +59,7 @@ class RuleAutofixServiceTests(unittest.TestCase):
                     input_path="origem.gpkg",
                     output_dir=output_dir,
                 ),
-                rule_profile_name="auto_infracoes/autos_infracao",
+                rule_profile_name="autos_infracao/autos_infracao",
                 rule_profile={"fields": {}},
             )
 

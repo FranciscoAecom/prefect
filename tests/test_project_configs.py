@@ -24,11 +24,12 @@ class ProjectConfigsTests(unittest.TestCase):
         self.assertEqual(config["project_name"], "reserva_legal_car")
         self.assertEqual(config["output_name_template"], "pol_pcd_{theme_folder}_{date_yyyymmdd}")
 
-    def test_resolve_auto_infracoes_project_config(self):
+    def test_resolve_autos_infracao_project_config(self):
         config = resolve_project_config("autos_infracao")
 
-        self.assertEqual(config["project_name"], "auto_infracoes")
-        self.assertEqual(config["output_name_template"], "pnt_pcd_{theme_folder}_{date_yyyymmdd}")
+        self.assertEqual(config["project_name"], "autos_infracao")
+        self.assertEqual(config["theme_prefixes"], ("enov",))
+        self.assertEqual(config["output_name_template"], "pnt_pcd_enov_{date_yyyymmdd}")
 
     def test_get_project_config_unknown_returns_default_copy(self):
         config = get_project_config("nao_existe")

@@ -1,6 +1,6 @@
 {
-  "profile_name": "auto_infracoes_autos_infracao",
-  "project_name": "auto_infracoes",
+  "profile_name": "autos_infracao_autos_infracao",
+  "project_name": "autos_infracao",
   "theme_folder": "autos_infracao",
   "description": "Regras de dominio para a base de Autos de infracao ambiental do IBAMA."
 }

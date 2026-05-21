@@ -22,7 +22,7 @@ class OutputPersistenceTests(unittest.TestCase):
             theme_folder="autos_infracao",
             input_path="entrada.gpkg",
             source_path="origem",
-            rule_profile="auto_infracoes/autos_infracao",
+            rule_profile="autos_infracao/autos_infracao",
         )
         gdf = gpd.GeoDataFrame(
             {
@@ -58,7 +58,7 @@ class OutputPersistenceTests(unittest.TestCase):
             theme_folder="autos_infracao",
             input_path="entrada.gpkg",
             source_path="origem",
-            rule_profile="auto_infracoes/autos_infracao",
+            rule_profile="autos_infracao/autos_infracao",
         )
         gdf = gpd.GeoDataFrame(
             {"geometry": [Point(-70.0, -9.0)]},

@@ -453,7 +453,7 @@ Associacoes principais:
 - `rl_car_*` usa `rules/reserva_legal_car/`.
 - `estado` usa `rules/estado/`.
 - `auth_supn` usa `rules/autorizacao_para_supressao_vegetal/`.
-- `autos_infracao` usa `rules/auto_infracoes/autos_infracao/`.
+- `autos_infracao` usa `rules/autos_infracao/autos_infracao/`.
 
 Use `rules/_template/` como base para novos perfis. O formato completo esta em
 `readme/rules.md`.

@@ -8,8 +8,8 @@ from core.downloads.flow import data_download_flow
 from core.prefect_flow import data_pipeline_flow
 from core.prefect_support.admin import scheduled_run_renamer_loop
 from core.prefect_support.deployment_names import (
-    AUTO_INFRACOES_PROCESSING_DEPLOYMENT_NAME,
-    AUTO_INFRACOES_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
+    AUTOS_INFRACAO_PROCESSING_DEPLOYMENT_NAME,
+    AUTOS_INFRACAO_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
     DATA_DOWNLOAD_DEPLOYMENT_NAME,
     UR_CAR_PROCESSING_DEPLOYMENT_NAME,
     UR_CAR_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
@@ -40,7 +40,7 @@ def main():
     elif args.deployment == "ur-car-processing":
         serve_ur_car_processing()
     elif args.deployment == "auto-infracoes":
-        serve_auto_infracoes()
+        serve_autos_infracao()
     elif args.deployment == "estado":
         serve_estado()
 
@@ -71,15 +71,15 @@ def serve_ur_car_processing():
     )
 
 
-def serve_auto_infracoes():
+def serve_autos_infracao():
     start_scheduled_run_renamer(
-        deployment_name=AUTO_INFRACOES_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
+        deployment_name=AUTOS_INFRACAO_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
         interval_seconds=5,
     )
     data_pipeline_flow.serve(
-        name=AUTO_INFRACOES_PROCESSING_DEPLOYMENT_NAME,
+        name=AUTOS_INFRACAO_PROCESSING_DEPLOYMENT_NAME,
         parameters={"theme_folders": ["autos_infracao"]},
-        tags=["auto_infracoes", "autos_infracao", "processing"],
+        tags=["autos_infracao", "processing"],
         description=(
             "Tratamento da base Autos de Infracao ambiental, com parametros "
             "fixos para executar somente autos_infracao."
