@@ -44,8 +44,6 @@ def build_secondary_output_path(theme_output_dir, base_name, suffix):
 
 def resolve_theme_output_dir(record, output_dir):
     record_output_dir = getattr(record, "output_dir", "") or ""
-    if record_output_dir and os.path.normcase(os.path.normpath(record_output_dir)) == os.path.normcase(
-        os.path.normpath(str(output_dir))
-    ):
-        return str(output_dir)
+    if record_output_dir:
+        return str(record_output_dir)
     return build_theme_output_dir(output_dir, record.theme_folder)
