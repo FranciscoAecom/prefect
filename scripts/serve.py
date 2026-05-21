@@ -8,6 +8,8 @@ from core.downloads.flow import data_download_flow
 from core.prefect_flow import data_pipeline_flow
 from core.prefect_support.admin import scheduled_run_renamer_loop
 from core.prefect_support.deployment_names import (
+    AUTO_INFRACOES_PROCESSING_DEPLOYMENT_NAME,
+    AUTO_INFRACOES_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
     DATA_DOWNLOAD_DEPLOYMENT_NAME,
     UR_CAR_PROCESSING_DEPLOYMENT_NAME,
     UR_CAR_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
@@ -24,6 +26,10 @@ def main():
         "ur-car-processing",
         help="Serve o tratamento agendado de CAR Uso Restrito.",
     )
+    subparsers.add_parser(
+        "auto-infracoes",
+        help="Serve o tratamento da base Autos de Infracao.",
+    )
     subparsers.add_parser("estado", help="Serve o tratamento agendado da base Estado.")
 
     args = parser.parse_args()
@@ -33,6 +39,8 @@ def main():
         serve_data_download()
     elif args.deployment == "ur-car-processing":
         serve_ur_car_processing()
+    elif args.deployment == "auto-infracoes":
+        serve_auto_infracoes()
     elif args.deployment == "estado":
         serve_estado()
 
@@ -59,6 +67,22 @@ def serve_ur_car_processing():
         description=(
             "Agenda diaria das 27 bases UR CAR para tratamento, "
             "uma base por dia as 17:00."
+        ),
+    )
+
+
+def serve_auto_infracoes():
+    start_scheduled_run_renamer(
+        deployment_name=AUTO_INFRACOES_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
+        interval_seconds=5,
+    )
+    data_pipeline_flow.serve(
+        name=AUTO_INFRACOES_PROCESSING_DEPLOYMENT_NAME,
+        parameters={"theme_folders": ["autos_infracao"]},
+        tags=["auto_infracoes", "autos_infracao", "processing"],
+        description=(
+            "Tratamento da base Autos de Infracao ambiental, com parametros "
+            "fixos para executar somente autos_infracao."
         ),
     )
 

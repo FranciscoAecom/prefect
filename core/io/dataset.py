@@ -18,7 +18,12 @@ OUTPUT_LOCK_WAIT_SECONDS = 30 * 60
 def _read_dataframe_with_fallback(path, layer=None):
     read_kwargs = {"layer": layer}
 
-    if USE_ARROW_IO:
+    if USE_ARROW_IO and Path(path).suffix.lower() == ".shp":
+        log(
+            "Leitura Arrow desabilitada para shapefile; usando leitura padrao do pyogrio "
+            "para evitar falhas de encoding em campos texto."
+        )
+    elif USE_ARROW_IO:
         try:
             return pyogrio.read_dataframe(path, use_arrow=True, **read_kwargs)
         except ImportError as exc:

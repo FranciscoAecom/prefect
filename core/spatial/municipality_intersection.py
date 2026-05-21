@@ -9,13 +9,18 @@ from core.io.dataset import read_input_dataset
 from core.prefect_support.variables import get_str_variable
 from core.transforms.attribute_transforms import normalize_columns
 from core.utils import log
-from settings import INGEST_WORKBOOK_PATH, INGEST_SHEET_NAME
+from settings import (
+    DEFAULT_MUNICIPALITIES_BASE_PATH,
+    INGEST_WORKBOOK_PATH,
+    INGEST_SHEET_NAME,
+)
 
 
 MUNICIPALITIES_BASE_VARIABLE = "municipios_base_path"
 MUNICIPALITY_CODE_COLUMNS = ("sdb_cd_mun", "cd_mun")
 MUNICIPALITY_NAME_COLUMNS = ("sdb_nm_mun", "nm_mun")
 MUNICIPALITY_UF_COLUMNS = ("sdb_sigla_uf", "sigla_uf", "sdb_cd_uf", "cd_uf")
+OUTSIDE_TERRITORIAL_LIMIT_MESSAGE = "Fora do limite territorial brasileiro / zona costeira"
 UF_CODE_TO_SIGLA = {
     "11": "RO",
     "12": "AC",
@@ -65,6 +70,10 @@ def resolve_municipalities_base_path(municipalities_path=None):
     ingest_path = find_latest_municipalities_path_from_ingest()
     if ingest_path:
         return ingest_path
+
+    default_path = stringify(DEFAULT_MUNICIPALITIES_BASE_PATH)
+    if default_path and Path(default_path).exists():
+        return default_path
 
     raise FileNotFoundError(
         "Base de municipios nao configurada. Defina a Prefect Variable "
@@ -159,6 +168,7 @@ def assign_municipality_fields_by_intersection(gdf, municipalities):
     enriched["acm_cod_munici"] = joined["__mun_cod"].reindex(enriched.index)
     enriched["acm_municipio"] = joined["__mun_nome"].reindex(enriched.index)
     enriched["acm_uf"] = normalize_uf_values(joined["__mun_uf"]).reindex(enriched.index)
+    enriched = fill_missing_municipality_intersection(enriched)
 
     matched = int(enriched["acm_cod_munici"].notna().sum())
     log(
@@ -166,6 +176,18 @@ def assign_municipality_fields_by_intersection(gdf, municipalities):
         f"{matched} de {len(enriched)} feicao(oes) receberam municipio/UF."
     )
     return enriched
+
+
+def fill_missing_municipality_intersection(gdf):
+    missing_mask = gdf["acm_cod_munici"].isna()
+    if not missing_mask.any():
+        return gdf
+
+    for column in ("acm_cod_munici", "acm_municipio", "acm_uf"):
+        gdf[column] = gdf[column].astype("object")
+        gdf.loc[missing_mask, column] = OUTSIDE_TERRITORIAL_LIMIT_MESSAGE
+
+    return gdf
 
 
 def first_existing_column(dataframe, candidates):
@@ -184,8 +206,10 @@ def normalize_uf_values(values):
 
 __all__ = [
     "MUNICIPALITIES_BASE_VARIABLE",
+    "OUTSIDE_TERRITORIAL_LIMIT_MESSAGE",
     "assign_municipality_fields_by_intersection",
     "enrich_with_municipality_intersection",
+    "fill_missing_municipality_intersection",
     "find_latest_municipalities_path_from_ingest",
     "load_municipalities_base",
     "normalize_uf_values",

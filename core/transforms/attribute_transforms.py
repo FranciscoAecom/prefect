@@ -1,3 +1,4 @@
+import pandas as pd
 from pandas.api.types import is_object_dtype, is_string_dtype
 
 
@@ -24,8 +25,13 @@ def is_normalized_columns(gdf):
 
 def clean_whitespace(gdf):
     for c in gdf.columns:
-        if is_object_dtype(gdf[c]) or is_string_dtype(gdf[c]):
-            gdf[c] = gdf[c].map(_clean_text_value)
+        series = gdf[c]
+        if (
+            is_object_dtype(series)
+            or is_string_dtype(series)
+            or isinstance(series.dtype, pd.CategoricalDtype)
+        ):
+            gdf[c] = series.astype("object").map(_clean_text_value)
     return gdf
 
 

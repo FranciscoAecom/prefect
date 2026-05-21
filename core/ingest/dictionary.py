@@ -28,7 +28,7 @@ def load_dictionary_theme_map(
         raw_theme = stringify(row.get("theme"))
         raw_attribute = stringify(row.get("aecom_attribute_name"))
         normalized_theme = normalize_lookup_value(raw_theme)
-        normalized_attribute = normalize_attribute_name(raw_attribute)
+        normalized_attribute = canonical_input_attribute_name(raw_attribute)
 
         if not normalized_theme or not is_input_dictionary_attribute(normalized_attribute):
             continue
@@ -58,6 +58,19 @@ def is_input_dictionary_attribute(normalized_attribute):
     return True
 
 
+def canonical_input_attribute_name(attribute):
+    normalized_attribute = normalize_attribute_name(attribute)
+    if (
+        normalized_attribute
+        and normalized_attribute != "-"
+        and normalized_attribute != "geometry"
+        and not normalized_attribute.startswith(("sdb_", "acm_"))
+        and normalized_attribute != "fid"
+    ):
+        normalized_attribute = f"sdb_{normalized_attribute}"
+    return normalized_attribute
+
+
 def validate_theme_and_attributes(theme_value, input_attributes):
     theme_map = load_dictionary_theme_map()
     normalized_theme = normalize_lookup_value(theme_value)
@@ -73,7 +86,7 @@ def validate_theme_and_attributes(theme_value, input_attributes):
 
     input_map = {}
     for attribute in input_attributes:
-        normalized_attribute = normalize_attribute_name(attribute)
+        normalized_attribute = canonical_input_attribute_name(attribute)
         if normalized_attribute and normalized_attribute != "geometry":
             input_map.setdefault(normalized_attribute, attribute)
 
@@ -92,6 +105,7 @@ def validate_theme_and_attributes(theme_value, input_attributes):
 
 
 __all__ = [
+    "canonical_input_attribute_name",
     "is_input_dictionary_attribute",
     "load_dictionary_theme_map",
     "validate_theme_and_attributes",

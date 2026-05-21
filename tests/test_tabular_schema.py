@@ -65,6 +65,22 @@ class TabularSchemaTests(unittest.TestCase):
         self.assertTrue(pd.api.types.is_numeric_dtype(result["sdb_area"]))
         self.assertEqual(result.loc[0, "sdb_area"], 10.5)
 
+    def test_converts_nullable_integral_float_dtype_to_integer(self):
+        gdf = gpd.GeoDataFrame(
+            {"sdb_codigo": [1.0, None], "geometry": [Point(0, 0), Point(1, 1)]},
+            geometry="geometry",
+            crs="EPSG:4326",
+        )
+        schema = TabularSchema(
+            columns={"sdb_codigo": ColumnRule("integer", required=True, nullable=True)}
+        )
+
+        result, errors = normalize_tabular_schema(gdf, schema)
+
+        self.assertEqual(errors, [])
+        self.assertTrue(pd.api.types.is_integer_dtype(result["sdb_codigo"]))
+        self.assertEqual(str(result["sdb_codigo"].dtype), "Int64")
+
     def test_reports_failed_conversion_when_new_null_is_not_allowed(self):
         gdf = gpd.GeoDataFrame(
             {"sdb_area": ["dez"], "geometry": [Point(0, 0)]},

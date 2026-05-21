@@ -9,6 +9,7 @@ from shapely.geometry import Point, Polygon
 from core.processing.context import ProcessingContext
 from core.processing.postprocess_step import postprocess_step
 from core.spatial.municipality_intersection import (
+    OUTSIDE_TERRITORIAL_LIMIT_MESSAGE,
     assign_municipality_fields_by_intersection,
     load_municipalities_base,
 )
@@ -75,6 +76,31 @@ class MunicipalityIntersectionTests(unittest.TestCase):
         self.assertEqual(result.loc[0, "acm_cod_munici"], "1100015")
         self.assertEqual(result.loc[0, "acm_municipio"], "Alta Floresta D'Oeste")
         self.assertEqual(result.loc[0, "acm_uf"], "RO")
+
+    def test_marks_features_without_municipality_intersection(self):
+        autos = gpd.GeoDataFrame(
+            {"geometry": [Point(10, 10)]},
+            geometry="geometry",
+            crs="EPSG:4326",
+        )
+        municipalities = gpd.GeoDataFrame(
+            {
+                "sdb_cd_mun": ["1234567"],
+                "sdb_nm_mun": ["Municipio Certo"],
+                "sdb_sigla_uf": ["AC"],
+                "geometry": [
+                    Polygon([(0, 0), (1, 0), (1, 1), (0, 1), (0, 0)]),
+                ],
+            },
+            geometry="geometry",
+            crs="EPSG:4326",
+        )
+
+        result = assign_municipality_fields_by_intersection(autos, municipalities)
+
+        self.assertEqual(result.loc[0, "acm_cod_munici"], OUTSIDE_TERRITORIAL_LIMIT_MESSAGE)
+        self.assertEqual(result.loc[0, "acm_municipio"], OUTSIDE_TERRITORIAL_LIMIT_MESSAGE)
+        self.assertEqual(result.loc[0, "acm_uf"], OUTSIDE_TERRITORIAL_LIMIT_MESSAGE)
 
     @unittest.skipUnless(
         Path(MUNICIPALITIES_GPKG_PATH).exists(),

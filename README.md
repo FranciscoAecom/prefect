@@ -329,6 +329,27 @@ Esse comando cria o deployment `Estado` com agenda diaria as 02:00, no fuso
 Depois disso, o deployment aparece em `http://127.0.0.1:4200/deployments` e o
 horario pode ser alterado pelo painel.
 
+### Deployment Autos de Infracao
+
+Para criar o deployment da base `autos_infracao` no painel do Prefect:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\serve.py auto-infracoes
+```
+
+Esse comando cria o deployment `Autos de Infracao` sem agenda automatica e com
+o parametro fixo:
+
+```json
+{"theme_folders": ["autos_infracao"]}
+```
+
+Para disparar a execucao pelo Prefect:
+
+```powershell
+.\.venv\Scripts\python.exe -m prefect deployment run "Data Pipeline/Autos de Infracao"
+```
+
 ### Execucao Manual Pelo Terminal
 
 Para executar uma base especifica pelo deployment:

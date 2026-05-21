@@ -56,7 +56,7 @@ PROJECT_CONFIGS = {
         "project_name": "auto_infracoes",
         "display_name": "Autos de infracao ambiental",
         "theme_prefixes": ("autos_infracao",),
-        "output_name_template": "pol_env_{theme_folder}_{date_yyyymmdd}",
+        "output_name_template": "pnt_env_{theme_folder}_{date_yyyymmdd}",
         "reference_date": "20260514",
     },
 }

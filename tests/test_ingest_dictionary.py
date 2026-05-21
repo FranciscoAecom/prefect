@@ -65,6 +65,26 @@ class IngestDictionaryTests(unittest.TestCase):
         self.assertEqual(result["missing_attributes"], [])
         self.assertEqual(result["extra_attributes"], [])
 
+    def test_dictionary_validation_matches_raw_aecom_names_to_sdb_input_columns(self):
+        workbook_path = self._write_dictionary_workbook(
+            [
+                {
+                    "theme": "Tema Teste",
+                    "original_attribute_name": "des_status",
+                    "aecom_attribute_name": "des_status",
+                }
+            ]
+        )
+
+        with patch.object(dictionary, "INGEST_WORKBOOK_PATH", workbook_path):
+            result = dictionary.validate_theme_and_attributes(
+                "Tema Teste",
+                ["sdb_des_status"],
+            )
+
+        self.assertEqual(result["missing_attributes"], [])
+        self.assertEqual(result["extra_attributes"], [])
+
     def _write_dictionary_workbook(self, rows):
         temp_dir = tempfile.TemporaryDirectory()
         self.addCleanup(temp_dir.cleanup)

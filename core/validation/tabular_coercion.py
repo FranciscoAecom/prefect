@@ -77,7 +77,10 @@ def coerce_series(series, expected_dtype):
 
     if expected in {"integer", "int"}:
         numeric = pd.to_numeric(series, errors="coerce")
-        return numeric.astype("Int64") if numeric.notna().all() else numeric
+        non_null = numeric.dropna()
+        if ((non_null % 1) == 0).all():
+            return numeric.astype("Int64")
+        return numeric
 
     if expected in {"datetime", "date"}:
         return pd.to_datetime(series, errors="coerce")

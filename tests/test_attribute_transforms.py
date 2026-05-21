@@ -21,6 +21,20 @@ class AttributeTransformsTests(unittest.TestCase):
         self.assertEqual(result.loc[2, "texto"], "linha quebrada")
         self.assertEqual(result["numero"].tolist(), [1, 2, 3])
 
+    def test_clean_whitespace_handles_categorical_text_values(self):
+        dataframe = pd.DataFrame(
+            {
+                "status": pd.Series(
+                    ["  Excluído  ", "Ativo"],
+                    dtype="category",
+                )
+            }
+        )
+
+        result = clean_whitespace(dataframe)
+
+        self.assertEqual(result["status"].tolist(), ["Excluído", "Ativo"])
+
 
 if __name__ == "__main__":
     unittest.main()
