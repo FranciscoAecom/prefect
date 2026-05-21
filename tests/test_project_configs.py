@@ -27,6 +27,8 @@ class ProjectConfigsTests(unittest.TestCase):
     def test_resolve_autos_infracao_project_config(self):
         config = resolve_project_config("autos_infracao")
 
+        self.assertEqual(resolve_project_name("autos_infracao"), "autos_infracao")
+        self.assertEqual(resolve_project_name("enov"), "autos_infracao")
         self.assertEqual(config["project_name"], "autos_infracao")
         self.assertEqual(config["theme_prefixes"], ("enov",))
         self.assertEqual(config["output_name_template"], "pnt_pcd_enov_{date_yyyymmdd}")

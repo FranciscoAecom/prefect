@@ -64,3 +64,16 @@
 17:30:06.589 | INFO    | Task run 'ur_car_ac' - Finished in state Completed()
 17:30:06.591 | INFO    | Flow run 'ur_car_ac' - [2026-05-20 17:30:06] Processamento finalizado
 17:30:07.020 | INFO    | Flow run 'ur_car_ac' - Finished in state Completed()
+17:30:00.503 | INFO    | Flow run 'ur_car_al' - Beginning flow run 'ur_car_al' for flow 'Data Pipeline'
+17:30:00.516 | INFO    | Flow run 'ur_car_al' - View at http://127.0.0.1:4200/runs/flow-run/019e4702-83c3-73ab-90da-a7f196e47d95
+17:30:01.073 | INFO    | Task run 'Preparar fila de processamento-8c2' - [2026-05-21 17:30:01] Resumo da planilha ingest:
+17:30:01.080 | INFO    | Task run 'Preparar fila de processamento-8c2' - [2026-05-21 17:30:01]   Aba analisada: datas
+17:30:01.081 | INFO    | Task run 'Preparar fila de processamento-8c2' - [2026-05-21 17:30:01]   Caminho da planilha: C:\Temp\Repositórios\prefect\input\st_Ingest_parameter.xlsx
+17:30:01.083 | INFO    | Task run 'Preparar fila de processamento-8c2' - [2026-05-21 17:30:01]   Registros lidos: 619
+17:30:01.084 | INFO    | Task run 'Preparar fila de processamento-8c2' - [2026-05-21 17:30:01]   Status elegiveis: Waiting Update, Reprocessing
+17:30:01.085 | INFO    | Task run 'Preparar fila de processamento-8c2' - [2026-05-21 17:30:01]   Registros com status elegivel: 1
+17:30:01.086 | INFO    | Task run 'Preparar fila de processamento-8c2' - [2026-05-21 17:30:01]   Arquivos aptos para processamento: 0
+17:30:01.086 | INFO    | Task run 'Preparar fila de processamento-8c2' - [2026-05-21 17:30:01]   Registros ignorados com excecao: 0
+17:30:01.087 | INFO    | Task run 'Preparar fila de processamento-8c2' - [2026-05-21 17:30:01] Nenhum arquivo elegivel encontrado para iniciar a esteira.
+17:30:01.090 | INFO    | Task run 'Preparar fila de processamento-8c2' - Finished in state Completed()
+17:30:01.886 | INFO    | Flow run 'ur_car_al' - Finished in state Completed()

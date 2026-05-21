@@ -25,7 +25,7 @@ com os pontos dentro do limite Brasil / zona costeira.
 
 - Arquivo: `projects/configs.py`
 - `display_name`: `Autos de infracao ambiental`
-- `theme_prefixes`: `("autos_infracao",)`
+- `theme_prefixes`: `("enov",)`
 - `output_name_template`: `pnt_pcd_enov_{date_yyyymmdd}`
 - `reference_date`: `20260514`
 
