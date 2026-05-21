@@ -61,6 +61,10 @@ PROJECT_CONFIGS = {
     },
 }
 
+THEME_PROJECT_ALIASES = {
+    "autos_infracao": "auto_infracoes",
+}
+
 
 @lru_cache(maxsize=None)
 def get_project_config(project_name=None):
@@ -73,6 +77,8 @@ def get_project_config(project_name=None):
 
 def resolve_project_name(theme_folder):
     theme_folder_text = str(theme_folder or "").strip().lower()
+    if theme_folder_text in THEME_PROJECT_ALIASES:
+        return THEME_PROJECT_ALIASES[theme_folder_text]
     for project_name, config in PROJECT_CONFIGS.items():
         for prefix in config.get("theme_prefixes", ()):
             if theme_folder_text.startswith(str(prefix).lower()):

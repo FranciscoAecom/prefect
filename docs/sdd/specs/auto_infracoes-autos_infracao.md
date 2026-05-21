@@ -26,7 +26,7 @@ com os pontos dentro do limite Brasil / zona costeira.
 - Arquivo: `projects/configs.py`
 - `display_name`: `Autos de infracao ambiental`
 - `theme_prefixes`: `("autos_infracao",)`
-- `output_name_template`: `pnt_env_{theme_folder}_{date_yyyymmdd}`
+- `output_name_template`: `pnt_pcd_{theme_folder}_{date_yyyymmdd}`
 - `reference_date`: `20260514`
 
 ## Regras Do Perfil
@@ -118,13 +118,13 @@ L:\Secure_DCS\BRBLH1PINFW001\COE_Digital\others\bouding_box\brasil\pol_br_zona_c
 Arquivo principal:
 
 ```text
-output\autos_infracao\pnt_env_autos_infracao_20260514.gpkg
+output\autos_infracao\pnt_pcd_autos_infracao_20260514.gpkg
 ```
 
 Arquivo secundario:
 
 ```text
-output\autos_infracao\pnt_env_autos_infracao_20260514_bbox_brasil.gpkg
+output\autos_infracao\pnt_pcd_autos_infracao_20260514_bbox_brasil.gpkg
 ```
 
 O arquivo principal deve conter todos os pontos tratados. O arquivo secundario
