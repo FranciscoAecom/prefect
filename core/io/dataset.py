@@ -1,9 +1,12 @@
 import os
+import re
+import sqlite3
 import warnings
 from contextlib import contextmanager
 from pathlib import Path
 from time import perf_counter, sleep, time
 
+import pandas as pd
 import pyogrio
 
 from core.utils import log
@@ -152,6 +155,75 @@ def _output_file_lock(output):
             pass
 
 
+def _quoted_identifier(identifier):
+    return '"' + str(identifier).replace('"', '""') + '"'
+
+
+def _date_only_datetime_columns(gdf):
+    date_columns = []
+    for column in gdf.columns:
+        if column == getattr(gdf, "geometry", None).name:
+            continue
+        series = gdf[column]
+        if not pd.api.types.is_datetime64_any_dtype(series):
+            continue
+
+        parsed = pd.to_datetime(series, errors="coerce")
+        non_null = parsed.dropna()
+        if non_null.empty or bool(non_null.eq(non_null.dt.normalize()).all()):
+            date_columns.append(column)
+    return date_columns
+
+
+def _promote_gpkg_datetime_columns_to_date(output, layer_name, date_columns):
+    if not date_columns:
+        return
+
+    connection = sqlite3.connect(output)
+    try:
+        table_sql_row = connection.execute(
+            """
+            SELECT sql
+            FROM sqlite_master
+            WHERE type = 'table' AND name = ?
+            """,
+            (layer_name,),
+        ).fetchone()
+        if not table_sql_row or not table_sql_row[0]:
+            return
+
+        updated_sql = table_sql_row[0]
+        for column in date_columns:
+            quoted_column = re.escape(_quoted_identifier(column))
+            updated_sql = re.sub(
+                rf"({quoted_column}\s+)DATETIME\b",
+                r"\1DATE",
+                updated_sql,
+                flags=re.IGNORECASE,
+            )
+
+        if updated_sql == table_sql_row[0]:
+            return
+
+        connection.execute("PRAGMA writable_schema=ON")
+        try:
+            connection.execute(
+                """
+                UPDATE sqlite_master
+                SET sql = ?
+                WHERE type = 'table' AND name = ?
+                """,
+                (updated_sql, layer_name),
+            )
+            schema_version = connection.execute("PRAGMA schema_version").fetchone()[0]
+            connection.execute(f"PRAGMA schema_version = {int(schema_version) + 1}")
+        finally:
+            connection.execute("PRAGMA writable_schema=OFF")
+        connection.commit()
+    finally:
+        connection.close()
+
+
 def write_output_gpkg(
     gdf,
     output_path,
@@ -162,6 +234,7 @@ def write_output_gpkg(
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
     layer_name = layer or output.stem
+    date_only_columns = _date_only_datetime_columns(gdf)
     started = perf_counter()
     with _output_file_lock(output):
         if overwrite_existing and not append:
@@ -178,6 +251,11 @@ def write_output_gpkg(
                 layer=layer_name,
                 driver="GPKG",
                 append=append,
+            )
+            _promote_gpkg_datetime_columns_to_date(
+                output,
+                layer_name,
+                date_only_columns,
             )
         log(
             f"Escrita do arquivo concluida em {perf_counter() - started:.2f}s: "

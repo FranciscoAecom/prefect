@@ -71,10 +71,34 @@ def resolve_theme_folder(target, region):
     return target.theme_folder_prefix
 
 
+def resolve_download_target_for_theme_folder(theme_folder):
+    normalized = str(theme_folder or "").strip().lower()
+    for target in DOWNLOAD_TARGETS.values():
+        prefix = str(target.theme_folder_prefix or "").strip().lower()
+        if normalized == prefix or normalized.startswith(f"{prefix}_"):
+            return target
+    return None
+
+
+def resolve_region_from_theme_folder(target, theme_folder):
+    normalized = str(theme_folder or "").strip().lower()
+    prefix = str(target.theme_folder_prefix or "").strip().lower()
+    if not target.requires_region:
+        return None
+    expected_prefix = f"{prefix}_"
+    if not normalized.startswith(expected_prefix):
+        raise ValueError(
+            f"Theme folder {theme_folder} nao corresponde ao dataset {target.key}."
+        )
+    return normalize_region(normalized.removeprefix(expected_prefix))
+
+
 __all__ = [
     "DOWNLOAD_TARGETS",
     "DownloadTarget",
     "get_download_target",
     "normalize_region",
+    "resolve_download_target_for_theme_folder",
+    "resolve_region_from_theme_folder",
     "resolve_theme_folder",
 ]

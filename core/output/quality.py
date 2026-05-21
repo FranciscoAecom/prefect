@@ -20,6 +20,10 @@ from settings import (
     ENABLE_OGC_INVALID_REPORT,
 )
 
+QUALITY_CHECK_ATTRIBUTE_DUPLICATES = "check_attribute_duplicates"
+QUALITY_CHECK_GEOMETRIC_DUPLICATES = "check_geometric_duplicates"
+QUALITY_CHECK_OGC_INVALID_GEOMETRIES = "check_ogc_invalid_geometries"
+
 
 @dataclass(frozen=True)
 class OutputQualitySummary:
@@ -63,6 +67,15 @@ def build_output_quality_summary(final_gdf, theme_output_dir, base_name):
 
 
 def log_output_quality_summary(summary):
+    quality_checks = _enabled_quality_checks()
+    if quality_checks:
+        log(
+            "Verificacoes obrigatorias de qualidade executadas: "
+            + ", ".join(quality_checks)
+        )
+    else:
+        log("Verificacoes obrigatorias de qualidade: desabilitadas em settings.py")
+
     if ENABLE_ATTRIBUTE_DUPLICATE_REPORT:
         log(f"Relatorio duplicados atributos: {summary.attr_report or 'nao gerado'}")
     else:
@@ -90,6 +103,17 @@ def log_output_quality_summary(summary):
         log("Resumo erros OGC:")
         for erro, quantidade in summary.ogc_error_summary.items():
             log(f"  {quantidade}x - {erro}")
+
+
+def _enabled_quality_checks():
+    checks = []
+    if ENABLE_ATTRIBUTE_DUPLICATE_REPORT:
+        checks.append(QUALITY_CHECK_ATTRIBUTE_DUPLICATES)
+    if ENABLE_GEOMETRIC_DUPLICATE_REPORT:
+        checks.append(QUALITY_CHECK_GEOMETRIC_DUPLICATES)
+    if ENABLE_OGC_INVALID_REPORT:
+        checks.append(QUALITY_CHECK_OGC_INVALID_GEOMETRIES)
+    return checks
 
 
 def _attribute_duplicates(final_gdf):

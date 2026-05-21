@@ -6,6 +6,7 @@ INGEST_WORKBOOK_PATH = PROJECT_ROOT / "input" / "st_Ingest_parameter.xlsx"
 INGEST_SHEET_NAME = "datas"
 DICTIONARIES_SHEET_NAME = "dictionaries"
 INGEST_READY_STATUS = "Waiting Update"
+INGEST_DOWNLOAD_STATUS = "Download"
 
 OUTPUT_BASE = PROJECT_ROOT / "output"
 

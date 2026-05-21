@@ -274,25 +274,33 @@ Para subir o deployment de download:
 uv run python scripts/serve.py data-download
 ```
 
-Esse comando cria o deployment `Download de Dados`.
+Esse comando cria o deployment `Download de Dados`. Sem parametros manuais, o
+flow le a aba `datas` da planilha ingest e baixa apenas linhas com
+`status = Download`. Depois de extrair a base, o proprio flow dispara o
+`Data Pipeline` apenas para o `theme_folder` baixado.
+
+Bases marcadas como `Download` que nao possuem conector/script registrado no
+catalogo de downloads sao ignoradas com mensagem no log. Para essas bases, use
+`status = Waiting Update` quando o dado ja estiver disponivel para tratamento.
 
 O flow aceita os principais parametros:
 
 ```text
-dataset_key: car_uso_restrito | car_reserva_legal | car_servidao_administrativa | car_app
-region: MG, SP, BA, ...
 source_root: base opcional da API/fonte do conector
 force: baixa novamente mesmo se o ZIP ja existir
 process_after_download: quando true, dispara o Data Pipeline automaticamente
 emit_download_event: quando true, emite o evento Prefect dataset.downloaded
+theme_folders: filtro opcional para baixar apenas alguns theme_folders com status Download
 ```
 
 Fluxo padrao:
 
 ```text
 Data Download
-  -> resolve o dataset no catalogo
-  -> chama o conector de download
+  -> le linhas status = Download na ingest
+  -> resolve o dataset no catalogo pelo theme_folder
+  -> ignora bases sem conector/script registrado
+  -> chama o conector de download das bases elegiveis
   -> salva/cacheia o ZIP em input/downloads/_archives/<dataset_key>/<theme_folder>
   -> extrai o arquivo em input/downloads/<theme_folder>
   -> emite dataset.downloaded
@@ -436,9 +444,15 @@ Associacoes principais:
 - `rl_car_*` usa `rules/reserva_legal_car/`.
 - `estado` usa `rules/estado/`.
 - `auth_supn` usa `rules/autorizacao_para_supressao_vegetal/`.
+- `autos_infracao` usa `rules/auto_infracoes/autos_infracao/`.
 
 Use `rules/_template/` como base para novos perfis. O formato completo esta em
 `readme/rules.md`.
+
+Antes de criar ou alterar regras de uma base, registre a especificacao em
+`docs/sdd/specs/`. O guia do fluxo Spec-Driven Development fica em
+`docs/sdd/README.md`, e o template para novas bases fica em
+`docs/sdd/spec-template.md`.
 
 No `pipeline.json`, o perfil explicita tudo que roda de forma configuravel:
 
@@ -478,6 +492,10 @@ Tambem podem ser gerados:
 - relatorio de geometrias invalidas OGC;
 - consolidado por grupo, quando `ENABLE_GROUP_CONSOLIDATION = True`.
 
+Na etapa de persistencia, o log tambem lista as verificacoes obrigatorias de
+qualidade executadas: `check_attribute_duplicates`,
+`check_geometric_duplicates` e `check_ogc_invalid_geometries`.
+
 ## Configuracao
 
 As constantes principais ficam em `settings.py`, incluindo:
@@ -486,6 +504,7 @@ As constantes principais ficam em `settings.py`, incluindo:
 - `INGEST_SHEET_NAME`
 - `DICTIONARIES_SHEET_NAME`
 - `INGEST_READY_STATUS`
+- `INGEST_DOWNLOAD_STATUS`
 - `OUTPUT_BASE`
 - `RULES_BASE`
 - `BATCH_SIZE`

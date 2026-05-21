@@ -8,9 +8,11 @@ from prefect import flow, task
 from prefect.events import emit_event
 
 from core.downloads.connectors.car_public_api import download_car_public_api_target
-from core.downloads.catalog import get_download_target, resolve_theme_folder
+from core.downloads.catalog import get_download_target
+from core.downloads.queue import load_download_queue
 from core.prefect_flow import data_pipeline_flow
 from core.prefect_support.variables import get_path_variable
+from core.queue.filters import QueueFilter
 from core.utils import log
 from settings import DEFAULT_DOWNLOAD_EXTRACT_BASE
 
@@ -101,25 +103,81 @@ def emit_dataset_downloaded_event_task(download_result):
     return str(event.id) if event else None
 
 
+@task(name="Carregar fila de downloads", log_prints=True)
+def load_download_queue_task(theme_folders=None):
+    records, issues, summary = load_download_queue(theme_folders=theme_folders)
+    log_download_queue_summary(summary, issues)
+    return [record.__dict__ for record in records]
+
+
+def log_download_queue_summary(summary, issues):
+    log("Resumo da fila de downloads:")
+    log(f"  Registros lidos: {summary['total_records']}")
+    log(f"  Status elegivel: {summary['download_status']}")
+    log(f"  Registros com status elegivel: {summary['download_candidates']}")
+    log(f"  Registros aptos para download: {summary['eligible_records']}")
+    log(f"  Registros ignorados com excecao: {summary['issues']}")
+    if issues:
+        log("Excecoes encontradas na fila de downloads:")
+        for issue in issues:
+            log(
+                "  Linha "
+                f"{issue.sheet_row} | ID={issue.record_id} | "
+                f"theme_folder={issue.theme_folder} | motivo: {issue.reason}"
+            )
+
+
 def data_download_flow_run_name():
     from prefect.runtime import flow_run
 
     parameters = flow_run.parameters or {}
-    try:
-        target = get_download_target(parameters.get("dataset_key", "car_uso_restrito"))
-        theme_folder = resolve_theme_folder(
-            target,
-            parameters.get("region") or target.default_region or "MG",
-        )
-    except ValueError:
-        return "download_dataset"
-    return f"download_{theme_folder}"
+    theme_folders = sorted(
+        QueueFilter.from_theme_folders(parameters.get("theme_folders")).theme_folders
+    )
+    if len(theme_folders) == 1:
+        return f"download_{theme_folders[0]}"
+    if theme_folders:
+        return f"download_{len(theme_folders)}_bases"
+    return "download_ingest"
 
 
 @flow(name="Data Download", flow_run_name=data_download_flow_run_name, log_prints=True)
 def data_download_flow(
-    dataset_key="car_uso_restrito",
-    region="MG",
+    source_root=None,
+    output_dir=None,
+    extract_base=None,
+    output_base=None,
+    force=False,
+    emit_download_event=True,
+    process_after_download=True,
+    theme_folders=None,
+):
+    records = load_download_queue_task(theme_folders=theme_folders)
+    if not records:
+        log("Nenhum registro elegivel para download.")
+        return []
+
+    results = []
+    for record in records:
+        results.append(
+            _run_single_download(
+                dataset_key=record["dataset_key"],
+                region=record["region"],
+                source_root=source_root,
+                output_dir=output_dir,
+                extract_base=extract_base,
+                output_base=output_base,
+                force=force,
+                emit_download_event=emit_download_event,
+                process_after_download=process_after_download,
+            )
+        )
+    return results
+
+
+def _run_single_download(
+    dataset_key,
+    region,
     source_root=None,
     output_dir=None,
     extract_base=None,
