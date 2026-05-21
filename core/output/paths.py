@@ -13,20 +13,20 @@ def build_processing_group_key(record):
 
 
 def build_group_merged_output_path(record, output_dir):
-    theme_output_dir = build_theme_output_dir(output_dir, record.theme_folder)
+    theme_output_dir = resolve_theme_output_dir(record, output_dir)
     os.makedirs(theme_output_dir, exist_ok=True)
     return os.path.join(theme_output_dir, f"{build_final_output_base_name(record)}.gpkg")
 
 
 def build_group_log_path(record, output_dir):
-    theme_output_dir = build_theme_output_dir(output_dir, record.theme_folder)
+    theme_output_dir = resolve_theme_output_dir(record, output_dir)
     os.makedirs(theme_output_dir, exist_ok=True)
     base_name = build_final_output_base_name(record)
     return os.path.join(theme_output_dir, f"{base_name}.txt")
 
 
 def resolve_output_path(record, output_dir, use_configured_final_name):
-    theme_output_dir = build_theme_output_dir(output_dir, record.theme_folder)
+    theme_output_dir = resolve_theme_output_dir(record, output_dir)
     os.makedirs(theme_output_dir, exist_ok=True)
 
     if use_configured_final_name:
@@ -40,3 +40,12 @@ def resolve_output_path(record, output_dir, use_configured_final_name):
 
 def build_secondary_output_path(theme_output_dir, base_name, suffix):
     return os.path.join(theme_output_dir, f"{base_name}_{suffix}.gpkg")
+
+
+def resolve_theme_output_dir(record, output_dir):
+    record_output_dir = getattr(record, "output_dir", "") or ""
+    if record_output_dir and os.path.normcase(os.path.normpath(record_output_dir)) == os.path.normcase(
+        os.path.normpath(str(output_dir))
+    ):
+        return str(output_dir)
+    return build_theme_output_dir(output_dir, record.theme_folder)

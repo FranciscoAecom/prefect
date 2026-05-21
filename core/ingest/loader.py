@@ -14,7 +14,9 @@ from core.rules.engine import (
     get_rule_profile_project_name,
 )
 from projects.configs import resolve_project_name
+from core.versioning import resolve_dataset_version_plan
 from settings import (
+    INGEST_PROCESSING_STATUSES,
     INGEST_READY_STATUS,
     INGEST_SHEET_NAME,
     INGEST_WORKBOOK_PATH,
@@ -24,13 +26,13 @@ from settings import (
 def load_processing_queue(
     workbook_path=INGEST_WORKBOOK_PATH,
     sheet_name=INGEST_SHEET_NAME,
-    ready_status=INGEST_READY_STATUS,
+    ready_status=INGEST_PROCESSING_STATUSES,
     theme_folders=None,
     queue_filter=None,
     source_path_overrides=None,
 ):
     dataframe = pd.read_excel(workbook_path, sheet_name=sheet_name)
-    ready_status_normalized = normalize_status(ready_status)
+    ready_statuses_normalized = _normalize_ready_statuses(ready_status)
     queue_filter = queue_filter or QueueFilter.from_theme_folders(theme_folders)
     source_path_overrides = _normalize_source_path_overrides(source_path_overrides)
 
@@ -44,10 +46,14 @@ def load_processing_queue(
         theme = stringify(row.get("theme"))
         theme_folder = stringify(row.get("theme_folder"))
         status = stringify(row.get("status"))
+        versioning_metadata = _extract_versioning_metadata(row)
         override_source_path = source_path_overrides.get(normalize_theme_folder(theme_folder))
         source_path = override_source_path or stringify(row.get("path_shapefile_temp"))
 
-        if normalize_status(status) != ready_status_normalized and not override_source_path:
+        if (
+            normalize_status(status) not in ready_statuses_normalized
+            and not override_source_path
+        ):
             continue
 
         ready_candidates += 1
@@ -135,6 +141,13 @@ def load_processing_queue(
             continue
 
         for input_path in input_paths:
+            output_dir = _resolve_versioned_output_dir(
+                {
+                    "status": status,
+                    "theme_folder": theme_folder,
+                    **versioning_metadata,
+                }
+            )
             eligible_records.append(
                 IngestRecord(
                     sheet_row=sheet_row,
@@ -145,6 +158,8 @@ def load_processing_queue(
                     source_path=source_path,
                     input_path=input_path,
                     rule_profile=rule_profile,
+                    **versioning_metadata,
+                    output_dir=output_dir,
                 )
             )
 
@@ -153,9 +168,51 @@ def load_processing_queue(
         "ready_candidates": ready_candidates,
         "eligible_records": len(eligible_records),
         "issues": len(issues),
+        "processing_statuses": _ready_statuses_display(ready_status),
     }
 
     return eligible_records, issues, summary
+
+
+def _normalize_ready_statuses(ready_status):
+    if isinstance(ready_status, str):
+        statuses = [ready_status]
+    else:
+        statuses = list(ready_status or [INGEST_READY_STATUS])
+    return tuple(normalize_status(status) for status in statuses if normalize_status(status))
+
+
+def _ready_statuses_display(ready_status):
+    if isinstance(ready_status, str):
+        statuses = [ready_status]
+    else:
+        statuses = list(ready_status or [INGEST_READY_STATUS])
+    return [stringify(status) for status in statuses if stringify(status)]
+
+
+def _extract_versioning_metadata(row):
+    return {
+        "access_constraints": stringify(row.get("access_constraints")),
+        "category_acronym": stringify(row.get("category_acronym")),
+        "citation": stringify(row.get("citation")),
+        "date": stringify(row.get("date")),
+    }
+
+
+def _resolve_versioned_output_dir(record):
+    if not all(
+        stringify(record.get(field))
+        for field in (
+            "status",
+            "access_constraints",
+            "category_acronym",
+            "theme_folder",
+            "citation",
+            "date",
+        )
+    ):
+        return ""
+    return str(resolve_dataset_version_plan(record).silver_dir)
 
 
 def _normalize_source_path_overrides(source_path_overrides):

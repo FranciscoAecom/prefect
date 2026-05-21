@@ -35,5 +35,6 @@ def prepare_processing_queue(
         return None
 
     output_dir = str(output_base)
-    os.makedirs(output_dir, exist_ok=True)
+    if not all(getattr(record, "output_dir", "") for record in processing_queue):
+        os.makedirs(output_dir, exist_ok=True)
     return QueueRunContext(records=processing_queue, output_dir=output_dir)

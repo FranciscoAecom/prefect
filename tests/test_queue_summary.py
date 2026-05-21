@@ -13,6 +13,7 @@ class QueueSummaryTests(unittest.TestCase):
             "ready_candidates": 1,
             "eligible_records": 1,
             "issues": 1,
+            "processing_statuses": ["Waiting Update", "Reprocessing"],
         }
         issues = [
             SimpleNamespace(
@@ -28,6 +29,10 @@ class QueueSummaryTests(unittest.TestCase):
         messages = [call.args[0] for call in mock_log.call_args_list]
         self.assertIn("Resumo da planilha ingest:", messages)
         self.assertIn("  Registros lidos: 2", messages)
+        self.assertIn(
+            "  Status elegiveis: Waiting Update, Reprocessing",
+            messages,
+        )
         self.assertIn("Excecoes encontradas na fila ingest:", messages)
         self.assertIn(
             "  Linha 3 | ID=20 | theme_folder=<vazio> | motivo=arquivo ausente",

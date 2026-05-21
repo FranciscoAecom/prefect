@@ -64,6 +64,43 @@ um conector implementado em `core/downloads/connectors/`. Bases sem conector
 devem ser tratadas manualmente com `status = Waiting Update` quando o arquivo ja
 estiver disponivel.
 
+## Status Da Ingest
+
+A coluna `status` e a unica coluna de controle operacional da ingest:
+
+- `Download`: baixa a base, salva bruto e dispara tratamento.
+- `Waiting Update`: trata uma base ja disponivel e pode criar nova versao.
+- `Reprocessing`: retrata uma versao existente sem criar nova versao.
+
+Nao criar uma coluna separada para modo de processamento.
+
+## Versionamento Temp/Bronze/Silver
+
+O modulo `core.versioning` centraliza a montagem dos caminhos das camadas
+`temp`, `bronze_data` e `silver_data`.
+
+Base fixa:
+
+```text
+L:\Secure_DCS\BRBLH1PINFW001\COE_Digital\coe_digital_data
+```
+
+Estrutura:
+
+```text
+<base>\<etapa>\<access_constraints>\<category_acronym>\<theme_folder>\<citation>\<date>\<version>
+```
+
+Regras:
+
+- `date` e normalizado para `YYYYMMDD`.
+- A versao nao vem da ingest: ela e calculada pela existencia de arquivos em
+  `bronze_data`, iniciando em `00`.
+- `Download` e `Waiting Update` usam a proxima versao disponivel quando a
+  versao atual ja contem `.shp` ou `.gpkg` em `bronze_data`.
+- `Reprocessing` reutiliza a ultima versao existente e nao cria uma nova versao.
+- A versao decidida deve ser a mesma para `temp`, `bronze_data` e `silver_data`.
+
 ## Verificacoes Obrigatorias De Qualidade
 
 Alem das funcoes obrigatorias de transformacao, a persistencia da saida executa

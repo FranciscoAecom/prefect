@@ -14,6 +14,7 @@ from core.prefect_flow import data_pipeline_flow
 from core.prefect_support.variables import get_path_variable
 from core.queue.filters import QueueFilter
 from core.utils import log
+from core.versioning import resolve_dataset_version_plan
 from settings import DEFAULT_DOWNLOAD_EXTRACT_BASE
 
 
@@ -38,14 +39,17 @@ def download_dataset_task(
 
 
 @task(name="Extrair dataset", log_prints=True)
-def extract_download_task(download_result, extract_base=None):
+def extract_download_task(download_result, extract_base=None, extract_dir=None):
     archive_path = Path(download_result["archive_path"])
     theme_folder = download_result["theme_folder"]
-    extract_root = Path(extract_base) if extract_base else get_path_variable(
-        "download_extract_base",
-        DEFAULT_DOWNLOAD_EXTRACT_BASE,
-    )
-    extract_dir = extract_root / theme_folder
+    if extract_dir:
+        extract_dir = Path(extract_dir)
+    else:
+        extract_root = Path(extract_base) if extract_base else get_path_variable(
+            "download_extract_base",
+            DEFAULT_DOWNLOAD_EXTRACT_BASE,
+        )
+        extract_dir = extract_root / theme_folder
 
     if extract_dir.exists():
         shutil.rmtree(extract_dir)
@@ -110,6 +114,20 @@ def load_download_queue_task(theme_folders=None):
     return [record.__dict__ for record in records]
 
 
+@task(name="Resolver versao do download", log_prints=True)
+def resolve_download_version_plan_task(record):
+    plan = resolve_dataset_version_plan(record)
+    log(f"Diretorio temp do download: {plan.temp_dir}")
+    log(f"Diretorio bronze planejado: {plan.bronze_dir}")
+    log(f"Diretorio silver planejado: {plan.silver_dir}")
+    return {
+        "version": plan.version,
+        "temp_dir": str(plan.temp_dir),
+        "bronze_dir": str(plan.bronze_dir),
+        "silver_dir": str(plan.silver_dir),
+    }
+
+
 def log_download_queue_summary(summary, issues):
     log("Resumo da fila de downloads:")
     log(f"  Registros lidos: {summary['total_records']}")
@@ -161,6 +179,7 @@ def data_download_flow(
     for record in records:
         results.append(
             _run_single_download(
+                record=record,
                 dataset_key=record["dataset_key"],
                 region=record["region"],
                 source_root=source_root,
@@ -176,6 +195,7 @@ def data_download_flow(
 
 
 def _run_single_download(
+    record,
     dataset_key,
     region,
     source_root=None,
@@ -186,14 +206,30 @@ def _run_single_download(
     emit_download_event=True,
     process_after_download=True,
 ):
+    version_plan = resolve_download_version_plan_task(record)
+    temp_dir = Path(version_plan["temp_dir"])
+    archive_output_dir = Path(output_dir) if output_dir else temp_dir / "_downloads"
+    extract_dir = temp_dir / "raw"
+
     downloaded = download_dataset_task(
         dataset_key=dataset_key,
         region=region,
         source_root=source_root,
-        output_dir=output_dir,
+        output_dir=str(archive_output_dir),
         force=force,
     )
-    extracted = extract_download_task(downloaded, extract_base=extract_base)
+    extracted = extract_download_task(
+        downloaded,
+        extract_base=extract_base,
+        extract_dir=str(extract_dir),
+    )
+    extracted = {
+        **extracted,
+        "version": version_plan["version"],
+        "temp_dir": version_plan["temp_dir"],
+        "bronze_dir": version_plan["bronze_dir"],
+        "silver_dir": version_plan["silver_dir"],
+    }
 
     if emit_download_event:
         emit_dataset_downloaded_event_task(extracted)

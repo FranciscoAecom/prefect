@@ -26,7 +26,8 @@ Arquivos `.zip` nao sao processados diretamente.
 
 Uma linha entra na fila quando:
 
-- `status = Waiting Update`;
+- `status = Waiting Update` ou `status = Reprocessing` para tratamento;
+- `status = Download` para download automatico;
 - `path_shapefile_temp` aponta para um arquivo ou pasta suportada;
 - `theme_folder` encontra um perfil correspondente em `rules/`.
 
@@ -103,7 +104,7 @@ py -3.14 -m pip install -e .
 ## Como Usar
 
 1. Atualize `input/st_Ingest_parameter.xlsx`.
-2. Na aba `datas`, defina `status = Waiting Update` para as linhas que devem ser processadas.
+2. Na aba `datas`, defina `status = Waiting Update` para bases novas ja disponiveis ou `status = Reprocessing` para retratamento sem nova versao.
 3. Preencha `path_shapefile_temp`, `theme_folder` e `theme`.
 4. Confira se existe um perfil correspondente em `rules/`.
 5. Execute o pipeline:
@@ -282,6 +283,14 @@ flow le a aba `datas` da planilha ingest e baixa apenas linhas com
 Bases marcadas como `Download` que nao possuem conector/script registrado no
 catalogo de downloads sao ignoradas com mensagem no log. Para essas bases, use
 `status = Waiting Update` quando o dado ja estiver disponivel para tratamento.
+
+Status oficiais na coluna `status`:
+
+```text
+Download: baixa a base, salva bruto e dispara tratamento.
+Waiting Update: trata uma base ja disponivel e pode criar nova versao.
+Reprocessing: retrata uma versao existente sem criar nova versao.
+```
 
 O flow aceita os principais parametros:
 
@@ -496,15 +505,40 @@ Na etapa de persistencia, o log tambem lista as verificacoes obrigatorias de
 qualidade executadas: `check_attribute_duplicates`,
 `check_geometric_duplicates` e `check_ogc_invalid_geometries`.
 
+## Versionamento Temp/Bronze/Silver
+
+O modulo `core.versioning` monta os caminhos padronizados das camadas
+`temp`, `bronze_data` e `silver_data` a partir de:
+
+```text
+L:\Secure_DCS\BRBLH1PINFW001\COE_Digital\coe_digital_data
+```
+
+Estrutura:
+
+```text
+<base>\<etapa>\<access_constraints>\<category_acronym>\<theme_folder>\<citation>\<date>\<version>
+```
+
+`date` e convertido para `YYYYMMDD`. A versao nao vem da ingest: ela e
+calculada pela existencia de arquivos em `bronze_data`, iniciando em `00`.
+`Reprocessing` reutiliza a ultima versao existente sem criar uma nova.
+
 ## Configuracao
 
 As constantes principais ficam em `settings.py`, incluindo:
 
+- `DATA_LAKE_BASE`
+- `DATA_LAKE_TEMP_STAGE`
+- `DATA_LAKE_BRONZE_STAGE`
+- `DATA_LAKE_SILVER_STAGE`
 - `INGEST_WORKBOOK_PATH`
 - `INGEST_SHEET_NAME`
 - `DICTIONARIES_SHEET_NAME`
 - `INGEST_READY_STATUS`
 - `INGEST_DOWNLOAD_STATUS`
+- `INGEST_REPROCESSING_STATUS`
+- `INGEST_PROCESSING_STATUSES`
 - `OUTPUT_BASE`
 - `RULES_BASE`
 - `BATCH_SIZE`

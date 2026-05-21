@@ -1,5 +1,5 @@
 from core.utils import log
-from settings import INGEST_READY_STATUS, INGEST_SHEET_NAME, INGEST_WORKBOOK_PATH
+from settings import INGEST_PROCESSING_STATUSES, INGEST_SHEET_NAME, INGEST_WORKBOOK_PATH
 
 
 def log_queue_summary(summary, issues):
@@ -7,7 +7,7 @@ def log_queue_summary(summary, issues):
     log(f"  Aba analisada: {INGEST_SHEET_NAME}")
     log(f"  Caminho da planilha: {INGEST_WORKBOOK_PATH}")
     log(f"  Registros lidos: {summary['total_records']}")
-    log(f"  Status elegivel: {INGEST_READY_STATUS}")
+    log(f"  Status elegiveis: {_format_processing_statuses(summary)}")
     log(f"  Registros com status elegivel: {summary['ready_candidates']}")
     log(f"  Arquivos aptos para processamento: {summary['eligible_records']}")
     log(f"  Registros ignorados com excecao: {summary['issues']}")
@@ -21,3 +21,8 @@ def log_queue_summary(summary, issues):
                 f"theme_folder={issue.theme_folder or '<vazio>'} | "
                 f"motivo={issue.reason}"
             )
+
+
+def _format_processing_statuses(summary):
+    statuses = summary.get("processing_statuses") or INGEST_PROCESSING_STATUSES
+    return ", ".join(str(status) for status in statuses)

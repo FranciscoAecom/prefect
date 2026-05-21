@@ -16,29 +16,63 @@ class DownloadFlowTests(unittest.TestCase):
     @patch("core.downloads.flow.data_pipeline_flow")
     @patch("core.downloads.flow.emit_dataset_downloaded_event_task")
     @patch("core.downloads.flow.extract_download_task")
+    @patch("core.downloads.flow.resolve_download_version_plan_task")
     @patch("core.downloads.flow.download_dataset_task")
     @patch("core.downloads.flow.load_download_queue_task")
     def test_default_flow_uses_download_queue(
         self,
         mock_load_queue,
         mock_download,
+        mock_resolve_plan,
         mock_extract,
         mock_emit_event,
         mock_pipeline,
     ):
         mock_load_queue.return_value = [
-            {"dataset_key": "car_app", "region": "AC"},
-            {"dataset_key": "car_uso_restrito", "region": "ES"},
+            {
+                "dataset_key": "car_app",
+                "region": "AC",
+                "status": "Download",
+                "access_constraints": "restricted",
+                "category_acronym": "pcd",
+                "theme_folder": "app_car_ac",
+                "citation": "SICAR",
+                "date": "2026-03-01",
+            },
+            {
+                "dataset_key": "car_uso_restrito",
+                "region": "ES",
+                "status": "Download",
+                "access_constraints": "restricted",
+                "category_acronym": "pcd",
+                "theme_folder": "ur_car_es",
+                "citation": "SICAR",
+                "date": "2026-03-01",
+            },
         ]
         mock_download.side_effect = [
             {"archive_path": "app.zip", "theme_folder": "app_car_ac"},
             {"archive_path": "ur.zip", "theme_folder": "ur_car_es"},
         ]
+        mock_resolve_plan.side_effect = [
+            {
+                "version": "00",
+                "temp_dir": r"L:\base\temp\restricted\pcd\app_car_ac\SICAR\20260301\00",
+                "bronze_dir": r"L:\base\bronze_data\restricted\pcd\app_car_ac\SICAR\20260301\00",
+                "silver_dir": r"L:\base\silver_data\restricted\pcd\app_car_ac\SICAR\20260301\00",
+            },
+            {
+                "version": "00",
+                "temp_dir": r"L:\base\temp\restricted\pcd\ur_car_es\SICAR\20260301\00",
+                "bronze_dir": r"L:\base\bronze_data\restricted\pcd\ur_car_es\SICAR\20260301\00",
+                "silver_dir": r"L:\base\silver_data\restricted\pcd\ur_car_es\SICAR\20260301\00",
+            },
+        ]
         mock_extract.side_effect = [
             {
                 "archive_path": "app.zip",
                 "theme_folder": "app_car_ac",
-                "extract_dir": "input/downloads/app_car_ac",
+                "extract_dir": r"L:\base\temp\restricted\pcd\app_car_ac\SICAR\20260301\00\raw",
                 "dataset_key": "car_app",
                 "connector": "car_public_api",
                 "region": "AC",
@@ -46,7 +80,7 @@ class DownloadFlowTests(unittest.TestCase):
             {
                 "archive_path": "ur.zip",
                 "theme_folder": "ur_car_es",
-                "extract_dir": "input/downloads/ur_car_es",
+                "extract_dir": r"L:\base\temp\restricted\pcd\ur_car_es\SICAR\20260301\00\raw",
                 "dataset_key": "car_uso_restrito",
                 "connector": "car_public_api",
                 "region": "ES",
@@ -57,6 +91,7 @@ class DownloadFlowTests(unittest.TestCase):
 
         mock_load_queue.assert_called_once_with(theme_folders=None)
         self.assertEqual(mock_download.call_count, 2)
+        self.assertEqual(mock_resolve_plan.call_count, 2)
         self.assertEqual(mock_extract.call_count, 2)
         self.assertEqual(mock_emit_event.call_count, 2)
         self.assertEqual(mock_pipeline.call_count, 2)
@@ -67,7 +102,15 @@ class DownloadFlowTests(unittest.TestCase):
         )
         self.assertEqual(
             mock_pipeline.call_args_list[1].kwargs["source_path_overrides"],
-            {"ur_car_es": "input/downloads/ur_car_es"},
+            {"ur_car_es": r"L:\base\temp\restricted\pcd\ur_car_es\SICAR\20260301\00\raw"},
+        )
+        self.assertEqual(
+            mock_extract.call_args_list[0].kwargs["extract_dir"],
+            r"L:\base\temp\restricted\pcd\app_car_ac\SICAR\20260301\00\raw",
+        )
+        self.assertEqual(
+            mock_download.call_args_list[0].kwargs["output_dir"],
+            r"L:\base\temp\restricted\pcd\app_car_ac\SICAR\20260301\00\_downloads",
         )
 
     @patch("core.downloads.flow.load_download_queue_task")

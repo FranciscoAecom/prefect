@@ -11,6 +11,11 @@ class IngestRecord:
     source_path: str
     input_path: str
     rule_profile: str
+    access_constraints: str = ""
+    category_acronym: str = ""
+    citation: str = ""
+    date: str = ""
+    output_dir: str = ""
 
 
 @dataclass

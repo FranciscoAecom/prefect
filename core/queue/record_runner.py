@@ -10,15 +10,16 @@ def run_queue_record(
     group_state,
     keep_individual_outputs_when_grouping,
 ):
+    record_output_dir = getattr(record, "output_dir", "") or output_dir
     try:
         set_context_log(
-            build_group_log_path(record, output_dir),
+            build_group_log_path(record, record_output_dir),
             reset=group_state.should_reset_context_log(record),
         )
         group_state.mark_context_log_started(record)
         record_result = process_record(
             record,
-            output_dir,
+            record_output_dir,
             id_start=group_state.id_start_for(record),
             use_configured_final_name=group_state.use_configured_final_name(record),
             persist_individual_output=group_state.persist_individual_output(
@@ -31,7 +32,7 @@ def run_queue_record(
             append_group_consolidated_output(
                 record,
                 record_result.final_gdf,
-                output_dir,
+                record_output_dir,
                 append=group_state.append_started_for(record),
             )
             group_state.mark_append_started(record)

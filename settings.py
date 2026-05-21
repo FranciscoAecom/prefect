@@ -1,12 +1,23 @@
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent
+DATA_LAKE_BASE = Path(
+    r"L:\Secure_DCS\BRBLH1PINFW001\COE_Digital\coe_digital_data"
+)
+DATA_LAKE_TEMP_STAGE = "temp"
+DATA_LAKE_BRONZE_STAGE = "bronze_data"
+DATA_LAKE_SILVER_STAGE = "silver_data"
 
 INGEST_WORKBOOK_PATH = PROJECT_ROOT / "input" / "st_Ingest_parameter.xlsx"
 INGEST_SHEET_NAME = "datas"
 DICTIONARIES_SHEET_NAME = "dictionaries"
 INGEST_READY_STATUS = "Waiting Update"
 INGEST_DOWNLOAD_STATUS = "Download"
+INGEST_REPROCESSING_STATUS = "Reprocessing"
+INGEST_PROCESSING_STATUSES = (
+    INGEST_READY_STATUS,
+    INGEST_REPROCESSING_STATUS,
+)
 
 OUTPUT_BASE = PROJECT_ROOT / "output"
 

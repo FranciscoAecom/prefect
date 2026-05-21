@@ -13,7 +13,7 @@ Descrever o que esta base representa e qual resultado o pipeline deve entregar.
 - Theme folder:
 - Projeto:
 - Linha(s) da ingest:
-- Status esperado na ingest:
+- Status esperado na ingest: `Download`, `Waiting Update` ou `Reprocessing`
 - Caminho de entrada:
 - Formato:
 - Geometria esperada:
@@ -105,6 +105,14 @@ Verificacoes obrigatorias de qualidade:
 - Conector/script registrado:
 - Deve tratar automaticamente apos baixar:
 - Observacao para bases sem download automatico:
+
+## Versionamento
+
+- `Waiting Update`: pode criar nova versao quando houver novo bruto.
+- `Reprocessing`: deve reutilizar a ultima versao existente e nao criar nova versao.
+- A versao nao vem da ingest; ela e calculada pela existencia de arquivos em `bronze_data`.
+- Campos obrigatorios para caminho: `access_constraints`, `category_acronym`, `theme_folder`, `citation`, `date`.
+- Modulo responsavel: `core.versioning`.
 
 ## Criterios De Aceite
 

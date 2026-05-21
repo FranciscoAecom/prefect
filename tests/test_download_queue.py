@@ -16,6 +16,10 @@ class DownloadQueueTests(unittest.TestCase):
                     "theme": "CAR APP",
                     "theme_folder": "app_car_ac",
                     "status": "Download",
+                    "access_constraints": "restricted",
+                    "category_acronym": "pcd",
+                    "citation": "SICAR",
+                    "date": "2026-03-01",
                 },
                 {
                     "ID": 2,
@@ -40,6 +44,10 @@ class DownloadQueueTests(unittest.TestCase):
         self.assertEqual(records[0].dataset_key, "car_app")
         self.assertEqual(records[0].region, "AC")
         self.assertEqual(records[0].theme_folder, "app_car_ac")
+        self.assertEqual(records[0].access_constraints, "restricted")
+        self.assertEqual(records[0].category_acronym, "pcd")
+        self.assertEqual(records[0].citation, "SICAR")
+        self.assertEqual(records[0].date, "2026-03-01")
         self.assertEqual(issues[0].theme_folder, "autos_infracao")
         self.assertIn("nao existe conector/script", issues[0].reason)
 

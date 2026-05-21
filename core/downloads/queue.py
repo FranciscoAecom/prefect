@@ -21,6 +21,10 @@ class DownloadQueueRecord:
     dataset_key: str
     region: str | None
     connector: str
+    access_constraints: str = ""
+    category_acronym: str = ""
+    citation: str = ""
+    date: str = ""
 
 
 @dataclass(frozen=True)
@@ -53,6 +57,7 @@ def load_download_queue(
         theme = stringify(row.get("theme"))
         theme_folder = stringify(row.get("theme_folder"))
         status = stringify(row.get("status"))
+        versioning_metadata = _extract_versioning_metadata(row)
 
         if normalize_status(status) != download_status_normalized:
             continue
@@ -102,6 +107,7 @@ def load_download_queue(
                 dataset_key=target.key,
                 region=region,
                 connector=target.connector,
+                **versioning_metadata,
             )
         )
 
@@ -113,6 +119,15 @@ def load_download_queue(
         "download_status": download_status,
     }
     return eligible_records, issues, summary
+
+
+def _extract_versioning_metadata(row):
+    return {
+        "access_constraints": stringify(row.get("access_constraints")),
+        "category_acronym": stringify(row.get("category_acronym")),
+        "citation": stringify(row.get("citation")),
+        "date": stringify(row.get("date")),
+    }
 
 
 __all__ = ["DownloadQueueIssue", "DownloadQueueRecord", "load_download_queue"]
