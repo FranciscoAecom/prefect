@@ -35,6 +35,10 @@ def publish_item_task(
     catalog_category=None,
     data_dictionary_base_url=None,
     same_credential_for_catalog=True,
+    geoserver_username=None,
+    geoserver_password=None,
+    geonetwork_username=None,
+    geonetwork_password=None,
     dry_run=False,
     skip_geoserver=False,
     skip_data=False,
@@ -51,7 +55,11 @@ def publish_item_task(
     )
     credentials = load_publish_credentials(
         same_credential_for_catalog=same_credential_for_catalog,
-        allow_prompt=not dry_run,
+        allow_prompt=False,
+        geoserver_username=geoserver_username,
+        geoserver_password=geoserver_password,
+        geonetwork_username=geonetwork_username,
+        geonetwork_password=geonetwork_password,
     )
 
     log(f"Publicando layer: {item.layer}")
@@ -94,6 +102,10 @@ def data_publish_flow(
     catalog_category="2",
     data_dictionary_base_url=None,
     same_credential_for_catalog=True,
+    geoserver_username=None,
+    geoserver_password=None,
+    geonetwork_username=None,
+    geonetwork_password=None,
     dry_run=False,
     skip_geoserver=False,
     skip_data=False,
@@ -117,6 +129,10 @@ def data_publish_flow(
             catalog_category=catalog_category,
             data_dictionary_base_url=data_dictionary_base_url,
             same_credential_for_catalog=same_credential_for_catalog,
+            geoserver_username=geoserver_username,
+            geoserver_password=geoserver_password,
+            geonetwork_username=geonetwork_username,
+            geonetwork_password=geonetwork_password,
             dry_run=dry_run,
             skip_geoserver=skip_geoserver,
             skip_data=skip_data,

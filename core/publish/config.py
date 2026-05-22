@@ -27,11 +27,15 @@ class PublishCredentials:
 def load_publish_credentials(
     same_credential_for_catalog=True,
     allow_prompt=True,
+    geoserver_username=None,
+    geoserver_password=None,
+    geonetwork_username=None,
+    geonetwork_password=None,
 ):
-    geo_user = os.getenv("PUBLISH_GEOSERVER_USERNAME", "")
-    geo_password = os.getenv("PUBLISH_GEOSERVER_PASSWORD", "")
-    catalog_user = os.getenv("PUBLISH_GEONETWORK_USERNAME", "")
-    catalog_password = os.getenv("PUBLISH_GEONETWORK_PASSWORD", "")
+    geo_user = geoserver_username or os.getenv("PUBLISH_GEOSERVER_USERNAME", "")
+    geo_password = geoserver_password or os.getenv("PUBLISH_GEOSERVER_PASSWORD", "")
+    catalog_user = geonetwork_username or os.getenv("PUBLISH_GEONETWORK_USERNAME", "")
+    catalog_password = geonetwork_password or os.getenv("PUBLISH_GEONETWORK_PASSWORD", "")
 
     if not allow_prompt and (not geo_user or not geo_password):
         geo_user = geo_user or "DRYRUN"

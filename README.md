@@ -391,6 +391,10 @@ $env:PUBLISH_GEONETWORK_USERNAME="usuario"
 $env:PUBLISH_GEONETWORK_PASSWORD="senha"
 ```
 
+Quando o deployment estiver sendo servido em outro terminal, tambem e possivel
+passar as credenciais nos parametros do run. Isso evita prompt interativo, que
+nao funciona dentro de task Prefect.
+
 Para testar sem publicar de verdade, use `dry_run=true`:
 
 ```powershell
@@ -401,6 +405,12 @@ Para publicar de verdade, use `dry_run=false` ou omita o parametro:
 
 ```powershell
 '{"folder":"L:\\Secure_DCS\\BRBLH1PINFW001\\COE_Digital\\coe_digital_data\\silver_data\\restricted\\pcd\\autos_infracao\\IBAMA\\20210915\\00","environment":"qas","workspace":"gold"}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Publish/Publish GeoServer GeoNetwork" --params -
+```
+
+Exemplo passando credenciais por parametro:
+
+```powershell
+'{"folder":"L:\\Secure_DCS\\BRBLH1PINFW001\\COE_Digital\\coe_digital_data\\silver_data\\restricted\\pcd\\autos_infracao\\IBAMA\\20210915\\00","environment":"qas","workspace":"gold","dry_run":false,"geoserver_username":"admin","geoserver_password":"<senha>","geonetwork_username":"admin","geonetwork_password":"<senha>"}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Publish/Publish GeoServer GeoNetwork" --params -
 ```
 
 O flow publica cada `.gpkg`, cria ou atualiza o SLD no GeoServer, associa o
