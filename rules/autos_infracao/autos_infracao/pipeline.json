@@ -36,6 +36,9 @@
     "sdb_efeito_sau": [
       "validate_shapefile_attribute"
     ],
+    "sdb_passivel_r":[
+      "validate_shapefile_attribute"
+    ],
     "sdb_forma_entr": [
       "validate_shapefile_attribute"
     ],
