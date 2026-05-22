@@ -21,7 +21,10 @@
         "N",
         "S"
       ],
-      "aliases": {}
+      "aliases": {
+        "N": "Não",
+        "S": "Sim"
+      }
     },
     "sdb_tipo_auto": {
       "accepted_values": [
@@ -139,7 +142,8 @@
         "Queimada"
       ],
       "aliases": {
-        "Não se aplica": "Não se Aplica"
+        "Não se aplica": "Não se Aplica",
+        "Outro(s)": "Outros"
       }
     },
     "sdb_tipo_acao": {
