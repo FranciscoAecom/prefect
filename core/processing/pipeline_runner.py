@@ -7,6 +7,12 @@ from core.processing.pipeline_step import run_pipeline_step
 from core.processing.postprocess_step import postprocess_step
 from core.processing.rules_step import attach_rule_profile_step
 from core.processing.schema_step import validate_input_schema_step
+from core.processing.stages import (
+    FLOW_STAGE_BRONZE_AND_XML,
+    FLOW_STAGE_READ_TEMP,
+    FLOW_STAGE_SILVER_AND_XML,
+    FLOW_STAGE_TREATMENTS,
+)
 from core.processing.summary import log_dataset_overview
 from core.utils import timed_log_step
 
@@ -18,7 +24,7 @@ def run_processing_pipeline(
     persist_individual_output=True,
 ):
     context = _run_timed_step(
-        "Fluxo 1/7 - Ler arquivo no temp",
+        FLOW_STAGE_READ_TEMP,
         "Erro ao carregar ou validar arquivo de entrada",
         lambda: load_input_step(context),
     )
@@ -26,7 +32,7 @@ def run_processing_pipeline(
         return None
 
     context = _run_timed_step(
-        "Fluxo 2/7 a 4/7 - Bronze e XML do bronze",
+        FLOW_STAGE_BRONZE_AND_XML,
         "Erro ao materializar bronze ou XML do bronze",
         lambda: persist_bronze_step(
             context,
@@ -57,7 +63,7 @@ def run_processing_pipeline(
     with timed_log_step("Preparacao do mapeamento de validacao"):
         context = prepare_mapping_step(context)
 
-    with timed_log_step("Fluxo 5/7 - Fazer tratamentos"):
+    with timed_log_step(FLOW_STAGE_TREATMENTS):
         context = run_pipeline_step(context)
 
     context = postprocess_step(context)
@@ -65,7 +71,7 @@ def run_processing_pipeline(
     autofix_service.log_autofix_summary(autofix_summary)
 
     return _run_timed_step(
-        "Fluxo 6/7 e 7/7 - Salvar silver e XML do silver",
+        FLOW_STAGE_SILVER_AND_XML,
         "Erro ao salvar arquivo",
         lambda: persist_outputs_step(
             context,

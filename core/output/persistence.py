@@ -4,6 +4,7 @@ from core.output.columns import drop_internal_output_columns
 from core.output.paths import resolve_output_path
 from core.output.quality import build_output_quality_summary, log_output_quality_summary
 from core.output.secondary_outputs import persist_secondary_outputs
+from core.processing.stages import FLOW_STAGE_CREATE_SILVER_XML, FLOW_STAGE_SAVE_SILVER
 from core.utils import log
 
 
@@ -21,7 +22,7 @@ def save_outputs(
         use_configured_final_name,
     )
     export_gdf = drop_internal_output_columns(final_gdf)
-    log("Fluxo 6/7 - Salvando dado tratado no silver")
+    log(FLOW_STAGE_SAVE_SILVER)
     persisted_output_path = persist_output_dataset(export_gdf, output_path, persist_dataset)
     secondary_output_paths = persist_configured_secondary_outputs(
         export_gdf,
@@ -31,7 +32,7 @@ def save_outputs(
         rule_profile or {},
     )
     if persisted_output_path:
-        log("Fluxo 7/7 - Criando XML do silver")
+        log(FLOW_STAGE_CREATE_SILVER_XML)
         persist_stage_metadata_xmls(
             record,
             export_gdf,

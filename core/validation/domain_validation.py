@@ -1,6 +1,4 @@
-import pandas as pd
-
-from core.date import parse_date_series
+from core.date import validate_date_fields
 from core.rules.engine import has_field_rules
 from core.validation.schema import target_column_name
 from core.utils import log
@@ -11,14 +9,6 @@ from core.validation.relation_validation import (
 )
 from core.validation.session import validation_session_or_default
 from core.validation.summary import register_domain_validation_summary
-
-
-def validate_date_fields(gdf, column, **_context):
-    if pd.api.types.is_datetime64_any_dtype(gdf[column]):
-        return gdf
-    gdf[target_column_name(column)] = parse_date_series(gdf[column])
-    return gdf
-
 
 def series_has_changes(source_series, candidate_series):
     same_mask = source_series.eq(candidate_series)

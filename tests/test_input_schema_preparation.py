@@ -2,11 +2,11 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from core.input.preparation import validate_rule_profile_input_schema
+from core.validation.input_structure import validate_rule_profile_input_schema
 
 
 class InputSchemaPreparationTests(unittest.TestCase):
-    @patch("core.input.preparation.load_rule_profile")
+    @patch("core.validation.input_structure.load_rule_profile")
     def test_structural_validation_uses_input_schema_and_ignores_acm_fields(
         self, mock_load_rule_profile
     ):
