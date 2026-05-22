@@ -21,6 +21,7 @@ def save_outputs(
         use_configured_final_name,
     )
     export_gdf = drop_internal_output_columns(final_gdf)
+    log("Fluxo 6/7 - Salvando dado tratado no silver")
     persisted_output_path = persist_output_dataset(export_gdf, output_path, persist_dataset)
     secondary_output_paths = persist_configured_secondary_outputs(
         export_gdf,
@@ -30,6 +31,7 @@ def save_outputs(
         rule_profile or {},
     )
     if persisted_output_path:
+        log("Fluxo 7/7 - Criando XML do silver")
         persist_stage_metadata_xmls(
             record,
             export_gdf,

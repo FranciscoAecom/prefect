@@ -10,8 +10,11 @@ from shapely.geometry import Point
 
 from core.metadata.xml import (
     build_data_dictionary_xml,
+    format_xml_date,
     load_dictionary_descriptions,
+    metadata_xml_name_for_base,
     metadata_xml_path_for_dataset,
+    persist_bronze_metadata_xml,
     persist_silver_metadata_xml,
 )
 
@@ -138,6 +141,10 @@ class MetadataXmlTests(unittest.TestCase):
 
     def test_metadata_xml_name_replaces_geometry_prefix_with_md(self):
         self.assertEqual(
+            metadata_xml_name_for_base("pnt_pcd_enov_20260514"),
+            "md_pcd_enov_20260514.xml",
+        )
+        self.assertEqual(
             metadata_xml_path_for_dataset(
                 Path("saida") / "pnt_pcd_enov_20260514_bbox_brasil.gpkg"
             ),
@@ -151,6 +158,47 @@ class MetadataXmlTests(unittest.TestCase):
             metadata_xml_path_for_dataset(Path("saida") / "entrada_validado.gpkg"),
             Path("saida") / "md_entrada_validado.xml",
         )
+
+    def test_xml_dates_are_formatted_without_time(self):
+        self.assertEqual(format_xml_date("2026-05-14 00:00:00"), "2026-05-14")
+        self.assertEqual(format_xml_date(pd.Timestamp("2021-09-15 00:00:00")), "2021-09-15")
+
+    @patch("core.metadata.xml.inspect_dataset_fields")
+    def test_bronze_xml_uses_same_metadata_name_as_silver(self, mock_inspect_fields):
+        mock_inspect_fields.return_value = ["cod_tema", "geometry"]
+        descriptions = {
+            "tema teste": {
+                "original": {"cod_tema": "Codigo original."},
+                "aecom": {},
+            }
+        }
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_dir = Path(temp_dir)
+            bronze_dir = temp_dir / "bronze"
+            bronze_dir.mkdir()
+            dataset_path = bronze_dir / "vw_brasil_adm_auto_infracao_p.shp"
+            dataset_path.write_text("fake", encoding="utf-8")
+            record = SimpleNamespace(
+                theme="Tema Teste",
+                date="2021-09-15 00:00:00",
+                date_stamp="2026-05-14 00:00:00",
+                beginposition="2021-09-15 00:00:00",
+                bronze_dir=str(bronze_dir),
+            )
+
+            xml_path = persist_bronze_metadata_xml(
+                record,
+                dataset_path,
+                descriptions,
+                base_name="pnt_pcd_enov_20260514",
+            )
+            xml_text = xml_path.read_text(encoding="utf-8")
+
+        self.assertEqual(xml_path.name, "md_pcd_enov_20260514.xml")
+        self.assertIn("<gco:DateTime>2026-05-14</gco:DateTime>", xml_text)
+        self.assertIn("<gco:DateTime>2021-09-15</gco:DateTime>", xml_text)
+        self.assertIn("<gml:beginPosition>2021-09-15</gml:beginPosition>", xml_text)
+        self.assertNotIn("00:00:00", xml_text)
 
 
 if __name__ == "__main__":

@@ -65,10 +65,12 @@ class ProcessingPipelineRunnerTests(unittest.TestCase):
     @patch("core.processing.pipeline_runner.log_dataset_overview")
     @patch("core.processing.pipeline_runner.validate_input_schema_step")
     @patch("core.processing.pipeline_runner.attach_rule_profile_step")
+    @patch("core.processing.pipeline_runner.persist_bronze_step")
     @patch("core.processing.pipeline_runner.load_input_step")
     def test_returns_none_when_tabular_schema_validation_fails(
         self,
         mock_load_input_step,
+        mock_persist_bronze_step,
         mock_attach_rule_profile_step,
         mock_validate_input_schema_step,
         mock_log_dataset_overview,
@@ -79,6 +81,7 @@ class ProcessingPipelineRunnerTests(unittest.TestCase):
             **{**context_with_input.__dict__, "rule_profile": {"fields": {}}}
         )
         mock_load_input_step.return_value = context_with_input
+        mock_persist_bronze_step.return_value = context_with_input
         mock_attach_rule_profile_step.return_value = context_with_profile
         mock_validate_input_schema_step.side_effect = RuntimeError("schema invalido")
 
@@ -94,10 +97,12 @@ class ProcessingPipelineRunnerTests(unittest.TestCase):
     @patch("core.processing.pipeline_runner.log_dataset_overview")
     @patch("core.processing.pipeline_runner.validate_input_schema_step")
     @patch("core.processing.pipeline_runner.attach_rule_profile_step")
+    @patch("core.processing.pipeline_runner.persist_bronze_step")
     @patch("core.processing.pipeline_runner.load_input_step")
     def test_runs_steps_and_returns_persisted_context(
         self,
         mock_load_input_step,
+        mock_persist_bronze_step,
         mock_attach_rule_profile_step,
         mock_validate_input_schema_step,
         mock_log_dataset_overview,
@@ -131,6 +136,7 @@ class ProcessingPipelineRunnerTests(unittest.TestCase):
         )
 
         mock_load_input_step.return_value = context_with_input
+        mock_persist_bronze_step.return_value = context_with_input
         mock_attach_rule_profile_step.return_value = context_with_profile
         mock_validate_input_schema_step.return_value = context_with_profile
         mock_prepare_mapping_step.return_value = context_with_mapping
@@ -147,6 +153,10 @@ class ProcessingPipelineRunnerTests(unittest.TestCase):
 
         self.assertIs(result, persisted_context)
         mock_load_input_step.assert_called_once_with(context)
+        mock_persist_bronze_step.assert_called_once_with(
+            context_with_input,
+            use_configured_final_name=True,
+        )
         mock_attach_rule_profile_step.assert_called_once_with(context_with_input)
         mock_validate_input_schema_step.assert_called_once_with(context_with_profile)
         mock_log_dataset_overview.assert_called_once_with(source_gdf)

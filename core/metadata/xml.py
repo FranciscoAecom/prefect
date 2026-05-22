@@ -7,7 +7,6 @@ from xml.sax.saxutils import escape
 
 import pandas as pd
 
-from core.bronze import ensure_bronze_dataset
 from core.ingest.normalization import normalize_attribute_name, normalize_lookup_value, stringify
 from core.io.dataset import inspect_input_attributes
 from core.utils import log
@@ -38,10 +37,6 @@ def persist_stage_metadata_xmls(
     outputs = []
     descriptions = load_dictionary_descriptions()
 
-    bronze_path = persist_bronze_metadata_xml(record, descriptions)
-    if bronze_path:
-        outputs.append(bronze_path)
-
     for output_path in silver_output_paths:
         xml_path = persist_silver_metadata_xml(
             record,
@@ -60,21 +55,21 @@ def persist_stage_metadata_xmls(
     return outputs
 
 
-def persist_bronze_metadata_xml(record, descriptions):
+def persist_bronze_metadata_xml(record, bronze_dataset_path, descriptions, base_name):
     bronze_dir_value = stringify(getattr(record, "bronze_dir", ""))
     if not bronze_dir_value:
         return None
     bronze_dir = Path(bronze_dir_value)
-    bronze_dataset_path = ensure_bronze_dataset(record)
     if not bronze_dataset_path:
-        bronze_dataset_path = Path(record.input_path)
+        return None
+    bronze_dataset_path = Path(bronze_dataset_path)
 
     fields = [
         bronze_field_name(field)
         for field in inspect_dataset_fields(bronze_dataset_path)
         if should_include_dictionary_field(field)
     ]
-    xml_path = metadata_xml_path_for_dataset(bronze_dataset_path)
+    xml_path = bronze_dir / metadata_xml_name_for_base(base_name)
     render_and_write_metadata_xml(
         template_path=BRONZE_TEMPLATE_PATH,
         output_path=xml_path,
@@ -130,10 +125,15 @@ def inspect_dataset_fields(path, fallback_gdf=None):
 
 def metadata_xml_path_for_dataset(dataset_path):
     dataset_path = Path(dataset_path)
-    metadata_stem = GEOMETRY_FILE_PREFIX_PATTERN.sub("md", dataset_path.stem, count=1)
-    if metadata_stem == dataset_path.stem and not metadata_stem.startswith("md_"):
+    return dataset_path.with_name(metadata_xml_name_for_base(dataset_path.stem))
+
+
+def metadata_xml_name_for_base(base_name):
+    base_name = stringify(base_name) or "metadata"
+    metadata_stem = GEOMETRY_FILE_PREFIX_PATTERN.sub("md", base_name, count=1)
+    if metadata_stem == base_name and not metadata_stem.startswith("md_"):
         metadata_stem = f"md_{metadata_stem}"
-    return dataset_path.with_name(f"{metadata_stem}.xml")
+    return f"{metadata_stem}.xml"
 
 
 def render_and_write_metadata_xml(
@@ -161,8 +161,10 @@ def render_and_write_metadata_xml(
 
 
 def build_template_replacements(record):
-    date_stamp = stringify(getattr(record, "date_stamp", "")) or datetime.now().isoformat()
-    date_value = stringify(getattr(record, "date", ""))
+    date_stamp = format_xml_date(getattr(record, "date_stamp", "")) or datetime.now().strftime(
+        "%Y-%m-%d"
+    )
+    date_value = format_xml_date(getattr(record, "date", ""))
     return {
         "id_geonetwork": stringify(getattr(record, "id_geonetwork", "")),
         "responsible_party": stringify(getattr(record, "responsible_party", "")),
@@ -172,8 +174,8 @@ def build_template_replacements(record):
         "date": date_value,
         "abstract": stringify(getattr(record, "abstract", "")),
         "topic_category_code": stringify(getattr(record, "topic_category_code", "")),
-        "beginposition": stringify(getattr(record, "beginposition", "")),
-        "endposition": stringify(getattr(record, "endposition", "")),
+        "beginposition": format_xml_date(getattr(record, "beginposition", "")),
+        "endposition": format_xml_date(getattr(record, "endposition", "")),
         "source": stringify(getattr(record, "source", "")),
         "citation": stringify(getattr(record, "citation", "")),
         "data_dictionary": stringify(getattr(record, "data_dictionary", "")),
@@ -191,6 +193,18 @@ def build_template_replacements(record):
         ),
         "characterstring": stringify(getattr(record, "characterstring", "")),
     }
+
+
+def format_xml_date(value):
+    text = stringify(value)
+    if not text:
+        return ""
+    parsed = pd.to_datetime(value, errors="coerce")
+    if pd.isna(parsed):
+        if " 00:00:00" in text:
+            return text.split(" ")[0]
+        return text
+    return parsed.strftime("%Y-%m-%d")
 
 
 def replace_placeholders(template, replacements):
@@ -359,8 +373,11 @@ def should_include_dictionary_field(field):
 
 __all__ = [
     "build_data_dictionary_xml",
+    "format_xml_date",
     "load_dictionary_descriptions",
+    "metadata_xml_name_for_base",
     "metadata_xml_path_for_dataset",
+    "persist_bronze_metadata_xml",
     "persist_stage_metadata_xmls",
     "render_and_write_metadata_xml",
 ]
