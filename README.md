@@ -11,7 +11,7 @@ saidas finais em GeoPackage.
 
 - Ler uma fila de processamento a partir da aba `datas` da planilha de ingestao.
 - Processar arquivos geoespaciais por perfil de regras em `rules/`.
-- Validar estrutura tabular contra a aba `dictionaries`.
+- Validar estrutura tabular contra o `input_schema.json` do perfil de regras.
 - Preservar atributos originais com prefixo `sdb_*`.
 - Gerar campos tratados e padronizados com prefixo `acm_*`.
 - Produzir saidas em `output/<theme_folder>/` com logs e relatorios auxiliares.
@@ -199,40 +199,56 @@ Tambem e possivel iniciar em outra porta:
 uv run python -m prefect server start --host 127.0.0.1 --port 4201
 ```
 
-### Agendamento UR CAR
+### Deployments E Agendamentos
 
-Para servir os agendamentos diarios das 27 bases `ur_car`, uma por dia as
-17:00 no fuso `America/Sao_Paulo`:
+Os deployments ficam centralizados em `scripts/serve.py`. O comando recebe o
+nome operacional do deployment e registra no Prefect o flow, os parametros e,
+quando aplicavel, a agenda.
+
+```powershell
+uv run python scripts/serve.py <deployment>
+```
+
+Exemplos disponiveis:
 
 ```powershell
 uv run python scripts/serve.py ur-car-processing
+uv run python scripts/serve.py estado
+.\.venv\Scripts\python.exe scripts\serve.py auto-infracoes
+uv run python scripts/serve.py data-download
 ```
 
-Esse comando cria o deployment `CAR - Uso Restrito`. Cada agenda
-passa `theme_folders` para o flow, entao a primeira execucao roda apenas
-`ur_car_ac`, a segunda roda apenas `ur_car_al`, e assim por diante ate
-`ur_car_to`.
+Cada deployment deve deixar explicito quais `theme_folders` roda. Quando o
+deployment possui agenda, o horario e o fuso ficam definidos no proprio
+`scripts/serve.py` e podem ser alterados pelo painel do Prefect.
 
 Se os flows ou deployments forem deletados no painel do Prefect, o dashboard
-ficara vazio. Para recriar o deployment e os agendamentos, deixe o servidor
-Prefect aberto e rode novamente:
+ficara vazio. Para recriar um deployment e seus agendamentos, deixe o servidor
+Prefect aberto e rode novamente o `scripts/serve.py` correspondente.
 
-```powershell
-uv run python scripts/serve.py ur-car-processing
+Para bases com varios `theme_folders`, cada agenda pode passar um filtro
+especifico para o flow. Exemplo: um deployment pode agendar uma UF por dia
+usando parametros como:
+
+```json
+{"theme_folders": ["ur_car_ac"]}
 ```
 
-Os runs agendados sao renomeados automaticamente para o nome da base, por
-exemplo `ur_car_pi`. O nome mostrado na lista de runs pode aparecer primeiro
-como um nome aleatorio do Prefect; depois o script de renomeacao troca para o
-valor da base.
+Os runs agendados podem ser renomeados automaticamente para o nome da base,
+quando houver rotina administrativa configurada. O nome mostrado na lista de
+runs pode aparecer primeiro como um nome aleatorio do Prefect e depois ser
+atualizado.
 
-Para aplicar a renomeacao manualmente:
+Para aplicar renomeacao manualmente, quando necessario:
 
 ```powershell
 uv run python scripts/prefect_admin.py rename-scheduled-runs
 ```
 
-Para apagar a agenda atual de UR CAR e recriar a sequencia diaria as 17:00:
+Rotinas administrativas especificas, como recriar uma agenda diaria de um
+conjunto de bases, ficam em `scripts/prefect_admin.py`.
+
+Exemplo:
 
 ```powershell
 uv run python scripts/prefect_admin.py reschedule-ur-car-daily-17h
@@ -328,58 +344,31 @@ tratamento. O evento carrega no payload `theme_folders` e
 `source_path_overrides`, que sao os parametros necessarios para tratar
 exatamente o arquivo baixado.
 
-### Agendamento Estado
-
-Para criar o deployment da base `estado` no painel do Prefect:
-
-```powershell
-uv run python scripts/serve.py estado
-```
-
-Esse comando cria o deployment `Estado` com agenda diaria as 02:00, no fuso
-`America/Sao_Paulo`, passando o parametro:
-
-```json
-{"theme_folders": ["estado"]}
-```
-
-Depois disso, o deployment aparece em `http://127.0.0.1:4200/deployments` e o
-horario pode ser alterado pelo painel.
-
-### Deployment Autos de Infracao
-
-Para criar o deployment da base `autos_infracao` no painel do Prefect:
-
-```powershell
-.\.venv\Scripts\python.exe scripts\serve.py auto-infracoes
-```
-
-Esse comando cria o deployment `Autos de Infracao` sem agenda automatica e com
-o parametro fixo:
-
-```json
-{"theme_folders": ["autos_infracao"]}
-```
-
-Para disparar a execucao pelo Prefect:
-
-```powershell
-.\.venv\Scripts\python.exe -m prefect deployment run "Data Pipeline/Autos de Infracao"
-```
-
 ### Execucao Manual Pelo Terminal
 
-Para executar uma base especifica pelo deployment:
+Para executar uma base especifica por um deployment parametrizado, envie
+`theme_folders`:
 
 ```powershell
-'{"theme_folders":["ur_car_pi"]}' | uv run prefect deployment run "Data Pipeline/CAR - Uso Restrito" --params -
+'{"theme_folders":["<theme_folder>"]}' | uv run python -m prefect deployment run "Data Pipeline/<deployment>" --params -
 ```
 
-Para executar todas as 27 bases `ur_car` de uma vez, informe todos os perfis
-em `theme_folders`:
+Exemplo:
 
 ```powershell
-'{"theme_folders":["ur_car_ac","ur_car_al","ur_car_am","ur_car_ap","ur_car_ba","ur_car_ce","ur_car_df","ur_car_es","ur_car_go","ur_car_ma","ur_car_mg","ur_car_ms","ur_car_mt","ur_car_pa","ur_car_pb","ur_car_pe","ur_car_pi","ur_car_pr","ur_car_rj","ur_car_rn","ur_car_ro","ur_car_rr","ur_car_rs","ur_car_sc","ur_car_se","ur_car_sp","ur_car_to"]}' | uv run prefect deployment run "Data Pipeline/CAR - Uso Restrito" --params -
+'{"theme_folders":["ur_car_pi"]}' | uv run python -m prefect deployment run "Data Pipeline/CAR - Uso Restrito" --params -
+```
+
+Para executar uma lista de bases, informe todos os `theme_folders` desejados:
+
+```powershell
+'{"theme_folders":["<theme_folder_1>","<theme_folder_2>"]}' | uv run python -m prefect deployment run "Data Pipeline/<deployment>" --params -
+```
+
+Deployments sem parametros manuais tambem podem ser disparados diretamente:
+
+```powershell
+uv run python -m prefect deployment run "Data Pipeline/Autos de Infracao"
 ```
 
 Para listar flow runs:
@@ -399,7 +388,7 @@ uv run prefect deployment ls
 No painel:
 
 1. Va em `Deployments`.
-2. Abra `UR CAR - 27 bases`.
+2. Abra o deployment desejado.
 3. Entre em `Configuration`.
 4. Edite o cron da agenda desejada.
 5. Salve.
@@ -469,12 +458,20 @@ No `pipeline.json`, o perfil explicita tudo que roda de forma configuravel:
 - `postprocess_functions`: etapas que alteram o GeoDataFrame final, como `enforce_car_state_bounds` ou `enrich_with_municipality_intersection`.
 - `secondary_outputs`: arquivos extras, como `brazil_bbox`.
 
+O `input_schema.json` define as colunas esperadas na entrada e seus tipos
+(`string`, `integer`, `number`, `date`, etc.). A validacao estrutural usa esse
+arquivo e ignora campos gerados pelo tratamento, como `acm_*`, `fid` e
+`geometry`.
+
 ## Convencoes de Colunas
 
 - Colunas originais sao preservadas como `sdb_*`.
 - Colunas tratadas, normalizadas ou derivadas sao gravadas como `acm_*`.
 - Funcoes genericas do `core` nao devem sobrescrever valores `sdb_*`.
 - Marcacoes tecnicas internas nao devem aparecer no GeoPackage final.
+- Campos de data seguem o `input_schema.json`: se a coluna ja vier como data,
+  permanece em `sdb_*`; se vier como texto e o schema esperar `date`, o valor
+  original fica em `sdb_*` e a data normalizada e gravada em `acm_*`.
 
 ## Geometria
 
@@ -500,6 +497,22 @@ Tambem podem ser gerados:
 - relatorio de duplicados geometricos;
 - relatorio de geometrias invalidas OGC;
 - consolidado por grupo, quando `ENABLE_GROUP_CONSOLIDATION = True`.
+- metadados XML junto dos arquivos em `bronze_data` e `silver_data`.
+
+O fluxo de persistencia segue a ordem:
+
+1. Le arquivo no `temp`.
+2. Copia o dado bruto para `bronze_data` sem alterar atributos, geometria ou
+   nome do arquivo bruto.
+3. Cria o XML do bronze.
+4. Salva o XML do bronze.
+5. Executa os tratamentos.
+6. Salva o `.gpkg` tratado no `silver_data`.
+7. Cria e salva o XML do silver.
+
+O XML de metadados usa prefixo `md_`, preservando o restante do nome logico da
+saida. Exemplo: `pnt_pcd_enov_20260514.gpkg` gera
+`md_pcd_enov_20260514.xml`.
 
 Na etapa de persistencia, o log tambem lista as verificacoes obrigatorias de
 qualidade executadas: `check_attribute_duplicates`,

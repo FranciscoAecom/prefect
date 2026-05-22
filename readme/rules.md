@@ -1,4 +1,4 @@
-# Regras Modulares
+# Contrato Generico De Regras Modulares
 
 Cada perfil em `rules/` deve ficar em uma pasta com cinco arquivos:
 
@@ -11,7 +11,8 @@ rules/<projeto>/<perfil>/
   pipeline.json
 ```
 
-Use `rules/_template/` como ponto de partida para uma nova base.
+Use `rules/_template/` como ponto de partida para uma nova base. Regras de
+negocio especificas devem ser descritas na spec da base em `docs/sdd/specs/`.
 
 ## profile.json
 
@@ -34,7 +35,14 @@ Campos obrigatorios:
 
 ## input_schema.json
 
-Valida a estrutura tabular da base lida antes do processamento principal.
+Define o contrato tabular da entrada. Ele e usado em duas etapas:
+
+- validacao estrutural logo apos a leitura do arquivo, conferindo campos
+  obrigatorios e colunas extras;
+- validacao/conversao de tipos antes do processamento principal.
+
+A validacao estrutural ignora campos gerados depois do tratamento, como
+`acm_*`, alem de `fid` e `geometry`.
 
 ```json
 {
@@ -66,7 +74,11 @@ Observacoes:
 - Se a conversao gerar novos nulos em uma coluna com `nullable: false`, o processamento para com erro.
 - Use `required: false` para colunas que podem nao existir na entrada.
 - Use `nullable: false` quando a coluna nao pode conter valores nulos.
-- Datas que chegam como texto devem ficar como `string`; a conversao ocorre depois por `validate_date_fields`.
+- Para campos de data, use `dtype: "date"` quando o contrato esperado for data.
+- Se o campo ja vier tipado como data, `validate_date_fields` mantem o `sdb_*`
+  sem criar `acm_*`.
+- Se o campo vier como texto e o schema esperar `date`, `validate_date_fields`
+  preserva o `sdb_*` original e cria `acm_*` com a data normalizada.
 
 ## domains.json
 
@@ -141,6 +153,20 @@ Saidas secundarias disponiveis no core:
 - `brazil_bbox`: cria um GeoPackage extra com sufixo `_bbox_brasil`, contendo apenas feicoes dentro do bbox do Brasil.
 
 Remova `postprocess_functions` ou `secondary_outputs` quando a base nao deve usar essas etapas.
+
+## Fluxo De Persistencia
+
+O perfil nao deve alterar a ordem padrao do pipeline:
+
+1. Ler arquivo no `temp`.
+2. Copiar o bruto para `bronze_data`, sem alterar dados nem nome do arquivo.
+3. Criar o XML do bronze.
+4. Salvar o XML do bronze na pasta do bronze.
+5. Executar os tratamentos.
+6. Salvar o dado tratado no `silver_data`.
+7. Criar e salvar o XML do silver.
+
+Os XMLs usam prefixo `md_` e preservam o restante do nome logico da saida.
 
 ## Validacao
 

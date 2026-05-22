@@ -38,8 +38,9 @@ def parse_date_series(series):
 
 
 def validate_date_fields(gdf, column, **_context):
-    target_column = target_column_name(column)
-    gdf[target_column] = parse_date_series(gdf[column])
+    if pd.api.types.is_datetime64_any_dtype(gdf[column]):
+        return gdf
+    gdf[target_column_name(column)] = parse_date_series(gdf[column])
     return gdf
 
 

@@ -37,6 +37,10 @@ com os pontos dentro do limite Brasil / zona costeira.
 - `rules/autos_infracao/autos_infracao/relations.json`
 - `rules/autos_infracao/autos_infracao/pipeline.json`
 
+A validacao estrutural de entrada deve usar
+`rules/autos_infracao/autos_infracao/input_schema.json`, ignorando campos que
+entram depois do tratamento (`acm_*`), `fid` e `geometry`.
+
 ## Datas
 
 Os campos abaixo devem ser tratados como data por `validate_date_fields`:
@@ -51,8 +55,11 @@ Os campos abaixo devem ser tratados como data por `validate_date_fields`:
 - `sdb_dt_ult_al0`
 - `sdb_dt_atualiz`
 
-Na saida GeoPackage, os campos derivados dessas regras devem ser gravados como
-`DATE`, sem horario.
+Regra de saida para datas:
+
+- se o campo original ja vier tipado como data, manter somente o `sdb_*`;
+- se o campo vier como texto, preservar o `sdb_*` original e gerar o `acm_*`
+  correspondente normalizado como `DATE`, sem horario.
 
 ## Funcoes Do Pipeline
 
@@ -127,8 +134,30 @@ Arquivo secundario:
 output\autos_infracao\pnt_pcd_enov_20260514_bbox_brasil.gpkg
 ```
 
+XML esperado no bronze e no silver:
+
+```text
+md_pcd_enov_20260514.xml
+```
+
+XML da saida secundaria no silver:
+
+```text
+md_pcd_enov_20260514_bbox_brasil.xml
+```
+
 O arquivo principal deve conter todos os pontos tratados. O arquivo secundario
 deve conter apenas os pontos dentro do limite Brasil / zona costeira.
+
+O fluxo deve seguir esta ordem no log:
+
+1. Ler arquivo no `temp`.
+2. Copiar o bruto para `bronze_data`, sem alterar dados nem nome do arquivo.
+3. Criar o XML do bronze.
+4. Salvar o XML do bronze na pasta do bronze.
+5. Executar os tratamentos.
+6. Salvar o dado tratado no `silver_data`.
+7. Criar e salvar o XML do silver.
 
 ## Prefect
 
@@ -176,6 +205,9 @@ Parametros fixos do deployment:
 - [x] Registros sem municipio recebem mensagem de fora do limite territorial.
 - [x] Os campos de data passam por `validate_date_fields`.
 - [x] Os campos de data saem como `DATE` no GeoPackage.
+- [x] A validacao estrutural usa `input_schema.json`.
+- [x] O XML do bronze e do silver usa prefixo `md_`.
+- [x] O bronze preserva o bruto sem alterar dados nem nome do arquivo.
 - [x] As verificacoes obrigatorias de qualidade aparecem no log.
 - [x] Testes automatizados passam.
 
@@ -187,9 +219,9 @@ Comando executado:
 .\.venv\Scripts\python.exe -m unittest discover -s tests
 ```
 
-Resultado registrado em 2026-05-21:
+Resultado registrado em 2026-05-22:
 
 ```text
-Ran 93 tests
+Ran 126 tests
 OK
 ```

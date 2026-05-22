@@ -35,6 +35,11 @@ Descrever o que esta base representa e qual resultado o pipeline deve entregar.
 - `relations.json`:
 - `pipeline.json`:
 
+O `input_schema.json` deve ser a fonte da validacao estrutural de entrada:
+campos obrigatorios, tipos esperados e permissao de colunas extras. Campos
+gerados depois do tratamento (`acm_*`), `fid` e `geometry` nao entram nessa
+conferencia estrutural.
+
 ## Campos E Dominios
 
 Listar apenas campos que precisam de regra explicita.
@@ -49,9 +54,13 @@ Listar apenas campos que precisam de regra explicita.
 | --- | --- | --- |
 |  |  |  |
 
-Campos tratados por `validate_date_fields` devem sair no GeoPackage como
-`DATE`, sem componente de horario, exceto quando a regra da base exigir
-explicitamente `DateTime`.
+Campos tratados por `validate_date_fields` seguem o `input_schema.json`:
+
+- se o campo ja vier tipado como data, manter o `sdb_*` sem criar `acm_*`;
+- se o schema esperar `date`, mas o campo vier como texto, preservar o `sdb_*`
+  original e criar `acm_*` com a data normalizada;
+- datas normalizadas devem sair como `DATE`, sem componente de horario, exceto
+  quando a regra da base exigir explicitamente `DateTime`.
 
 ## Funcoes Do Pipeline
 
@@ -87,8 +96,22 @@ Verificacoes obrigatorias de qualidade:
 
 - Arquivo principal:
 - Arquivos secundarios:
+- XML bronze:
+- XML silver:
 - Relatorios esperados:
 - Campos `acm_*` obrigatorios:
+
+Ordem obrigatoria do fluxo:
+
+1. Ler arquivo no `temp`.
+2. Copiar o bruto para `bronze_data`, sem alterar dados nem nome do arquivo.
+3. Criar o XML do bronze.
+4. Salvar o XML do bronze na pasta do bronze.
+5. Executar os tratamentos.
+6. Salvar o dado tratado no `silver_data`.
+7. Criar e salvar o XML do silver.
+
+Os XMLs usam prefixo `md_` e mantem o restante do nome logico da saida.
 
 ## Prefect
 

@@ -61,9 +61,13 @@ class EndToEndRealProfilesTests(unittest.TestCase):
             self.assertEqual(result.processed_count, 1)
             self.assertIsNotNone(result.output_path)
             self.assertTrue(Path(result.output_path).exists())
+            self.assertIn("sdb_author_dat", result.final_gdf.columns)
+            self.assertIn("sdb_expira_dat", result.final_gdf.columns)
+            self.assertIn("sdb_dat_d_base", result.final_gdf.columns)
             self.assertIn("acm_author_dat", result.final_gdf.columns)
             self.assertIn("acm_expira_dat", result.final_gdf.columns)
             self.assertIn("acm_dat_d_base", result.final_gdf.columns)
+            self.assertEqual(result.final_gdf.loc[0, "sdb_author_dat"], "31/01/2025")
             self.assertEqual(
                 result.final_gdf.loc[0, "acm_author_dat"],
                 pd.Timestamp("2025-01-31"),
