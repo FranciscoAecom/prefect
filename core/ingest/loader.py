@@ -47,6 +47,7 @@ def load_processing_queue(
         theme_folder = stringify(row.get("theme_folder"))
         status = stringify(row.get("status"))
         versioning_metadata = _extract_versioning_metadata(row)
+        xml_metadata = _extract_xml_metadata(row)
         override_source_path = source_path_overrides.get(normalize_theme_folder(theme_folder))
         source_path = override_source_path or stringify(row.get("path_shapefile_temp"))
 
@@ -141,7 +142,7 @@ def load_processing_queue(
             continue
 
         for input_path in input_paths:
-            output_dir = _resolve_versioned_output_dir(
+            versioned_dirs = _resolve_versioned_dirs(
                 {
                     "status": status,
                     "theme_folder": theme_folder,
@@ -159,7 +160,10 @@ def load_processing_queue(
                     input_path=input_path,
                     rule_profile=rule_profile,
                     **versioning_metadata,
-                    output_dir=output_dir,
+                    **xml_metadata,
+                    output_dir=versioned_dirs["output_dir"],
+                    bronze_dir=versioned_dirs["bronze_dir"],
+                    temp_dir=versioned_dirs["temp_dir"],
                 )
             )
 
@@ -199,7 +203,34 @@ def _extract_versioning_metadata(row):
     }
 
 
-def _resolve_versioned_output_dir(record):
+def _extract_xml_metadata(row):
+    fields = (
+        "id_geonetwork",
+        "abstract",
+        "use_constraints",
+        "data_classification",
+        "data_activity_classification",
+        "topic_category_code",
+        "spatial_representation_type_code",
+        "maintenance_frequency_code",
+        "maintenance_frequency_aecom",
+        "responsible_party",
+        "beginposition",
+        "endposition",
+        "source",
+        "reference_system",
+        "data_dictionary",
+        "metadata",
+        "methodologie",
+        "others",
+        "date_stamp",
+        "project",
+        "characterstring",
+    )
+    return {field: stringify(row.get(field)) for field in fields}
+
+
+def _resolve_versioned_dirs(record):
     if not all(
         stringify(record.get(field))
         for field in (
@@ -211,8 +242,13 @@ def _resolve_versioned_output_dir(record):
             "date",
         )
     ):
-        return ""
-    return str(resolve_dataset_version_plan(record).silver_dir)
+        return {"output_dir": "", "bronze_dir": "", "temp_dir": ""}
+    plan = resolve_dataset_version_plan(record)
+    return {
+        "output_dir": str(plan.silver_dir),
+        "bronze_dir": str(plan.bronze_dir),
+        "temp_dir": str(plan.temp_dir),
+    }
 
 
 def _normalize_source_path_overrides(source_path_overrides):
