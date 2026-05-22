@@ -6,11 +6,13 @@ from prefect.schedules import Cron
 
 from core.downloads.flow import data_download_flow
 from core.prefect_flow import data_pipeline_flow
+from core.publish.flow import data_publish_flow
 from core.prefect_support.admin import scheduled_run_renamer_loop
 from core.prefect_support.deployment_names import (
     AUTOS_INFRACAO_PROCESSING_DEPLOYMENT_NAME,
     AUTOS_INFRACAO_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
     DATA_DOWNLOAD_DEPLOYMENT_NAME,
+    DATA_PUBLISH_DEPLOYMENT_NAME,
     UR_CAR_PROCESSING_DEPLOYMENT_NAME,
     UR_CAR_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
 )
@@ -22,6 +24,10 @@ def main():
     subparsers = parser.add_subparsers(dest="deployment", required=True)
 
     subparsers.add_parser("data-download", help="Serve o deployment generico de download.")
+    subparsers.add_parser(
+        "data-publish",
+        help="Serve o deployment de publicacao GeoServer/GeoNetwork.",
+    )
     subparsers.add_parser(
         "ur-car-processing",
         help="Serve o tratamento agendado de CAR Uso Restrito.",
@@ -37,6 +43,8 @@ def main():
 
     if args.deployment == "data-download":
         serve_data_download()
+    elif args.deployment == "data-publish":
+        serve_data_publish()
     elif args.deployment == "ur-car-processing":
         serve_ur_car_processing()
     elif args.deployment == "auto-infracoes":
@@ -52,6 +60,17 @@ def serve_data_download():
         description=(
             "Baixa datasets configurados no catalogo de downloads, extrai os "
             "arquivos e opcionalmente dispara o tratamento da base baixada."
+        ),
+    )
+
+
+def serve_data_publish():
+    data_publish_flow.serve(
+        name=DATA_PUBLISH_DEPLOYMENT_NAME,
+        tags=["publish", "geoserver", "geonetwork"],
+        description=(
+            "Publica arquivos silver (.gpkg, .sld e .xml) no GeoServer e "
+            "GeoNetwork. Recebe a pasta silver por parametro."
         ),
     )
 

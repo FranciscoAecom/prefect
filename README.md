@@ -216,6 +216,7 @@ uv run python scripts/serve.py ur-car-processing
 uv run python scripts/serve.py estado
 .\.venv\Scripts\python.exe scripts\serve.py auto-infracoes
 uv run python scripts/serve.py data-download
+uv run python scripts/serve.py data-publish
 ```
 
 Cada deployment deve deixar explicito quais `theme_folders` roda. Quando o
@@ -343,6 +344,67 @@ A Automation ouve o evento `dataset.downloaded` e executa o deployment de
 tratamento. O evento carrega no payload `theme_folders` e
 `source_path_overrides`, que sao os parametros necessarios para tratar
 exatamente o arquivo baixado.
+
+### Publicacao GeoServer / GeoNetwork
+
+O projeto possui um flow separado para publicar arquivos da etapa `silver_data`
+no GeoServer e no GeoNetwork:
+
+```text
+Data Publish/Publish GeoServer GeoNetwork
+```
+
+Esse flow recebe uma pasta silver e procura todos os conjuntos publicaveis
+formados por:
+
+```text
+<nome>.gpkg
+<nome>.sld
+md_<restante_do_nome>.xml
+```
+
+Exemplo para `autos_infracao`:
+
+```text
+pnt_pcd_enov_20260514.gpkg
+pnt_pcd_enov_20260514.sld
+md_pcd_enov_20260514.xml
+
+pnt_pcd_enov_bbox_brasil_20260514.gpkg
+pnt_pcd_enov_bbox_brasil_20260514.sld
+md_pcd_enov_bbox_brasil_20260514.xml
+```
+
+Para servir o deployment:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\serve.py data-publish
+```
+
+As credenciais nao devem ser gravadas no repositorio. Configure no terminal ou
+em Prefect Variables/ambiente da infraestrutura:
+
+```powershell
+$env:PUBLISH_GEOSERVER_USERNAME="usuario"
+$env:PUBLISH_GEOSERVER_PASSWORD="senha"
+$env:PUBLISH_GEONETWORK_USERNAME="usuario"
+$env:PUBLISH_GEONETWORK_PASSWORD="senha"
+```
+
+Para testar sem publicar de verdade, use `dry_run=true`:
+
+```powershell
+'{"folder":"L:\\Secure_DCS\\BRBLH1PINFW001\\COE_Digital\\coe_digital_data\\silver_data\\restricted\\pcd\\autos_infracao\\IBAMA\\20210915\\00","environment":"qas","workspace":"gold","dry_run":true}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Publish/Publish GeoServer GeoNetwork" --params -
+```
+
+Para publicar de verdade, use `dry_run=false` ou omita o parametro:
+
+```powershell
+'{"folder":"L:\\Secure_DCS\\BRBLH1PINFW001\\COE_Digital\\coe_digital_data\\silver_data\\restricted\\pcd\\autos_infracao\\IBAMA\\20210915\\00","environment":"qas","workspace":"gold"}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Publish/Publish GeoServer GeoNetwork" --params -
+```
+
+O flow publica cada `.gpkg`, cria ou atualiza o SLD no GeoServer, associa o
+estilo a camada e importa o XML no GeoNetwork.
 
 ### Execucao Manual Pelo Terminal
 

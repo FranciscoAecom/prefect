@@ -4,6 +4,7 @@ from unittest.mock import patch
 from core.prefect_support.deployment_names import (
     AUTOS_INFRACAO_PROCESSING_DEPLOYMENT_NAME,
     AUTOS_INFRACAO_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
+    DATA_PUBLISH_DEPLOYMENT_NAME,
 )
 from scripts import serve
 
@@ -28,6 +29,16 @@ class ServeDeploymentsTest(unittest.TestCase):
         self.assertEqual(kwargs["name"], AUTOS_INFRACAO_PROCESSING_DEPLOYMENT_NAME)
         self.assertEqual(kwargs["parameters"], {"theme_folders": ["autos_infracao"]})
         self.assertIn("autos_infracao", kwargs["tags"])
+
+    @patch("scripts.serve.data_publish_flow.serve")
+    def test_data_publish_serves_publish_deployment(self, mock_serve):
+        serve.serve_data_publish()
+
+        mock_serve.assert_called_once()
+        _, kwargs = mock_serve.call_args
+        self.assertEqual(kwargs["name"], DATA_PUBLISH_DEPLOYMENT_NAME)
+        self.assertIn("geoserver", kwargs["tags"])
+        self.assertIn("geonetwork", kwargs["tags"])
 
 
 if __name__ == "__main__":
