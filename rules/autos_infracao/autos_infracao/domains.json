@@ -86,6 +86,17 @@
       ],
       "aliases": {}
     },
+    "sdb_passivel_r": {
+      "accepted_values": [
+        "Dano potencial",
+        "Não",
+        "Sim"
+      ],
+      "aliases": {
+        "N": "Não",
+        "S": "Sim"
+      }
+    },
     "sdb_forma_entr": {
       "accepted_values": [
         "Correios",
