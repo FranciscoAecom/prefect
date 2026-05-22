@@ -7,6 +7,7 @@ from xml.sax.saxutils import escape
 
 import pandas as pd
 
+from core.bronze import ensure_bronze_dataset
 from core.ingest.normalization import normalize_attribute_name, normalize_lookup_value, stringify
 from core.io.dataset import inspect_input_attributes
 from core.utils import log
@@ -64,7 +65,7 @@ def persist_bronze_metadata_xml(record, descriptions):
     if not bronze_dir_value:
         return None
     bronze_dir = Path(bronze_dir_value)
-    bronze_dataset_path = find_first_geographic_dataset(bronze_dir)
+    bronze_dataset_path = ensure_bronze_dataset(record)
     if not bronze_dataset_path:
         bronze_dataset_path = Path(record.input_path)
 
