@@ -6,6 +6,7 @@ from core.spatial.metrics import (
     add_centroid_coordinates,
     calculate_area_hectares,
     calculate_perimeter_km,
+    has_measurable_area_or_perimeter,
 )
 from core.spatial.repair import force_geometry_2d
 from core.transforms.attribute_transforms import add_sequential_id, clean_whitespace
@@ -50,6 +51,7 @@ def run_pipeline(
         "optional_functions": [],
         "forced_to_2d": 0,
         "reprojected_to_wgs84": 0,
+        "skipped_point_measurements": 0,
     }
 
     gdf = _ensure_geodataframe(gdf)
@@ -63,8 +65,11 @@ def run_pipeline(
     stats["forced_to_2d"] = int(forced_to_2d)
 
     gdf = add_sequential_id(gdf, start=id_start)
-    gdf = calculate_area_hectares(gdf)
-    gdf = calculate_perimeter_km(gdf)
+    if has_measurable_area_or_perimeter(gdf):
+        gdf = calculate_area_hectares(gdf)
+        gdf = calculate_perimeter_km(gdf)
+    else:
+        stats["skipped_point_measurements"] = len(gdf)
     gdf = add_centroid_coordinates(gdf)
 
     if mapping:

@@ -18,8 +18,8 @@
     },
     "sdb_sit_cancel": {
       "accepted_values": [
-        "N",
-        "S"
+        "Não",
+        "Sim"
       ],
       "aliases": {
         "N": "Não",

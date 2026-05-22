@@ -11,6 +11,7 @@ def _new_stats_total():
     return {
         "forced_to_2d": 0,
         "reprojected_to_wgs84": 0,
+        "skipped_point_measurements": 0,
         "optional_functions": [],
         "_optional_seen": set(),
     }
@@ -19,6 +20,10 @@ def _new_stats_total():
 def _merge_batch_stats(stats_total, batch_stats):
     stats_total["forced_to_2d"] += batch_stats.get("forced_to_2d", 0)
     stats_total["reprojected_to_wgs84"] += batch_stats.get("reprojected_to_wgs84", 0)
+    stats_total["skipped_point_measurements"] += batch_stats.get(
+        "skipped_point_measurements",
+        0,
+    )
 
     for func_name in batch_stats.get("optional_functions", []):
         if func_name in stats_total["_optional_seen"]:
@@ -31,6 +36,7 @@ def _finalize_stats(stats_total):
     return {
         "forced_to_2d": stats_total["forced_to_2d"],
         "reprojected_to_wgs84": stats_total["reprojected_to_wgs84"],
+        "skipped_point_measurements": stats_total["skipped_point_measurements"],
         "optional_functions": stats_total["optional_functions"],
     }
 
@@ -51,7 +57,12 @@ def process_in_batches(
     if total == 0:
         empty_gdf = gpd.GeoDataFrame(gdf.copy(), geometry="geometry", crs=gdf.crs)
         log("Nenhum registro encontrado para processamento em batch.")
-        return empty_gdf, {"forced_to_2d": 0, "reprojected_to_wgs84": 0, "optional_functions": []}
+        return empty_gdf, {
+            "forced_to_2d": 0,
+            "reprojected_to_wgs84": 0,
+            "skipped_point_measurements": 0,
+            "optional_functions": [],
+        }
 
     results = []
     stats_total = _new_stats_total()
@@ -93,6 +104,12 @@ def process_in_batches(
         log(f"Forcado para 2D: {final_stats['forced_to_2d']} geometria(s) com Z/M ajustada(s)")
     if final_stats["reprojected_to_wgs84"] > 0:
         log("Reprojetado para WGS84")
+    if final_stats["skipped_point_measurements"] > 0:
+        log(
+            "Base de pontos detectada: "
+            "acm_a_ha e acm_prm_km nao foram gerados para "
+            f"{final_stats['skipped_point_measurements']} registro(s)."
+        )
 
     log_validation_summary(validation_session=validation_session)
 

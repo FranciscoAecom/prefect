@@ -8,7 +8,26 @@ from core.utils import log
 from settings import CRS_EQUAL_AREA
 
 
+POINT_GEOMETRY_TYPES = {"Point", "MultiPoint"}
+
+
+def has_measurable_area_or_perimeter(gdf):
+    if "geometry" not in gdf.columns:
+        return False
+
+    geometry = gdf.geometry
+    measurable_mask = get_finite_geometry_mask(geometry)
+    if not measurable_mask.any():
+        return False
+
+    geometry_types = set(geometry.loc[measurable_mask].geom_type.dropna())
+    return bool(geometry_types - POINT_GEOMETRY_TYPES)
+
+
 def calculate_area_and_perimeter(gdf):
+    if not has_measurable_area_or_perimeter(gdf):
+        return gdf
+
     geometry = gdf.geometry
     measurable_mask = get_finite_geometry_mask(geometry)
 
@@ -49,6 +68,9 @@ def calculate_area_and_perimeter(gdf):
 
 
 def calculate_area_hectares(gdf):
+    if not has_measurable_area_or_perimeter(gdf):
+        return gdf
+
     if "acm_a_ha" not in gdf.columns or "acm_prm_km" not in gdf.columns:
         gdf = calculate_area_and_perimeter(gdf)
     elif "acm_a_ha" not in gdf.columns:
@@ -66,6 +88,9 @@ def calculate_area_hectares(gdf):
 
 
 def calculate_perimeter_km(gdf):
+    if not has_measurable_area_or_perimeter(gdf):
+        return gdf
+
     if "acm_a_ha" not in gdf.columns or "acm_prm_km" not in gdf.columns:
         gdf = calculate_area_and_perimeter(gdf)
     elif "acm_prm_km" not in gdf.columns:
@@ -147,4 +172,5 @@ __all__ = [
     "calculate_area_hectares",
     "calculate_perimeter_km",
     "fill_missing_spatial_metrics",
+    "has_measurable_area_or_perimeter",
 ]
