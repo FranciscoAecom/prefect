@@ -1,48 +1,17 @@
-import geopandas as gpd
 import pandas as pd
+
+from core.validation.schema_presence import validate_geometry, validate_schema_presence
 
 
 def validate_tabular_schema(gdf, schema):
-    errors = []
-
-    if schema.require_geometry:
-        errors.extend(validate_geometry(gdf))
-
-    missing_columns = []
+    errors = validate_schema_presence(gdf, schema)
     for column, rule in schema.columns.items():
         if column not in gdf.columns:
-            if rule.required:
-                missing_columns.append(column)
             continue
 
         errors.extend(validate_column(gdf[column], column, rule))
 
-    if missing_columns:
-        errors.append(
-            "Colunas obrigatorias ausentes: "
-            f"{', '.join(sorted(missing_columns))}."
-        )
-
-    if not schema.allow_extra_columns:
-        expected_columns = set(schema.columns) | {"geometry"}
-        extra_columns = sorted(set(gdf.columns) - expected_columns)
-        if extra_columns:
-            errors.append(
-                "Colunas nao previstas no schema: "
-                f"{', '.join(extra_columns)}."
-            )
-
     return errors
-
-
-def validate_geometry(gdf):
-    if not isinstance(gdf, gpd.GeoDataFrame):
-        return ["Entrada nao e um GeoDataFrame."]
-    if "geometry" not in gdf.columns:
-        return ["Coluna obrigatoria ausente: geometry."]
-    if gdf.geometry.name != "geometry":
-        return ["Coluna geometry nao esta configurada como geometria ativa."]
-    return []
 
 
 def validate_column(series, column, rule):

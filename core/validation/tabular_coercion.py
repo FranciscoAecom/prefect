@@ -1,43 +1,21 @@
 import pandas as pd
 
 from core.utils import log
+from core.validation.schema_presence import validate_schema_presence
 from core.validation.tabular_validation import (
     matches_dtype,
     validate_column,
-    validate_geometry,
 )
 
 
 def normalize_tabular_schema(gdf, schema):
-    errors = []
-
-    if schema.require_geometry:
-        errors.extend(validate_geometry(gdf))
-
-    missing_columns = []
+    errors = validate_schema_presence(gdf, schema)
     for column, rule in schema.columns.items():
         if column not in gdf.columns:
-            if rule.required:
-                missing_columns.append(column)
             continue
 
         gdf, column_errors = normalize_column(gdf, column, rule)
         errors.extend(column_errors)
-
-    if missing_columns:
-        errors.append(
-            "Colunas obrigatorias ausentes: "
-            f"{', '.join(sorted(missing_columns))}."
-        )
-
-    if not schema.allow_extra_columns:
-        expected_columns = set(schema.columns) | {"geometry"}
-        extra_columns = sorted(set(gdf.columns) - expected_columns)
-        if extra_columns:
-            errors.append(
-                "Colunas nao previstas no schema: "
-                f"{', '.join(extra_columns)}."
-            )
 
     return gdf, errors
 

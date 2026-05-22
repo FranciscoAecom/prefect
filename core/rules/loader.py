@@ -16,10 +16,6 @@ def profile_path(profile_name):
     return get_repository().profile_path(profile_name)
 
 
-def legacy_profile_path(profile_name):
-    return get_repository().legacy_profile_path(profile_name)
-
-
 def modular_profile_path(profile_name):
     return get_repository().modular_profile_path(profile_name)
 

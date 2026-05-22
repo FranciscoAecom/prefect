@@ -1,7 +1,6 @@
 from core.input.preparation import (
     load_and_prepare_input,
     log_dataset_overview,
-    log_dictionary_validation,
     log_input_schema_validation,
     log_queue_summary,
 )
@@ -9,7 +8,6 @@ from core.input.preparation import (
 __all__ = [
     "load_and_prepare_input",
     "log_dataset_overview",
-    "log_dictionary_validation",
     "log_input_schema_validation",
     "log_queue_summary",
 ]

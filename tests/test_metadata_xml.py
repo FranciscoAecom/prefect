@@ -64,6 +64,30 @@ class MetadataXmlTests(unittest.TestCase):
         self.assertIn("<name>sdb_cod_tema</name>", xml)
         self.assertIn("<description>Codigo normalizado.</description>", xml)
 
+    def test_acm_description_uses_record_theme_before_aecom_fallback(self):
+        descriptions = {
+            "tema teste": {
+                "original": {"acm_sit_cancel": "Descricao no tema."},
+                "aecom": {"acm_sit_cancel": "Descricao no tema."},
+            },
+            "aecom": {
+                "original": {"acm_sit_cancel": "Descricao generica."},
+                "aecom": {"acm_sit_cancel": "Descricao generica."},
+            },
+        }
+        record = SimpleNamespace(theme="Tema Teste")
+
+        xml = build_data_dictionary_xml(
+            ["acm_sit_cancel"],
+            record=record,
+            stage="silver",
+            descriptions=descriptions,
+        )
+
+        self.assertIn("<name>acm_sit_cancel</name>", xml)
+        self.assertIn("<description>Descricao no tema.</description>", xml)
+        self.assertNotIn("Descricao generica.", xml)
+
     @patch("core.metadata.xml.log")
     def test_missing_description_is_logged_and_kept_empty(self, mock_log):
         record = SimpleNamespace(theme="Tema Teste")
@@ -146,9 +170,9 @@ class MetadataXmlTests(unittest.TestCase):
         )
         self.assertEqual(
             metadata_xml_path_for_dataset(
-                Path("saida") / "pnt_pcd_enov_20260514_bbox_brasil.gpkg"
+                Path("saida") / "pnt_pcd_enov_bbox_brasil_20260514.gpkg"
             ),
-            Path("saida") / "md_pcd_enov_20260514_bbox_brasil.xml",
+            Path("saida") / "md_pcd_enov_bbox_brasil_20260514.xml",
         )
         self.assertEqual(
             metadata_xml_path_for_dataset(Path("saida") / "pol_pcd_rl_car_ac_20260301.shp"),
@@ -165,7 +189,7 @@ class MetadataXmlTests(unittest.TestCase):
 
     @patch("core.metadata.xml.inspect_dataset_fields")
     def test_bronze_xml_uses_same_metadata_name_as_silver(self, mock_inspect_fields):
-        mock_inspect_fields.return_value = ["cod_tema", "geometry"]
+        mock_inspect_fields.return_value = ["cod_tema", "acm_id", "geometry"]
         descriptions = {
             "tema teste": {
                 "original": {"cod_tema": "Codigo original."},
@@ -198,6 +222,8 @@ class MetadataXmlTests(unittest.TestCase):
         self.assertIn("<gco:DateTime>2026-05-14</gco:DateTime>", xml_text)
         self.assertIn("<gco:DateTime>2021-09-15</gco:DateTime>", xml_text)
         self.assertIn("<gml:beginPosition>2021-09-15</gml:beginPosition>", xml_text)
+        self.assertIn("<name>cod_tema</name>", xml_text)
+        self.assertIn("<name>acm_id</name>", xml_text)
         self.assertNotIn("00:00:00", xml_text)
 
 

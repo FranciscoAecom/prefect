@@ -1,7 +1,7 @@
 from core.processing.context import replace_context
 from core.transforms.attribute_transforms import is_normalized_columns, normalize_columns
 from core.utils import log
-from core.validation.tabular_schema import get_tabular_schema, normalize_input_schema
+from core.validation.tabular_schema import coerce_input_schema_types, get_tabular_schema
 
 
 def validate_input_schema_step(context):
@@ -13,7 +13,7 @@ def validate_input_schema_step(context):
     if get_tabular_schema(context.rule_profile) is None:
         return context
 
-    gdf, errors = normalize_input_schema(
+    gdf, errors = coerce_input_schema_types(
         context.record,
         context.gdf,
         context.rule_profile,

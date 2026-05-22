@@ -67,7 +67,7 @@ def persist_bronze_metadata_xml(record, bronze_dataset_path, descriptions, base_
     fields = [
         bronze_field_name(field)
         for field in inspect_dataset_fields(bronze_dataset_path)
-        if should_include_dictionary_field(field)
+        if should_include_dictionary_field(field, stage="bronze")
     ]
     xml_path = bronze_dir / metadata_xml_name_for_base(base_name)
     render_and_write_metadata_xml(
@@ -85,7 +85,7 @@ def persist_silver_metadata_xml(record, silver_gdf, output_path, descriptions):
     fields = [
         str(field)
         for field in inspect_dataset_fields(output_path, fallback_gdf=silver_gdf)
-        if should_include_dictionary_field(field)
+        if should_include_dictionary_field(field, stage="silver")
     ]
     xml_path = metadata_xml_path_for_dataset(output_path)
     render_and_write_metadata_xml(
@@ -229,6 +229,8 @@ def build_data_dictionary_xml(fields, record, stage, descriptions):
     theme = stringify(getattr(record, "theme", ""))
     lines = []
     for field in fields:
+        if not should_include_dictionary_field(field, stage=stage):
+            continue
         description = resolve_field_description(
             field,
             theme=theme,
@@ -257,11 +259,19 @@ def resolve_field_description(field, theme, stage, descriptions):
         return ""
 
     if normalized_field.startswith("acm_"):
-        return lookup_description(
-            descriptions,
-            "AECOM",
-            normalized_field,
-            preferred="aecom",
+        return (
+            lookup_description(
+                descriptions,
+                theme,
+                normalized_field,
+                preferred="aecom",
+            )
+            or lookup_description(
+                descriptions,
+                "AECOM",
+                normalized_field,
+                preferred="aecom",
+            )
         )
 
     if stage == "bronze":
@@ -366,9 +376,11 @@ def ensure_sdb_field_name(field):
     return f"sdb_{field}"
 
 
-def should_include_dictionary_field(field):
+def should_include_dictionary_field(field, stage=None):
     field = normalize_attribute_name(field)
-    return bool(field and field != "geometry")
+    if not field or field == "geometry":
+        return False
+    return True
 
 
 __all__ = [

@@ -7,12 +7,12 @@ from unittest.mock import patch
 import geopandas as gpd
 from shapely.geometry import Point
 
-from core.output.persistence import save_outputs
+from core.silver.persistence import save_outputs
 
 
 class OutputPersistenceTests(unittest.TestCase):
     @patch("core.output.secondary_outputs.write_output_gpkg")
-    @patch("core.output.persistence.write_output_gpkg")
+    @patch("core.silver.persistence.write_output_gpkg")
     def test_configured_profile_persists_complete_and_brazil_bbox_outputs(
         self,
         mock_main_write,
@@ -48,7 +48,7 @@ class OutputPersistenceTests(unittest.TestCase):
         self.assertEqual(len(bbox_gdf), 1)
 
     @patch("core.output.secondary_outputs.write_output_gpkg")
-    @patch("core.output.persistence.write_output_gpkg")
+    @patch("core.silver.persistence.write_output_gpkg")
     def test_secondary_outputs_are_skipped_without_profile_configuration(
         self,
         mock_main_write,

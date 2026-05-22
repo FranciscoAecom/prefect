@@ -9,7 +9,6 @@ from core.rules.constants import (
     INPUT_SCHEMA_COMPONENT,
     PIPELINE_COMPONENT,
     PROFILE_COMPONENT,
-    PROFILE_COMPONENT_FILES,
     RELATIONS_COMPONENT,
 )
 from core.rules.models import RuleProfileModel
@@ -29,16 +28,7 @@ class RuleRepository:
         normalized_profile_name = normalize_profile_name(profile_name)
         if not normalized_profile_name:
             return self.rules_base
-        legacy_path = self.legacy_profile_path(normalized_profile_name)
-        if legacy_path.exists():
-            return legacy_path
         return self.modular_profile_path(normalized_profile_name)
-
-    def legacy_profile_path(self, profile_name):
-        normalized_profile_name = normalize_profile_name(profile_name)
-        if not normalized_profile_name:
-            return self.rules_base
-        return self.rules_base / Path(f"{normalized_profile_name}.json")
 
     def modular_profile_path(self, profile_name):
         normalized_profile_name = normalize_profile_name(profile_name)
@@ -106,12 +96,7 @@ class RuleRepository:
         path = self.profile_path(profile_name)
         if path.is_dir():
             return self.load_modular_profile(path)
-        if not path.exists():
-            raise FileNotFoundError(f"Perfil de regras nao encontrado: {path}")
-        profile = self.load_json_file(path)
-        return RuleProfileModel.from_dict(profile).to_dict(
-            include_empty_input_schema="input_schema" in profile
-        )
+        raise FileNotFoundError(f"Perfil modular de regras nao encontrado: {path}")
 
     def load_profile(self, profile_name):
         normalized_profile_name = normalize_profile_name(profile_name)
@@ -134,14 +119,6 @@ class RuleRepository:
             if is_auxiliary_rule_path(relative_parent):
                 continue
             profiles.add(str(relative_parent).replace("\\", "/"))
-
-        for path in self.rules_base.rglob("*.json"):
-            relative_path = path.relative_to(self.rules_base)
-            if is_auxiliary_rule_path(relative_path):
-                continue
-            if path.name in PROFILE_COMPONENT_FILES and (path.parent / PROFILE_COMPONENT).exists():
-                continue
-            profiles.add(str(relative_path.with_suffix("")).replace("\\", "/"))
 
         return sorted(profiles)
 
@@ -248,15 +225,8 @@ class RuleRepository:
         validate_rule_profile(profile, normalized_profile_name)
 
         modular_path = self.modular_profile_path(normalized_profile_name)
-        legacy_path = self.legacy_profile_path(normalized_profile_name)
         profile_model = RuleProfileModel.from_dict(profile)
-        if modular_path.is_dir() or (modular_path / PROFILE_COMPONENT).exists():
-            path = self.save_modular_profile(modular_path, profile_model)
-        else:
-            path = legacy_path
-            self.write_json_file(path, profile_model.to_dict(
-                include_empty_input_schema="input_schema" in profile
-            ))
+        path = self.save_modular_profile(modular_path, profile_model)
 
         self.invalidate(normalized_profile_name)
         return str(path)

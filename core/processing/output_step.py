@@ -1,5 +1,5 @@
 from core.processing.context import replace_context
-from core.output.persistence import save_outputs
+from core.silver import save_outputs
 
 
 def persist_outputs_step(

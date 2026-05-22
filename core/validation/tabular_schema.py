@@ -40,6 +40,10 @@ def get_tabular_schema(rule_profile):
 
 
 def validate_input_schema(record, gdf, rule_profile):
+    return validate_input_schema_presence(record, gdf, rule_profile)
+
+
+def validate_input_schema_presence(record, gdf, rule_profile):
     schema = get_tabular_schema(rule_profile)
     if schema is None:
         return []
@@ -47,6 +51,10 @@ def validate_input_schema(record, gdf, rule_profile):
 
 
 def normalize_input_schema(record, gdf, rule_profile):
+    return coerce_input_schema_types(record, gdf, rule_profile)
+
+
+def coerce_input_schema_types(record, gdf, rule_profile):
     schema = get_tabular_schema(rule_profile)
     if schema is None:
         return gdf, []

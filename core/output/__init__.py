@@ -9,12 +9,19 @@ from core.output.naming import (
     sanitize_output_name,
 )
 from core.output.paths import build_group_log_path, build_processing_group_key
-from core.output.persistence import save_outputs
 from core.output.quality import (
     OutputQualitySummary,
     build_output_quality_summary,
     log_output_quality_summary,
 )
+
+
+def __getattr__(name):
+    if name == "save_outputs":
+        from core.silver import save_outputs
+
+        return save_outputs
+    raise AttributeError(name)
 
 __all__ = [
     "OutputQualitySummary",

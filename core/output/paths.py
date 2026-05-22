@@ -39,7 +39,17 @@ def resolve_output_path(record, output_dir, use_configured_final_name):
 
 
 def build_secondary_output_path(theme_output_dir, base_name, suffix):
-    return os.path.join(theme_output_dir, f"{base_name}_{suffix}.gpkg")
+    secondary_base_name = build_secondary_output_base_name(base_name, suffix)
+    return os.path.join(theme_output_dir, f"{secondary_base_name}.gpkg")
+
+
+def build_secondary_output_base_name(base_name, suffix):
+    base_name = str(base_name)
+    suffix = str(suffix).strip("_")
+    last_token = base_name.rsplit("_", 1)[-1]
+    if len(last_token) == 8 and last_token.isdigit():
+        return f"{base_name[: -(len(last_token) + 1)]}_{suffix}_{last_token}"
+    return f"{base_name}_{suffix}"
 
 
 def resolve_theme_output_dir(record, output_dir):

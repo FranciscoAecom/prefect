@@ -71,6 +71,3 @@ def apply_legacy_column_aliases(gdf):
             + ", ".join(f"{old}->{new}" for old, new in sorted(rename_map.items()))
         )
     return gdf
-
-
-log_dictionary_validation = log_input_schema_validation
