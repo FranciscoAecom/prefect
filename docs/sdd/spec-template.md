@@ -34,6 +34,7 @@ Descrever o que esta base representa e qual resultado o pipeline deve entregar.
 - `domains.json`:
 - `relations.json`:
 - `pipeline.json`:
+- `style.json`:
 
 O `input_schema.json` deve ser a fonte da validacao estrutural de entrada:
 campos obrigatorios, tipos esperados e permissao de colunas extras. Campos
@@ -98,6 +99,7 @@ Verificacoes obrigatorias de qualidade:
 - Arquivos secundarios:
 - XML bronze:
 - XML silver:
+- SLD silver:
 - Relatorios esperados:
 - Campos `acm_*` obrigatorios:
 
@@ -110,8 +112,10 @@ Ordem obrigatoria do fluxo:
 5. Executar os tratamentos.
 6. Salvar o dado tratado no `silver_data`.
 7. Criar e salvar o XML do silver.
+8. Criar e salvar o SLD do silver, quando houver `style.json`.
 
 Os XMLs usam prefixo `md_` e mantem o restante do nome logico da saida.
+O SLD e gerado somente no `silver_data`; o bronze nao gera SLD.
 
 ## Prefect
 
@@ -146,6 +150,7 @@ Os XMLs usam prefixo `md_` e mantem o restante do nome logico da saida.
 - [ ] As verificacoes obrigatorias de qualidade aparecem no log.
 - [ ] Os campos obrigatorios existem na saida.
 - [ ] As saidas secundarias configuradas sao geradas.
+- [ ] Os SLDs configurados sao gerados somente no silver.
 - [ ] Testes automatizados relevantes passam.
 
 ## Validacao

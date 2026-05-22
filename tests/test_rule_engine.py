@@ -177,6 +177,12 @@ class ValidateRuleProfileTests(unittest.TestCase):
                     "enrich_with_municipality_intersection"
                 ]
                 profile["secondary_outputs"] = ["brazil_bbox"]
+                profile["sld"] = {
+                    "rule_name": "Single symbol",
+                    "point": {
+                        "fill": "#1654ad",
+                    },
+                }
 
                 saved_path = save_rule_profile("demo/perfil", profile)
 
@@ -185,6 +191,7 @@ class ValidateRuleProfileTests(unittest.TestCase):
                 domains = json.loads((profile_dir / "domains.json").read_text(encoding="utf-8"))
                 relations = json.loads((profile_dir / "relations.json").read_text(encoding="utf-8"))
                 pipeline = json.loads((profile_dir / "pipeline.json").read_text(encoding="utf-8"))
+                style = json.loads((profile_dir / "style.json").read_text(encoding="utf-8"))
                 self.assertIn("B", domains["fields"]["sdb_codigo"]["accepted_values"])
                 self.assertEqual(
                     relations["relations"]["codigo_to_nome"],
@@ -195,6 +202,8 @@ class ValidateRuleProfileTests(unittest.TestCase):
                     ["enrich_with_municipality_intersection"],
                 )
                 self.assertEqual(pipeline["secondary_outputs"], ["brazil_bbox"])
+                self.assertNotIn("sld", pipeline)
+                self.assertEqual(style["sld"]["point"]["fill"], "#1654ad")
 
     def _write_modular_profile(
         self,

@@ -418,7 +418,8 @@ duas execucoes concorrentes da mesma saida.
 
 ## Regras Modulares
 
-Cada perfil em `rules/` deve conter cinco arquivos:
+Cada perfil em `rules/` deve conter cinco arquivos obrigatorios e,
+opcionalmente, `style.json` quando a base precisar gerar estilo SLD:
 
 ```text
 rules/<projeto>/<perfil>/
@@ -426,7 +427,8 @@ rules/<projeto>/<perfil>/
 |-- input_schema.json
 |-- domains.json
 |-- relations.json
-`-- pipeline.json
+|-- pipeline.json
+`-- style.json
 ```
 
 Exemplo:
@@ -457,6 +459,9 @@ No `pipeline.json`, o perfil explicita tudo que roda de forma configuravel:
 - `auto_functions`: validacoes ou transformacoes por atributo.
 - `postprocess_functions`: etapas que alteram o GeoDataFrame final, como `enforce_car_state_bounds` ou `enrich_with_municipality_intersection`.
 - `secondary_outputs`: arquivos extras, como `brazil_bbox`.
+
+O `style.json` concentra configuracoes de estilo, como `sld`. O `pipeline.json`
+nao deve conter configuracao visual.
 
 O `input_schema.json` define as colunas esperadas na entrada e seus tipos
 (`string`, `integer`, `number`, `date`, etc.). A validacao estrutural usa esse
@@ -498,6 +503,7 @@ Tambem podem ser gerados:
 - relatorio de geometrias invalidas OGC;
 - consolidado por grupo, quando `ENABLE_GROUP_CONSOLIDATION = True`.
 - metadados XML junto dos arquivos em `bronze_data` e `silver_data`.
+- arquivos SLD junto dos GeoPackages na etapa `silver_data`.
 
 O fluxo de persistencia segue a ordem:
 
@@ -509,10 +515,14 @@ O fluxo de persistencia segue a ordem:
 5. Executa os tratamentos.
 6. Salva o `.gpkg` tratado no `silver_data`.
 7. Cria e salva o XML do silver.
+8. Cria e salva o SLD do silver, quando houver configuracao em `style.json`.
 
 O XML de metadados usa prefixo `md_`, preservando o restante do nome logico da
 saida. Exemplo: `pnt_pcd_enov_20260514.gpkg` gera
 `md_pcd_enov_20260514.xml`.
+
+O SLD e gerado somente para arquivos persistidos em `silver_data`. A etapa
+`bronze_data` preserva apenas o dado bruto e o XML de metadados.
 
 Na etapa de persistencia, o log tambem lista as verificacoes obrigatorias de
 qualidade executadas: `check_attribute_duplicates`,

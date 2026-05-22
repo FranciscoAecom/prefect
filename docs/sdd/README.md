@@ -35,7 +35,8 @@ Cada spec deve apontar para:
 - `rules/<projeto>/<theme_folder>/input_schema.json`;
 - `rules/<projeto>/<theme_folder>/domains.json`;
 - `rules/<projeto>/<theme_folder>/pipeline.json`;
-- `rules/<projeto>/<theme_folder>/relations.json`.
+- `rules/<projeto>/<theme_folder>/relations.json`;
+- `rules/<projeto>/<theme_folder>/style.json`, quando a base gerar SLD.
 
 ## Funcoes Sempre Esperadas
 
@@ -51,6 +52,10 @@ As funcoes obrigatorias rodam para todas as bases:
 
 Funcoes opcionais precisam estar explicitas no perfil, normalmente em
 `pipeline.json`, para ficar claro o que roda em cada base.
+
+Configuracoes visuais, como `sld`, devem ficar em `style.json`. O SLD e gerado
+somente para arquivos da etapa `silver_data`; o bronze preserva o dado bruto e
+o XML de metadados.
 
 ## Download Pela Ingest
 

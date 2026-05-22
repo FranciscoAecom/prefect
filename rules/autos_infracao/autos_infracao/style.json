@@ -1,0 +1,33 @@
+{
+  "sld": {
+    "version": "1.1.0",
+    "rule_name": "Single symbol",
+    "point": {
+      "well_known_name": "circle",
+      "fill": "#1654ad",
+      "stroke": "#232323",
+      "stroke_width": "0.5",
+      "size": "7"
+    },
+    "layers": {
+      "pnt_pcd_enov_20260514": {
+        "point": {
+          "well_known_name": "circle",
+          "fill": "#ef8e03",
+          "stroke": "#232323",
+          "stroke_width": "0.5",
+          "size": "7"
+        }
+      },
+      "pnt_pcd_enov_bbox_brasil_20260514": {
+        "point": {
+          "well_known_name": "circle",
+          "fill": "#1654ad",
+          "stroke": "#232323",
+          "stroke_width": "0.5",
+          "size": "7"
+        }
+      }
+    }
+  }
+}

@@ -10,6 +10,7 @@ from core.rules.constants import (
     PIPELINE_COMPONENT,
     PROFILE_COMPONENT,
     RELATIONS_COMPONENT,
+    STYLE_COMPONENT,
 )
 from core.rules.models import RuleProfileModel
 from core.rules.normalization import (
@@ -74,6 +75,7 @@ class RuleRepository:
         domains = self.read_component(profile_dir, DOMAINS_COMPONENT)
         relations = self.read_component(profile_dir, RELATIONS_COMPONENT)
         pipeline = self.read_component(profile_dir, PIPELINE_COMPONENT)
+        style = self.read_component(profile_dir, STYLE_COMPONENT)
         normalized_profile_name = str(profile_dir.relative_to(self.rules_base)).replace("\\", "/")
         validate_modular_components(
             profile,
@@ -81,6 +83,7 @@ class RuleRepository:
             domains,
             relations,
             pipeline,
+            style,
             normalized_profile_name,
         )
 
@@ -90,6 +93,7 @@ class RuleRepository:
             domains,
             relations,
             pipeline,
+            style,
         ).to_dict(include_empty_input_schema=bool(input_schema))
 
     def load_profile_data(self, profile_name):
@@ -232,7 +236,7 @@ class RuleRepository:
         return str(path)
 
     def save_modular_profile(self, profile_dir, profile_model):
-        profile_data, input_schema_data, domains_data, relations_data, pipeline_data = (
+        profile_data, input_schema_data, domains_data, relations_data, pipeline_data, style_data = (
             profile_model.to_components()
         )
 
@@ -242,6 +246,7 @@ class RuleRepository:
             domains_data,
             relations_data,
             pipeline_data,
+            style_data,
             str(profile_dir.relative_to(self.rules_base)).replace("\\", "/"),
         )
 
@@ -250,6 +255,8 @@ class RuleRepository:
         self.write_json_file(profile_dir / DOMAINS_COMPONENT, domains_data)
         self.write_json_file(profile_dir / RELATIONS_COMPONENT, relations_data)
         self.write_json_file(profile_dir / PIPELINE_COMPONENT, pipeline_data)
+        if style_data:
+            self.write_json_file(profile_dir / STYLE_COMPONENT, style_data)
         return profile_dir
 
 

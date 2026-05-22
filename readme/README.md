@@ -6,7 +6,7 @@ base especifica.
 Use como fonte principal:
 
 - `README.md`: visao geral do projeto, fluxo de execucao, versionamento,
-  bronze/silver, metadados XML e comandos principais.
+  bronze/silver, metadados XML, SLD no silver e comandos principais.
 - `docs/sdd/README.md`: fluxo Spec-Driven Development.
 - `docs/sdd/spec-template.md`: template para especificar novas bases.
 - `docs/sdd/specs/`: especificacoes por projeto/base.

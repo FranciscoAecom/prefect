@@ -36,6 +36,7 @@ com os pontos dentro do limite Brasil / zona costeira.
 - `rules/autos_infracao/autos_infracao/domains.json`
 - `rules/autos_infracao/autos_infracao/relations.json`
 - `rules/autos_infracao/autos_infracao/pipeline.json`
+- `rules/autos_infracao/autos_infracao/style.json`
 
 A validacao estrutural de entrada deve usar
 `rules/autos_infracao/autos_infracao/input_schema.json`, ignorando campos que
@@ -131,7 +132,7 @@ output\autos_infracao\pnt_pcd_enov_20260514.gpkg
 Arquivo secundario:
 
 ```text
-output\autos_infracao\pnt_pcd_enov_20260514_bbox_brasil.gpkg
+output\autos_infracao\pnt_pcd_enov_bbox_brasil_20260514.gpkg
 ```
 
 XML esperado no bronze e no silver:
@@ -143,8 +144,22 @@ md_pcd_enov_20260514.xml
 XML da saida secundaria no silver:
 
 ```text
-md_pcd_enov_20260514_bbox_brasil.xml
+md_pcd_enov_bbox_brasil_20260514.xml
 ```
+
+SLD esperado somente no silver:
+
+```text
+pnt_pcd_enov_20260514.sld
+pnt_pcd_enov_bbox_brasil_20260514.sld
+```
+
+Estilo SLD:
+
+- `pnt_pcd_enov_20260514`: ponto circular, preenchimento `#ef8e03`,
+  contorno `#232323`, largura `0.5`, tamanho `7`.
+- `pnt_pcd_enov_bbox_brasil_20260514`: ponto circular, preenchimento
+  `#1654ad`, contorno `#232323`, largura `0.5`, tamanho `7`.
 
 O arquivo principal deve conter todos os pontos tratados. O arquivo secundario
 deve conter apenas os pontos dentro do limite Brasil / zona costeira.
@@ -158,6 +173,10 @@ O fluxo deve seguir esta ordem no log:
 5. Executar os tratamentos.
 6. Salvar o dado tratado no `silver_data`.
 7. Criar e salvar o XML do silver.
+8. Criar e salvar o SLD do silver.
+
+O bronze nao deve gerar SLD. Ele deve conter somente o dado bruto e o XML de
+metadados.
 
 ## Prefect
 
@@ -208,6 +227,7 @@ Parametros fixos do deployment:
 - [x] A validacao estrutural usa `input_schema.json`.
 - [x] O XML do bronze e do silver usa prefixo `md_`.
 - [x] O bronze preserva o bruto sem alterar dados nem nome do arquivo.
+- [x] O SLD e gerado somente no silver.
 - [x] As verificacoes obrigatorias de qualidade aparecem no log.
 - [x] Testes automatizados passam.
 
@@ -222,6 +242,6 @@ Comando executado:
 Resultado registrado em 2026-05-22:
 
 ```text
-Ran 126 tests
+Ran 137 tests
 OK
 ```

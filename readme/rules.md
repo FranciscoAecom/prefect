@@ -1,6 +1,8 @@
 # Contrato Generico De Regras Modulares
 
-Cada perfil em `rules/` deve ficar em uma pasta com cinco arquivos:
+Cada perfil em `rules/` deve ficar em uma pasta com cinco arquivos
+obrigatorios. Quando a base precisar de SLD, o perfil tambem deve conter
+`style.json`:
 
 ```text
 rules/<projeto>/<perfil>/
@@ -9,6 +11,7 @@ rules/<projeto>/<perfil>/
   domains.json
   relations.json
   pipeline.json
+  style.json
 ```
 
 Use `rules/_template/` como ponto de partida para uma nova base. Regras de
@@ -154,6 +157,43 @@ Saidas secundarias disponiveis no core:
 
 Remova `postprocess_functions` ou `secondary_outputs` quando a base nao deve usar essas etapas.
 
+## style.json
+
+Define configuracoes de estilo do perfil. Hoje o componente usado e `sld`,
+gerado somente para arquivos `.gpkg` persistidos na etapa `silver_data`.
+
+```json
+{
+  "sld": {
+    "version": "1.1.0",
+    "rule_name": "Single symbol",
+    "point": {
+      "well_known_name": "circle",
+      "fill": "#1654ad",
+      "stroke": "#232323",
+      "stroke_width": "0.5",
+      "size": "7"
+    },
+    "layers": {
+      "pnt_pcd_enov_20260514": {
+        "point": {
+          "fill": "#ef8e03"
+        }
+      },
+      "pnt_pcd_enov_bbox_brasil_20260514": {
+        "point": {
+          "fill": "#1654ad"
+        }
+      }
+    }
+  }
+}
+```
+
+O `pipeline.json` nao deve conter `sld`. Configuracoes visuais ficam em
+`style.json`; configuracoes de execucao ficam em `pipeline.json`. Use `layers`
+quando uma saida especifica precisar sobrescrever o estilo padrao do perfil.
+
 ## Fluxo De Persistencia
 
 O perfil nao deve alterar a ordem padrao do pipeline:
@@ -165,8 +205,11 @@ O perfil nao deve alterar a ordem padrao do pipeline:
 5. Executar os tratamentos.
 6. Salvar o dado tratado no `silver_data`.
 7. Criar e salvar o XML do silver.
+8. Criar e salvar o SLD do silver, quando houver `style.json`.
 
 Os XMLs usam prefixo `md_` e preservam o restante do nome logico da saida.
+O SLD e criado somente no `silver_data`; o bronze preserva apenas o dado bruto
+e o XML de metadados.
 
 ## Validacao
 
@@ -182,7 +225,8 @@ O carregador valida cada componente separadamente e depois consolida tudo em mem
   "relations": {},
   "auto_functions": {},
   "postprocess_functions": [],
-  "secondary_outputs": []
+  "secondary_outputs": [],
+  "sld": {}
 }
 ```
 

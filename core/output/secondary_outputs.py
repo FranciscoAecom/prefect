@@ -11,7 +11,7 @@ def persist_secondary_outputs(export_gdf, profile, theme_output_dir, base_name, 
     if not persist_dataset:
         return []
 
-    output_paths = []
+    outputs = []
     for output_name in profile.get("secondary_outputs", []) or []:
         step = resolve_secondary_output_step(output_name)
         if not step:
@@ -34,6 +34,6 @@ def persist_secondary_outputs(export_gdf, profile, theme_output_dir, base_name, 
             overwrite_existing=True,
         )
         log(f"Arquivo {step.label} salvo com sucesso")
-        output_paths.append(output_path)
+        outputs.append({"path": output_path, "gdf": output_gdf})
 
-    return output_paths
+    return outputs

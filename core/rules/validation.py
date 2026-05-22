@@ -80,6 +80,8 @@ def validate_relations_component(relations, fields):
 
 def validate_pipeline_component(pipeline, fields):
     errors = []
+    if "sld" in pipeline:
+        errors.append("Campo 'sld' deve ficar em style.json, nao em pipeline.json.")
     if _pipeline_uses_component_keys(pipeline):
         auto_functions = pipeline.get("auto_functions", {})
     else:
@@ -105,12 +107,19 @@ def _pipeline_uses_component_keys(pipeline):
     )
 
 
+def validate_style_component(style):
+    errors = []
+    _validate_sld_entry((style or {}).get("sld", style or {}), errors)
+    _validate_component_errors("style.json", errors)
+
+
 def validate_modular_components(
     profile,
     input_schema,
     domains,
     relations,
     pipeline,
+    style,
     normalized_profile_name,
 ):
     validate_profile_component(profile, normalized_profile_name)
@@ -120,6 +129,7 @@ def validate_modular_components(
     fields = domains.get("fields", domains)
     validate_relations_component(relations, fields)
     validate_pipeline_component(pipeline, fields)
+    validate_style_component(style)
 
 
 def validate_rule_profile_structure(profile, profile_name):
@@ -147,6 +157,7 @@ def validate_rule_profile_structure(profile, profile_name):
         "secondary_outputs",
         errors,
     )
+    _validate_sld_entry(profile.get("sld", {}), errors)
     _raise_profile_errors(normalized_profile_name, errors)
 
 
@@ -325,6 +336,33 @@ def _validate_string_list_entry(values, field_name, errors):
         if not isinstance(value, str) or not value.strip():
             errors.append(f"Campo '{field_name}' deve conter apenas strings nao vazias.")
             break
+
+
+def _validate_sld_entry(sld, errors):
+    if sld in (None, {}):
+        return
+    if not isinstance(sld, dict):
+        errors.append("Campo 'sld' deve ser um objeto JSON.")
+        return
+
+    if "rule_name" in sld and not isinstance(sld["rule_name"], str):
+        errors.append("Campo 'sld.rule_name' deve ser string.")
+
+    for section in ("point", "line", "polygon"):
+        value = sld.get(section)
+        if value is None:
+            continue
+        if not isinstance(value, dict):
+            errors.append(f"Campo 'sld.{section}' deve ser um objeto JSON.")
+            continue
+        for key, style_value in value.items():
+            if not isinstance(key, str) or not key.strip():
+                errors.append(f"Chaves de 'sld.{section}' devem ser strings nao vazias.")
+                continue
+            if style_value is not None and not isinstance(style_value, (str, int, float)):
+                errors.append(
+                    f"Valor de 'sld.{section}.{key}' deve ser string ou numero."
+                )
 
 
 def _validate_registered_function_list(values, field_name, registered_names, errors):
