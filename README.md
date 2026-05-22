@@ -527,6 +527,8 @@ O SLD e gerado somente para arquivos persistidos em `silver_data`. A etapa
 Na etapa de persistencia, o log tambem lista as verificacoes obrigatorias de
 qualidade executadas: `check_attribute_duplicates`,
 `check_geometric_duplicates` e `check_ogc_invalid_geometries`.
+Por padrao, essas verificacoes aparecem apenas no log. Para tambem exportar
+arquivos de apoio, habilite `EXPORT_OUTPUT_QUALITY_REPORT_FILES = True`.
 
 ## Versionamento Temp/Bronze/Silver
 
@@ -568,6 +570,7 @@ As constantes principais ficam em `settings.py`, incluindo:
 - `CRS_WGS84`
 - `CRS_EQUAL_AREA`
 - `ENABLE_GROUP_CONSOLIDATION`
+- `EXPORT_OUTPUT_QUALITY_REPORT_FILES`
 - `KEEP_INDIVIDUAL_OUTPUTS_WHEN_GROUPING`
 - `USE_ARROW_IO`
 - `INTERACTIVE_ATTRIBUTE_REVIEW`

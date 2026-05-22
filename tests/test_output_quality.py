@@ -1,7 +1,14 @@
 import unittest
 from unittest.mock import patch
 
-from core.output.quality import OutputQualitySummary, log_output_quality_summary
+import geopandas as gpd
+from shapely.geometry import Point
+
+from core.output.quality import (
+    OutputQualitySummary,
+    build_output_quality_summary,
+    log_output_quality_summary,
+)
 
 
 class OutputQualityTests(unittest.TestCase):
@@ -29,6 +36,26 @@ class OutputQualityTests(unittest.TestCase):
             ),
             messages,
         )
+
+    @patch("core.output.quality.EXPORT_OUTPUT_QUALITY_REPORT_FILES", False)
+    @patch("core.output.quality.export_duplicate_reports")
+    def test_does_not_export_quality_report_files_when_flag_disabled(self, mock_export):
+        gdf = gpd.GeoDataFrame(
+            {
+                "sdb_codigo": ["A", "A"],
+                "geometry": [Point(0, 0), Point(0, 0)],
+            },
+            geometry="geometry",
+            crs="EPSG:4326",
+        )
+
+        summary = build_output_quality_summary(gdf, ".", "pnt_teste")
+
+        mock_export.assert_not_called()
+        self.assertEqual(summary.attr_count, 2)
+        self.assertEqual(summary.geom_count, 2)
+        self.assertIsNone(summary.attr_report)
+        self.assertIsNone(summary.geom_report)
 
 
 if __name__ == "__main__":

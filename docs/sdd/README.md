@@ -118,6 +118,8 @@ verificacoes obrigatorias de qualidade quando habilitadas em `settings.py`:
 Essas verificacoes aparecem no log como
 `Verificacoes obrigatorias de qualidade executadas` e podem gerar relatorios de
 duplicados por atributos, duplicados geometricos e geometrias invalidas OGC.
+Por padrao, o projeto mantem apenas o log e os totais. A exportacao fisica
+desses relatorios depende de `EXPORT_OUTPUT_QUALITY_REPORT_FILES = True`.
 
 ## Template
 

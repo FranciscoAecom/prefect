@@ -93,6 +93,9 @@ Verificacoes obrigatorias de qualidade:
 - `check_geometric_duplicates`
 - `check_ogc_invalid_geometries`
 
+Essas verificacoes devem aparecer no log, mas nao devem gerar arquivos fisicos
+de relatorio enquanto `EXPORT_OUTPUT_QUALITY_REPORT_FILES = False`.
+
 ## Intersecao Municipal
 
 A base deve fazer intersecao com municipios usando:
@@ -229,6 +232,7 @@ Parametros fixos do deployment:
 - [x] O bronze preserva o bruto sem alterar dados nem nome do arquivo.
 - [x] O SLD e gerado somente no silver.
 - [x] As verificacoes obrigatorias de qualidade aparecem no log.
+- [x] Relatorios fisicos de qualidade ficam desabilitados por flag.
 - [x] Testes automatizados passam.
 
 ## Validacao

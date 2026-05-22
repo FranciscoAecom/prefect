@@ -93,6 +93,10 @@ Verificacoes obrigatorias de qualidade:
 - `check_geometric_duplicates`;
 - `check_ogc_invalid_geometries`.
 
+Por padrao, essas verificacoes devem ser reportadas no log sem gerar arquivos
+fisicos. Para exportar relatorios, usar `EXPORT_OUTPUT_QUALITY_REPORT_FILES =
+True`.
+
 ## Saidas Esperadas
 
 - Arquivo principal:

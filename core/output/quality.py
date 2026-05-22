@@ -18,6 +18,7 @@ from settings import (
     ENABLE_ATTRIBUTE_DUPLICATE_REPORT,
     ENABLE_GEOMETRIC_DUPLICATE_REPORT,
     ENABLE_OGC_INVALID_REPORT,
+    EXPORT_OUTPUT_QUALITY_REPORT_FILES,
 )
 
 QUALITY_CHECK_ATTRIBUTE_DUPLICATES = "check_attribute_duplicates"
@@ -77,17 +78,25 @@ def log_output_quality_summary(summary):
         log("Verificacoes obrigatorias de qualidade: desabilitadas em settings.py")
 
     if ENABLE_ATTRIBUTE_DUPLICATE_REPORT:
-        log(f"Relatorio duplicados atributos: {summary.attr_report or 'nao gerado'}")
+        if not EXPORT_OUTPUT_QUALITY_REPORT_FILES:
+            log("Relatorio duplicados atributos: exportacao de arquivo desabilitada")
+        else:
+            log(f"Relatorio duplicados atributos: {summary.attr_report or 'nao gerado'}")
     else:
         log("Relatorio duplicados atributos: desabilitado em settings.py")
 
     if ENABLE_GEOMETRIC_DUPLICATE_REPORT:
-        log(f"Relatorio duplicados geometricos: {summary.geom_report or 'nao gerado'}")
+        if not EXPORT_OUTPUT_QUALITY_REPORT_FILES:
+            log("Relatorio duplicados geometricos: exportacao de arquivo desabilitada")
+        else:
+            log(f"Relatorio duplicados geometricos: {summary.geom_report or 'nao gerado'}")
     else:
         log("Relatorio duplicados geometricos: desabilitado em settings.py")
 
     if ENABLE_OGC_INVALID_REPORT:
-        if summary.ogc_report:
+        if not EXPORT_OUTPUT_QUALITY_REPORT_FILES:
+            log("Relatorio geometrias invalidas OGC: exportacao de arquivo desabilitada")
+        elif summary.ogc_report:
             log(f"Relatorio geometrias invalidas OGC: {summary.ogc_report}")
         else:
             log("Relatorio geometrias invalidas OGC: nao gerado")
@@ -174,7 +183,7 @@ def _export_reports_if_needed(
             ENABLE_GEOMETRIC_DUPLICATE_REPORT and geom_count > 0,
             ENABLE_OGC_INVALID_REPORT and ogc_invalid_count > 0,
         ]
-    ):
+    ) and EXPORT_OUTPUT_QUALITY_REPORT_FILES:
         (
             attr_report,
             geom_report,
