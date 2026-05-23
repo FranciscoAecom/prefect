@@ -57,6 +57,7 @@ def build_sld_style(rule_profile):
         "point": dict(DEFAULT_SLD_STYLE["point"]),
         "line": dict(DEFAULT_SLD_STYLE["line"]),
         "polygon": dict(DEFAULT_SLD_STYLE["polygon"]),
+        "rules": [],
         "layers": {},
     }
     if not isinstance(configured, dict):
@@ -71,6 +72,9 @@ def build_sld_style(rule_profile):
     for section in ("point", "line", "polygon"):
         if isinstance(configured.get(section), dict):
             style[section].update(normalize_style_mapping(configured[section]))
+
+    if isinstance(configured.get("rules"), list):
+        style["rules"] = normalize_sld_rules(configured["rules"])
 
     if isinstance(configured.get("layers"), dict):
         style["layers"] = {
@@ -89,6 +93,27 @@ def normalize_layer_style(layer_style):
     for section in ("point", "line", "polygon"):
         if isinstance(layer_style.get(section), dict):
             normalized[section] = normalize_style_mapping(layer_style[section])
+    if isinstance(layer_style.get("rules"), list):
+        normalized["rules"] = normalize_sld_rules(layer_style["rules"])
+    return normalized
+
+
+def normalize_sld_rules(rules):
+    normalized = []
+    for rule in rules:
+        if not isinstance(rule, dict):
+            continue
+        normalized_rule = {}
+        for key in ("name", "title"):
+            if isinstance(rule.get(key), str) and rule[key].strip():
+                normalized_rule[key] = rule[key].strip()
+        if isinstance(rule.get("filter"), dict):
+            normalized_rule["filter"] = normalize_style_mapping(rule["filter"])
+        for section in ("point", "line", "polygon"):
+            if isinstance(rule.get(section), dict):
+                normalized_rule[section] = normalize_style_mapping(rule[section])
+        if normalized_rule:
+            normalized.append(normalized_rule)
     return normalized
 
 
@@ -107,6 +132,7 @@ def resolve_layer_sld_style(base_style, layer_name):
         "point": dict(base_style["point"]),
         "line": dict(base_style["line"]),
         "polygon": dict(base_style["polygon"]),
+        "rules": list(base_style.get("rules", [])),
         "layers": dict(base_style.get("layers", {})),
     }
     layer_style = style["layers"].get(layer_name, {})
@@ -119,6 +145,8 @@ def resolve_layer_sld_style(base_style, layer_name):
     for section in ("point", "line", "polygon"):
         if isinstance(layer_style.get(section), dict):
             style[section].update(layer_style[section])
+    if isinstance(layer_style.get("rules"), list):
+        style["rules"] = list(layer_style["rules"])
     return style
 
 
@@ -150,7 +178,7 @@ def render_sld(layer_name, geometry_kind, style):
 
 
 def render_sld_1_0(layer_name, geometry_kind, style):
-    symbolizer = render_symbolizer(geometry_kind, style)
+    rules = render_rules(geometry_kind, style)
     return "\n".join(
         [
             '<?xml version="1.0" encoding="UTF-8"?>',
@@ -167,10 +195,7 @@ def render_sld_1_0(layer_name, geometry_kind, style):
             "    <UserStyle>",
             f"      <Name>{escape(layer_name)}</Name>",
             "      <FeatureTypeStyle>",
-            "        <Rule>",
-            f"          <Name>{escape(style['rule_name'])}</Name>",
-            symbolizer,
-            "        </Rule>",
+            rules,
             "      </FeatureTypeStyle>",
             "    </UserStyle>",
             "  </NamedLayer>",
@@ -181,7 +206,7 @@ def render_sld_1_0(layer_name, geometry_kind, style):
 
 
 def render_sld_1_1(layer_name, geometry_kind, style):
-    symbolizer = render_symbolizer_1_1(geometry_kind, style)
+    rules = render_rules_1_1(geometry_kind, style)
     return "\n".join(
         [
             '<?xml version="1.0" encoding="UTF-8"?>',
@@ -199,10 +224,7 @@ def render_sld_1_1(layer_name, geometry_kind, style):
             "    <UserStyle>",
             f"      <se:Name>{escape(layer_name)}</se:Name>",
             "      <se:FeatureTypeStyle>",
-            "        <se:Rule>",
-            f"          <se:Name>{escape(style['rule_name'])}</se:Name>",
-            symbolizer,
-            "        </se:Rule>",
+            rules,
             "      </se:FeatureTypeStyle>",
             "    </UserStyle>",
             "  </NamedLayer>",
@@ -210,6 +232,120 @@ def render_sld_1_1(layer_name, geometry_kind, style):
             "",
         ]
     )
+
+
+def render_rules(geometry_kind, style):
+    if not style.get("rules"):
+        return "\n".join(
+            [
+                "        <Rule>",
+                f"          <Name>{escape(style['rule_name'])}</Name>",
+                render_symbolizer(geometry_kind, style),
+                "        </Rule>",
+            ]
+        )
+    return "\n".join(
+        render_rule(geometry_kind, rule)
+        for rule in style["rules"]
+    )
+
+
+def render_rules_1_1(geometry_kind, style):
+    if not style.get("rules"):
+        return "\n".join(
+            [
+                "        <se:Rule>",
+                f"          <se:Name>{escape(style['rule_name'])}</se:Name>",
+                render_symbolizer_1_1(geometry_kind, style),
+                "        </se:Rule>",
+            ]
+        )
+    return "\n".join(
+        render_rule_1_1(geometry_kind, rule)
+        for rule in style["rules"]
+    )
+
+
+def render_rule(geometry_kind, rule):
+    rule_name = rule.get("name", "Rule")
+    title = rule.get("title", rule_name)
+    return "\n".join(
+        [
+            "        <Rule>",
+            f"          <Name>{escape(rule_name)}</Name>",
+            f"          <Title>{escape(title)}</Title>",
+            render_filter(rule.get("filter", {})),
+            render_symbolizer_for_rule(geometry_kind, rule),
+            "        </Rule>",
+        ]
+    )
+
+
+def render_rule_1_1(geometry_kind, rule):
+    rule_name = rule.get("name", "Rule")
+    title = rule.get("title", rule_name)
+    return "\n".join(
+        [
+            "        <se:Rule>",
+            f"          <se:Name>{escape(rule_name)}</se:Name>",
+            "          <se:Description>",
+            f"            <se:Title>{escape(title)}</se:Title>",
+            "          </se:Description>",
+            render_filter_1_1(rule.get("filter", {})),
+            render_symbolizer_for_rule_1_1(geometry_kind, rule),
+            "        </se:Rule>",
+        ]
+    )
+
+
+def render_filter(rule_filter):
+    property_name = rule_filter.get("property")
+    literal = rule_filter.get("literal")
+    if not property_name or literal is None:
+        return ""
+    return "\n".join(
+        [
+            "          <ogc:Filter>",
+            "            <ogc:PropertyIsEqualTo>",
+            f"              <ogc:PropertyName>{escape(property_name)}</ogc:PropertyName>",
+            f"              <ogc:Literal>{escape(literal)}</ogc:Literal>",
+            "            </ogc:PropertyIsEqualTo>",
+            "          </ogc:Filter>",
+        ]
+    )
+
+
+def render_filter_1_1(rule_filter):
+    property_name = rule_filter.get("property")
+    literal = rule_filter.get("literal")
+    if not property_name or literal is None:
+        return ""
+    return "\n".join(
+        [
+            '          <ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">',
+            "            <ogc:PropertyIsEqualTo>",
+            f"              <ogc:PropertyName>{escape(property_name)}</ogc:PropertyName>",
+            f"              <ogc:Literal>{escape(literal)}</ogc:Literal>",
+            "            </ogc:PropertyIsEqualTo>",
+            "          </ogc:Filter>",
+        ]
+    )
+
+
+def render_symbolizer_for_rule(geometry_kind, rule):
+    if geometry_kind == "polygon":
+        return render_polygon_symbolizer(rule.get("polygon", {}))
+    if geometry_kind == "line":
+        return render_line_symbolizer(rule.get("line", {}))
+    return render_point_symbolizer(rule.get("point", {}))
+
+
+def render_symbolizer_for_rule_1_1(geometry_kind, rule):
+    if geometry_kind == "polygon":
+        return render_polygon_symbolizer_1_1(rule.get("polygon", {}))
+    if geometry_kind == "line":
+        return render_line_symbolizer_1_1(rule.get("line", {}))
+    return render_point_symbolizer_1_1(rule.get("point", {}))
 
 
 def render_symbolizer(geometry_kind, style):
@@ -299,6 +435,31 @@ def render_line_symbolizer_1_1(style):
 
 
 def render_polygon_symbolizer(style):
+    lines = [
+        "          <PolygonSymbolizer>",
+    ]
+    if "fill" in style:
+        lines.extend(
+            [
+                "            <Fill>",
+                f"              <CssParameter name=\"fill\">{escape(style['fill'])}</CssParameter>",
+                "            </Fill>",
+            ]
+        )
+    if "stroke" in style:
+        lines.extend(
+            [
+                "            <Stroke>",
+                f"              <CssParameter name=\"stroke\">{escape(style['stroke'])}</CssParameter>",
+                f"              <CssParameter name=\"stroke-width\">{escape(style.get('stroke_width', '0.5'))}</CssParameter>",
+                "            </Stroke>",
+            ]
+        )
+    lines.append("          </PolygonSymbolizer>")
+    return "\n".join(lines)
+
+
+def _old_render_polygon_symbolizer(style):
     return "\n".join(
         [
             "          <PolygonSymbolizer>",
@@ -315,19 +476,28 @@ def render_polygon_symbolizer(style):
 
 
 def render_polygon_symbolizer_1_1(style):
-    return "\n".join(
-        [
-            "          <se:PolygonSymbolizer>",
-            "            <se:Fill>",
-            f"              <se:SvgParameter name=\"fill\">{escape(style['fill'])}</se:SvgParameter>",
-            "            </se:Fill>",
-            "            <se:Stroke>",
-            f"              <se:SvgParameter name=\"stroke\">{escape(style['stroke'])}</se:SvgParameter>",
-            f"              <se:SvgParameter name=\"stroke-width\">{escape(style['stroke_width'])}</se:SvgParameter>",
-            "            </se:Stroke>",
-            "          </se:PolygonSymbolizer>",
-        ]
-    )
+    lines = [
+        "          <se:PolygonSymbolizer>",
+    ]
+    if "fill" in style:
+        lines.extend(
+            [
+                "            <se:Fill>",
+                f"              <se:SvgParameter name=\"fill\">{escape(style['fill'])}</se:SvgParameter>",
+                "            </se:Fill>",
+            ]
+        )
+    if "stroke" in style:
+        lines.extend(
+            [
+                "            <se:Stroke>",
+                f"              <se:SvgParameter name=\"stroke\">{escape(style['stroke'])}</se:SvgParameter>",
+                f"              <se:SvgParameter name=\"stroke-width\">{escape(style.get('stroke_width', '0.5'))}</se:SvgParameter>",
+                "            </se:Stroke>",
+            ]
+        )
+    lines.append("          </se:PolygonSymbolizer>")
+    return "\n".join(lines)
 
 
 __all__ = [

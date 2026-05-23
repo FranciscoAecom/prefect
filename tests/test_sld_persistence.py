@@ -88,6 +88,56 @@ class SldPersistenceTests(unittest.TestCase):
         self.assertEqual(main_style["point"]["fill"], "#ef8e03")
         self.assertEqual(bbox_style["point"]["fill"], "#1654ad")
 
+    def test_render_categorized_polygon_sld_version_1_1(self):
+        style = build_sld_style(
+            {
+                "sld": {
+                    "version": "1.1.0",
+                    "layers": {
+                        "pol_pcd_ur_car_ac_20260514": {
+                            "rules": [
+                                {
+                                    "name": "Area de Uso Restrito para declividade de 25 a 45 graus",
+                                    "title": "Area de Uso Restrito para declividade de 25 a 45 graus",
+                                    "filter": {
+                                        "property": "sdb_nom_tema",
+                                        "literal": "Area de Uso Restrito para declividade de 25 a 45 graus",
+                                    },
+                                    "polygon": {
+                                        "fill": "#087d03",
+                                    },
+                                },
+                                {
+                                    "name": "Area de Uso Restrito para regioes pantaneiras",
+                                    "title": "Area de Uso Restrito para regioes pantaneiras",
+                                    "filter": {
+                                        "property": "sdb_nom_tema",
+                                        "literal": "Area de Uso Restrito para regioes pantaneiras",
+                                    },
+                                    "polygon": {
+                                        "fill": "#4fd84a",
+                                    },
+                                },
+                            ]
+                        }
+                    },
+                }
+            }
+        )
+        layer_style = resolve_layer_sld_style(style, "pol_pcd_ur_car_ac_20260514")
+
+        text = render_sld("pol_pcd_ur_car_ac_20260514", "polygon", layer_style)
+
+        self.assertIn("<se:Name>pol_pcd_ur_car_ac_20260514</se:Name>", text)
+        self.assertIn("<se:Rule>", text)
+        self.assertIn("<ogc:PropertyName>sdb_nom_tema</ogc:PropertyName>", text)
+        self.assertIn(
+            "<ogc:Literal>Area de Uso Restrito para declividade de 25 a 45 graus</ogc:Literal>",
+            text,
+        )
+        self.assertIn('<se:SvgParameter name="fill">#087d03</se:SvgParameter>', text)
+        self.assertIn('<se:SvgParameter name="fill">#4fd84a</se:SvgParameter>', text)
+
     def test_sld_path_uses_same_stem_as_dataset(self):
         self.assertEqual(
             sld_path_for_dataset(Path("saida") / "pnt_pcd_enov_bbox_brasil_20260514.gpkg"),
