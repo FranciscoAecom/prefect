@@ -1,0 +1,73 @@
+import unittest
+from types import SimpleNamespace
+from unittest.mock import patch
+
+from core.publish.pipeline_flow import publish_record_outputs
+from core.publish.pipeline_flow import publish_record_outputs_direct
+
+
+class PipelinePublishFlowTests(unittest.TestCase):
+    @patch("core.publish.pipeline_flow.publish_item_task")
+    @patch("core.publish.pipeline_flow.discover_publish_items_task")
+    def test_publish_record_outputs_uses_record_output_dir(
+        self,
+        mock_discover,
+        mock_publish,
+    ):
+        item = SimpleNamespace(layer="pnt_pcd_enov_20260514")
+        mock_discover.return_value = [item]
+        record = SimpleNamespace(output_dir=r"L:\silver\autos\00")
+
+        publish_record_outputs(
+            record,
+            fallback_output_dir=r"C:\fallback",
+            environment="qas",
+            workspace="gold",
+            dry_run=True,
+        )
+
+        mock_discover.assert_called_once_with(r"L:\silver\autos\00")
+        mock_publish.assert_called_once()
+        self.assertIs(mock_publish.call_args.args[0], item)
+        self.assertEqual(mock_publish.call_args.kwargs["environment"], "qas")
+        self.assertEqual(mock_publish.call_args.kwargs["workspace"], "gold")
+
+    @patch("core.publish.pipeline_flow.import_metadata_to_geonetwork")
+    @patch("core.publish.pipeline_flow.publish_to_geoserver")
+    @patch("core.publish.pipeline_flow.discover_publish_items")
+    def test_publish_record_outputs_direct_uses_plain_functions(
+        self,
+        mock_discover,
+        mock_geoserver,
+        mock_geonetwork,
+    ):
+        item = SimpleNamespace(layer="pnt_pcd_enov_20260514")
+        config = SimpleNamespace()
+        credentials = SimpleNamespace()
+        mock_discover.return_value = [item]
+
+        publish_record_outputs_direct(
+            r"L:\silver\autos\00",
+            config,
+            credentials,
+            dry_run=True,
+        )
+
+        mock_discover.assert_called_once_with(r"L:\silver\autos\00")
+        mock_geoserver.assert_called_once_with(
+            item,
+            config,
+            credentials,
+            dry_run=True,
+            skip_data=False,
+        )
+        mock_geonetwork.assert_called_once_with(
+            item,
+            config,
+            credentials,
+            dry_run=True,
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()

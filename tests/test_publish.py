@@ -7,6 +7,7 @@ from core.publish.metadata import (
     metadata_stem_for_data_stem,
     metadata_title,
 )
+from core.publish.geoserver import add_windows_schannel_ssl_option
 from core.publish.sld import prepare_sld_for_upload
 from core.publish.urls import (
     geonetwork_records_import_urls,
@@ -87,6 +88,13 @@ class PublishTests(unittest.TestCase):
             "https://catalog/srv/api/records?metadataType=METADATA",
             geonetwork_records_import_urls("https://catalog", "2", "3")[0],
         )
+
+    def test_adds_ssl_no_revoke_for_https_curl_on_windows_schannel(self):
+        arguments = add_windows_schannel_ssl_option(
+            ["--request", "GET", "https://gisqas.iocasta.com.br/geoserver"]
+        )
+
+        self.assertEqual(arguments[0], "--ssl-no-revoke")
 
     def _write_triplet(self, folder, data_stem):
         (folder / f"{data_stem}.gpkg").write_bytes(b"gpkg")

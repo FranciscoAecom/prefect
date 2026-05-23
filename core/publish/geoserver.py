@@ -205,6 +205,7 @@ def basic_auth(username, password):
 
 
 def run_curl(arguments, dry_run=False, capture=False):
+    arguments = add_windows_schannel_ssl_option(arguments)
     display = mask_sensitive_arguments(arguments)
     log("curl.exe " + " ".join(display))
     if dry_run:
@@ -213,7 +214,7 @@ def run_curl(arguments, dry_run=False, capture=False):
     result = subprocess.run(
         ["curl.exe", *arguments],
         check=False,
-        capture_output=capture,
+        capture_output=True,
         text=True,
     )
     if result.returncode != 0:
@@ -223,6 +224,7 @@ def run_curl(arguments, dry_run=False, capture=False):
 
 
 def run_curl_with_stdin(arguments, stdin_text, dry_run=False):
+    arguments = add_windows_schannel_ssl_option(arguments)
     display = mask_sensitive_arguments(arguments)
     log("curl.exe " + " ".join(display))
     if dry_run:
@@ -259,6 +261,14 @@ def mask_sensitive_arguments(arguments):
                 continue
         masked.append(str(argument))
     return masked
+
+
+def add_windows_schannel_ssl_option(arguments):
+    if "--ssl-no-revoke" in arguments:
+        return arguments
+    if not any(str(argument).lower().startswith("https://") for argument in arguments):
+        return arguments
+    return ["--ssl-no-revoke", *arguments]
 
 
 def xml_escape(text):

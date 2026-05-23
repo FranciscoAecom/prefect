@@ -215,6 +215,7 @@ Exemplos disponiveis:
 uv run python scripts/serve.py ur-car-processing
 uv run python scripts/serve.py estado
 .\.venv\Scripts\python.exe scripts\serve.py auto-infracoes
+.\.venv\Scripts\python.exe scripts\serve.py auto-infracoes-publish
 uv run python scripts/serve.py data-download
 uv run python scripts/serve.py data-publish
 ```
@@ -415,6 +416,32 @@ Exemplo passando credenciais por parametro:
 
 O flow publica cada `.gpkg`, cria ou atualiza o SLD no GeoServer, associa o
 estilo a camada e importa o XML no GeoNetwork.
+
+### Tratamento + Publicacao Em Um Comando
+
+Para rodar o tratamento e publicar automaticamente, sem informar a pasta silver
+manualmente, use o flow `Data Pipeline Publish`. Ele calcula a pasta silver a
+partir da ingest, processa a base e publica os arquivos gerados em seguida.
+
+Execucao direta em um unico terminal:
+
+```powershell
+$env:PUBLISH_GEOSERVER_USERNAME="admin"; $env:PUBLISH_GEOSERVER_PASSWORD="<senha>"; $env:PUBLISH_GEONETWORK_USERNAME="admin"; $env:PUBLISH_GEONETWORK_PASSWORD="<senha>"; .\.venv\Scripts\python.exe -c "from core.publish.pipeline_flow import run_pipeline_publish_direct; run_pipeline_publish_direct(theme_folders=['autos_infracao'], environment='qas', workspace='gold', dry_run_publish=False)"
+```
+
+Esse modo direto nao depende do Prefect Server estar aberto.
+
+Para acompanhar no Prefect UI, sirva o deployment:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\serve.py auto-infracoes-publish
+```
+
+E dispare:
+
+```powershell
+'{"geoserver_username":"admin","geoserver_password":"<senha>","geonetwork_username":"admin","geonetwork_password":"<senha>"}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Pipeline Publish/Autos de Infracao - Tratar e Publicar" --params -
+```
 
 ### Execucao Manual Pelo Terminal
 
