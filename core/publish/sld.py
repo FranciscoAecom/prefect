@@ -4,6 +4,8 @@ from xml.etree import ElementTree as ET
 
 SLD_NS = "http://www.opengis.net/sld"
 SE_NS = "http://www.opengis.net/se"
+SLD_10_CONTENT_TYPE = "application/vnd.ogc.sld+xml"
+SLD_11_CONTENT_TYPE = "application/vnd.ogc.se+xml"
 
 
 def prepare_sld_for_upload(sld_path, style_name, layer_name):
@@ -31,3 +33,14 @@ def prepare_sld_for_upload(sld_path, style_name, layer_name):
     upload_path = sld_path.parent / f".{sld_path.stem}.upload.sld"
     tree.write(upload_path, encoding="UTF-8", xml_declaration=True)
     return upload_path
+
+
+def sld_content_type(sld_path):
+    tree = ET.parse(sld_path)
+    root = tree.getroot()
+    version = str(root.attrib.get("version") or "").strip()
+    uses_se_namespace = any(str(node.tag).startswith(f"{{{SE_NS}}}") for node in tree.iter())
+
+    if version.startswith("1.1") or uses_se_namespace:
+        return SLD_11_CONTENT_TYPE
+    return SLD_10_CONTENT_TYPE

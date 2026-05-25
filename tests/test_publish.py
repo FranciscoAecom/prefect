@@ -15,6 +15,7 @@ from core.publish.metadata import (
 )
 from core.publish.geoserver import add_windows_schannel_ssl_option, convert_geoserver_binding
 from core.publish.sld import prepare_sld_for_upload
+from core.publish.sld import sld_content_type
 from core.publish.urls import (
     geonetwork_records_import_urls,
     geoserver_data_upload_url,
@@ -155,6 +156,34 @@ class PublishTests(unittest.TestCase):
             text = upload_path.read_text(encoding="utf-8")
             self.assertIn("new_layer", text)
             self.assertIn("new_style", text)
+
+    def test_sld_content_type_uses_se_mime_for_sld_11(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            sld_path = Path(temp_dir) / "style.sld"
+            sld_path.write_text(
+                """<?xml version="1.0" encoding="UTF-8"?>
+<StyledLayerDescriptor xmlns="http://www.opengis.net/sld" version="1.1.0" xmlns:se="http://www.opengis.net/se">
+  <NamedLayer><se:Name>layer</se:Name></NamedLayer>
+</StyledLayerDescriptor>
+""",
+                encoding="utf-8",
+            )
+
+            self.assertEqual(sld_content_type(sld_path), "application/vnd.ogc.se+xml")
+
+    def test_sld_content_type_uses_sld_mime_for_sld_10(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            sld_path = Path(temp_dir) / "style.sld"
+            sld_path.write_text(
+                """<?xml version="1.0" encoding="UTF-8"?>
+<StyledLayerDescriptor xmlns="http://www.opengis.net/sld" version="1.0.0">
+  <NamedLayer><Name>layer</Name></NamedLayer>
+</StyledLayerDescriptor>
+""",
+                encoding="utf-8",
+            )
+
+            self.assertEqual(sld_content_type(sld_path), "application/vnd.ogc.sld+xml")
 
     def test_urls_match_expected_geoserver_and_geonetwork_shapes(self):
         self.assertEqual(

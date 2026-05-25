@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 
 import core.publish.urls as urls
-from core.publish.sld import prepare_sld_for_upload
+from core.publish.sld import prepare_sld_for_upload, sld_content_type
 from core.utils import log
 
 
@@ -96,6 +96,7 @@ def set_layer_title(item, config, auth, dry_run=False):
 def publish_style(item, config, auth, dry_run=False):
     log(f"3/5 - Criando ou atualizando estilo SLD: {item.style}")
     upload_sld = prepare_sld_for_upload(item.sld_path, item.style, item.layer)
+    content_type = sld_content_type(upload_sld)
     try:
         try:
             run_curl(
@@ -116,7 +117,7 @@ def publish_style(item, config, auth, dry_run=False):
                     "--header",
                     f"Authorization: Basic {auth}",
                     "--header",
-                    "Content-Type: application/vnd.ogc.sld+xml",
+                    f"Content-Type: {content_type}",
                     "--data-binary",
                     f"@{upload_sld}",
                     urls.geoserver_style_collection_url(
@@ -146,7 +147,7 @@ def publish_style(item, config, auth, dry_run=False):
                     "--header",
                     f"Authorization: Basic {auth}",
                     "--header",
-                    "Content-Type: application/vnd.ogc.sld+xml",
+                    f"Content-Type: {content_type}",
                     "--data-binary",
                     f"@{upload_sld}",
                     urls.geoserver_style_url(
