@@ -41,7 +41,7 @@
       <gmd:referenceSystemIdentifier>
         <gmd:RS_Identifier>
           <gmd:code>
-            <gco:CharacterString>%reference_system%</gco:CharacterString>
+            <gco:CharacterString>SIRGAS2000</gco:CharacterString>
           </gmd:code>
         </gmd:RS_Identifier>
       </gmd:referenceSystemIdentifier>
