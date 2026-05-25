@@ -18,15 +18,6 @@
           "stroke_width": "0.5",
           "size": "7"
         }
-      },
-      "pnt_pcd_enov_bbox_brasil_20260514": {
-        "point": {
-          "well_known_name": "circle",
-          "fill": "#1654ad",
-          "stroke": "#232323",
-          "stroke_width": "0.5",
-          "size": "7"
-        }
       }
     }
   }

@@ -205,6 +205,14 @@ class ValidateRuleProfileTests(unittest.TestCase):
                 self.assertNotIn("sld", pipeline)
                 self.assertEqual(style["sld"]["point"]["fill"], "#1654ad")
 
+    def test_autos_infracao_profile_has_only_primary_output(self):
+        profile = load_rule_profile("autos_infracao/autos_infracao")
+
+        self.assertEqual(profile["secondary_outputs"], [])
+        self.assertTrue(
+            profile["primary_output"]["relocate_outside_brazil_bounds_to_centroid"]
+        )
+
     def _write_modular_profile(
         self,
         profile_dir,

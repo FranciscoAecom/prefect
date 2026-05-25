@@ -384,12 +384,12 @@ md_pcd_enov_20260514.xml
 Exemplo de pasta que sera recusada por conter dois conjuntos:
 
 ```text
-pnt_pcd_enov_20260514.gpkg
-pnt_pcd_enov_20260514.sld
-md_pcd_enov_20260514.xml
-pnt_pcd_enov_bbox_brasil_20260514.gpkg
-pnt_pcd_enov_bbox_brasil_20260514.sld
-md_pcd_enov_bbox_brasil_20260514.xml
+pol_pcd_tema_20260514.gpkg
+pol_pcd_tema_20260514.sld
+md_pcd_tema_20260514.xml
+pol_pcd_tema_recorte_20260514.gpkg
+pol_pcd_tema_recorte_20260514.sld
+md_pcd_tema_recorte_20260514.xml
 ```
 
 Para servir o deployment:

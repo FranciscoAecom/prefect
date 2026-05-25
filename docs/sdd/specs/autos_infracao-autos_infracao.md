@@ -8,8 +8,8 @@ Data: 2026-05-21
 
 Processar a base de autos de infracao ambiental, preservando os campos de
 origem como `sdb_*`, aplicando validacoes de dominio e data, enriquecendo os
-pontos com municipio/UF por intersecao espacial e gerando uma saida secundaria
-com os pontos dentro do limite Brasil / zona costeira.
+pontos com municipio/UF por intersecao espacial e gerando somente a saida final
+completa `pnt_pcd_enov_20260514.gpkg`.
 
 ## Entrada
 
@@ -85,7 +85,7 @@ Postprocess configurado:
 
 Saidas secundarias configuradas:
 
-- `brazil_bbox`
+- nenhuma
 
 Saida principal configurada:
 
@@ -122,7 +122,9 @@ Fora do limite territorial brasileiro / zona costeira
 
 ## Limite Brasil / Zona Costeira
 
-A saida secundaria `brazil_bbox` deve usar o limite:
+A saida principal deve usar o limite abaixo para identificar pontos fora do
+Brasil / zona costeira e reposiciona-los para um centroide unico dentro do
+limite brasileiro:
 
 ```text
 L:\Secure_DCS\BRBLH1PINFW001\COE_Digital\others\bouding_box\brasil\pol_br_zona_costeira.gpkg
@@ -136,45 +138,29 @@ Arquivo principal:
 output\autos_infracao\pnt_pcd_enov_20260514.gpkg
 ```
 
-Arquivo secundario:
-
-```text
-output\autos_infracao\pnt_pcd_enov_bbox_brasil_20260514.gpkg
-```
-
 XML esperado no bronze e no silver:
 
 ```text
 md_pcd_enov_20260514.xml
 ```
 
-XML da saida secundaria no silver:
-
-```text
-md_pcd_enov_bbox_brasil_20260514.xml
-```
-
 SLD esperado somente no silver:
 
 ```text
 pnt_pcd_enov_20260514.sld
-pnt_pcd_enov_bbox_brasil_20260514.sld
 ```
 
 Estilo SLD:
 
 - `pnt_pcd_enov_20260514`: ponto circular, preenchimento `#ef8e03`,
   contorno `#232323`, largura `0.5`, tamanho `7`.
-- `pnt_pcd_enov_bbox_brasil_20260514`: ponto circular, preenchimento
-  `#1654ad`, contorno `#232323`, largura `0.5`, tamanho `7`.
 
 O arquivo principal deve conter todos os pontos tratados. Pontos fora do limite
 Brasil / zona costeira devem ser mantidos no arquivo principal, mas com a
 geometria reposicionada para um ponto unico dentro do limite brasileiro. Quando
 existirem `acm_long` e `acm_lat`, esses campos devem refletir a nova geometria.
 
-O arquivo secundario deve conter apenas os pontos que ja estavam dentro do
-limite Brasil / zona costeira antes desse reposicionamento da saida principal.
+Esta base nao deve gerar arquivo secundario `_bbox_brasil`.
 
 O fluxo deve seguir esta ordem no log:
 
@@ -192,15 +178,13 @@ metadados.
 
 ## Publicacao
 
-Esta base gera uma saida principal e uma saida secundaria. Pela regra operacional
-atual de publicacao, cada pasta publicada deve conter apenas um conjunto
-`dados + SLD + XML`. Se as duas saidas estiverem na mesma pasta, o flow de
-publicacao deve registrar aviso e nao publicar automaticamente.
+Esta base gera um unico conjunto publicavel:
 
-Para publicar `pnt_pcd_enov_20260514` e
-`pnt_pcd_enov_bbox_brasil_20260514`, separe os conjuntos em pastas diferentes
-ou execute a publicacao apontando para uma pasta que contenha somente o conjunto
-desejado.
+```text
+pnt_pcd_enov_20260514.gpkg
+pnt_pcd_enov_20260514.sld
+md_pcd_enov_20260514.xml
+```
 
 ## Prefect
 
@@ -241,7 +225,7 @@ Parametros fixos do deployment:
 - [x] A base roda isolada, sem disparar todas as bases.
 - [x] O deployment Prefect existe para acompanhamento em `Runs`.
 - [x] O arquivo principal `.gpkg` e gerado.
-- [x] O arquivo secundario `_bbox_brasil.gpkg` e gerado quando configurado.
+- [x] Nenhum arquivo secundario `_bbox_brasil.gpkg` e gerado para autos_infracao.
 - [x] A saida principal mantem registros fora do limite Brasil / zona costeira reposicionados para um ponto unico dentro do Brasil.
 - [x] O arquivo principal passa pelas funcoes obrigatorias.
 - [x] `clean_whitespace` aparece no log de funcoes obrigatorias.
