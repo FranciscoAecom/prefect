@@ -3,11 +3,17 @@ import unittest
 from pathlib import Path
 
 from core.publish.metadata import (
+    MultiplePublishItemsError,
+    add_data_dictionary_link,
+    data_dictionary_field_type,
     discover_publish_items,
+    geoserver_layer_title,
+    metadata_xml_with_data_dictionary_link,
     metadata_stem_for_data_stem,
     metadata_title,
+    set_data_dictionary_field_types,
 )
-from core.publish.geoserver import add_windows_schannel_ssl_option
+from core.publish.geoserver import add_windows_schannel_ssl_option, convert_geoserver_binding
 from core.publish.sld import prepare_sld_for_upload
 from core.publish.urls import (
     geonetwork_records_import_urls,
@@ -22,26 +28,24 @@ class PublishTests(unittest.TestCase):
             "md_pcd_enov_bbox_brasil_20260514",
         )
 
-    def test_discover_publish_items_matches_multiple_outputs(self):
+    def test_discover_publish_items_rejects_multiple_outputs(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             folder = Path(temp_dir)
             self._write_triplet(folder, "pnt_pcd_enov_20260514")
             self._write_triplet(folder, "pnt_pcd_enov_bbox_brasil_20260514")
 
+            with self.assertRaises(MultiplePublishItemsError):
+                discover_publish_items(folder)
+
+    def test_discover_publish_items_accepts_single_output_set(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            folder = Path(temp_dir)
+            self._write_triplet(folder, "pnt_pcd_enov_20260514")
+
             items = discover_publish_items(folder)
 
-            self.assertEqual(
-                [item.layer for item in items],
-                [
-                    "pnt_pcd_enov_20260514",
-                    "pnt_pcd_enov_bbox_brasil_20260514",
-                ],
-            )
+            self.assertEqual([item.layer for item in items], ["pnt_pcd_enov_20260514"])
             self.assertEqual(items[0].xml_path.name, "md_pcd_enov_20260514.xml")
-            self.assertEqual(
-                items[1].xml_path.name,
-                "md_pcd_enov_bbox_brasil_20260514.xml",
-            )
 
     def test_metadata_title_reads_iso_title(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -49,6 +53,85 @@ class PublishTests(unittest.TestCase):
             xml_path.write_text(self._metadata_xml("Titulo Teste"), encoding="utf-8")
 
             self.assertEqual(metadata_title(xml_path), "Titulo Teste")
+
+    def test_geoserver_layer_title_for_ur_car_uses_utf8_accents(self):
+        self.assertEqual(
+            geoserver_layer_title("pol_pcd_ur_car_ac_20260514"),
+            "Uso Restrito - Imóveis Acre",
+        )
+
+    def test_add_data_dictionary_link_replaces_placeholder(self):
+        content = "<distribution>Estrutura de 2 link associado</distribution>"
+
+        updated, inserted = add_data_dictionary_link(
+            content,
+            "https://etl/get_geonetwork_data_dict?key=uuid-teste",
+        )
+
+        self.assertTrue(inserted)
+        self.assertIn(
+            "https://etl/get_geonetwork_data_dict?key=uuid-teste",
+            updated,
+        )
+
+    def test_metadata_xml_with_data_dictionary_link_writes_temporary_xml(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            xml_path = Path(temp_dir) / "md_test.xml"
+            xml_path.write_text(
+                self._metadata_xml(
+                    "Titulo Teste",
+                    uuid="uuid-teste",
+                    distribution_url="Estrutura de 2 link associado",
+                ),
+                encoding="utf-8",
+            )
+
+            upload_path, temporary = metadata_xml_with_data_dictionary_link(
+                xml_path,
+                "https://etl/get_geonetwork_data_dict",
+            )
+
+            try:
+                self.assertTrue(temporary)
+                self.assertNotEqual(upload_path, xml_path)
+                self.assertIn(
+                    "https://etl/get_geonetwork_data_dict?key=uuid-teste",
+                    upload_path.read_text(encoding="utf-8"),
+                )
+            finally:
+                upload_path.unlink(missing_ok=True)
+
+    def test_set_data_dictionary_field_types_matches_sdb_aliases(self):
+        xml = """
+<metadata>
+  <data_dictionary>
+    <field>
+      <name>cod_tema</name>
+      <description>Codigo</description>
+    </field>
+  </data_dictionary>
+</metadata>
+"""
+
+        updated, count = set_data_dictionary_field_types(
+            xml,
+            {"sdb_cod_tema": "String"},
+        )
+
+        self.assertEqual(count, 1)
+        self.assertIn("<type>String</type>", updated)
+
+    def test_data_dictionary_field_type_uses_unique_suffix(self):
+        self.assertEqual(
+            data_dictionary_field_type("cod_tema", {"acm_cod_tema": "Integer64"}),
+            "Integer64",
+        )
+
+    def test_convert_geoserver_binding_maps_common_types(self):
+        self.assertEqual(convert_geoserver_binding("java.lang.String"), "String")
+        self.assertEqual(convert_geoserver_binding("java.lang.Long"), "Integer64")
+        self.assertEqual(convert_geoserver_binding("java.lang.Double"), "Real")
+        self.assertEqual(convert_geoserver_binding("java.sql.Timestamp"), "Date")
 
     def test_prepare_sld_for_upload_sets_layer_and_style_names(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -107,9 +190,34 @@ class PublishTests(unittest.TestCase):
             encoding="utf-8",
         )
 
-    def _metadata_xml(self, title):
+    def _metadata_xml(self, title, uuid="", distribution_url=""):
+        identifier = ""
+        if uuid:
+            identifier = f"""
+  <gmd:fileIdentifier>
+    <gco:CharacterString>{uuid}</gco:CharacterString>
+  </gmd:fileIdentifier>"""
+        distribution = ""
+        if distribution_url:
+            distribution = f"""
+  <gmd:distributionInfo>
+    <gmd:MD_Distribution>
+      <gmd:transferOptions>
+        <gmd:MD_DigitalTransferOptions>
+          <gmd:onLine>
+            <gmd:CI_OnlineResource>
+              <gmd:linkage>
+                <gmd:URL>{distribution_url}</gmd:URL>
+              </gmd:linkage>
+            </gmd:CI_OnlineResource>
+          </gmd:onLine>
+        </gmd:MD_DigitalTransferOptions>
+      </gmd:transferOptions>
+    </gmd:MD_Distribution>
+  </gmd:distributionInfo>"""
         return f"""<?xml version="1.0" encoding="UTF-8"?>
 <gmd:MD_Metadata xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco">
+{identifier}
   <gmd:identificationInfo>
     <gmd:MD_DataIdentification>
       <gmd:citation>
@@ -121,6 +229,7 @@ class PublishTests(unittest.TestCase):
       </gmd:citation>
     </gmd:MD_DataIdentification>
   </gmd:identificationInfo>
+{distribution}
 </gmd:MD_Metadata>
 """
 

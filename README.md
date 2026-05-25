@@ -41,8 +41,11 @@ data-pipeline/
 |   `-- st_Ingest_parameter.xlsx
 |-- output/
 |-- core/
+|   |-- downloads/
 |   |-- ingest/
+|   |-- metadata/
 |   |-- processing/
+|   |-- publish/
 |   |-- queue/
 |   |-- rules/
 |   |-- spatial/
@@ -67,6 +70,8 @@ Componentes principais:
 - `main.py`: ponto de entrada da fila automatica.
 - `settings.py`: configuracoes centrais do pipeline.
 - `core/`: motor de ingestao, validacao, processamento, regras e escrita.
+- `core/downloads/`: catalogo, conectores e utilitarios de download.
+- `core/publish/`: descoberta, publicacao, titulos, SLD e XML para catalogo.
 - `projects/`: configuracoes e funcoes especificas por projeto.
 - `rules/`: perfis JSON modulares por tema e UF.
 - `input/`: planilha de ingestao.
@@ -328,8 +333,8 @@ Data Download
   -> resolve o dataset no catalogo pelo theme_folder
   -> ignora bases sem conector/script registrado
   -> chama o conector de download das bases elegiveis
-  -> salva/cacheia o ZIP em input/downloads/_archives/<dataset_key>/<theme_folder>
-  -> extrai o arquivo em input/downloads/<theme_folder>
+  -> salva/cacheia o ZIP em <temp>/<...>/<version>/_downloads/<dataset_key>/<theme_folder>
+  -> extrai o arquivo em <temp>/<...>/<version>/raw
   -> emite dataset.downloaded
   -> chama Data Pipeline apenas para a base baixada
 ```
@@ -355,8 +360,7 @@ no GeoServer e no GeoNetwork:
 Data Publish/Publish GeoServer GeoNetwork
 ```
 
-Esse flow recebe uma pasta silver e procura todos os conjuntos publicaveis
-formados por:
+Esse flow recebe uma pasta silver e publica exatamente um conjunto formado por:
 
 ```text
 <nome>.gpkg
@@ -364,13 +368,25 @@ formados por:
 md_<restante_do_nome>.xml
 ```
 
-Exemplo para `autos_infracao`:
+Se a pasta tiver mais de um arquivo publicavel (`.gpkg`, `.rst` ou `.tif`), o
+flow nao publica nada e registra no log que existe mais de um conjunto na mesma
+pasta. Nesse caso, separe os conjuntos em pastas diferentes ou publique uma
+pasta por vez.
+
+Exemplo de pasta valida para publicacao:
 
 ```text
 pnt_pcd_enov_20260514.gpkg
 pnt_pcd_enov_20260514.sld
 md_pcd_enov_20260514.xml
+```
 
+Exemplo de pasta que sera recusada por conter dois conjuntos:
+
+```text
+pnt_pcd_enov_20260514.gpkg
+pnt_pcd_enov_20260514.sld
+md_pcd_enov_20260514.xml
 pnt_pcd_enov_bbox_brasil_20260514.gpkg
 pnt_pcd_enov_bbox_brasil_20260514.sld
 md_pcd_enov_bbox_brasil_20260514.xml
@@ -414,8 +430,9 @@ Exemplo passando credenciais por parametro:
 '{"folder":"L:\\Secure_DCS\\BRBLH1PINFW001\\COE_Digital\\coe_digital_data\\silver_data\\restricted\\pcd\\autos_infracao\\IBAMA\\20210915\\00","environment":"qas","workspace":"gold","dry_run":false,"geoserver_username":"admin","geoserver_password":"<senha>","geonetwork_username":"admin","geonetwork_password":"<senha>"}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Publish/Publish GeoServer GeoNetwork" --params -
 ```
 
-O flow publica cada `.gpkg`, cria ou atualiza o SLD no GeoServer, associa o
-estilo a camada e importa o XML no GeoNetwork.
+O flow publica o arquivo de dados no GeoServer, cria ou atualiza o SLD, associa
+o estilo a camada, le os tipos dos atributos publicados e importa o XML no
+GeoNetwork com o link do dicionario de dados.
 
 ### Tratamento + Publicacao Em Um Comando
 

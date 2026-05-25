@@ -2,14 +2,22 @@ from pathlib import Path
 import tempfile
 
 from core.publish.geoserver import basic_auth, run_curl
+from core.publish.metadata import metadata_xml_with_data_dictionary_link
 import core.publish.urls as urls
 from core.utils import log
 
 
-def import_metadata_to_geonetwork(item, config, credentials, dry_run=False):
+def import_metadata_to_geonetwork(
+    item,
+    config,
+    credentials,
+    dry_run=False,
+    attribute_types=None,
+):
     auth = basic_auth(credentials.catalog_username, credentials.catalog_password)
     log(f"5/5 - Importando XML no GeoNetwork: {item.xml_path.name}")
     cookie_jar = None
+    metadata_upload_path = Path(item.xml_path)
     if dry_run:
         xsrf_token = "DRYRUN-XSRF-TOKEN"
     else:
@@ -42,6 +50,17 @@ def import_metadata_to_geonetwork(item, config, credentials, dry_run=False):
             raise RuntimeError("Nao foi possivel obter XSRF-TOKEN do GeoNetwork.")
 
     try:
+        metadata_upload_path, temporary_metadata = metadata_xml_with_data_dictionary_link(
+            item.xml_path,
+            config.data_dictionary_base_url,
+            attribute_types=attribute_types,
+        )
+        if temporary_metadata:
+            log("Link do dicionario de dados inserido no XML temporario:")
+            log(f"  {config.data_dictionary_base_url}?key=<uuid>")
+        else:
+            log("XML importado sem alteracao temporaria do link do dicionario de dados.")
+
         for import_url in urls.geonetwork_records_import_urls(
             config.catalog,
             config.catalog_group,
@@ -72,7 +91,7 @@ def import_metadata_to_geonetwork(item, config, credentials, dry_run=False):
                         "--header",
                         "Accept: application/json",
                         "--form",
-                        f"file=@{item.xml_path};type=application/xml",
+                        f"file=@{metadata_upload_path};type=application/xml",
                         import_url,
                     ],
                     dry_run=dry_run,
@@ -104,7 +123,7 @@ def import_metadata_to_geonetwork(item, config, credentials, dry_run=False):
                         "--header",
                         f"X-XSRF-TOKEN: {xsrf_token}",
                         "--form",
-                        f"data=<{item.xml_path}",
+                        f"data=<{metadata_upload_path}",
                         "--form",
                         f"group={config.catalog_group}",
                         "--form",
@@ -129,6 +148,8 @@ def import_metadata_to_geonetwork(item, config, credentials, dry_run=False):
             f"Nao foi possivel importar metadata no GeoNetwork: {item.xml_path}"
         )
     finally:
+        if metadata_upload_path != Path(item.xml_path):
+            metadata_upload_path.unlink(missing_ok=True)
         if cookie_jar:
             Path(cookie_jar.name).unlink(missing_ok=True)
 

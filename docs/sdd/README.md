@@ -69,6 +69,28 @@ um conector implementado em `core/downloads/connectors/`. Bases sem conector
 devem ser tratadas manualmente com `status = Waiting Update` quando o arquivo ja
 estiver disponivel.
 
+O download deve gravar o arquivo baixado dentro da camada `temp`, na versao
+calculada para a ingestao. O ZIP fica em `_downloads/<dataset_key>/<theme_folder>`
+e a extracao fica em `raw`, sempre abaixo do diretorio `temp` planejado.
+
+## Publicacao GeoServer / GeoNetwork
+
+A publicacao e uma etapa separada da geracao da camada `silver_data`. A pasta
+publicada deve conter exatamente um conjunto:
+
+- um arquivo de dados (`.gpkg`, `.rst` ou `.tif`);
+- um arquivo `.sld`;
+- um XML de metadados correspondente.
+
+Se a pasta tiver mais de um arquivo de dados publicavel, a publicacao deve ser
+ignorada e o log deve orientar a separar os conjuntos em pastas diferentes ou
+publicar uma pasta por vez. Essa regra evita publicar uma saida secundaria junto
+com a principal sem decisao explicita.
+
+O SLD e criado apenas na etapa `silver_data`. O XML importado no GeoNetwork deve
+preservar o dicionario de dados e receber o link do dicionario publicado quando
+o GeoServer retornar os tipos dos atributos.
+
 ## Status Da Ingest
 
 A coluna `status` e a unica coluna de controle operacional da ingest:

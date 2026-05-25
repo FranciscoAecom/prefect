@@ -2,6 +2,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from core.publish.metadata import MultiplePublishItemsError
 from core.publish.pipeline_flow import publish_record_outputs
 from core.publish.pipeline_flow import publish_record_outputs_direct
 
@@ -45,6 +46,7 @@ class PipelinePublishFlowTests(unittest.TestCase):
         config = SimpleNamespace()
         credentials = SimpleNamespace()
         mock_discover.return_value = [item]
+        mock_geoserver.return_value = {"sdb_cod_tema": "String"}
 
         publish_record_outputs_direct(
             r"L:\silver\autos\00",
@@ -66,7 +68,32 @@ class PipelinePublishFlowTests(unittest.TestCase):
             config,
             credentials,
             dry_run=True,
+            attribute_types={"sdb_cod_tema": "String"},
         )
+
+    @patch("core.publish.pipeline_flow.log")
+    @patch("core.publish.pipeline_flow.import_metadata_to_geonetwork")
+    @patch("core.publish.pipeline_flow.publish_to_geoserver")
+    @patch("core.publish.pipeline_flow.discover_publish_items")
+    def test_publish_record_outputs_direct_logs_and_skips_multiple_sets(
+        self,
+        mock_discover,
+        mock_geoserver,
+        mock_geonetwork,
+        mock_log,
+    ):
+        mock_discover.side_effect = MultiplePublishItemsError("multiplos conjuntos")
+
+        publish_record_outputs_direct(
+            r"L:\silver\autos\00",
+            SimpleNamespace(),
+            SimpleNamespace(),
+            dry_run=True,
+        )
+
+        mock_log.assert_any_call("multiplos conjuntos")
+        mock_geoserver.assert_not_called()
+        mock_geonetwork.assert_not_called()
 
 
 if __name__ == "__main__":

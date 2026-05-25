@@ -181,6 +181,18 @@ O fluxo deve seguir esta ordem no log:
 O bronze nao deve gerar SLD. Ele deve conter somente o dado bruto e o XML de
 metadados.
 
+## Publicacao
+
+Esta base gera uma saida principal e uma saida secundaria. Pela regra operacional
+atual de publicacao, cada pasta publicada deve conter apenas um conjunto
+`dados + SLD + XML`. Se as duas saidas estiverem na mesma pasta, o flow de
+publicacao deve registrar aviso e nao publicar automaticamente.
+
+Para publicar `pnt_pcd_enov_20260514` e
+`pnt_pcd_enov_bbox_brasil_20260514`, separe os conjuntos em pastas diferentes
+ou execute a publicacao apontando para uma pasta que contenha somente o conjunto
+desejado.
+
 ## Prefect
 
 Deployment:
@@ -243,9 +255,9 @@ Comando executado:
 .\.venv\Scripts\python.exe -m unittest discover -s tests
 ```
 
-Resultado registrado em 2026-05-22:
+Resultado registrado em 2026-05-25:
 
 ```text
-Ran 137 tests
+Ran 158 tests
 OK
 ```

@@ -1,0 +1,120 @@
+from dataclasses import dataclass
+from pathlib import Path
+
+from core.publish.metadata_xml import metadata_title
+from core.publish.policy import DATA_SUFFIXES, MultiplePublishItemsError, SPATIAL_PREFIXES
+from core.publish.titles import geoserver_layer_title
+
+
+@dataclass(frozen=True)
+class PublishItem:
+    data_path: Path
+    sld_path: Path
+    xml_path: Path
+    store: str
+    layer: str
+    style: str
+    layer_title: str
+    data_type: str
+    data_content_type: str
+    data_endpoint: str
+    layer_resource: str
+    data_label: str
+
+
+def discover_publish_items(folder, store=None, layer=None, style=None, layer_title=None):
+    folder = Path(folder)
+    if not folder.exists():
+        raise FileNotFoundError(f"Pasta de publicacao nao encontrada: {folder}")
+
+    data_paths = sorted(
+        path for path in folder.iterdir() if path.suffix.lower() in DATA_SUFFIXES
+    )
+    if not data_paths:
+        raise FileNotFoundError(f"Nenhum arquivo de dados publicavel em: {folder}")
+    if len(data_paths) > 1:
+        names = ", ".join(path.name for path in data_paths)
+        raise MultiplePublishItemsError(
+            "Publicacao ignorada: a pasta possui mais de um conjunto de arquivos "
+            f"publicavel. Mantenha exatamente um GPKG/RST/TIF, um SLD e um XML "
+            f"correspondente na pasta. Dados encontrados: {names}"
+        )
+
+    data_path = data_paths[0]
+    item_layer = layer or data_path.stem
+    item_store = store or item_layer
+    sld_path = data_path.with_suffix(".sld")
+    xml_path = folder / f"{metadata_stem_for_data_stem(data_path.stem)}.xml"
+    if not sld_path.exists():
+        raise FileNotFoundError(f"SLD nao encontrado para {data_path.name}: {sld_path}")
+    if not xml_path.exists():
+        raise FileNotFoundError(f"XML nao encontrado para {data_path.name}: {xml_path}")
+
+    data_info = data_publish_info(data_path)
+    item_style = style or sld_path.stem
+    item_title = (
+        layer_title
+        or geoserver_layer_title(item_layer)
+        or metadata_title(xml_path)
+        or item_layer
+    )
+    return [
+        PublishItem(
+            data_path=data_path,
+            sld_path=sld_path,
+            xml_path=xml_path,
+            store=item_store,
+            layer=item_layer,
+            style=item_style,
+            layer_title=item_title,
+            data_type=data_info["type"],
+            data_content_type=data_info["content_type"],
+            data_endpoint=data_info["endpoint"],
+            layer_resource=data_info["layer_resource"],
+            data_label=data_info["label"],
+        )
+    ]
+
+
+def metadata_stem_for_data_stem(data_stem):
+    parts = data_stem.split("_", 1)
+    if parts[0] in SPATIAL_PREFIXES and len(parts) == 2:
+        return f"md_{parts[1]}"
+    return f"md_{data_stem}"
+
+
+def data_publish_info(data_path):
+    suffix = Path(data_path).suffix.lower()
+    if suffix == ".gpkg":
+        return {
+            "type": "gpkg",
+            "content_type": "application/geopackage+vnd.sqlite3",
+            "endpoint": "datastores",
+            "layer_resource": "featuretypes",
+            "label": "GPKG",
+        }
+    if suffix == ".rst":
+        return {
+            "type": "rst",
+            "content_type": "application/octet-stream",
+            "endpoint": "coveragestores",
+            "layer_resource": "coverages",
+            "label": "RST",
+        }
+    if suffix == ".tif":
+        return {
+            "type": "geotiff",
+            "content_type": "image/tiff",
+            "endpoint": "coveragestores",
+            "layer_resource": "coverages",
+            "label": "TIFF",
+        }
+    raise ValueError(f"Tipo de arquivo nao suportado: {suffix}")
+
+
+__all__ = [
+    "PublishItem",
+    "data_publish_info",
+    "discover_publish_items",
+    "metadata_stem_for_data_stem",
+]

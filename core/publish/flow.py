@@ -3,19 +3,23 @@ from prefect import flow, task
 from core.publish.config import config_for_environment, load_publish_credentials
 from core.publish.geonetwork import import_metadata_to_geonetwork
 from core.publish.geoserver import publish_to_geoserver
-from core.publish.metadata import discover_publish_items
+from core.publish.metadata import MultiplePublishItemsError, discover_publish_items
 from core.utils import log
 
 
 @task(name="Descobrir arquivos para publicacao", log_prints=True)
 def discover_publish_items_task(folder, store=None, layer=None, style=None, layer_title=None):
-    items = discover_publish_items(
-        folder,
-        store=store,
-        layer=layer,
-        style=style,
-        layer_title=layer_title,
-    )
+    try:
+        items = discover_publish_items(
+            folder,
+            store=store,
+            layer=layer,
+            style=style,
+            layer_title=layer_title,
+        )
+    except MultiplePublishItemsError as exc:
+        log(str(exc))
+        return []
     log(f"Itens de publicacao encontrados: {len(items)}")
     for item in items:
         log(f"  Dados: {item.data_path}")
@@ -70,8 +74,9 @@ def publish_item_task(
 
     if skip_geoserver:
         log("Etapas do GeoServer ignoradas por parametro.")
+        attribute_types = {}
     else:
-        publish_to_geoserver(
+        attribute_types = publish_to_geoserver(
             item,
             config,
             credentials,
@@ -82,7 +87,13 @@ def publish_item_task(
     if skip_catalog:
         log("Importacao GeoNetwork ignorada por parametro.")
     else:
-        import_metadata_to_geonetwork(item, config, credentials, dry_run=dry_run)
+        import_metadata_to_geonetwork(
+            item,
+            config,
+            credentials,
+            dry_run=dry_run,
+            attribute_types=attribute_types,
+        )
 
     log(f"Publicacao concluida: {item.layer}")
 

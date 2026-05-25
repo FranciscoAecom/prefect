@@ -49,6 +49,9 @@ def publish_to_geoserver(item, config, credentials, dry_run=False, skip_data=Fal
     set_layer_title(item, config, auth, dry_run=dry_run)
     publish_style(item, config, auth, dry_run=dry_run)
     set_default_style(item, config, auth, dry_run=dry_run)
+    if item.layer_resource == "featuretypes" and not dry_run:
+        return get_geoserver_attribute_types(item, config, auth)
+    return {}
 
 
 def set_layer_title(item, config, auth, dry_run=False):
@@ -199,6 +202,78 @@ def set_default_style(item, config, auth, dry_run=False):
     )
 
 
+def get_geoserver_attribute_types(item, config, auth):
+    log(f"Coletando tipos dos atributos publicados no GeoServer: {item.layer}")
+    response = run_curl(
+        [
+            "--fail-with-body",
+            "--show-error",
+            "--location",
+            "--retry",
+            "3",
+            "--retry-delay",
+            "5",
+            "--connect-timeout",
+            "60",
+            "--max-time",
+            "0",
+            "--header",
+            f"Authorization: Basic {auth}",
+            "--header",
+            "Accept: application/json",
+            urls.geoserver_feature_type_url(
+                config.geoserver,
+                config.workspace,
+                item.store,
+                item.layer,
+            ),
+        ],
+        capture=True,
+    )
+    try:
+        payload = json.loads(response or "{}")
+    except json.JSONDecodeError:
+        log("Nao foi possivel interpretar os tipos retornados pelo GeoServer.")
+        return {}
+
+    attributes = (
+        payload.get("featureType", {})
+        .get("attributes", {})
+        .get("attribute", [])
+    )
+    if isinstance(attributes, dict):
+        attributes = [attributes]
+
+    attribute_types = {}
+    for attribute in attributes or []:
+        name = str(attribute.get("name") or "").strip()
+        if not name or name == "geom":
+            continue
+        mapped_type = convert_geoserver_binding(attribute.get("binding"))
+        if mapped_type:
+            attribute_types[name] = mapped_type
+
+    if "fid" not in attribute_types:
+        attribute_types["fid"] = "Integer64"
+    log(f"Tipos coletados no GeoServer: {len(attribute_types)}")
+    return attribute_types
+
+
+def convert_geoserver_binding(binding):
+    binding = str(binding or "")
+    if binding.endswith("String"):
+        return "String"
+    if binding.endswith(("Long", "Integer", "Short", "BigInteger")):
+        return "Integer64"
+    if binding.endswith(("Double", "Float", "BigDecimal")):
+        return "Real"
+    if binding.endswith("Boolean"):
+        return "Boolean"
+    if binding.endswith(("Date", "Timestamp", "Time")):
+        return "Date"
+    return ""
+
+
 def basic_auth(username, password):
     token = f"{username}:{password}".encode("ascii")
     return base64.b64encode(token).decode("ascii")
@@ -232,13 +307,13 @@ def run_curl_with_stdin(arguments, stdin_text, dry_run=False):
         return
     result = subprocess.run(
         ["curl.exe", *arguments],
-        input=stdin_text,
-        text=True,
+        input=str(stdin_text).encode("utf-8"),
         check=False,
         capture_output=True,
     )
     if result.returncode != 0:
-        output = (result.stdout or "") + (result.stderr or "")
+        output = (result.stdout or b"") + (result.stderr or b"")
+        output = output.decode("utf-8", errors="replace")
         raise RuntimeError(f"curl.exe falhou com exit code {result.returncode}: {output}")
 
 
