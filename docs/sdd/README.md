@@ -58,6 +58,10 @@ O `pipeline.json` tambem pode declarar ajustes da saida principal em
 principal pode receber uma regra propria enquanto a saida secundaria continua
 filtrando ou derivando a partir da geometria original do resultado tratado.
 
+Novas chaves de perfil devem ser registradas no contrato tecnico em
+`core/rules/contracts.py`, validadas em `core/rules/validation.py` e descritas
+em `readme/rules.md`.
+
 Configuracoes visuais, como `sld`, devem ficar em `style.json`. O SLD e gerado
 somente para arquivos da etapa `silver_data`; o bronze preserva o dado bruto e
 o XML de metadados.

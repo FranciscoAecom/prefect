@@ -6,10 +6,8 @@ from core.execution_locks import named_execution_lock
 from core.prefect_support.run_names import flow_run_name
 from core.prefect_flow import prepare_queue_task, run_queue_record_task
 from core.publish.config import config_for_environment, load_publish_credentials
+from core.publish.execution import publish_folder_items
 from core.publish.flow import discover_publish_items_task, publish_item_task
-from core.publish.geonetwork import import_metadata_to_geonetwork
-from core.publish.geoserver import publish_to_geoserver
-from core.publish.metadata import MultiplePublishItemsError, discover_publish_items
 from core.queue.filters import QueueFilter
 from core.queue.group_state import QueueGroupState
 from core.queue.queue_loader import prepare_processing_queue
@@ -187,33 +185,15 @@ def publish_record_outputs_direct(
     skip_catalog=False,
 ):
     log(f"Iniciando publicacao automatica da pasta silver: {output_dir}")
-    try:
-        items = discover_publish_items(output_dir)
-    except MultiplePublishItemsError as exc:
-        log(str(exc))
-        return
-    for item in items:
-        if skip_geoserver:
-            log("Etapas do GeoServer ignoradas por parametro.")
-            attribute_types = {}
-        else:
-            attribute_types = publish_to_geoserver(
-                item,
-                config,
-                credentials,
-                dry_run=dry_run,
-                skip_data=skip_data,
-            )
-        if skip_catalog:
-            log("Importacao GeoNetwork ignorada por parametro.")
-        else:
-            import_metadata_to_geonetwork(
-                item,
-                config,
-                credentials,
-                dry_run=dry_run,
-                attribute_types=attribute_types,
-            )
+    publish_folder_items(
+        output_dir,
+        config,
+        credentials,
+        dry_run=dry_run,
+        skip_geoserver=skip_geoserver,
+        skip_data=skip_data,
+        skip_catalog=skip_catalog,
+    )
 
 
 def _queue_filter_locks(queue_filter):

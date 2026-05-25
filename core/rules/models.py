@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 
+from core.rules.contracts import PIPELINE_COMPONENT_KEYS, PROFILE_DATA_KEYS
+
 
 @dataclass(frozen=True)
 class InputColumnRule:
@@ -92,17 +94,7 @@ class RuleProfileModel:
         metadata = {
             key: value
             for key, value in profile.items()
-            if key
-            not in {
-                "input_schema",
-                "fields",
-                "relations",
-                "auto_functions",
-                "postprocess_functions",
-                "primary_output",
-                "secondary_outputs",
-                "sld",
-            }
+            if key not in PROFILE_DATA_KEYS
         }
         return cls(
             metadata=metadata,
@@ -173,6 +165,11 @@ class RuleProfileModel:
             "postprocess_functions": list(self.postprocess_functions),
             "primary_output": dict(self.primary_output),
             "secondary_outputs": list(self.secondary_outputs),
+        }
+        pipeline = {
+            key: value
+            for key, value in pipeline.items()
+            if key in PIPELINE_COMPONENT_KEYS
         }
         return (
             dict(self.metadata),

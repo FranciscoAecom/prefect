@@ -33,9 +33,9 @@ class PipelinePublishFlowTests(unittest.TestCase):
         self.assertEqual(mock_publish.call_args.kwargs["environment"], "qas")
         self.assertEqual(mock_publish.call_args.kwargs["workspace"], "gold")
 
-    @patch("core.publish.pipeline_flow.import_metadata_to_geonetwork")
-    @patch("core.publish.pipeline_flow.publish_to_geoserver")
-    @patch("core.publish.pipeline_flow.discover_publish_items")
+    @patch("core.publish.execution.import_metadata_to_geonetwork")
+    @patch("core.publish.execution.publish_to_geoserver")
+    @patch("core.publish.execution.discover_publish_items")
     def test_publish_record_outputs_direct_uses_plain_functions(
         self,
         mock_discover,
@@ -71,10 +71,10 @@ class PipelinePublishFlowTests(unittest.TestCase):
             attribute_types={"sdb_cod_tema": "String"},
         )
 
-    @patch("core.publish.pipeline_flow.log")
-    @patch("core.publish.pipeline_flow.import_metadata_to_geonetwork")
-    @patch("core.publish.pipeline_flow.publish_to_geoserver")
-    @patch("core.publish.pipeline_flow.discover_publish_items")
+    @patch("core.publish.execution.log")
+    @patch("core.publish.execution.import_metadata_to_geonetwork")
+    @patch("core.publish.execution.publish_to_geoserver")
+    @patch("core.publish.execution.discover_publish_items")
     def test_publish_record_outputs_direct_logs_and_skips_multiple_sets(
         self,
         mock_discover,

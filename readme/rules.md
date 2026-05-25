@@ -168,6 +168,10 @@ Opcoes de `primary_output`:
 
 Remova `postprocess_functions` ou `secondary_outputs` quando a base nao deve usar essas etapas.
 
+As chaves operacionais aceitas em `pipeline.json` sao centralizadas em
+`core/rules/contracts.py`. Ao criar uma nova opcao, registre a chave no contrato
+e adicione validacao explicita.
+
 ## style.json
 
 Define configuracoes de estilo do perfil. Hoje o componente usado e `sld`,

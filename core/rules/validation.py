@@ -1,4 +1,5 @@
 from settings import DEFAULT_RULE_PROFILE
+from core.rules.contracts import PIPELINE_COMPONENT_KEYS, PRIMARY_OUTPUT_OPTIONS
 from core.rules.normalization import normalize_profile_name
 
 
@@ -102,10 +103,7 @@ def validate_pipeline_component(pipeline, fields):
 
 
 def _pipeline_uses_component_keys(pipeline):
-    return any(
-        key in pipeline
-        for key in ("auto_functions", "postprocess_functions", "primary_output", "secondary_outputs")
-    )
+    return any(key in pipeline for key in PIPELINE_COMPONENT_KEYS)
 
 
 def validate_style_component(style):
@@ -376,7 +374,7 @@ def _validate_primary_output_entry(primary_output, errors):
         return
 
     for key, value in primary_output.items():
-        if key != "relocate_outside_brazil_bounds_to_centroid":
+        if key not in PRIMARY_OUTPUT_OPTIONS:
             errors.append(f"Opcao desconhecida em 'primary_output': {key}.")
             continue
         if not isinstance(value, bool):

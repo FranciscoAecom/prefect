@@ -1,3 +1,6 @@
+from core.rules.contracts import PROFILE_DATA_KEYS
+
+
 PROFILE_COMPONENT = "profile.json"
 INPUT_SCHEMA_COMPONENT = "input_schema.json"
 DOMAINS_COMPONENT = "domains.json"
@@ -12,15 +15,4 @@ PROFILE_COMPONENT_FILES = {
     RELATIONS_COMPONENT,
     PIPELINE_COMPONENT,
     STYLE_COMPONENT,
-}
-
-PROFILE_DATA_KEYS = {
-    "input_schema",
-    "fields",
-    "relations",
-    "auto_functions",
-    "postprocess_functions",
-    "primary_output",
-    "secondary_outputs",
-    "sld",
 }

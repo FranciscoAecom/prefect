@@ -1,25 +1,19 @@
 from prefect import flow, task
 
 from core.publish.config import config_for_environment, load_publish_credentials
-from core.publish.geonetwork import import_metadata_to_geonetwork
-from core.publish.geoserver import publish_to_geoserver
-from core.publish.metadata import MultiplePublishItemsError, discover_publish_items
+from core.publish.execution import discover_items_for_publish, publish_item_to_targets
 from core.utils import log
 
 
 @task(name="Descobrir arquivos para publicacao", log_prints=True)
 def discover_publish_items_task(folder, store=None, layer=None, style=None, layer_title=None):
-    try:
-        items = discover_publish_items(
-            folder,
-            store=store,
-            layer=layer,
-            style=style,
-            layer_title=layer_title,
-        )
-    except MultiplePublishItemsError as exc:
-        log(str(exc))
-        return []
+    items = discover_items_for_publish(
+        folder,
+        store=store,
+        layer=layer,
+        style=style,
+        layer_title=layer_title,
+    )
     log(f"Itens de publicacao encontrados: {len(items)}")
     for item in items:
         log(f"  Dados: {item.data_path}")
@@ -66,36 +60,15 @@ def publish_item_task(
         geonetwork_password=geonetwork_password,
     )
 
-    log(f"Publicando layer: {item.layer}")
-    log(f"Ambiente: {config.environment}")
-    log(f"GeoServer: {config.geoserver}")
-    log(f"GeoNetwork: {config.catalog}")
-    log(f"Workspace: {config.workspace}")
-
-    if skip_geoserver:
-        log("Etapas do GeoServer ignoradas por parametro.")
-        attribute_types = {}
-    else:
-        attribute_types = publish_to_geoserver(
-            item,
-            config,
-            credentials,
-            dry_run=dry_run,
-            skip_data=skip_data,
-        )
-
-    if skip_catalog:
-        log("Importacao GeoNetwork ignorada por parametro.")
-    else:
-        import_metadata_to_geonetwork(
-            item,
-            config,
-            credentials,
-            dry_run=dry_run,
-            attribute_types=attribute_types,
-        )
-
-    log(f"Publicacao concluida: {item.layer}")
+    publish_item_to_targets(
+        item,
+        config,
+        credentials,
+        dry_run=dry_run,
+        skip_geoserver=skip_geoserver,
+        skip_data=skip_data,
+        skip_catalog=skip_catalog,
+    )
 
 
 @flow(name="Data Publish", log_prints=True)

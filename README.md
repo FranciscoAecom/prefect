@@ -72,6 +72,8 @@ Componentes principais:
 - `core/`: motor de ingestao, validacao, processamento, regras e escrita.
 - `core/downloads/`: catalogo, conectores e utilitarios de download.
 - `core/publish/`: descoberta, publicacao, titulos, SLD e XML para catalogo.
+- `core/silver/`: persistencia da camada silver, saida principal, XML, SLD e qualidade.
+- `core/rules/contracts.py`: contrato tecnico das chaves aceitas nos perfis JSON.
 - `projects/`: configuracoes e funcoes especificas por projeto.
 - `rules/`: perfis JSON modulares por tema e UF.
 - `input/`: planilha de ingestao.
@@ -306,6 +308,10 @@ flow le a aba `datas` da planilha ingest e baixa apenas linhas com
 Bases marcadas como `Download` que nao possuem conector/script registrado no
 catalogo de downloads sao ignoradas com mensagem no log. Para essas bases, use
 `status = Waiting Update` quando o dado ja estiver disponivel para tratamento.
+
+Quando a fonte retorna HTML, pagina de certificado/proxy, login, acesso negado
+ou URL assinada expirada no lugar do ZIP, o conector CAR registra um diagnostico
+no erro e remove a assinatura da URL antes de exibir no log.
 
 Status oficiais na coluna `status`:
 
@@ -579,6 +585,10 @@ No `pipeline.json`, o perfil explicita tudo que roda de forma configuravel:
 
 O `style.json` concentra configuracoes de estilo, como `sld`. O `pipeline.json`
 nao deve conter configuracao visual.
+
+As chaves permitidas dos perfis ficam centralizadas em
+`core/rules/contracts.py`; ao adicionar uma nova opcao operacional, atualize o
+contrato, a validacao e a documentacao do perfil.
 
 Quando configurado, `primary_output.relocate_outside_brazil_bounds_to_centroid`
 mantem todos os registros na saida principal, mas reposiciona geometrias fora
