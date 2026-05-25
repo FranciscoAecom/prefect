@@ -5,6 +5,7 @@ from core.output.paths import resolve_output_path
 from core.output.quality import build_output_quality_summary, log_output_quality_summary
 from core.output.secondary_outputs import persist_secondary_outputs
 from core.processing.stages import FLOW_STAGE_CREATE_SILVER_XML, FLOW_STAGE_SAVE_SILVER
+from core.spatial.brazil_bounds import relocate_geometries_outside_brazil_bounds_to_centroid
 from core.sld import persist_stage_slds
 from core.utils import log
 
@@ -23,8 +24,9 @@ def save_outputs(
         use_configured_final_name,
     )
     export_gdf = drop_internal_output_columns(final_gdf)
+    primary_export_gdf = prepare_primary_output_gdf(export_gdf, rule_profile or {})
     log(FLOW_STAGE_SAVE_SILVER)
-    persisted_output_path = persist_output_dataset(export_gdf, output_path, persist_dataset)
+    persisted_output_path = persist_output_dataset(primary_export_gdf, output_path, persist_dataset)
     secondary_outputs = persist_configured_secondary_outputs(
         export_gdf,
         theme_output_dir,
@@ -34,7 +36,7 @@ def save_outputs(
     )
     if persisted_output_path:
         persisted_outputs = [
-            {"path": persisted_output_path, "gdf": export_gdf},
+            {"path": persisted_output_path, "gdf": primary_export_gdf},
             *(secondary_outputs or []),
         ]
         log(FLOW_STAGE_CREATE_SILVER_XML)
@@ -54,6 +56,29 @@ def save_outputs(
     log_output_quality_summary(quality_summary)
 
     return persisted_output_path
+
+
+def prepare_primary_output_gdf(export_gdf, rule_profile):
+    primary_output = rule_profile.get("primary_output", {}) or {}
+    if not primary_output.get("relocate_outside_brazil_bounds_to_centroid"):
+        return export_gdf
+
+    relocated = relocate_geometries_outside_brazil_bounds_to_centroid(export_gdf)
+    moved_count = count_changed_geometries(export_gdf, relocated)
+    if moved_count:
+        log(
+            "Saida completa: "
+            f"{moved_count} geometria(s) fora do limite Brasil / zona costeira "
+            "foram reposicionadas para o centroide unico do limite brasileiro."
+        )
+    return relocated
+
+
+def count_changed_geometries(before_gdf, after_gdf):
+    if "geometry" not in before_gdf.columns or "geometry" not in after_gdf.columns:
+        return 0
+    changed = before_gdf.geometry.geom_equals(after_gdf.geometry)
+    return int((~changed.fillna(False)).sum())
 
 
 def persist_output_dataset(export_gdf, output_path, persist_dataset):
@@ -91,6 +116,7 @@ def persist_configured_secondary_outputs(
 
 
 __all__ = [
+    "prepare_primary_output_gdf",
     "persist_configured_secondary_outputs",
     "persist_output_dataset",
     "save_outputs",

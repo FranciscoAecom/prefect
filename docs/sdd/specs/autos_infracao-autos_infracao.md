@@ -87,6 +87,10 @@ Saidas secundarias configuradas:
 
 - `brazil_bbox`
 
+Saida principal configurada:
+
+- `relocate_outside_brazil_bounds_to_centroid`
+
 Verificacoes obrigatorias de qualidade:
 
 - `check_attribute_duplicates`
@@ -164,8 +168,13 @@ Estilo SLD:
 - `pnt_pcd_enov_bbox_brasil_20260514`: ponto circular, preenchimento
   `#1654ad`, contorno `#232323`, largura `0.5`, tamanho `7`.
 
-O arquivo principal deve conter todos os pontos tratados. O arquivo secundario
-deve conter apenas os pontos dentro do limite Brasil / zona costeira.
+O arquivo principal deve conter todos os pontos tratados. Pontos fora do limite
+Brasil / zona costeira devem ser mantidos no arquivo principal, mas com a
+geometria reposicionada para um ponto unico dentro do limite brasileiro. Quando
+existirem `acm_long` e `acm_lat`, esses campos devem refletir a nova geometria.
+
+O arquivo secundario deve conter apenas os pontos que ja estavam dentro do
+limite Brasil / zona costeira antes desse reposicionamento da saida principal.
 
 O fluxo deve seguir esta ordem no log:
 
@@ -233,6 +242,7 @@ Parametros fixos do deployment:
 - [x] O deployment Prefect existe para acompanhamento em `Runs`.
 - [x] O arquivo principal `.gpkg` e gerado.
 - [x] O arquivo secundario `_bbox_brasil.gpkg` e gerado quando configurado.
+- [x] A saida principal mantem registros fora do limite Brasil / zona costeira reposicionados para um ponto unico dentro do Brasil.
 - [x] O arquivo principal passa pelas funcoes obrigatorias.
 - [x] `clean_whitespace` aparece no log de funcoes obrigatorias.
 - [x] A intersecao municipal cria `acm_cod_munici`, `acm_municipio` e `acm_uf`.

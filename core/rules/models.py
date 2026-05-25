@@ -82,6 +82,7 @@ class RuleProfileModel:
     relations: dict[str, dict[str, str]] = field(default_factory=dict)
     auto_functions: dict[str, list[str]] = field(default_factory=dict)
     postprocess_functions: list[str] = field(default_factory=list)
+    primary_output: dict = field(default_factory=dict)
     secondary_outputs: list[str] = field(default_factory=list)
     sld: dict = field(default_factory=dict)
 
@@ -98,6 +99,7 @@ class RuleProfileModel:
                 "relations",
                 "auto_functions",
                 "postprocess_functions",
+                "primary_output",
                 "secondary_outputs",
                 "sld",
             }
@@ -118,6 +120,7 @@ class RuleProfileModel:
                 for column, functions in (profile.get("auto_functions", {}) or {}).items()
             },
             postprocess_functions=list(profile.get("postprocess_functions", []) or []),
+            primary_output=dict(profile.get("primary_output", {}) or {}),
             secondary_outputs=list(profile.get("secondary_outputs", []) or []),
             sld=dict(profile.get("sld", {}) or {}),
         )
@@ -131,6 +134,7 @@ class RuleProfileModel:
         data["relations"] = (relations or {}).get("relations", relations or {})
         data["auto_functions"] = (pipeline or {}).get("auto_functions", pipeline or {})
         data["postprocess_functions"] = (pipeline or {}).get("postprocess_functions", [])
+        data["primary_output"] = (pipeline or {}).get("primary_output", {})
         data["secondary_outputs"] = (pipeline or {}).get("secondary_outputs", [])
         data["sld"] = (style or {}).get("sld", style or {})
         return cls.from_dict(data)
@@ -153,6 +157,8 @@ class RuleProfileModel:
             for column, functions in self.auto_functions.items()
         }
         data["postprocess_functions"] = list(self.postprocess_functions)
+        if self.primary_output:
+            data["primary_output"] = dict(self.primary_output)
         data["secondary_outputs"] = list(self.secondary_outputs)
         if self.sld:
             data["sld"] = dict(self.sld)
@@ -165,6 +171,7 @@ class RuleProfileModel:
                 for column, functions in self.auto_functions.items()
             },
             "postprocess_functions": list(self.postprocess_functions),
+            "primary_output": dict(self.primary_output),
             "secondary_outputs": list(self.secondary_outputs),
         }
         return (

@@ -53,6 +53,11 @@ As funcoes obrigatorias rodam para todas as bases:
 Funcoes opcionais precisam estar explicitas no perfil, normalmente em
 `pipeline.json`, para ficar claro o que roda em cada base.
 
+O `pipeline.json` tambem pode declarar ajustes da saida principal em
+`primary_output`. Essas opcoes nao substituem `secondary_outputs`: a saida
+principal pode receber uma regra propria enquanto a saida secundaria continua
+filtrando ou derivando a partir da geometria original do resultado tratado.
+
 Configuracoes visuais, como `sld`, devem ficar em `style.json`. O SLD e gerado
 somente para arquivos da etapa `silver_data`; o bronze preserva o dado bruto e
 o XML de metadados.

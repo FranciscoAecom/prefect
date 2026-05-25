@@ -6,8 +6,10 @@ from shapely.geometry import Point
 
 from core.spatial.brazil_bounds import (
     BRAZIL_BOUNDS,
+    brazil_bounds_centroid,
     filter_geometries_in_brazil_bounds,
     get_brazil_bounds_geometry,
+    relocate_geometries_outside_brazil_bounds_to_centroid,
 )
 
 
@@ -36,6 +38,26 @@ class BrazilBoundsTests(unittest.TestCase):
             get_brazil_bounds_geometry.cache_clear()
 
         self.assertEqual(bounds, BRAZIL_BOUNDS)
+
+    def test_relocates_outside_geometries_to_single_brazil_centroid(self):
+        gdf = gpd.GeoDataFrame(
+            {
+                "name": ["acre", "outside"],
+                "acm_long": [-70.0, 0.0],
+                "acm_lat": [-9.0, 50.0],
+                "geometry": [Point(-70.0, -9.0), Point(0.0, 50.0)],
+            },
+            geometry="geometry",
+            crs="EPSG:4326",
+        )
+
+        result = relocate_geometries_outside_brazil_bounds_to_centroid(gdf)
+        centroid = brazil_bounds_centroid("EPSG:4326")
+
+        self.assertEqual(result.loc[0, "geometry"], Point(-70.0, -9.0))
+        self.assertEqual(result.loc[1, "geometry"], Point(centroid.x, centroid.y))
+        self.assertEqual(result.loc[1, "acm_long"], round(centroid.x, 6))
+        self.assertEqual(result.loc[1, "acm_lat"], round(centroid.y, 6))
 
 
 if __name__ == "__main__":

@@ -20,6 +20,7 @@ PROFILE_DATA_KEYS = {
     "relations",
     "auto_functions",
     "postprocess_functions",
+    "primary_output",
     "secondary_outputs",
     "sld",
 }

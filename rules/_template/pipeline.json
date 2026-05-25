@@ -5,6 +5,9 @@
   "secondary_outputs": [
     "brazil_bbox"
   ],
+  "primary_output": {
+    "relocate_outside_brazil_bounds_to_centroid": false
+  },
   "auto_functions": {
     "sdb_coluna_obrigatoria": [
       "validate_shapefile_attribute"

@@ -2,7 +2,7 @@ from functools import lru_cache
 from pathlib import Path
 
 import geopandas as gpd
-from shapely.geometry import box
+from shapely.geometry import Point, box
 from shapely.ops import unary_union
 
 from settings import DEFAULT_BRAZIL_BBOX_PATH
@@ -33,6 +33,38 @@ def filter_geometries_in_brazil_bounds(gdf):
     )
 
 
+def relocate_geometries_outside_brazil_bounds_to_centroid(gdf):
+    if "geometry" not in gdf.columns:
+        return gdf.copy()
+
+    output = gdf.copy()
+    bounds_geom = get_brazil_bounds_geometry(output.crs)
+    geometry = output.geometry
+    valid_mask = geometry.notna() & (~geometry.is_empty)
+    outside_mask = valid_mask & (~geometry.intersects(bounds_geom))
+    if not outside_mask.any():
+        return output
+
+    centroid = brazil_bounds_centroid(output.crs)
+    output.loc[outside_mask, "geometry"] = [
+        Point(centroid.x, centroid.y)
+        for _ in range(int(outside_mask.sum()))
+    ]
+    if "acm_long" in output.columns:
+        output.loc[outside_mask, "acm_long"] = round(centroid.x, 6)
+    if "acm_lat" in output.columns:
+        output.loc[outside_mask, "acm_lat"] = round(centroid.y, 6)
+    return gpd.GeoDataFrame(output, geometry="geometry", crs=gdf.crs)
+
+
+def brazil_bounds_centroid(target_crs=None):
+    bounds_geom = get_brazil_bounds_geometry(target_crs)
+    centroid = bounds_geom.centroid
+    if bounds_geom.covers(centroid):
+        return centroid
+    return bounds_geom.representative_point()
+
+
 @lru_cache(maxsize=4)
 def get_brazil_bounds_geometry(target_crs=None):
     source_path = Path(DEFAULT_BRAZIL_BBOX_PATH)
@@ -53,6 +85,8 @@ def get_brazil_bounds_geometry(target_crs=None):
 
 __all__ = [
     "BRAZIL_BOUNDS",
+    "brazil_bounds_centroid",
     "filter_geometries_in_brazil_bounds",
     "get_brazil_bounds_geometry",
+    "relocate_geometries_outside_brazil_bounds_to_centroid",
 ]

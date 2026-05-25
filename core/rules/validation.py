@@ -97,13 +97,14 @@ def validate_pipeline_component(pipeline, fields):
         "secondary_outputs",
         errors,
     )
+    _validate_primary_output_entry(pipeline.get("primary_output", {}), errors)
     _validate_component_errors("pipeline.json", errors)
 
 
 def _pipeline_uses_component_keys(pipeline):
     return any(
         key in pipeline
-        for key in ("auto_functions", "postprocess_functions", "secondary_outputs")
+        for key in ("auto_functions", "postprocess_functions", "primary_output", "secondary_outputs")
     )
 
 
@@ -157,6 +158,7 @@ def validate_rule_profile_structure(profile, profile_name):
         "secondary_outputs",
         errors,
     )
+    _validate_primary_output_entry(profile.get("primary_output", {}), errors)
     _validate_sld_entry(profile.get("sld", {}), errors)
     _raise_profile_errors(normalized_profile_name, errors)
 
@@ -184,6 +186,7 @@ def validate_rule_profile_semantics(profile, profile_name, optional_functions=No
         _get_registered_secondary_output_names(),
         errors,
     )
+    _validate_primary_output_entry(profile.get("primary_output", {}), errors)
     _raise_profile_errors(normalized_profile_name, errors)
 
 
@@ -363,6 +366,21 @@ def _validate_sld_entry(sld, errors):
                 errors.append(
                     f"Valor de 'sld.{section}.{key}' deve ser string ou numero."
                 )
+
+
+def _validate_primary_output_entry(primary_output, errors):
+    if primary_output in (None, {}):
+        return
+    if not isinstance(primary_output, dict):
+        errors.append("Campo 'primary_output' deve ser um objeto JSON.")
+        return
+
+    for key, value in primary_output.items():
+        if key != "relocate_outside_brazil_bounds_to_centroid":
+            errors.append(f"Opcao desconhecida em 'primary_output': {key}.")
+            continue
+        if not isinstance(value, bool):
+            errors.append(f"Campo 'primary_output.{key}' deve ser booleano.")
 
 
 def _validate_registered_function_list(values, field_name, registered_names, errors):

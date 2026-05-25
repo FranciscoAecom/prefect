@@ -32,7 +32,12 @@ class OutputPersistenceTests(unittest.TestCase):
             geometry="geometry",
             crs="EPSG:4326",
         )
-        rule_profile = {"secondary_outputs": ["brazil_bbox"]}
+        rule_profile = {
+            "secondary_outputs": ["brazil_bbox"],
+            "primary_output": {
+                "relocate_outside_brazil_bounds_to_centroid": True,
+            },
+        }
 
         with tempfile.TemporaryDirectory() as temp_dir:
             output_path = save_outputs(gdf, record, temp_dir, rule_profile=rule_profile)
@@ -46,6 +51,10 @@ class OutputPersistenceTests(unittest.TestCase):
         )
         bbox_gdf = mock_secondary_write.call_args.args[0]
         self.assertEqual(len(bbox_gdf), 1)
+
+        main_gdf = mock_main_write.call_args.args[0]
+        self.assertEqual(len(main_gdf), 2)
+        self.assertNotEqual(main_gdf.loc[1, "geometry"], Point(0.0, 50.0))
 
     @patch("core.output.secondary_outputs.write_output_gpkg")
     @patch("core.silver.persistence.write_output_gpkg")

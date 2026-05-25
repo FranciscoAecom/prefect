@@ -132,6 +132,9 @@ Define funcoes configuraveis do perfil.
   "secondary_outputs": [
     "brazil_bbox"
   ],
+  "primary_output": {
+    "relocate_outside_brazil_bounds_to_centroid": false
+  },
   "auto_functions": {
     "sdb_cod_tema": [
       "validate_shapefile_attribute"
@@ -142,6 +145,7 @@ Define funcoes configuraveis do perfil.
 
 - `auto_functions`: funcoes por atributo. Cada chave e uma coluna e cada valor e a lista de funcoes que roda nessa coluna.
 - `postprocess_functions`: funcoes que rodam depois do processamento principal e alteram o GeoDataFrame final.
+- `primary_output`: ajustes aplicados somente ao arquivo principal.
 - `secondary_outputs`: saidas extras geradas a partir do resultado final, sem substituir o arquivo principal.
 
 Funcoes de atributo podem ser nomes curtos registrados em `projects/registry.py` ou nomes qualificados como `pacote.modulo.funcao`.
@@ -154,6 +158,13 @@ Funcoes de pos-processamento disponiveis no core:
 Saidas secundarias disponiveis no core:
 
 - `brazil_bbox`: cria um GeoPackage extra com sufixo `_bbox_brasil`, contendo apenas feicoes dentro do bbox do Brasil.
+
+Opcoes de `primary_output`:
+
+- `relocate_outside_brazil_bounds_to_centroid`: quando `true`, mantem todos os
+  registros no arquivo principal e move geometrias fora do limite Brasil / zona
+  costeira para um ponto unico dentro do limite brasileiro. Essa regra nao altera
+  a selecao da saida secundaria `brazil_bbox`.
 
 Remova `postprocess_functions` ou `secondary_outputs` quando a base nao deve usar essas etapas.
 
