@@ -14,6 +14,7 @@ class DownloadFlowTests(unittest.TestCase):
         self.assertIn("theme_folders", signature.parameters)
 
     @patch("core.downloads.flow.data_pipeline_flow")
+    @patch("core.downloads.flow.data_publish_flow")
     @patch("core.downloads.flow.emit_dataset_downloaded_event_task")
     @patch("core.downloads.flow.extract_download_task")
     @patch("core.downloads.flow.resolve_download_version_plan_task")
@@ -26,6 +27,7 @@ class DownloadFlowTests(unittest.TestCase):
         mock_resolve_plan,
         mock_extract,
         mock_emit_event,
+        mock_publish,
         mock_pipeline,
     ):
         mock_load_queue.return_value = [
@@ -112,6 +114,73 @@ class DownloadFlowTests(unittest.TestCase):
             mock_download.call_args_list[0].kwargs["output_dir"],
             r"L:\base\temp\restricted\pcd\app_car_ac\SICAR\20260301\00\_downloads",
         )
+        mock_publish.assert_not_called()
+
+    @patch("core.downloads.flow.data_pipeline_flow")
+    @patch("core.downloads.flow.data_publish_flow")
+    @patch("core.downloads.flow.emit_dataset_downloaded_event_task")
+    @patch("core.downloads.flow.extract_download_task")
+    @patch("core.downloads.flow.resolve_download_version_plan_task")
+    @patch("core.downloads.flow.download_dataset_task")
+    @patch("core.downloads.flow.load_download_queue_task")
+    def test_flow_can_publish_after_download_processing(
+        self,
+        mock_load_queue,
+        mock_download,
+        mock_resolve_plan,
+        mock_extract,
+        mock_emit_event,
+        mock_publish,
+        mock_pipeline,
+    ):
+        mock_load_queue.return_value = [
+            {
+                "dataset_key": "car_uso_restrito",
+                "region": "AC",
+                "status": "Download",
+                "access_constraints": "restricted",
+                "category_acronym": "pcd",
+                "theme_folder": "ur_car_ac",
+                "citation": "SICAR",
+                "date": "2026-05-14",
+            }
+        ]
+        mock_resolve_plan.return_value = {
+            "version": "00",
+            "temp_dir": r"L:\base\temp\restricted\pcd\ur_car_ac\SICAR\20260514\00",
+            "bronze_dir": r"L:\base\bronze_data\restricted\pcd\ur_car_ac\SICAR\20260514\00",
+            "silver_dir": r"L:\base\silver_data\restricted\pcd\ur_car_ac\SICAR\20260514\00",
+        }
+        mock_download.return_value = {
+            "archive_path": "ur.zip",
+            "theme_folder": "ur_car_ac",
+        }
+        mock_extract.return_value = {
+            "archive_path": "ur.zip",
+            "theme_folder": "ur_car_ac",
+            "extract_dir": r"L:\base\temp\restricted\pcd\ur_car_ac\SICAR\20260514\00\raw",
+            "dataset_key": "car_uso_restrito",
+            "connector": "car_public_api",
+            "region": "AC",
+        }
+
+        data_download_flow.fn(
+            theme_folders=["ur_car_ac"],
+            publish_after_process=True,
+            publish_geoserver_username="admin",
+            publish_geoserver_password="senha",
+            publish_geonetwork_username="admin",
+            publish_geonetwork_password="senha",
+        )
+
+        mock_pipeline.assert_called_once()
+        mock_publish.assert_called_once()
+        self.assertEqual(
+            mock_publish.call_args.kwargs["folder"],
+            r"L:\base\silver_data\restricted\pcd\ur_car_ac\SICAR\20260514\00",
+        )
+        self.assertEqual(mock_publish.call_args.kwargs["environment"], "qas")
+        self.assertEqual(mock_publish.call_args.kwargs["workspace"], "gold")
 
     @patch("core.downloads.flow.load_download_queue_task")
     def test_default_flow_returns_empty_when_no_download_records(self, mock_load_queue):
