@@ -3,6 +3,7 @@ from contextlib import ExitStack
 from prefect import flow, task
 
 from core.execution_locks import named_execution_lock
+from core.ingest.run_request import IngestRunRequest
 from core.prefect_support.run_names import flow_run_name, record_task_run_name
 from core.queue.filters import QueueFilter
 from core.queue.group_state import QueueGroupState
@@ -13,11 +14,15 @@ from core.utils import log
 
 
 @task(name="Preparar fila de processamento", log_prints=True)
-def prepare_queue_task(output_base, theme_folders=None, source_path_overrides=None):
+def prepare_queue_task(output_base, theme_folders=None, source_path_overrides=None, force=False):
+    run_request = IngestRunRequest.from_legacy(
+        theme_folders=theme_folders,
+        source_path_overrides=source_path_overrides,
+        force=force,
+    )
     return prepare_processing_queue(
         output_base,
-        queue_filter=QueueFilter.from_theme_folders(theme_folders),
-        source_path_overrides=source_path_overrides,
+        run_request=run_request,
     )
 
 
@@ -41,15 +46,21 @@ def run_queue_record_task(
 
 
 @flow(name="Data Pipeline", flow_run_name=flow_run_name, log_prints=True)
-def data_pipeline_flow(output_base=None, theme_folders=None, source_path_overrides=None):
+def data_pipeline_flow(output_base=None, theme_folders=None, source_path_overrides=None, force=False):
     settings = QueueRunSettings.from_output_base(output_base)
-    queue_filter = QueueFilter.from_theme_folders(theme_folders)
+    run_request = IngestRunRequest.from_legacy(
+        theme_folders=theme_folders,
+        source_path_overrides=source_path_overrides,
+        force=force,
+    )
+    queue_filter = run_request.queue_filter
 
     with _queue_filter_locks(queue_filter):
         queue_context = prepare_queue_task(
             settings.output_base,
             theme_folders,
             source_path_overrides,
+            force,
         )
         if queue_context is None:
             return

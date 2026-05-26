@@ -2,6 +2,7 @@ from pathlib import Path
 
 from core.ingest.normalization import normalize_status, normalize_theme_folder, stringify
 from core.ingest.repository import build_ingest_repository
+from core.ingest.run_request import IngestRunRequest
 from core.rules.engine import resolve_rule_profile_for_theme
 from settings import (
     INGEST_PROCESSING_STATUSES,
@@ -16,9 +17,16 @@ def diagnose_ingest_theme(
     sheet_name=INGEST_SHEET_NAME,
     ready_status=INGEST_PROCESSING_STATUSES,
     repository=None,
+    run_request=None,
+    force=False,
 ):
+    run_request = run_request or IngestRunRequest.from_legacy(
+        theme_folders=[theme_folder],
+        ready_status=ready_status,
+        source_path_overrides=None,
+        force=force,
+    )
     target_theme = normalize_theme_folder(theme_folder)
-    ready_statuses = {normalize_status(status) for status in ready_status}
     ingest_repository = build_ingest_repository(
         workbook_path=workbook_path,
         sheet_name=sheet_name,
@@ -33,7 +41,8 @@ def diagnose_ingest_theme(
             continue
 
         status = stringify(row.get("status"))
-        source_path = stringify(row.get("path_shapefile_temp"))
+        override_source_path = run_request.source_path_override_for(row_theme_folder)
+        source_path = override_source_path or stringify(row.get("path_shapefile_temp"))
         rule_resolution = resolve_rule_profile_for_theme(
             row_theme_folder,
             raise_on_error=False,
@@ -47,7 +56,9 @@ def diagnose_ingest_theme(
                 "theme": stringify(row.get("theme")),
                 "theme_folder": row_theme_folder,
                 "status": status,
-                "status_eligible": normalize_status(status) in ready_statuses,
+                "status_eligible": run_request.is_status_eligible(status, row_theme_folder),
+                "force": run_request.force,
+                "source_path_overridden": bool(override_source_path),
                 "source_path": source_path,
                 "source_exists": source_exists,
                 "project_name": rule_resolution.project_name,
@@ -65,7 +76,8 @@ def diagnose_ingest_theme(
         "normalized_theme_folder": target_theme,
         "workbook_path": str(workbook_path),
         "sheet_name": sheet_name,
-        "ready_statuses": list(ready_status),
+        "ready_statuses": run_request.processing_statuses_display(),
+        "run_request": run_request.to_diagnostic_context(),
         "matches": matches,
     }
 
@@ -118,6 +130,10 @@ def format_ingest_theme_match(match):
         lines.append(
             "    motivo: status fora dos elegiveis para processamento."
         )
+    if match.get("force"):
+        lines.append("    request: processamento forcado.")
+    if match.get("source_path_overridden"):
+        lines.append("    request: caminho de origem sobrescrito por parametro.")
     if not match["source_exists"]:
         lines.append("    motivo: caminho de origem ausente ou inexistente.")
     if not match["found_rule_profile"]:

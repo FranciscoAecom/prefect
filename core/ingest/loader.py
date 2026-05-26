@@ -5,6 +5,7 @@ from core.ingest.dataset_resolver import (
 from core.ingest.models import IngestIssue, IngestRecord
 from core.ingest.normalization import normalize_status, normalize_theme_folder, stringify
 from core.ingest.repository import build_ingest_repository
+from core.ingest.run_request import IngestRunRequest
 from core.queue.filters import QueueFilter
 from core.rules.engine import (
     RuleProfileResolutionError,
@@ -27,15 +28,21 @@ def load_processing_queue(
     queue_filter=None,
     source_path_overrides=None,
     repository=None,
+    run_request=None,
+    force=False,
 ):
+    run_request = run_request or IngestRunRequest.from_legacy(
+        theme_folders=theme_folders,
+        ready_status=ready_status,
+        queue_filter=queue_filter,
+        source_path_overrides=source_path_overrides,
+        force=force,
+    )
     ingest_repository = build_ingest_repository(
         workbook_path=workbook_path,
         sheet_name=sheet_name,
         repository=repository,
     )
-    ready_statuses_normalized = _normalize_ready_statuses(ready_status)
-    queue_filter = queue_filter or QueueFilter.from_theme_folders(theme_folders)
-    source_path_overrides = _normalize_source_path_overrides(source_path_overrides)
 
     eligible_records = []
     issues = []
@@ -52,18 +59,15 @@ def load_processing_queue(
         status = stringify(row.get("status"))
         versioning_metadata = _extract_versioning_metadata(row)
         xml_metadata = _extract_xml_metadata(row)
-        override_source_path = source_path_overrides.get(normalize_theme_folder(theme_folder))
+        override_source_path = run_request.source_path_override_for(theme_folder)
         source_path = override_source_path or stringify(row.get("path_shapefile_temp"))
 
-        if (
-            normalize_status(status) not in ready_statuses_normalized
-            and not override_source_path
-        ):
+        if not run_request.is_status_eligible(status, theme_folder):
             continue
 
         ready_candidates += 1
 
-        if not queue_filter.matches_theme_folder(theme_folder):
+        if not run_request.matches_theme_folder(theme_folder):
             continue
 
         if is_zip_path(source_path):
@@ -192,26 +196,11 @@ def load_processing_queue(
         "ready_candidates": ready_candidates,
         "eligible_records": len(eligible_records),
         "issues": len(issues),
-        "processing_statuses": _ready_statuses_display(ready_status),
+        "processing_statuses": run_request.processing_statuses_display(),
+        "force": run_request.force,
     }
 
     return eligible_records, issues, summary
-
-
-def _normalize_ready_statuses(ready_status):
-    if isinstance(ready_status, str):
-        statuses = [ready_status]
-    else:
-        statuses = list(ready_status or [INGEST_READY_STATUS])
-    return tuple(normalize_status(status) for status in statuses if normalize_status(status))
-
-
-def _ready_statuses_display(ready_status):
-    if isinstance(ready_status, str):
-        statuses = [ready_status]
-    else:
-        statuses = list(ready_status or [INGEST_READY_STATUS])
-    return [stringify(status) for status in statuses if stringify(status)]
 
 
 def _extract_versioning_metadata(row):
@@ -269,16 +258,5 @@ def _resolve_versioned_dirs(record):
         "bronze_dir": str(plan.bronze_dir),
         "temp_dir": str(plan.temp_dir),
     }
-
-
-def _normalize_source_path_overrides(source_path_overrides):
-    if not source_path_overrides:
-        return {}
-    return {
-        normalize_theme_folder(theme_folder): stringify(source_path)
-        for theme_folder, source_path in dict(source_path_overrides).items()
-        if normalize_theme_folder(theme_folder) and stringify(source_path)
-    }
-
 
 __all__ = ["load_processing_queue"]

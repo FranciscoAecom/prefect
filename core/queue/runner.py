@@ -1,4 +1,5 @@
 from core.queue.group_state import QueueGroupState
+from core.ingest.run_request import IngestRunRequest
 from core.queue.filters import QueueFilter
 from core.queue.queue_loader import prepare_processing_queue
 from core.queue.record_runner import run_queue_record
@@ -11,15 +12,24 @@ def run_processing_queue(
     settings=None,
     theme_folders=None,
     queue_filter=None,
+    run_request=None,
+    force=False,
 ):
     settings = settings or QueueRunSettings.from_output_base(output_base)
+    run_request = run_request or IngestRunRequest.from_legacy(
+        theme_folders=theme_folders,
+        queue_filter=queue_filter,
+        force=force,
+    )
     if queue_filter is None and theme_folders is None:
-        queue_context = prepare_processing_queue(settings.output_base)
-    else:
-        queue_filter = queue_filter or QueueFilter.from_theme_folders(theme_folders)
         queue_context = prepare_processing_queue(
             settings.output_base,
-            queue_filter=queue_filter,
+            run_request=run_request,
+        )
+    else:
+        queue_context = prepare_processing_queue(
+            settings.output_base,
+            run_request=run_request,
         )
     if queue_context is None:
         return
