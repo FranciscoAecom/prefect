@@ -27,9 +27,9 @@ PROJECT_CONFIGS = {
     "localidades": {
         "project_name": "localidades",
         "display_name": "Localidades do Brasil",
-        "theme_prefixes": ("localidades",),
-        "output_name_template": "pnt_loc_{theme_folder}_{date_yyyymmdd}",
-        "reference_date": "20260526",
+        "theme_prefixes": ("loc",),
+        "output_name_template": "pol_loc_loc_{date_yyyymmdd}",
+        "reference_date": "20251119",
     },
     "reserva_legal_car": {
         "project_name": "reserva_legal_car",
