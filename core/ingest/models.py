@@ -49,6 +49,7 @@ class IngestIssue:
     status: str
     source_path: str
     reason: str
+    code: str = ""
 
 
 __all__ = ["IngestIssue", "IngestRecord"]

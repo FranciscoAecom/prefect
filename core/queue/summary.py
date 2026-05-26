@@ -19,6 +19,7 @@ def log_queue_summary(summary, issues):
                 "  "
                 f"Linha {issue.sheet_row} | ID={issue.record_id} | "
                 f"theme_folder={issue.theme_folder or '<vazio>'} | "
+                f"{_format_issue_code(issue)}"
                 f"motivo={issue.reason}"
             )
 
@@ -26,3 +27,10 @@ def log_queue_summary(summary, issues):
 def _format_processing_statuses(summary):
     statuses = summary.get("processing_statuses") or INGEST_PROCESSING_STATUSES
     return ", ".join(str(status) for status in statuses)
+
+
+def _format_issue_code(issue):
+    code = getattr(issue, "code", "")
+    if not code:
+        return ""
+    return f"codigo={code} | "

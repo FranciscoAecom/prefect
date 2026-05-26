@@ -1,12 +1,18 @@
-from core.ingest.dataset_resolver import (
-    is_zip_path,
-    resolve_input_dataset_paths_cached,
+from core.ingest.dataset_resolver import resolve_input_dataset_paths_cached
+from core.ingest.eligibility import evaluate_ingest_row
+from core.ingest.issues import (
+    incomplete_rule_profile_issue,
+    inconsistent_rule_profile_issue,
+    input_dataset_resolution_error_issue,
+    missing_rule_profile_issue,
+    missing_source_path_issue,
+    rule_profile_resolution_error_issue,
+    zip_source_path_issue,
 )
-from core.ingest.models import IngestIssue, IngestRecord
-from core.ingest.normalization import normalize_status, normalize_theme_folder, stringify
+from core.ingest.models import IngestRecord
+from core.ingest.normalization import stringify
 from core.ingest.repository import build_ingest_repository
 from core.ingest.run_request import IngestRunRequest
-from core.queue.filters import QueueFilter
 from core.rules.engine import (
     RuleProfileResolutionError,
     resolve_rule_profile_for_theme,
@@ -59,110 +65,54 @@ def load_processing_queue(
         status = stringify(row.get("status"))
         versioning_metadata = _extract_versioning_metadata(row)
         xml_metadata = _extract_xml_metadata(row)
-        override_source_path = run_request.source_path_override_for(theme_folder)
-        source_path = override_source_path or stringify(row.get("path_shapefile_temp"))
+        eligibility = evaluate_ingest_row(row, run_request)
+        source_path = eligibility.source_path
+        issue_context = {
+            "sheet_row": sheet_row,
+            "record_id": record_id,
+            "theme_folder": theme_folder,
+            "status": status,
+            "source_path": source_path,
+        }
 
-        if not run_request.is_status_eligible(status, theme_folder):
+        if not eligibility.status_allowed:
             continue
 
         ready_candidates += 1
 
-        if not run_request.matches_theme_folder(theme_folder):
+        if not eligibility.theme_requested:
             continue
 
-        if is_zip_path(source_path):
-            issues.append(
-                IngestIssue(
-                    sheet_row=sheet_row,
-                    record_id=record_id,
-                    theme_folder=theme_folder,
-                    status=status,
-                    source_path=source_path,
-                    reason="Base ignorada porque o caminho informado e um arquivo ZIP.",
-                )
-            )
+        if eligibility.missing_source_path:
+            issues.append(missing_source_path_issue(issue_context))
+            continue
+
+        if eligibility.zip_source_path:
+            issues.append(zip_source_path_issue(issue_context))
             continue
 
         try:
             rule_resolution = resolve_rule_profile_for_theme(theme_folder)
         except RuleProfileResolutionError as exc:
-            issues.append(
-                IngestIssue(
-                    sheet_row=sheet_row,
-                    record_id=record_id,
-                    theme_folder=theme_folder,
-                    status=status,
-                    source_path=source_path,
-                    reason=str(exc),
-                )
-            )
+            issues.append(rule_profile_resolution_error_issue(issue_context, exc))
             continue
 
         if not rule_resolution.found:
-            issues.append(
-                IngestIssue(
-                    sheet_row=sheet_row,
-                    record_id=record_id,
-                    theme_folder=theme_folder,
-                    status=status,
-                    source_path=source_path,
-                    reason=(
-                        "Nenhum arquivo de regra correspondente foi encontrado em rules/. "
-                        f"Perfil esperado: rules/{rule_resolution.expected_profile_name}."
-                    ),
-                )
-            )
+            issues.append(missing_rule_profile_issue(issue_context, rule_resolution))
             continue
 
         if rule_resolution.missing_components:
-            issues.append(
-                IngestIssue(
-                    sheet_row=sheet_row,
-                    record_id=record_id,
-                    theme_folder=theme_folder,
-                    status=status,
-                    source_path=source_path,
-                    reason=(
-                        "Perfil de regras incompleto: "
-                        f"{rule_resolution.profile_name} sem "
-                        + ", ".join(rule_resolution.missing_components)
-                        + "."
-                    ),
-                )
-            )
+            issues.append(incomplete_rule_profile_issue(issue_context, rule_resolution))
             continue
 
         if not rule_resolution.project_consistent:
-            issues.append(
-                IngestIssue(
-                    sheet_row=sheet_row,
-                    record_id=record_id,
-                    theme_folder=theme_folder,
-                    status=status,
-                    source_path=source_path,
-                    reason=(
-                        "Perfil de regras inconsistente com o projeto resolvido: "
-                        f"theme_folder={theme_folder} -> projeto {rule_resolution.project_name}, "
-                        f"mas o perfil {rule_resolution.profile_name} declara "
-                        f"project_name={rule_resolution.profile_project_name}."
-                    ),
-                )
-            )
+            issues.append(inconsistent_rule_profile_issue(issue_context, rule_resolution))
             continue
 
         try:
             input_paths = resolve_input_dataset_paths_cached(source_path)
         except (FileNotFoundError, ValueError, PermissionError, OSError) as exc:
-            issues.append(
-                IngestIssue(
-                    sheet_row=sheet_row,
-                    record_id=record_id,
-                    theme_folder=theme_folder,
-                    status=status,
-                    source_path=source_path,
-                    reason=str(exc),
-                )
-            )
+            issues.append(input_dataset_resolution_error_issue(issue_context, exc))
             continue
 
         for input_path in input_paths:

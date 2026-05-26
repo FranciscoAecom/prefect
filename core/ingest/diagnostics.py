@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from core.ingest.normalization import normalize_status, normalize_theme_folder, stringify
+from core.ingest.eligibility import evaluate_ingest_row
+from core.ingest.normalization import normalize_theme_folder, stringify
 from core.ingest.repository import build_ingest_repository
 from core.ingest.run_request import IngestRunRequest
 from core.rules.engine import resolve_rule_profile_for_theme
@@ -40,9 +41,8 @@ def diagnose_ingest_theme(
         if normalize_theme_folder(row_theme_folder) != target_theme:
             continue
 
-        status = stringify(row.get("status"))
-        override_source_path = run_request.source_path_override_for(row_theme_folder)
-        source_path = override_source_path or stringify(row.get("path_shapefile_temp"))
+        eligibility = evaluate_ingest_row(row, run_request)
+        source_path = eligibility.source_path
         rule_resolution = resolve_rule_profile_for_theme(
             row_theme_folder,
             raise_on_error=False,
@@ -55,12 +55,18 @@ def diagnose_ingest_theme(
                 "record_id": row.get("ID"),
                 "theme": stringify(row.get("theme")),
                 "theme_folder": row_theme_folder,
-                "status": status,
-                "status_eligible": run_request.is_status_eligible(status, row_theme_folder),
-                "force": run_request.force,
-                "source_path_overridden": bool(override_source_path),
+                "status": eligibility.status,
+                "status_eligible": eligibility.status_allowed,
+                "theme_requested": eligibility.theme_requested,
+                "selected_by_request": eligibility.selected_by_request,
+                "force": eligibility.force_enabled,
+                "source_path_overridden": eligibility.source_path_overridden,
                 "source_path": source_path,
                 "source_exists": source_exists,
+                "request_reasons": eligibility.request_reasons,
+                "request_messages": eligibility.request_messages(),
+                "blocking_reasons": eligibility.blocking_reasons,
+                "blocking_messages": eligibility.blocking_messages(),
                 "project_name": rule_resolution.project_name,
                 "expected_rule_profile": rule_resolution.expected_profile_name,
                 "found_rule_profile": rule_resolution.profile_name,
@@ -102,6 +108,7 @@ def format_ingest_theme_diagnostic(diagnostic):
 
 def format_ingest_theme_match(match):
     status_marker = "sim" if match["status_eligible"] else "nao"
+    request_marker = "sim" if match.get("selected_by_request") else "nao"
     source_marker = "sim" if match["source_exists"] else "nao"
     found_profile = match["found_rule_profile"] or "<nao encontrado>"
     lines = [
@@ -109,6 +116,7 @@ def format_ingest_theme_match(match):
         f"    theme: {match['theme']}",
         f"    theme_folder: {match['theme_folder']}",
         f"    status: {match['status']} | elegivel: {status_marker}",
+        f"    selecionada pelo request: {request_marker}",
         f"    source_path existe: {source_marker} | {match['source_path'] or '<vazio>'}",
         f"    projeto resolvido: {match['project_name']}",
         f"    perfil esperado: {match['expected_rule_profile']}",
@@ -126,15 +134,15 @@ def format_ingest_theme_match(match):
             "    motivo: profile.json declara project_name="
             f"{match['profile_project_name']}."
         )
-    if not match["status_eligible"]:
-        lines.append(
-            "    motivo: status fora dos elegiveis para processamento."
-        )
-    if match.get("force"):
-        lines.append("    request: processamento forcado.")
-    if match.get("source_path_overridden"):
-        lines.append("    request: caminho de origem sobrescrito por parametro.")
-    if not match["source_exists"]:
+    for message in match.get("request_messages", ()):
+        lines.append(f"    request: {message}")
+    for message in match.get("blocking_messages", ()):
+        lines.append(f"    motivo: {message}")
+    if (
+        not match["source_exists"]
+        and "caminho de origem ausente ou inexistente."
+        not in match.get("blocking_messages", ())
+    ):
         lines.append("    motivo: caminho de origem ausente ou inexistente.")
     if not match["found_rule_profile"]:
         lines.append("    motivo: perfil de regras nao encontrado.")
