@@ -6,7 +6,7 @@ from core.io.dataset import write_output_gpkg
 from core.spatial.duplicates import get_geometric_duplicate_records
 from core.spatial.ogc_validation import get_invalid_ogc_records
 from core.validation.duplicates import get_attribute_duplicate_records
-from settings import GEOM_DUPLICATES_LAYER, OGC_INVALID_LAYER, OGC_REASON_FIELD
+from settings import GEOM_DUPLICATES_LAYER, ID_FIELD, OGC_INVALID_LAYER, OGC_REASON_FIELD
 
 
 def _prepare_tabular_export(df):
@@ -33,6 +33,27 @@ def _save_geospatial_report(path, df, layer_name, crs):
     if OGC_REASON_FIELD in export_df.columns:
         export_df[OGC_REASON_FIELD] = export_df[OGC_REASON_FIELD].fillna("").astype(str)
     return write_output_gpkg(export_df, path, layer=layer_name)
+
+
+def _record_duplicate_mask(gdf):
+    compare_columns = [
+        column
+        for column in gdf.columns
+        if column not in {"geometry", ID_FIELD, "fid"}
+    ]
+    if not compare_columns:
+        return gdf.index.to_series().map(lambda _index: False)
+    return gdf.duplicated(subset=compare_columns, keep=False)
+
+
+def _with_record_duplicate_flag(gdf, geom_duplicates):
+    if geom_duplicates is None:
+        return geom_duplicates
+
+    flagged = geom_duplicates.copy()
+    duplicate_index = set(gdf.index[_record_duplicate_mask(gdf)])
+    flagged["dup_registro"] = flagged.index.map(lambda index: index in duplicate_index)
+    return flagged
 
 
 def export_duplicate_reports(
@@ -70,7 +91,7 @@ def export_duplicate_reports(
         geom_report = output_path / f"{base_name}_duplicados_geometrias.gpkg"
         geom_file = _save_geospatial_report(
             geom_report,
-            geom_duplicates,
+            _with_record_duplicate_flag(gdf, geom_duplicates),
             GEOM_DUPLICATES_LAYER,
             gdf.crs,
         )
