@@ -8,6 +8,7 @@ from core.ingest.diagnostics import (
 from core.ingest.loader import load_processing_queue
 from core.ingest.run_request import IngestRunRequest
 from core.queue.filters import QueueFilter
+from core.queue.issue_report import export_queue_issues_report
 from core.queue.summary import log_queue_summary
 from core.utils import log
 
@@ -41,6 +42,7 @@ def prepare_processing_queue(
         return None
 
     log_queue_summary(queue_summary, queue_issues)
+    _export_queue_issues(output_base, queue_issues)
 
     if not processing_queue:
         log("Nenhum arquivo elegivel encontrado para iniciar a esteira.")
@@ -51,6 +53,14 @@ def prepare_processing_queue(
     if not all(getattr(record, "output_dir", "") for record in processing_queue):
         os.makedirs(output_dir, exist_ok=True)
     return QueueRunContext(records=processing_queue, output_dir=output_dir)
+
+
+def _export_queue_issues(output_base, queue_issues):
+    if not queue_issues:
+        return
+    report_path = export_queue_issues_report(queue_issues, output_base)
+    if report_path:
+        log(f"Relatorio de issues da fila ingest gerado: {report_path}")
 
 
 def log_empty_queue_diagnostics(theme_folders=None, queue_filter=None, run_request=None):

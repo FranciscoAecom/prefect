@@ -21,12 +21,14 @@ class QueueLoaderTests(unittest.TestCase):
         self.output_base = str(Path("tests") / "_tmp_output")
 
     @patch("core.queue.queue_loader.os.makedirs")
+    @patch("core.queue.queue_loader.export_queue_issues_report")
     @patch("core.queue.queue_loader.log_queue_summary")
     @patch("core.queue.queue_loader.load_processing_queue")
     def test_prepares_queue_context(
         self,
         mock_load_processing_queue,
         mock_log_queue_summary,
+        mock_export_queue_issues_report,
         mock_makedirs,
     ):
         records = [_record()]
@@ -41,15 +43,18 @@ class QueueLoaderTests(unittest.TestCase):
             QueueRunContext(records=records, output_dir=self.output_base),
         )
         mock_log_queue_summary.assert_called_once_with(summary, issues)
+        mock_export_queue_issues_report.assert_not_called()
         mock_makedirs.assert_called_once_with(self.output_base, exist_ok=True)
 
     @patch("core.queue.queue_loader.log")
+    @patch("core.queue.queue_loader.export_queue_issues_report")
     @patch("core.queue.queue_loader.log_queue_summary")
     @patch("core.queue.queue_loader.load_processing_queue")
     def test_returns_none_for_empty_queue(
         self,
         mock_load_processing_queue,
         mock_log_queue_summary,
+        mock_export_queue_issues_report,
         mock_log,
     ):
         summary = {"total_records": 0}
@@ -60,7 +65,49 @@ class QueueLoaderTests(unittest.TestCase):
 
         self.assertIsNone(result)
         mock_log_queue_summary.assert_called_once_with(summary, issues)
+        mock_export_queue_issues_report.assert_not_called()
         mock_log.assert_called_once_with("Nenhum arquivo elegivel encontrado para iniciar a esteira.")
+
+    @patch("core.queue.queue_loader.log")
+    @patch("core.queue.queue_loader.export_queue_issues_report")
+    @patch("core.queue.queue_loader.log_queue_summary")
+    @patch("core.queue.queue_loader.load_processing_queue")
+    def test_exports_queue_issues_report(
+        self,
+        mock_load_processing_queue,
+        _mock_log_queue_summary,
+        mock_export_queue_issues_report,
+        mock_log,
+    ):
+        records = [_record()]
+        issue = SimpleNamespace(
+            sheet_row=3,
+            record_id=20,
+            theme_folder="localidades",
+            status="Waiting Update",
+            source_path="",
+            code="missing_source_path",
+            reason="caminho vazio",
+        )
+        mock_load_processing_queue.return_value = (
+            records,
+            [issue],
+            {"total_records": 1},
+        )
+        mock_export_queue_issues_report.return_value = (
+            r"C:\tmp\queue_issues_20260526_154500.xlsx"
+        )
+
+        prepare_processing_queue(self.output_base)
+
+        mock_export_queue_issues_report.assert_called_once_with(
+            [issue],
+            self.output_base,
+        )
+        mock_log.assert_called_once_with(
+            "Relatorio de issues da fila ingest gerado: "
+            r"C:\tmp\queue_issues_20260526_154500.xlsx"
+        )
 
     @patch("core.queue.queue_loader.log")
     @patch("core.queue.queue_loader.load_processing_queue")
