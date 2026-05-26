@@ -10,6 +10,7 @@ ISSUE_MISSING_RULE_PROFILE = "missing_rule_profile"
 ISSUE_RULE_PROFILE_INCOMPLETE = "rule_profile_incomplete"
 ISSUE_RULE_PROFILE_PROJECT_INCONSISTENT = "rule_profile_project_inconsistent"
 ISSUE_RULE_PROFILE_RESOLUTION_ERROR = "rule_profile_resolution_error"
+ISSUE_SOURCE_PATH_NOT_FOUND = "source_path_not_found"
 
 
 def missing_source_path_issue(issue_context):
@@ -81,6 +82,22 @@ def input_dataset_resolution_error_issue(issue_context, error):
     )
 
 
+def issue_to_dict(issue):
+    return {
+        "sheet_row": issue.sheet_row,
+        "record_id": issue.record_id,
+        "theme_folder": issue.theme_folder,
+        "status": issue.status,
+        "source_path": issue.source_path,
+        "code": getattr(issue, "code", ""),
+        "reason": issue.reason,
+    }
+
+
+def issues_to_dicts(issues):
+    return [issue_to_dict(issue) for issue in issues]
+
+
 def _ingest_issue(issue_context, *, code, reason):
     return IngestIssue(
         sheet_row=issue_context["sheet_row"],
@@ -99,9 +116,12 @@ __all__ = [
     "ISSUE_RULE_PROFILE_INCOMPLETE",
     "ISSUE_RULE_PROFILE_PROJECT_INCONSISTENT",
     "ISSUE_RULE_PROFILE_RESOLUTION_ERROR",
+    "ISSUE_SOURCE_PATH_NOT_FOUND",
     "incomplete_rule_profile_issue",
     "inconsistent_rule_profile_issue",
     "input_dataset_resolution_error_issue",
+    "issue_to_dict",
+    "issues_to_dicts",
     "missing_rule_profile_issue",
     "missing_source_path_issue",
     "rule_profile_resolution_error_issue",

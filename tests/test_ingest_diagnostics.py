@@ -46,7 +46,12 @@ class IngestDiagnosticsTests(unittest.TestCase):
 
         self.assertEqual(len(diagnostic["matches"]), 1)
         self.assertFalse(diagnostic["matches"][0]["status_eligible"])
+        self.assertIn(
+            "status_not_allowed",
+            diagnostic["matches"][0]["issue_codes"],
+        )
         self.assertIn("    status: Complete | elegivel: nao", lines)
+        self.assertIn("    codigos: status_not_allowed", lines)
         self.assertIn(
             "    motivo: status fora dos elegiveis para processamento.",
             lines,

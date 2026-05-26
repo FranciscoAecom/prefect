@@ -1,6 +1,13 @@
 from pathlib import Path
 
 from core.ingest.eligibility import evaluate_ingest_row
+from core.ingest.issues import (
+    ISSUE_MISSING_RULE_PROFILE,
+    ISSUE_RULE_PROFILE_INCOMPLETE,
+    ISSUE_RULE_PROFILE_PROJECT_INCONSISTENT,
+    ISSUE_RULE_PROFILE_RESOLUTION_ERROR,
+    ISSUE_SOURCE_PATH_NOT_FOUND,
+)
 from core.ingest.normalization import normalize_theme_folder, stringify
 from core.ingest.repository import build_ingest_repository
 from core.ingest.run_request import IngestRunRequest
@@ -49,6 +56,11 @@ def diagnose_ingest_theme(
         )
 
         source_exists = bool(source_path and Path(source_path).exists())
+        issue_codes = _diagnostic_issue_codes(
+            eligibility,
+            rule_resolution,
+            source_exists,
+        )
         matches.append(
             {
                 "sheet_row": catalog_row.sheet_row,
@@ -67,6 +79,7 @@ def diagnose_ingest_theme(
                 "request_messages": eligibility.request_messages(),
                 "blocking_reasons": eligibility.blocking_reasons,
                 "blocking_messages": eligibility.blocking_messages(),
+                "issue_codes": issue_codes,
                 "project_name": rule_resolution.project_name,
                 "expected_rule_profile": rule_resolution.expected_profile_name,
                 "found_rule_profile": rule_resolution.profile_name,
@@ -124,6 +137,8 @@ def format_ingest_theme_match(match):
     ]
     if match["profile_error"]:
         lines.append(f"    erro perfil: {match['profile_error']}")
+    if match.get("issue_codes"):
+        lines.append("    codigos: " + ", ".join(match["issue_codes"]))
     if match["missing_rule_components"]:
         lines.append(
             "    componentes ausentes: "
@@ -147,6 +162,21 @@ def format_ingest_theme_match(match):
     if not match["found_rule_profile"]:
         lines.append("    motivo: perfil de regras nao encontrado.")
     return lines
+
+
+def _diagnostic_issue_codes(eligibility, rule_resolution, source_exists):
+    codes = list(eligibility.blocking_reasons)
+    if rule_resolution.error:
+        codes.append(ISSUE_RULE_PROFILE_RESOLUTION_ERROR)
+    if not rule_resolution.found:
+        codes.append(ISSUE_MISSING_RULE_PROFILE)
+    if rule_resolution.missing_components:
+        codes.append(ISSUE_RULE_PROFILE_INCOMPLETE)
+    if not rule_resolution.project_consistent:
+        codes.append(ISSUE_RULE_PROFILE_PROJECT_INCONSISTENT)
+    if eligibility.source_path and not source_exists:
+        codes.append(ISSUE_SOURCE_PATH_NOT_FOUND)
+    return tuple(dict.fromkeys(codes))
 
 
 __all__ = [
