@@ -17,6 +17,7 @@ from core.prefect_support.deployment_names import (
     UR_CAR_PROCESSING_OLD_QUALIFIED_DEPLOYMENT_NAMES,
     UR_CAR_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
 )
+from core.prefect_support.blocks import save_default_blocks
 from core.prefect_support.schedules import (
     DEFAULT_UR_CAR_SEQUENCE_HOUR,
     DEFAULT_UR_CAR_SEQUENCE_MINUTE,
@@ -66,6 +67,14 @@ def main():
         "set-default-variables",
         help="Grava as Variables padrao usadas pelos flows.",
     )
+    subparsers.add_parser(
+        "set-default-blocks",
+        help="Grava os Blocks padrao usados pelos flows.",
+    )
+    subparsers.add_parser(
+        "bootstrap-prefect",
+        help="Recria Variables, Blocks e Automations padrao.",
+    )
 
     args = parser.parse_args()
     if args.command in {"create-download-automation", "create-car-download-automation"}:
@@ -76,6 +85,10 @@ def main():
         rename_scheduled_runs()
     elif args.command == "set-default-variables":
         set_default_variables()
+    elif args.command == "set-default-blocks":
+        set_default_blocks()
+    elif args.command == "bootstrap-prefect":
+        bootstrap_prefect()
 
 
 def create_download_automation():
@@ -189,6 +202,22 @@ def set_default_variables():
     for name, value in variables.items():
         set_prefect_variable(name, value, tags=["data-pipeline", "config"])
         print(f"Variable definida: {name}={value}")
+
+
+def set_default_blocks():
+    summary = save_default_blocks(overwrite=True)
+    for name in summary["saved"]:
+        print(f"Block definido: {name}")
+    for name in summary["skipped"]:
+        print(
+            f"Block ignorado sem credenciais no ambiente: {name}"
+        )
+
+
+def bootstrap_prefect():
+    set_default_variables()
+    set_default_blocks()
+    create_download_automation()
 
 
 def rename_scheduled_runs():
