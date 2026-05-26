@@ -43,6 +43,10 @@ def main():
         help="Serve tratamento e publicacao automatica de Autos de Infracao.",
     )
     subparsers.add_parser("estado", help="Serve o tratamento agendado da base Estado.")
+    subparsers.add_parser(
+        "localidades",
+        help="Serve o tratamento da base Localidades.",
+    )
 
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
@@ -59,6 +63,8 @@ def main():
         serve_autos_infracao_publish()
     elif args.deployment == "estado":
         serve_estado()
+    elif args.deployment == "localidades":
+        serve_localidades()
 
 
 def serve_data_download():
@@ -148,6 +154,20 @@ def serve_estado():
         ],
         tags=["estado", "scheduled"],
         description="Agenda da base de estados.",
+    )
+
+
+def serve_localidades():
+    deployment_name = "Localidades"
+    start_scheduled_run_renamer(
+        deployment_name=f"Data Pipeline/{deployment_name}",
+        interval_seconds=5,
+    )
+    data_pipeline_flow.serve(
+        name=deployment_name,
+        parameters={"theme_folders": ["localidades"]},
+        tags=["localidades", "processing"],
+        description="Tratamento da base Localidades do Brasil.",
     )
 
 
