@@ -116,9 +116,9 @@ def _pipeline_uses_component_keys(pipeline):
     return any(key in pipeline for key in PIPELINE_COMPONENT_KEYS)
 
 
-def validate_style_component(style):
+def validate_style_component(style, fields=None):
     errors = []
-    _validate_sld_entry((style or {}).get("sld", style or {}), errors)
+    _validate_sld_entry((style or {}).get("sld", style or {}), errors, fields=fields)
     _validate_component_errors("style.json", errors)
 
 
@@ -138,7 +138,7 @@ def validate_modular_components(
     fields = domains.get("fields", domains)
     validate_relations_component(relations, fields)
     validate_pipeline_component(pipeline, fields)
-    validate_style_component(style)
+    validate_style_component(style, fields)
 
 
 def validate_rule_profile_structure(profile, profile_name):
@@ -168,7 +168,7 @@ def validate_rule_profile_structure(profile, profile_name):
     )
     _validate_primary_output_entry(profile.get("primary_output", {}), errors)
     _validate_quality_outputs_entry(profile.get("quality_outputs", {}), errors)
-    _validate_sld_entry(profile.get("sld", {}), errors)
+    _validate_sld_entry(profile.get("sld", {}), errors, fields=profile.get("fields", {}))
     _raise_profile_errors(normalized_profile_name, errors)
 
 
@@ -351,7 +351,7 @@ def _validate_string_list_entry(values, field_name, errors):
             break
 
 
-def _validate_sld_entry(sld, errors):
+def _validate_sld_entry(sld, errors, fields=None):
     if sld in (None, {}):
         return
     if not isinstance(sld, dict):
@@ -376,6 +376,61 @@ def _validate_sld_entry(sld, errors):
                 errors.append(
                     f"Valor de 'sld.{section}.{key}' deve ser string ou numero."
                 )
+
+    _validate_sld_rules_against_domains(sld, fields or {}, errors)
+
+
+def _validate_sld_rules_against_domains(sld, fields, errors):
+    if not isinstance(fields, dict):
+        return
+
+    rules_by_property = {}
+    for rule in _iter_sld_rules(sld):
+        rule_filter = rule.get("filter", {}) if isinstance(rule, dict) else {}
+        if not isinstance(rule_filter, dict):
+            continue
+        property_name = rule_filter.get("property")
+        literal = rule_filter.get("literal")
+        if not property_name or literal is None:
+            continue
+        rules_by_property.setdefault(str(property_name), set()).add(str(literal))
+
+    for property_name, literals in sorted(rules_by_property.items()):
+        field_rules = fields.get(property_name)
+        if not isinstance(field_rules, dict):
+            continue
+        accepted_values = field_rules.get("accepted_values", [])
+        if not accepted_values:
+            continue
+        accepted_values = {str(value) for value in accepted_values}
+        unknown_literals = sorted(literals - accepted_values)
+        missing_literals = sorted(accepted_values - literals)
+        if unknown_literals:
+            errors.append(
+                "SLD referencia valor fora do dominio em "
+                f"'{property_name}': {', '.join(unknown_literals)}."
+            )
+        if missing_literals:
+            errors.append(
+                "SLD nao cobre todos os valores aceitos de "
+                f"'{property_name}': {', '.join(missing_literals)}."
+            )
+
+
+def _iter_sld_rules(sld):
+    rules = sld.get("rules", [])
+    if isinstance(rules, list):
+        yield from (rule for rule in rules if isinstance(rule, dict))
+
+    layers = sld.get("layers", {})
+    if not isinstance(layers, dict):
+        return
+    for layer_style in layers.values():
+        if not isinstance(layer_style, dict):
+            continue
+        layer_rules = layer_style.get("rules", [])
+        if isinstance(layer_rules, list):
+            yield from (rule for rule in layer_rules if isinstance(rule, dict))
 
 
 def _validate_primary_output_entry(primary_output, errors):

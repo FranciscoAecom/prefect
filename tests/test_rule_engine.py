@@ -84,6 +84,63 @@ class ValidateRuleProfileTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "fora de 'accepted_values'"):
             validate_rule_profile(profile, "estado/demo")
 
+    def test_rejects_sld_literal_outside_domain(self):
+        profile = {
+            "profile_name": "demo",
+            "project_name": "estado",
+            "auto_functions": {},
+            "fields": {
+                "sdb_tipo": {
+                    "accepted_values": ["A", "B"],
+                    "aliases": {},
+                },
+            },
+            "relations": {},
+            "sld": {
+                "rules": [
+                    {
+                        "name": "A",
+                        "filter": {"property": "sdb_tipo", "literal": "A"},
+                        "point": {"fill": "#111111"},
+                    },
+                    {
+                        "name": "C",
+                        "filter": {"property": "sdb_tipo", "literal": "C"},
+                        "point": {"fill": "#222222"},
+                    },
+                ]
+            },
+        }
+
+        with self.assertRaisesRegex(ValueError, "fora do dominio"):
+            validate_rule_profile(profile, "estado/demo")
+
+    def test_rejects_sld_missing_domain_literal(self):
+        profile = {
+            "profile_name": "demo",
+            "project_name": "estado",
+            "auto_functions": {},
+            "fields": {
+                "sdb_tipo": {
+                    "accepted_values": ["A", "B"],
+                    "aliases": {},
+                },
+            },
+            "relations": {},
+            "sld": {
+                "rules": [
+                    {
+                        "name": "A",
+                        "filter": {"property": "sdb_tipo", "literal": "A"},
+                        "point": {"fill": "#111111"},
+                    },
+                ]
+            },
+        }
+
+        with self.assertRaisesRegex(ValueError, "nao cobre todos os valores"):
+            validate_rule_profile(profile, "estado/demo")
+
     def test_rejects_invalid_modular_input_schema_component(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             profile_dir = Path(temp_dir) / "rules" / "demo" / "perfil"
@@ -178,6 +235,29 @@ class ValidateRuleProfileTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "quality_outputs"):
                     load_rule_profile("demo/perfil")
 
+    def test_rejects_modular_style_outside_domain(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            profile_dir = Path(temp_dir) / "rules" / "demo" / "perfil"
+            self._write_modular_profile(
+                profile_dir,
+                style={
+                    "sld": {
+                        "rules": [
+                            {
+                                "name": "B",
+                                "filter": {"property": "sdb_codigo", "literal": "B"},
+                                "point": {"fill": "#111111"},
+                            },
+                        ]
+                    }
+                },
+            )
+
+            with patch("core.rules.engine.RULES_BASE", str(Path(temp_dir) / "rules")):
+                invalidate_rule_profile_cache()
+                with self.assertRaisesRegex(ValueError, "style.json"):
+                    load_rule_profile("demo/perfil")
+
     def test_save_rule_profile_updates_modular_components(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             rules_base = Path(temp_dir) / "rules"
@@ -251,6 +331,7 @@ class ValidateRuleProfileTests(unittest.TestCase):
         domains=None,
         relations=None,
         pipeline=None,
+        style=None,
     ):
         profile_dir.mkdir(parents=True, exist_ok=True)
         self._write_json(
@@ -302,6 +383,8 @@ class ValidateRuleProfileTests(unittest.TestCase):
                 }
             },
         )
+        if style is not None:
+            self._write_json(profile_dir / "style.json", style)
 
     def _write_json(self, path, data):
         with path.open("w", encoding="utf-8") as file:
