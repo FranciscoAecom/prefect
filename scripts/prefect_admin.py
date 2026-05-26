@@ -17,6 +17,10 @@ from core.prefect_support.deployment_names import (
     UR_CAR_PROCESSING_OLD_QUALIFIED_DEPLOYMENT_NAMES,
     UR_CAR_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
 )
+from core.ingest.diagnostics import (
+    diagnose_ingest_theme,
+    format_ingest_theme_diagnostic,
+)
 from core.prefect_support.bootstrap import (
     bootstrap_prefect as run_bootstrap_prefect,
     set_default_blocks,
@@ -73,6 +77,11 @@ def main():
         "bootstrap-prefect",
         help="Recria Variables, Blocks, Work Pools e Automations padrao.",
     )
+    diagnose_parser = subparsers.add_parser(
+        "diagnose-theme",
+        help="Mostra por que um theme_folder entra ou nao na fila.",
+    )
+    diagnose_parser.add_argument("theme_folder")
 
     args = parser.parse_args()
     if args.command in {"create-download-automation", "create-car-download-automation"}:
@@ -89,6 +98,8 @@ def main():
         set_default_work_pools()
     elif args.command == "bootstrap-prefect":
         bootstrap_prefect()
+    elif args.command == "diagnose-theme":
+        diagnose_theme(args.theme_folder)
 
 
 def create_download_automation():
@@ -190,6 +201,12 @@ def reschedule_ur_car_daily_17h():
 
 def bootstrap_prefect():
     run_bootstrap_prefect(create_download_automation)
+
+
+def diagnose_theme(theme_folder):
+    diagnostic = diagnose_ingest_theme(theme_folder)
+    for line in format_ingest_theme_diagnostic(diagnostic):
+        print(line)
 
 
 def rename_scheduled_runs():
