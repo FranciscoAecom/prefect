@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -137,6 +138,20 @@ class SldPersistenceTests(unittest.TestCase):
         )
         self.assertIn('<se:SvgParameter name="fill">#087d03</se:SvgParameter>', text)
         self.assertIn('<se:SvgParameter name="fill">#4fd84a</se:SvgParameter>', text)
+
+    def test_localidades_style_categorizes_ct_localidade(self):
+        style_path = Path("rules/localidades/localidades/style.json")
+        style = build_sld_style(json.loads(style_path.read_text(encoding="utf-8")))
+        text = render_sld("pol_loc_loc_20251119", "point", style)
+
+        self.assertEqual(len(style["rules"]), 12)
+        self.assertEqual(
+            {rule["filter"]["property"] for rule in style["rules"]},
+            {"sdb_ct_localidade"},
+        )
+        self.assertIn("<ogc:PropertyName>sdb_ct_localidade</ogc:PropertyName>", text)
+        self.assertIn("<ogc:Literal>Cidade</ogc:Literal>", text)
+        self.assertIn('<se:SvgParameter name="fill">#1654AD</se:SvgParameter>', text)
 
     def test_sld_path_uses_same_stem_as_dataset(self):
         self.assertEqual(

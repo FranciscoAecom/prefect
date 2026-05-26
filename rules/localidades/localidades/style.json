@@ -1,13 +1,195 @@
 {
   "sld": {
     "version": "1.1.0",
-    "rule_name": "Single symbol",
+    "rule_name": "Categorias de localidade",
     "point": {
       "well_known_name": "circle",
-      "fill": "#2f7d5b",
+      "fill": "#817E7C",
       "stroke": "#232323",
       "stroke_width": "0.5",
-      "size": "6"
-    }
+      "size": "7"
+    },
+    "rules": [
+      {
+        "name": "Agrovila do PA",
+        "title": "Agrovila do PA",
+        "filter": {
+          "property": "sdb_ct_localidade",
+          "literal": "Agrovila do PA"
+        },
+        "point": {
+          "well_known_name": "circle",
+          "fill": "#3C663C",
+          "stroke": "#232323",
+          "stroke_width": "0.5",
+          "size": "7"
+        }
+      },
+      {
+        "name": "Cidade",
+        "title": "Cidade",
+        "filter": {
+          "property": "sdb_ct_localidade",
+          "literal": "Cidade"
+        },
+        "point": {
+          "well_known_name": "circle",
+          "fill": "#1654AD",
+          "stroke": "#232323",
+          "stroke_width": "0.5",
+          "size": "7"
+        }
+      },
+      {
+        "name": "Distrito Estadual de Fernando de Noronha",
+        "title": "Distrito Estadual de Fernando de Noronha",
+        "filter": {
+          "property": "sdb_ct_localidade",
+          "literal": "Distrito Estadual de Fernando de Noronha"
+        },
+        "point": {
+          "well_known_name": "circle",
+          "fill": "#53E1EC",
+          "stroke": "#232323",
+          "stroke_width": "0.5",
+          "size": "7"
+        }
+      },
+      {
+        "name": "Localidade Indígena",
+        "title": "Localidade Indígena",
+        "filter": {
+          "property": "sdb_ct_localidade",
+          "literal": "Localidade Indígena"
+        },
+        "point": {
+          "well_known_name": "circle",
+          "fill": "#27641F",
+          "stroke": "#232323",
+          "stroke_width": "0.5",
+          "size": "7"
+        }
+      },
+      {
+        "name": "Localidade Quilombola",
+        "title": "Localidade Quilombola",
+        "filter": {
+          "property": "sdb_ct_localidade",
+          "literal": "Localidade Quilombola"
+        },
+        "point": {
+          "well_known_name": "circle",
+          "fill": "#4B0024",
+          "stroke": "#232323",
+          "stroke_width": "0.5",
+          "size": "7"
+        }
+      },
+      {
+        "name": "Lugarejo",
+        "title": "Lugarejo",
+        "filter": {
+          "property": "sdb_ct_localidade",
+          "literal": "Lugarejo"
+        },
+        "point": {
+          "well_known_name": "circle",
+          "fill": "#FFB701",
+          "stroke": "#232323",
+          "stroke_width": "0.5",
+          "size": "7"
+        }
+      },
+      {
+        "name": "Núcleo Rural",
+        "title": "Núcleo Rural",
+        "filter": {
+          "property": "sdb_ct_localidade",
+          "literal": "Núcleo Rural"
+        },
+        "point": {
+          "well_known_name": "circle",
+          "fill": "#82B812",
+          "stroke": "#232323",
+          "stroke_width": "0.5",
+          "size": "7"
+        }
+      },
+      {
+        "name": "Núcleo Urbano",
+        "title": "Núcleo Urbano",
+        "filter": {
+          "property": "sdb_ct_localidade",
+          "literal": "Núcleo Urbano"
+        },
+        "point": {
+          "well_known_name": "circle",
+          "fill": "#EF8E03",
+          "stroke": "#232323",
+          "stroke_width": "0.5",
+          "size": "7"
+        }
+      },
+      {
+        "name": "Outras Localidades",
+        "title": "Outras Localidades",
+        "filter": {
+          "property": "sdb_ct_localidade",
+          "literal": "Outras Localidades"
+        },
+        "point": {
+          "well_known_name": "circle",
+          "fill": "#817E7C",
+          "stroke": "#232323",
+          "stroke_width": "0.5",
+          "size": "7"
+        }
+      },
+      {
+        "name": "Povoado",
+        "title": "Povoado",
+        "filter": {
+          "property": "sdb_ct_localidade",
+          "literal": "Povoado"
+        },
+        "point": {
+          "well_known_name": "circle",
+          "fill": "#C4912B",
+          "stroke": "#232323",
+          "stroke_width": "0.5",
+          "size": "7"
+        }
+      },
+      {
+        "name": "Regiões Administrativas do Distrito Federal",
+        "title": "Regiões Administrativas do Distrito Federal",
+        "filter": {
+          "property": "sdb_ct_localidade",
+          "literal": "Regiões Administrativas do Distrito Federal"
+        },
+        "point": {
+          "well_known_name": "circle",
+          "fill": "#8A9EF4",
+          "stroke": "#232323",
+          "stroke_width": "0.5",
+          "size": "7"
+        }
+      },
+      {
+        "name": "Vila",
+        "title": "Vila",
+        "filter": {
+          "property": "sdb_ct_localidade",
+          "literal": "Vila"
+        },
+        "point": {
+          "well_known_name": "circle",
+          "fill": "#F8DADA",
+          "stroke": "#232323",
+          "stroke_width": "0.5",
+          "size": "7"
+        }
+      }
+    ]
   }
 }
