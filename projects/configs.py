@@ -24,6 +24,13 @@ PROJECT_CONFIGS = {
         "output_name_template": "pol_loc_{theme_folder}_{date_yyyymmdd}",
         "reference_date": "20241215",
     },
+    "localidades": {
+        "project_name": "localidades",
+        "display_name": "Localidades do Brasil",
+        "theme_prefixes": ("localidades",),
+        "output_name_template": "pnt_loc_{theme_folder}_{date_yyyymmdd}",
+        "reference_date": "20260526",
+    },
     "reserva_legal_car": {
         "project_name": "reserva_legal_car",
         "display_name": "Reserva Legal (RL) nos imoveis rurais",

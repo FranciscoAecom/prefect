@@ -1,0 +1,81 @@
+{
+  "columns": {
+    "sdb_cd_uf": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_nm_uf": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_sigla_uf": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_mun": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_nm_mun": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_rgint": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_nm_rgint": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_rgi": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_nm_rgi": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_ct_localidade": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_sct_localidade": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_localidade": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_nm_localidade": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_lat_localidade": {
+      "dtype": "number",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_long_localidade": {
+      "dtype": "number",
+      "required": true,
+      "nullable": true
+    }
+  },
+  "require_geometry": true,
+  "allow_extra_columns": true
+}

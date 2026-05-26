@@ -1,0 +1,44 @@
+{
+  "postprocess_functions": [],
+  "secondary_outputs": [
+    "brazil_bbox"
+  ],
+  "primary_output": {
+    "relocate_outside_brazil_bounds_to_centroid": true
+  },
+  "auto_functions": {
+    "sdb_cd_uf": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_nm_uf": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_sigla_uf": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_cd_mun": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_nm_mun": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_cd_rgint": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_nm_rgint": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_cd_rgi": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_nm_rgi": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_ct_localidade": [
+      "validate_shapefile_attribute"
+    ],
+    "sdb_sct_localidade": [
+      "validate_shapefile_attribute"
+    ]
+  }
+}

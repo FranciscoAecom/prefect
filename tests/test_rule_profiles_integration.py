@@ -1,3 +1,4 @@
+import re
 import unittest
 from pathlib import Path
 
@@ -73,12 +74,14 @@ class RuleProfilesIntegrationTests(unittest.TestCase):
         self.assertEqual(list_duplicate_rule_profile_stems(), {})
 
     def test_rule_profiles_do_not_contain_utf8_mojibake(self):
-        bad_tokens = ("Ã", "Â", "\ufffd")
+        bad_tokens = ("\ufffd",)
+        mojibake_pattern = re.compile(r"[ÃÂ][\u0080-\u00bf]")
 
         for path in Path(RULES_BASE).rglob("*.json"):
             with self.subTest(path=str(path)):
                 text = path.read_text(encoding="utf-8-sig")
                 self.assertFalse(
-                    any(token in text for token in bad_tokens),
+                    any(token in text for token in bad_tokens)
+                    or mojibake_pattern.search(text),
                     f"Possivel problema de UTF-8 em {path}",
                 )

@@ -1,0 +1,13 @@
+{
+  "sld": {
+    "version": "1.1.0",
+    "rule_name": "Single symbol",
+    "point": {
+      "well_known_name": "circle",
+      "fill": "#2f7d5b",
+      "stroke": "#232323",
+      "stroke_width": "0.5",
+      "size": "6"
+    }
+  }
+}
