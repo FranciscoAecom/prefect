@@ -3,6 +3,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from core.ingest.run_request import IngestRunRequest
 from core.queue.queue_loader import QueueRunContext, prepare_processing_queue
 
 
@@ -74,3 +75,23 @@ class QueueLoaderTests(unittest.TestCase):
 
         self.assertIsNone(result)
         mock_log.assert_called_once_with("Erro ao carregar a fila ingest: boom")
+
+    @patch("core.queue.queue_loader.os.makedirs")
+    @patch("core.queue.queue_loader.log_queue_summary")
+    @patch("core.queue.queue_loader.load_processing_queue")
+    def test_passes_run_request_to_loader(
+        self,
+        mock_load_processing_queue,
+        _mock_log_queue_summary,
+        _mock_makedirs,
+    ):
+        records = [_record()]
+        mock_load_processing_queue.return_value = (records, [], {"total_records": 1})
+        run_request = IngestRunRequest.from_legacy(
+            theme_folders=["localidades"],
+            force=True,
+        )
+
+        prepare_processing_queue(self.output_base, run_request=run_request)
+
+        self.assertIs(mock_load_processing_queue.call_args.kwargs["run_request"], run_request)

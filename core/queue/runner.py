@@ -21,16 +21,10 @@ def run_processing_queue(
         queue_filter=queue_filter,
         force=force,
     )
-    if queue_filter is None and theme_folders is None:
-        queue_context = prepare_processing_queue(
-            settings.output_base,
-            run_request=run_request,
-        )
-    else:
-        queue_context = prepare_processing_queue(
-            settings.output_base,
-            run_request=run_request,
-        )
+    queue_context = prepare_processing_queue(
+        settings.output_base,
+        run_request=run_request,
+    )
     if queue_context is None:
         return
 

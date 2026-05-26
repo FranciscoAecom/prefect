@@ -1,0 +1,42 @@
+import unittest
+
+from core.ingest.run_request import IngestRunRequest
+from core.queue.filters import QueueFilter
+
+
+class IngestRunRequestTests(unittest.TestCase):
+    def test_builds_from_legacy_parameters(self):
+        request = IngestRunRequest.from_legacy(
+            theme_folders="localidades",
+            ready_status="Waiting Update",
+            source_path_overrides={"Localidades": r"L:\base"},
+        )
+
+        self.assertEqual(request.theme_folders, ("localidades",))
+        self.assertEqual(request.ready_statuses, ("Waiting Update",))
+        self.assertEqual(request.source_path_overrides, {"localidades": r"L:\base"})
+        self.assertTrue(request.matches_theme_folder("localidades"))
+
+    def test_accepts_queue_filter(self):
+        request = IngestRunRequest.from_legacy(
+            queue_filter=QueueFilter.from_theme_folders(["estado"])
+        )
+
+        self.assertEqual(request.theme_folders, ("estado",))
+
+    def test_force_makes_any_status_eligible(self):
+        request = IngestRunRequest.from_legacy(force=True)
+
+        self.assertTrue(request.is_status_eligible("Complete"))
+
+    def test_source_override_makes_theme_status_eligible(self):
+        request = IngestRunRequest.from_legacy(
+            source_path_overrides={"localidades": "base"}
+        )
+
+        self.assertTrue(request.is_status_eligible("Complete", "localidades"))
+        self.assertFalse(request.is_status_eligible("Complete", "estado"))
+
+
+if __name__ == "__main__":
+    unittest.main()

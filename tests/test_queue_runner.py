@@ -42,7 +42,9 @@ class QueueRunnerTests(unittest.TestCase):
 
         run_processing_queue(output_base=self.output_base)
 
-        mock_prepare_processing_queue.assert_called_once_with(self.output_base)
+        mock_prepare_processing_queue.assert_called_once()
+        self.assertEqual(mock_prepare_processing_queue.call_args.args, (self.output_base,))
+        self.assertFalse(mock_prepare_processing_queue.call_args.kwargs["run_request"].force)
         self.assertEqual(mock_run_queue_record.call_count, 2)
         self.assertIs(mock_run_queue_record.call_args_list[0].args[0], records[0])
         self.assertIs(mock_run_queue_record.call_args_list[1].args[0], records[1])
@@ -68,7 +70,8 @@ class QueueRunnerTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "boom"):
             run_processing_queue(output_base=self.output_base)
 
-        mock_prepare_processing_queue.assert_called_once_with(self.output_base)
+        mock_prepare_processing_queue.assert_called_once()
+        self.assertEqual(mock_prepare_processing_queue.call_args.args, (self.output_base,))
         mock_run_queue_record.assert_called_once()
 
     @patch("core.queue.runner.run_queue_record")
@@ -80,5 +83,6 @@ class QueueRunnerTests(unittest.TestCase):
     ):
         run_processing_queue(output_base=self.output_base)
 
-        mock_prepare_processing_queue.assert_called_once_with(self.output_base)
+        mock_prepare_processing_queue.assert_called_once()
+        self.assertEqual(mock_prepare_processing_queue.call_args.args, (self.output_base,))
         mock_run_queue_record.assert_not_called()

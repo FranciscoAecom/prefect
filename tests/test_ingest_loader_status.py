@@ -4,6 +4,7 @@ from unittest.mock import patch
 import pandas as pd
 
 from core.ingest.loader import load_processing_queue
+from core.ingest.run_request import IngestRunRequest
 from core.rules.catalog import RuleProfileResolution
 
 
@@ -86,6 +87,104 @@ class IngestLoaderStatusTests(unittest.TestCase):
         self.assertEqual(records[0].citation, "SICAR")
         self.assertEqual(records[0].date, "2026-03-01")
         self.assertEqual(records[0].output_dir, r"L:\silver\ur_car")
+
+    @patch("core.ingest.loader.resolve_input_dataset_paths_cached")
+    @patch("core.ingest.loader.resolve_dataset_version_plan")
+    @patch("core.ingest.loader.resolve_rule_profile_for_theme")
+    @patch("core.ingest.repository.pd.read_excel")
+    def test_run_request_force_processes_non_ready_status(
+        self,
+        mock_read_excel,
+        mock_resolve_rule_profile,
+        mock_resolve_version_plan,
+        mock_resolve_paths,
+    ):
+        mock_read_excel.return_value = pd.DataFrame(
+            [
+                {
+                    "ID": 1,
+                    "theme": "Localidades",
+                    "theme_folder": "localidades",
+                    "status": "Complete",
+                    "path_shapefile_temp": "base",
+                    "access_constraints": "restricted",
+                    "category_acronym": "loc",
+                    "citation": "IBGE",
+                    "date": "2025-11-19",
+                },
+            ]
+        )
+        mock_resolve_rule_profile.return_value = RuleProfileResolution(
+            theme_folder="localidades",
+            normalized_theme_folder="localidades",
+            project_name="localidades",
+            expected_profile_name="localidades/localidades",
+            profile_name="localidades/localidades",
+            profile_dir=None,
+            profile_project_name="localidades",
+        )
+        mock_resolve_paths.return_value = ("base.gpkg",)
+        mock_resolve_version_plan.return_value.silver_dir = r"L:\silver\localidades"
+
+        records, issues, summary = load_processing_queue(
+            run_request=IngestRunRequest.from_legacy(
+                theme_folders=["localidades"],
+                force=True,
+            )
+        )
+
+        self.assertEqual(issues, [])
+        self.assertEqual(len(records), 1)
+        self.assertTrue(summary["force"])
+
+    @patch("core.ingest.loader.resolve_input_dataset_paths_cached")
+    @patch("core.ingest.loader.resolve_dataset_version_plan")
+    @patch("core.ingest.loader.resolve_rule_profile_for_theme")
+    @patch("core.ingest.repository.pd.read_excel")
+    def test_run_request_source_override_makes_status_eligible(
+        self,
+        mock_read_excel,
+        mock_resolve_rule_profile,
+        mock_resolve_version_plan,
+        mock_resolve_paths,
+    ):
+        mock_read_excel.return_value = pd.DataFrame(
+            [
+                {
+                    "ID": 1,
+                    "theme": "Localidades",
+                    "theme_folder": "localidades",
+                    "status": "Complete",
+                    "path_shapefile_temp": "base_antiga",
+                    "access_constraints": "restricted",
+                    "category_acronym": "loc",
+                    "citation": "IBGE",
+                    "date": "2025-11-19",
+                },
+            ]
+        )
+        mock_resolve_rule_profile.return_value = RuleProfileResolution(
+            theme_folder="localidades",
+            normalized_theme_folder="localidades",
+            project_name="localidades",
+            expected_profile_name="localidades/localidades",
+            profile_name="localidades/localidades",
+            profile_dir=None,
+            profile_project_name="localidades",
+        )
+        mock_resolve_paths.return_value = ("base_nova.gpkg",)
+        mock_resolve_version_plan.return_value.silver_dir = r"L:\silver\localidades"
+
+        records, issues, _summary = load_processing_queue(
+            run_request=IngestRunRequest.from_legacy(
+                theme_folders=["localidades"],
+                source_path_overrides={"localidades": "base_nova"},
+            )
+        )
+
+        self.assertEqual(issues, [])
+        self.assertEqual(records[0].source_path, "base_nova")
+        mock_resolve_paths.assert_called_once_with("base_nova")
 
 
 if __name__ == "__main__":

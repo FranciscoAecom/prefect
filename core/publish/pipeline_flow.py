@@ -3,12 +3,12 @@ from contextlib import ExitStack
 from prefect import flow
 
 from core.execution_locks import named_execution_lock
+from core.ingest.run_request import IngestRunRequest
 from core.prefect_support.run_names import flow_run_name
 from core.prefect_flow import prepare_queue_task, run_queue_record_task
 from core.publish.config import config_for_environment, load_publish_credentials
 from core.publish.execution import publish_folder_items
 from core.publish.flow import discover_publish_items_task, publish_item_task
-from core.queue.filters import QueueFilter
 from core.queue.group_state import QueueGroupState
 from core.queue.queue_loader import prepare_processing_queue
 from core.queue.record_runner import run_queue_record
@@ -37,15 +37,22 @@ def data_pipeline_publish_flow(
     skip_geoserver=False,
     skip_data=False,
     skip_catalog=False,
+    force=False,
 ):
     settings = QueueRunSettings.from_output_base(output_base)
-    queue_filter = QueueFilter.from_theme_folders(theme_folders)
+    run_request = IngestRunRequest.from_legacy(
+        theme_folders=theme_folders,
+        source_path_overrides=source_path_overrides,
+        force=force,
+    )
+    queue_filter = run_request.queue_filter
 
     with _queue_filter_locks(queue_filter):
         queue_context = prepare_queue_task(
             settings.output_base,
             theme_folders,
             source_path_overrides,
+            force,
         )
         if queue_context is None:
             return
@@ -118,9 +125,15 @@ def run_pipeline_publish_direct(
     skip_geoserver=False,
     skip_data=False,
     skip_catalog=False,
+    force=False,
 ):
     settings = QueueRunSettings.from_output_base(output_base)
-    queue_filter = QueueFilter.from_theme_folders(theme_folders)
+    run_request = IngestRunRequest.from_legacy(
+        theme_folders=theme_folders,
+        source_path_overrides=source_path_overrides,
+        force=force,
+    )
+    queue_filter = run_request.queue_filter
     config = config_for_environment(
         environment,
         geoserver=geoserver,
@@ -142,8 +155,7 @@ def run_pipeline_publish_direct(
     with _queue_filter_locks(queue_filter):
         queue_context = prepare_processing_queue(
             settings.output_base,
-            queue_filter=queue_filter,
-            source_path_overrides=source_path_overrides,
+            run_request=run_request,
         )
         if queue_context is None:
             return
