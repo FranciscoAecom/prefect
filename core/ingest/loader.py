@@ -1,11 +1,10 @@
-import pandas as pd
-
 from core.ingest.dataset_resolver import (
     is_zip_path,
     resolve_input_dataset_paths_cached,
 )
 from core.ingest.models import IngestIssue, IngestRecord
 from core.ingest.normalization import normalize_status, normalize_theme_folder, stringify
+from core.ingest.repository import build_ingest_repository
 from core.queue.filters import QueueFilter
 from core.rules.engine import (
     RuleProfileResolutionError,
@@ -27,8 +26,13 @@ def load_processing_queue(
     theme_folders=None,
     queue_filter=None,
     source_path_overrides=None,
+    repository=None,
 ):
-    dataframe = pd.read_excel(workbook_path, sheet_name=sheet_name)
+    ingest_repository = build_ingest_repository(
+        workbook_path=workbook_path,
+        sheet_name=sheet_name,
+        repository=repository,
+    )
     ready_statuses_normalized = _normalize_ready_statuses(ready_status)
     queue_filter = queue_filter or QueueFilter.from_theme_folders(theme_folders)
     source_path_overrides = _normalize_source_path_overrides(source_path_overrides)
@@ -37,8 +41,11 @@ def load_processing_queue(
     issues = []
     ready_candidates = 0
 
-    for idx, row in dataframe.iterrows():
-        sheet_row = idx + 2
+    total_records = 0
+    for catalog_row in ingest_repository.iter_rows():
+        total_records += 1
+        row = catalog_row.data
+        sheet_row = catalog_row.sheet_row
         record_id = row.get("ID")
         theme = stringify(row.get("theme"))
         theme_folder = stringify(row.get("theme_folder"))
@@ -181,7 +188,7 @@ def load_processing_queue(
             )
 
     summary = {
-        "total_records": len(dataframe),
+        "total_records": total_records,
         "ready_candidates": ready_candidates,
         "eligible_records": len(eligible_records),
         "issues": len(issues),

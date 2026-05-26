@@ -11,7 +11,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
     @patch("core.ingest.loader.resolve_input_dataset_paths_cached")
     @patch("core.ingest.loader.resolve_dataset_version_plan")
     @patch("core.ingest.loader.resolve_rule_profile_for_theme")
-    @patch("core.ingest.loader.pd.read_excel")
+    @patch("core.ingest.repository.pd.read_excel")
     def test_processing_queue_accepts_waiting_update_and_reprocessing(
         self,
         mock_read_excel,

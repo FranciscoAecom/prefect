@@ -13,7 +13,7 @@ from core.rules.catalog import RuleProfileResolution
 class IngestDiagnosticsTests(unittest.TestCase):
     @patch("core.ingest.diagnostics.Path.exists", return_value=True)
     @patch("core.ingest.diagnostics.resolve_rule_profile_for_theme")
-    @patch("core.ingest.diagnostics.pd.read_excel")
+    @patch("core.ingest.repository.pd.read_excel")
     def test_diagnoses_non_eligible_status(
         self,
         mock_read_excel,
@@ -52,7 +52,7 @@ class IngestDiagnosticsTests(unittest.TestCase):
             lines,
         )
 
-    @patch("core.ingest.diagnostics.pd.read_excel")
+    @patch("core.ingest.repository.pd.read_excel")
     def test_diagnoses_missing_theme_folder(self, mock_read_excel):
         mock_read_excel.return_value = pd.DataFrame(
             [{"theme_folder": "estado", "status": "Waiting Update"}]

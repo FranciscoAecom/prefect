@@ -1,8 +1,7 @@
 from pathlib import Path
 
-import pandas as pd
-
 from core.ingest.normalization import normalize_status, normalize_theme_folder, stringify
+from core.ingest.repository import build_ingest_repository
 from core.rules.engine import resolve_rule_profile_for_theme
 from settings import (
     INGEST_PROCESSING_STATUSES,
@@ -16,13 +15,19 @@ def diagnose_ingest_theme(
     workbook_path=INGEST_WORKBOOK_PATH,
     sheet_name=INGEST_SHEET_NAME,
     ready_status=INGEST_PROCESSING_STATUSES,
+    repository=None,
 ):
     target_theme = normalize_theme_folder(theme_folder)
     ready_statuses = {normalize_status(status) for status in ready_status}
-    dataframe = pd.read_excel(workbook_path, sheet_name=sheet_name)
+    ingest_repository = build_ingest_repository(
+        workbook_path=workbook_path,
+        sheet_name=sheet_name,
+        repository=repository,
+    )
     matches = []
 
-    for idx, row in dataframe.iterrows():
+    for catalog_row in ingest_repository.iter_rows():
+        row = catalog_row.data
         row_theme_folder = stringify(row.get("theme_folder"))
         if normalize_theme_folder(row_theme_folder) != target_theme:
             continue
@@ -37,7 +42,7 @@ def diagnose_ingest_theme(
         source_exists = bool(source_path and Path(source_path).exists())
         matches.append(
             {
-                "sheet_row": idx + 2,
+                "sheet_row": catalog_row.sheet_row,
                 "record_id": row.get("ID"),
                 "theme": stringify(row.get("theme")),
                 "theme_folder": row_theme_folder,
