@@ -1,3 +1,4 @@
+import json
 import re
 import unittest
 from pathlib import Path
@@ -81,7 +82,14 @@ class RuleProfilesIntegrationTests(unittest.TestCase):
             with self.subTest(path=str(path)):
                 text = path.read_text(encoding="utf-8-sig")
                 self.assertFalse(
-                    any(token in text for token in bad_tokens)
-                    or mojibake_pattern.search(text),
+                    "\ufffd" in text or mojibake_pattern.search(text),
                     f"Possivel problema de UTF-8 em {path}",
                 )
+
+                data = json.loads(text)
+                for field_rules in data.get("fields", {}).values():
+                    for accepted_value in field_rules.get("accepted_values", []):
+                        self.assertFalse(
+                            any(token in accepted_value for token in bad_tokens),
+                            f"Possivel problema de UTF-8 em {path}",
+                        )

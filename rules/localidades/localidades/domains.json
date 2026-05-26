@@ -11166,7 +11166,6 @@
         "Iguatu",
         "Ijuí",
         "Ilhéus - Itabuna",
-        "Ilhéus ¿ Itabuna",
         "Imperatriz",
         "Ipatinga",
         "Irecê",
@@ -11249,7 +11248,9 @@
         "Vitória da Conquista",
         "Volta Redonda - Barra Mansa"
       ],
-      "aliases": {}
+      "aliases": {
+        "Ilhéus ¿ Itabuna": "Ilhéus - Itabuna"
+      }
     },
     "sdb_cd_rgi": {
       "accepted_values": [
@@ -11824,7 +11825,6 @@
         "Bauru",
         "Belo Horizonte",
         "Belo Jardim - Pesqueira",
-        "Belo Jardim ¿ Pesqueira",
         "Belém",
         "Bento Gonçalves",
         "Birigui - Penápolis",
@@ -11897,7 +11897,6 @@
         "Confresa - Vila Rica",
         "Conselheiro Lafaiete",
         "Cornélio Procópio - Bandeirantes",
-        "Cornélio Procópio ¿ Bandeirantes",
         "Corrente",
         "Corumbá",
         "Coxim",
@@ -11949,7 +11948,6 @@
         "Frutal",
         "Garanhuns",
         "Goiana - Timbaúba",
-        "Goiana ¿ Timbaúba",
         "Goiás - Itapuranga",
         "Goiânia",
         "Governador Nunes Freire",
@@ -11968,7 +11966,6 @@
         "Iguatu",
         "Ijuí",
         "Ilhéus - Itabuna",
-        "Ilhéus ¿ Itabuna",
         "Imperatriz",
         "Inhumas - Itaberaí - Anicuns",
         "Ipatinga",
@@ -12063,7 +12060,6 @@
         "Natal",
         "Naviraí - Mundo Novo",
         "Nazaré - Maragogipe",
-        "Nazaré ¿ Maragogipe",
         "Nonoai",
         "Nossa Senhora da Glória",
         "Nova Andradina",
@@ -12139,7 +12135,6 @@
         "Princesa Isabel",
         "Propriá",
         "Pão de Açúcar - Olho d'Água das Flores - Batalha",
-        "Pão de Açúcar - Olho d'Água das Flores ¿ Batalha",
         "Quirinópolis",
         "Quixadá",
         "Recife",
@@ -12204,7 +12199,6 @@
         "São Gabriel - Caçapava do Sul",
         "São Gabriel da Cachoeira",
         "São Joaquim da Barra - Orlândia",
-        "São Joaquim da Barra ¿ Orlândia",
         "São José do Rio Pardo - Mococa",
         "São José do Rio Preto",
         "São José dos Campos",
@@ -12280,12 +12274,20 @@
         "Xanxerê",
         "Xinguara",
         "Xique-Xique - Barra",
-        "Xique-Xique ¿ Barra",
         "Água Boa",
         "Águas Formosas",
         "Águas Lindas de Goiás"
       ],
-      "aliases": {}
+      "aliases": {
+        "Belo Jardim ¿ Pesqueira": "Belo Jardim - Pesqueira",
+        "Cornélio Procópio ¿ Bandeirantes": "Cornélio Procópio - Bandeirantes",
+        "Goiana ¿ Timbaúba": "Goiana - Timbaúba",
+        "Ilhéus ¿ Itabuna": "Ilhéus - Itabuna",
+        "Nazaré ¿ Maragogipe": "Nazaré - Maragogipe",
+        "Pão de Açúcar - Olho d'Água das Flores ¿ Batalha": "Pão de Açúcar - Olho d'Água das Flores - Batalha",
+        "São Joaquim da Barra ¿ Orlândia": "São Joaquim da Barra - Orlândia",
+        "Xique-Xique ¿ Barra": "Xique-Xique - Barra"
+      }
     },
     "sdb_ct_localidade": {
       "accepted_values": [
