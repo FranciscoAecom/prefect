@@ -3,12 +3,7 @@ from pathlib import Path
 import pandas as pd
 
 from core.ingest.normalization import normalize_status, normalize_theme_folder, stringify
-from core.rules.engine import (
-    RuleProfileResolutionError,
-    expected_rule_profile_name,
-    find_rule_profile_by_theme_folder,
-)
-from projects.configs import resolve_project_name
+from core.rules.engine import resolve_rule_profile_for_theme
 from settings import (
     INGEST_PROCESSING_STATUSES,
     INGEST_SHEET_NAME,
@@ -34,13 +29,10 @@ def diagnose_ingest_theme(
 
         status = stringify(row.get("status"))
         source_path = stringify(row.get("path_shapefile_temp"))
-        expected_profile = expected_rule_profile_name(row_theme_folder)
-        try:
-            found_profile = find_rule_profile_by_theme_folder(row_theme_folder)
-            profile_error = ""
-        except RuleProfileResolutionError as exc:
-            found_profile = None
-            profile_error = str(exc)
+        rule_resolution = resolve_rule_profile_for_theme(
+            row_theme_folder,
+            raise_on_error=False,
+        )
 
         source_exists = bool(source_path and Path(source_path).exists())
         matches.append(
@@ -53,10 +45,13 @@ def diagnose_ingest_theme(
                 "status_eligible": normalize_status(status) in ready_statuses,
                 "source_path": source_path,
                 "source_exists": source_exists,
-                "project_name": resolve_project_name(row_theme_folder),
-                "expected_rule_profile": expected_profile,
-                "found_rule_profile": found_profile,
-                "profile_error": profile_error,
+                "project_name": rule_resolution.project_name,
+                "expected_rule_profile": rule_resolution.expected_profile_name,
+                "found_rule_profile": rule_resolution.profile_name,
+                "profile_error": rule_resolution.error,
+                "missing_rule_components": rule_resolution.missing_components,
+                "profile_project_name": rule_resolution.profile_project_name,
+                "profile_project_consistent": rule_resolution.project_consistent,
             }
         )
 
@@ -104,6 +99,16 @@ def format_ingest_theme_match(match):
     ]
     if match["profile_error"]:
         lines.append(f"    erro perfil: {match['profile_error']}")
+    if match["missing_rule_components"]:
+        lines.append(
+            "    componentes ausentes: "
+            + ", ".join(match["missing_rule_components"])
+        )
+    if not match["profile_project_consistent"]:
+        lines.append(
+            "    motivo: profile.json declara project_name="
+            f"{match['profile_project_name']}."
+        )
     if not match["status_eligible"]:
         lines.append(
             "    motivo: status fora dos elegiveis para processamento."

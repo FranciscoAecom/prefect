@@ -9,11 +9,8 @@ from core.ingest.normalization import normalize_status, normalize_theme_folder, 
 from core.queue.filters import QueueFilter
 from core.rules.engine import (
     RuleProfileResolutionError,
-    expected_rule_profile_name,
-    find_rule_profile_by_theme_folder,
-    get_rule_profile_project_name,
+    resolve_rule_profile_for_theme,
 )
-from projects.configs import resolve_project_name
 from core.versioning import resolve_dataset_version_plan
 from settings import (
     INGEST_PROCESSING_STATUSES,
@@ -75,9 +72,8 @@ def load_processing_queue(
             )
             continue
 
-        expected_rule_profile = expected_rule_profile_name(theme_folder)
         try:
-            rule_profile = find_rule_profile_by_theme_folder(theme_folder)
+            rule_resolution = resolve_rule_profile_for_theme(theme_folder)
         except RuleProfileResolutionError as exc:
             issues.append(
                 IngestIssue(
@@ -91,7 +87,7 @@ def load_processing_queue(
             )
             continue
 
-        if not rule_profile:
+        if not rule_resolution.found:
             issues.append(
                 IngestIssue(
                     sheet_row=sheet_row,
@@ -101,15 +97,31 @@ def load_processing_queue(
                     source_path=source_path,
                     reason=(
                         "Nenhum arquivo de regra correspondente foi encontrado em rules/. "
-                        f"Perfil esperado: rules/{expected_rule_profile}.json."
+                        f"Perfil esperado: rules/{rule_resolution.expected_profile_name}."
                     ),
                 )
             )
             continue
 
-        resolved_project_name = resolve_project_name(theme_folder)
-        rule_project_name = get_rule_profile_project_name(rule_profile)
-        if rule_project_name and rule_project_name != resolved_project_name:
+        if rule_resolution.missing_components:
+            issues.append(
+                IngestIssue(
+                    sheet_row=sheet_row,
+                    record_id=record_id,
+                    theme_folder=theme_folder,
+                    status=status,
+                    source_path=source_path,
+                    reason=(
+                        "Perfil de regras incompleto: "
+                        f"{rule_resolution.profile_name} sem "
+                        + ", ".join(rule_resolution.missing_components)
+                        + "."
+                    ),
+                )
+            )
+            continue
+
+        if not rule_resolution.project_consistent:
             issues.append(
                 IngestIssue(
                     sheet_row=sheet_row,
@@ -119,8 +131,9 @@ def load_processing_queue(
                     source_path=source_path,
                     reason=(
                         "Perfil de regras inconsistente com o projeto resolvido: "
-                        f"theme_folder={theme_folder} -> projeto {resolved_project_name}, "
-                        f"mas o perfil {rule_profile} declara project_name={rule_project_name}."
+                        f"theme_folder={theme_folder} -> projeto {rule_resolution.project_name}, "
+                        f"mas o perfil {rule_resolution.profile_name} declara "
+                        f"project_name={rule_resolution.profile_project_name}."
                     ),
                 )
             )
@@ -158,7 +171,7 @@ def load_processing_queue(
                     status=status,
                     source_path=source_path,
                     input_path=input_path,
-                    rule_profile=rule_profile,
+                    rule_profile=rule_resolution.profile_name,
                     **versioning_metadata,
                     **xml_metadata,
                     output_dir=versioned_dirs["output_dir"],

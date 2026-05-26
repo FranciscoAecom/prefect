@@ -7,16 +7,17 @@ from core.ingest.diagnostics import (
     diagnose_ingest_theme,
     format_ingest_theme_diagnostic,
 )
+from core.rules.catalog import RuleProfileResolution
 
 
 class IngestDiagnosticsTests(unittest.TestCase):
     @patch("core.ingest.diagnostics.Path.exists", return_value=True)
-    @patch("core.ingest.diagnostics.find_rule_profile_by_theme_folder")
+    @patch("core.ingest.diagnostics.resolve_rule_profile_for_theme")
     @patch("core.ingest.diagnostics.pd.read_excel")
     def test_diagnoses_non_eligible_status(
         self,
         mock_read_excel,
-        mock_find_profile,
+        mock_resolve_rule_profile,
         _mock_path_exists,
     ):
         mock_read_excel.return_value = pd.DataFrame(
@@ -30,7 +31,15 @@ class IngestDiagnosticsTests(unittest.TestCase):
                 }
             ]
         )
-        mock_find_profile.return_value = "localidades/localidades"
+        mock_resolve_rule_profile.return_value = RuleProfileResolution(
+            theme_folder="localidades",
+            normalized_theme_folder="localidades",
+            project_name="localidades",
+            expected_profile_name="localidades/localidades",
+            profile_name="localidades/localidades",
+            profile_dir=None,
+            profile_project_name="localidades",
+        )
 
         diagnostic = diagnose_ingest_theme("localidades")
         lines = format_ingest_theme_diagnostic(diagnostic)

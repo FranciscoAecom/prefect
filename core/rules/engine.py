@@ -1,5 +1,9 @@
 from settings import RULES_BASE
 from core.rules import loader as _rule_loader
+from core.rules.catalog import (
+    list_rule_profile_catalog as _list_rule_profile_catalog,
+    resolve_rule_profile_for_theme as _resolve_rule_profile_for_theme,
+)
 from core.rules.domain import (
     build_field_mapping,
     classify_field_value,
@@ -47,6 +51,19 @@ def list_duplicate_rule_profile_stems():
 def find_rule_profile_by_theme_folder(theme_folder):
     _sync_loader_settings()
     return _rule_loader.find_rule_profile_by_theme_folder(theme_folder)
+
+
+def resolve_rule_profile_for_theme(theme_folder, raise_on_error=True):
+    _sync_loader_settings()
+    return _resolve_rule_profile_for_theme(
+        theme_folder,
+        raise_on_error=raise_on_error,
+    )
+
+
+def list_rule_profile_catalog():
+    _sync_loader_settings()
+    return _list_rule_profile_catalog()
 
 
 def load_rule_profile(profile_name, optional_functions=None):

@@ -4,19 +4,18 @@ from unittest.mock import patch
 import pandas as pd
 
 from core.ingest.loader import load_processing_queue
+from core.rules.catalog import RuleProfileResolution
 
 
 class IngestLoaderStatusTests(unittest.TestCase):
     @patch("core.ingest.loader.resolve_input_dataset_paths_cached")
     @patch("core.ingest.loader.resolve_dataset_version_plan")
-    @patch("core.ingest.loader.get_rule_profile_project_name")
-    @patch("core.ingest.loader.find_rule_profile_by_theme_folder")
+    @patch("core.ingest.loader.resolve_rule_profile_for_theme")
     @patch("core.ingest.loader.pd.read_excel")
     def test_processing_queue_accepts_waiting_update_and_reprocessing(
         self,
         mock_read_excel,
-        mock_find_rule_profile,
-        mock_get_rule_project,
+        mock_resolve_rule_profile,
         mock_resolve_version_plan,
         mock_resolve_paths,
     ):
@@ -53,8 +52,15 @@ class IngestLoaderStatusTests(unittest.TestCase):
                 },
             ]
         )
-        mock_find_rule_profile.side_effect = lambda theme_folder: f"ur_car/{theme_folder}"
-        mock_get_rule_project.return_value = "ur_car"
+        mock_resolve_rule_profile.side_effect = lambda theme_folder: RuleProfileResolution(
+            theme_folder=theme_folder,
+            normalized_theme_folder=theme_folder,
+            project_name="ur_car",
+            expected_profile_name=f"ur_car/{theme_folder}",
+            profile_name=f"ur_car/{theme_folder}",
+            profile_dir=None,
+            profile_project_name="ur_car",
+        )
         mock_resolve_paths.side_effect = lambda source_path: (f"{source_path}.gpkg",)
         mock_resolve_version_plan.return_value.silver_dir = r"L:\silver\ur_car"
 
