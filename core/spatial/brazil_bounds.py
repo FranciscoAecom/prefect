@@ -5,7 +5,7 @@ import geopandas as gpd
 from shapely.geometry import Point, box
 from shapely.ops import unary_union
 
-from settings import DEFAULT_BRAZIL_BBOX_PATH
+from core.config.defaults import DEFAULT_BRAZIL_BBOX_PATH
 
 BRAZIL_BOUNDS = (
     -73.99044999999995,

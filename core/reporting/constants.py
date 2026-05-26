@@ -1,0 +1,4 @@
+DUPLICATE_RECORD_FLAG_FIELD = "dup_registro"
+
+
+__all__ = ["DUPLICATE_RECORD_FLAG_FIELD"]

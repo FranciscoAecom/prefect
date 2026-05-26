@@ -4,6 +4,7 @@ from unittest.mock import patch
 import geopandas as gpd
 from shapely.geometry import Point
 
+from core.reporting.constants import DUPLICATE_RECORD_FLAG_FIELD
 from core.reporting.duplicate_reports import export_duplicate_reports
 from core.output.quality import (
     OutputQualitySummary,
@@ -93,7 +94,7 @@ class OutputQualityTests(unittest.TestCase):
 
         exported_geom_duplicates = mock_save_geospatial_report.call_args.args[1]
         self.assertEqual(
-            exported_geom_duplicates["dup_registro"].tolist(),
+            exported_geom_duplicates[DUPLICATE_RECORD_FLAG_FIELD].tolist(),
             [True, True, False],
         )
 

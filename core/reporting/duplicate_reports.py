@@ -3,6 +3,7 @@ from pathlib import Path
 import geopandas as gpd
 
 from core.io.dataset import write_output_gpkg
+from core.reporting.constants import DUPLICATE_RECORD_FLAG_FIELD
 from core.spatial.duplicates import get_geometric_duplicate_records
 from core.spatial.ogc_validation import get_invalid_ogc_records
 from core.validation.duplicates import get_attribute_duplicate_records
@@ -52,7 +53,9 @@ def _with_record_duplicate_flag(gdf, geom_duplicates):
 
     flagged = geom_duplicates.copy()
     duplicate_index = set(gdf.index[_record_duplicate_mask(gdf)])
-    flagged["dup_registro"] = flagged.index.map(lambda index: index in duplicate_index)
+    flagged[DUPLICATE_RECORD_FLAG_FIELD] = flagged.index.map(
+        lambda index: index in duplicate_index
+    )
     return flagged
 
 

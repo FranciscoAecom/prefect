@@ -9,8 +9,8 @@ from core.io.dataset import read_input_dataset
 from core.prefect_support.variables import get_str_variable
 from core.transforms.attribute_transforms import normalize_columns
 from core.utils import log
+from core.config.defaults import DEFAULT_MUNICIPALITIES_BASE_PATH
 from settings import (
-    DEFAULT_MUNICIPALITIES_BASE_PATH,
     INGEST_WORKBOOK_PATH,
     INGEST_SHEET_NAME,
 )

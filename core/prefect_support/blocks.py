@@ -5,15 +5,15 @@ from pydantic import Field
 from prefect.blocks.core import Block
 from prefect.blocks.system import Secret
 
-from core.publish.config import config_for_environment
-from settings import (
+from core.config.defaults import (
     DEFAULT_BRAZIL_BBOX_PATH,
     DEFAULT_CAR_PUBLIC_API_BASE,
     DEFAULT_DOWNLOAD_ARCHIVE_BASE,
     DEFAULT_DOWNLOAD_EXTRACT_BASE,
     DEFAULT_MUNICIPALITIES_BASE_PATH,
-    DATA_LAKE_BASE,
 )
+from core.publish.config import config_for_environment
+from settings import DATA_LAKE_BASE
 
 
 class DataPipelinePaths(Block):

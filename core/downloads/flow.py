@@ -16,7 +16,7 @@ from core.publish.flow import data_publish_flow
 from core.queue.filters import QueueFilter
 from core.utils import log
 from core.versioning import resolve_dataset_version_plan
-from settings import DEFAULT_DOWNLOAD_EXTRACT_BASE
+from core.config.defaults import DEFAULT_DOWNLOAD_EXTRACT_BASE
 
 
 @task(name="Baixar dataset", log_prints=True)

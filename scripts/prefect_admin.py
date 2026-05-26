@@ -1,7 +1,4 @@
 import argparse
-import os
-import subprocess
-import sys
 from datetime import datetime, timedelta
 
 from prefect.automations import Automation, EventTrigger, Posture, RunDeployment
@@ -20,7 +17,12 @@ from core.prefect_support.deployment_names import (
     UR_CAR_PROCESSING_OLD_QUALIFIED_DEPLOYMENT_NAMES,
     UR_CAR_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
 )
-from core.prefect_support.blocks import save_default_blocks
+from core.prefect_support.bootstrap import (
+    bootstrap_prefect as run_bootstrap_prefect,
+    set_default_blocks,
+    set_default_variables,
+    set_default_work_pools,
+)
 from core.prefect_support.schedules import (
     DEFAULT_UR_CAR_SEQUENCE_HOUR,
     DEFAULT_UR_CAR_SEQUENCE_MINUTE,
@@ -29,24 +31,12 @@ from core.prefect_support.schedules import (
     UR_CAR_THEME_FOLDERS,
     get_ur_car_sequence_config,
 )
-from core.prefect_support.variables import set_prefect_variable
-from settings import (
-    DEFAULT_CAR_PUBLIC_API_BASE,
-    DEFAULT_DOWNLOAD_ARCHIVE_BASE,
-    DEFAULT_DOWNLOAD_EXTRACT_BASE,
-    DEFAULT_MUNICIPALITIES_BASE_PATH,
-)
-
-
 DOWNLOAD_AUTOMATION_NAME = "Dataset baixado -> tratamento de dados"
 DOWNLOAD_AUTOMATION_OLD_NAMES = ("CAR baixado -> tratamento de dados",)
 PROCESSING_DEPLOYMENT_CANDIDATES = (
     UR_CAR_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
     *UR_CAR_PROCESSING_OLD_QUALIFIED_DEPLOYMENT_NAMES,
 )
-DEFAULT_WORK_POOLS = ("local-processing", "local-publish")
-
-
 def main():
     parser = argparse.ArgumentParser(description="Administracao local do Prefect.")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -198,59 +188,8 @@ def reschedule_ur_car_daily_17h():
         )
 
 
-def set_default_variables():
-    variables = {
-        "car_public_api_base": DEFAULT_CAR_PUBLIC_API_BASE,
-        "download_archive_base": str(DEFAULT_DOWNLOAD_ARCHIVE_BASE),
-        "download_extract_base": str(DEFAULT_DOWNLOAD_EXTRACT_BASE),
-        "municipios_base_path": str(DEFAULT_MUNICIPALITIES_BASE_PATH),
-        "ur_car_sequence_start_date": DEFAULT_UR_CAR_SEQUENCE_START_DATE.isoformat(),
-        "ur_car_sequence_hour": DEFAULT_UR_CAR_SEQUENCE_HOUR,
-        "ur_car_sequence_minute": DEFAULT_UR_CAR_SEQUENCE_MINUTE,
-        "ur_car_sequence_timezone": DEFAULT_UR_CAR_SEQUENCE_TIMEZONE,
-    }
-    for name, value in variables.items():
-        set_prefect_variable(name, value, tags=["data-pipeline", "config"])
-        print(f"Variable definida: {name}={value}")
-
-
-def set_default_blocks():
-    summary = save_default_blocks(overwrite=True)
-    for name in summary["saved"]:
-        print(f"Block definido: {name}")
-    for name in summary["skipped"]:
-        print(
-            f"Block ignorado sem credenciais no ambiente: {name}"
-        )
-
-
-def set_default_work_pools():
-    env = dict(os.environ)
-    env.setdefault("PYTHONIOENCODING", "utf-8")
-    for work_pool in DEFAULT_WORK_POOLS:
-        subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "prefect",
-                "work-pool",
-                "create",
-                work_pool,
-                "--type",
-                "process",
-                "--overwrite",
-            ],
-            check=True,
-            env=env,
-        )
-        print(f"Work Pool definido: {work_pool}")
-
-
 def bootstrap_prefect():
-    set_default_variables()
-    set_default_blocks()
-    set_default_work_pools()
-    create_download_automation()
+    run_bootstrap_prefect(create_download_automation)
 
 
 def rename_scheduled_runs():

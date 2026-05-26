@@ -7,7 +7,7 @@ from core.downloads.catalog import normalize_region, resolve_theme_folder
 from core.downloads.http import download_url, read_text_url
 from core.prefect_support.variables import get_path_variable, get_str_variable
 from core.utils import log
-from settings import DEFAULT_CAR_PUBLIC_API_BASE, DEFAULT_DOWNLOAD_ARCHIVE_BASE
+from core.config.defaults import DEFAULT_CAR_PUBLIC_API_BASE, DEFAULT_DOWNLOAD_ARCHIVE_BASE
 
 
 def download_car_public_api_target(
