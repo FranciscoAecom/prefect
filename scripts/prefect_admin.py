@@ -1,4 +1,7 @@
 import argparse
+import os
+import subprocess
+import sys
 from datetime import datetime, timedelta
 
 from prefect.automations import Automation, EventTrigger, Posture, RunDeployment
@@ -41,6 +44,7 @@ PROCESSING_DEPLOYMENT_CANDIDATES = (
     UR_CAR_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
     *UR_CAR_PROCESSING_OLD_QUALIFIED_DEPLOYMENT_NAMES,
 )
+DEFAULT_WORK_POOLS = ("local-processing", "local-publish")
 
 
 def main():
@@ -72,8 +76,12 @@ def main():
         help="Grava os Blocks padrao usados pelos flows.",
     )
     subparsers.add_parser(
+        "set-default-work-pools",
+        help="Cria ou atualiza os Work Pools padrao.",
+    )
+    subparsers.add_parser(
         "bootstrap-prefect",
-        help="Recria Variables, Blocks e Automations padrao.",
+        help="Recria Variables, Blocks, Work Pools e Automations padrao.",
     )
 
     args = parser.parse_args()
@@ -87,6 +95,8 @@ def main():
         set_default_variables()
     elif args.command == "set-default-blocks":
         set_default_blocks()
+    elif args.command == "set-default-work-pools":
+        set_default_work_pools()
     elif args.command == "bootstrap-prefect":
         bootstrap_prefect()
 
@@ -214,9 +224,32 @@ def set_default_blocks():
         )
 
 
+def set_default_work_pools():
+    env = dict(os.environ)
+    env.setdefault("PYTHONIOENCODING", "utf-8")
+    for work_pool in DEFAULT_WORK_POOLS:
+        subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "prefect",
+                "work-pool",
+                "create",
+                work_pool,
+                "--type",
+                "process",
+                "--overwrite",
+            ],
+            check=True,
+            env=env,
+        )
+        print(f"Work Pool definido: {work_pool}")
+
+
 def bootstrap_prefect():
     set_default_variables()
     set_default_blocks()
+    set_default_work_pools()
     create_download_automation()
 
 
