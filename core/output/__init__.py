@@ -10,6 +10,7 @@ from core.output.naming import (
 )
 from core.output.paths import build_group_log_path, build_processing_group_key
 from core.output.quality import (
+    OutputQualityConfig,
     OutputQualitySummary,
     build_output_quality_summary,
     log_output_quality_summary,
@@ -25,6 +26,7 @@ def __getattr__(name):
 
 __all__ = [
     "OutputQualitySummary",
+    "OutputQualityConfig",
     "append_group_consolidated_output",
     "assign_output_identifiers",
     "build_group_log_path",

@@ -7,7 +7,7 @@ from unittest.mock import patch
 import geopandas as gpd
 from shapely.geometry import Point
 
-from core.silver.persistence import save_outputs
+from core.silver.persistence import save_outputs, save_outputs_manifest
 
 
 class OutputPersistenceTests(unittest.TestCase):
@@ -80,6 +80,106 @@ class OutputPersistenceTests(unittest.TestCase):
 
         self.assertEqual(mock_main_write.call_count, 1)
         mock_secondary_write.assert_not_called()
+
+    @patch("core.silver.persistence.persist_silver_artifacts")
+    @patch("core.output.secondary_outputs.write_output_gpkg")
+    @patch("core.silver.persistence.write_output_gpkg")
+    def test_save_outputs_manifest_collects_outputs_and_artifacts(
+        self,
+        _mock_main_write,
+        _mock_secondary_write,
+        mock_artifacts,
+    ):
+        mock_artifacts.return_value = (
+            [Path("saida") / "md_entrada_validado.xml"],
+            [Path("saida") / "entrada_validado.sld"],
+        )
+        record = SimpleNamespace(
+            theme_folder="autos_infracao",
+            input_path="entrada.gpkg",
+            source_path="origem",
+            rule_profile="autos_infracao/autos_infracao",
+        )
+        gdf = gpd.GeoDataFrame(
+            {
+                "sdb_codigo": ["A"],
+                "geometry": [Point(-70.0, -9.0)],
+            },
+            geometry="geometry",
+            crs="EPSG:4326",
+        )
+        rule_profile = {
+            "secondary_outputs": ["brazil_bbox"],
+            "quality_outputs": {
+                "attribute_duplicates": False,
+                "geometric_duplicates": False,
+                "ogc_invalid_geometries": False,
+            },
+        }
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manifest = save_outputs_manifest(
+                gdf,
+                record,
+                temp_dir,
+                rule_profile=rule_profile,
+            )
+
+        self.assertEqual(manifest.primary_output.path.name, "entrada_validado.gpkg")
+        self.assertEqual(
+            [output.path.name for output in manifest.secondary_outputs],
+            ["entrada_validado_bbox_brasil.gpkg"],
+        )
+        self.assertEqual(
+            [path.name for path in manifest.xml_files],
+            ["md_entrada_validado.xml"],
+        )
+        self.assertEqual(
+            [path.name for path in manifest.sld_files],
+            ["entrada_validado.sld"],
+        )
+        self.assertEqual(
+            manifest.quality_reports,
+            {
+                "attribute_duplicates": None,
+                "geometric_duplicates": None,
+                "ogc_invalid_geometries": None,
+            },
+        )
+        self.assertEqual(manifest.manifest_path.name, "entrada_validado_manifest.json")
+
+    @patch("core.silver.persistence.persist_silver_artifacts")
+    @patch("core.silver.persistence.write_output_gpkg")
+    def test_save_outputs_manifest_does_not_persist_manifest_when_dataset_skipped(
+        self,
+        _mock_main_write,
+        mock_artifacts,
+    ):
+        mock_artifacts.return_value = ([], [])
+        record = SimpleNamespace(
+            theme_folder="autos_infracao",
+            input_path="entrada.gpkg",
+            source_path="origem",
+            rule_profile="autos_infracao/autos_infracao",
+        )
+        gdf = gpd.GeoDataFrame(
+            {"geometry": [Point(-70.0, -9.0)]},
+            geometry="geometry",
+            crs="EPSG:4326",
+        )
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manifest = save_outputs_manifest(
+                gdf,
+                record,
+                temp_dir,
+                persist_dataset=False,
+                rule_profile={},
+            )
+
+        self.assertIsNone(manifest.primary_output)
+        self.assertIsNone(manifest.manifest_path)
+        self.assertFalse((Path(temp_dir) / "entrada_validado_manifest.json").exists())
 
 
 if __name__ == "__main__":

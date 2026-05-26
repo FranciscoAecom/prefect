@@ -71,6 +71,7 @@ def export_duplicate_reports(
     ogc_invalid=None,
     ogc_invalid_count=None,
     ogc_error_summary=None,
+    include_full_record_duplicate_flag=True,
 ):
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
@@ -92,9 +93,12 @@ def export_duplicate_reports(
 
     if geom_count > 0:
         geom_report = output_path / f"{base_name}_duplicados_geometrias.gpkg"
+        geom_export = geom_duplicates
+        if include_full_record_duplicate_flag:
+            geom_export = _with_record_duplicate_flag(gdf, geom_duplicates)
         geom_file = _save_geospatial_report(
             geom_report,
-            _with_record_duplicate_flag(gdf, geom_duplicates),
+            geom_export,
             GEOM_DUPLICATES_LAYER,
             gdf.crs,
         )

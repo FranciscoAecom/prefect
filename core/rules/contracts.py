@@ -15,6 +15,7 @@ PROFILE_DATA_KEYS = {
     "auto_functions",
     "postprocess_functions",
     "primary_output",
+    "quality_outputs",
     "secondary_outputs",
     "sld",
 }
@@ -23,6 +24,7 @@ PIPELINE_COMPONENT_KEYS = {
     "auto_functions",
     "postprocess_functions",
     "primary_output",
+    "quality_outputs",
     "secondary_outputs",
 }
 

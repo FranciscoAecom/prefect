@@ -5,11 +5,36 @@ from core.output.quality import build_output_quality_summary, log_output_quality
 from core.output.secondary_outputs import persist_secondary_outputs
 from core.processing.stages import FLOW_STAGE_SAVE_SILVER
 from core.silver.artifacts import persist_silver_artifacts
+from core.silver.manifest import (
+    SilverDatasetOutput,
+    SilverOutputManifest,
+    persist_silver_manifest,
+    quality_reports_from_summary,
+)
 from core.silver.primary_output import prepare_primary_output_gdf
 from core.utils import log
 
 
 def save_outputs(
+    final_gdf,
+    record,
+    output_dir,
+    use_configured_final_name=False,
+    persist_dataset=True,
+    rule_profile=None,
+):
+    manifest = save_outputs_manifest(
+        final_gdf,
+        record,
+        output_dir,
+        use_configured_final_name=use_configured_final_name,
+        persist_dataset=persist_dataset,
+        rule_profile=rule_profile,
+    )
+    return manifest.primary_output_path
+
+
+def save_outputs_manifest(
     final_gdf,
     record,
     output_dir,
@@ -33,12 +58,21 @@ def save_outputs(
         persist_dataset,
         rule_profile or {},
     )
+    manifest = build_initial_silver_manifest(
+        persisted_output_path,
+        secondary_outputs,
+    )
     if persisted_output_path:
         persisted_outputs = [
-            {"path": persisted_output_path, "gdf": primary_export_gdf},
+            {
+                "path": persisted_output_path,
+                "gdf": primary_export_gdf,
+                "role": "primary",
+                "label": "principal",
+            },
             *(secondary_outputs or []),
         ]
-        persist_silver_artifacts(
+        xml_paths, sld_paths = persist_silver_artifacts(
             record,
             export_gdf,
             persisted_outputs,
@@ -46,10 +80,46 @@ def save_outputs(
             persist_dataset=persist_dataset,
             rule_profile=rule_profile or {},
         )
-    quality_summary = build_output_quality_summary(final_gdf, theme_output_dir, base_name)
+        manifest = manifest.with_artifacts(xml_paths, sld_paths)
+    quality_summary = build_output_quality_summary(
+        final_gdf,
+        theme_output_dir,
+        base_name,
+        rule_profile=rule_profile or {},
+    )
     log_output_quality_summary(quality_summary)
+    manifest = manifest.with_quality_reports(
+        quality_reports_from_summary(quality_summary)
+    )
+    manifest = persist_silver_manifest(
+        manifest,
+        theme_output_dir,
+        base_name,
+        persist_dataset=persist_dataset,
+    )
 
-    return persisted_output_path
+    return manifest
+
+
+def build_initial_silver_manifest(primary_output_path, secondary_outputs):
+    primary_output = None
+    if primary_output_path:
+        primary_output = SilverDatasetOutput(
+            path=primary_output_path,
+            role="primary",
+            label="principal",
+        )
+    return SilverOutputManifest(
+        primary_output=primary_output,
+        secondary_outputs=[
+            SilverDatasetOutput(
+                path=output["path"],
+                role=output.get("role", "secondary"),
+                label=output.get("label", ""),
+            )
+            for output in (secondary_outputs or [])
+        ],
+    )
 
 
 def persist_output_dataset(export_gdf, output_path, persist_dataset):
@@ -87,8 +157,10 @@ def persist_configured_secondary_outputs(
 
 
 __all__ = [
+    "build_initial_silver_manifest",
     "prepare_primary_output_gdf",
     "persist_configured_secondary_outputs",
     "persist_output_dataset",
     "save_outputs",
+    "save_outputs_manifest",
 ]

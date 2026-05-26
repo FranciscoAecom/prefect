@@ -1,3 +1,9 @@
-from core.silver.persistence import save_outputs
+from core.silver.manifest import SilverDatasetOutput, SilverOutputManifest
+from core.silver.persistence import save_outputs, save_outputs_manifest
 
-__all__ = ["save_outputs"]
+__all__ = [
+    "SilverDatasetOutput",
+    "SilverOutputManifest",
+    "save_outputs",
+    "save_outputs_manifest",
+]

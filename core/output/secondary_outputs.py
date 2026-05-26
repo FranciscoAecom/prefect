@@ -34,6 +34,13 @@ def persist_secondary_outputs(export_gdf, profile, theme_output_dir, base_name, 
             overwrite_existing=True,
         )
         log(f"Arquivo {step.label} salvo com sucesso")
-        outputs.append({"path": output_path, "gdf": output_gdf})
+        outputs.append(
+            {
+                "path": output_path,
+                "gdf": output_gdf,
+                "role": "secondary",
+                "label": step.label,
+            }
+        )
 
     return outputs

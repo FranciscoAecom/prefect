@@ -158,6 +158,26 @@ class ValidateRuleProfileTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "pipeline.json"):
                     load_rule_profile("demo/perfil")
 
+    def test_rejects_invalid_quality_outputs_component(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            profile_dir = Path(temp_dir) / "rules" / "demo" / "perfil"
+            self._write_modular_profile(
+                profile_dir,
+                pipeline={
+                    "auto_functions": {
+                        "sdb_codigo": ["validate_shapefile_attribute"],
+                    },
+                    "quality_outputs": {
+                        "geometric_duplicates": "sim",
+                    },
+                },
+            )
+
+            with patch("core.rules.engine.RULES_BASE", str(Path(temp_dir) / "rules")):
+                invalidate_rule_profile_cache()
+                with self.assertRaisesRegex(ValueError, "quality_outputs"):
+                    load_rule_profile("demo/perfil")
+
     def test_save_rule_profile_updates_modular_components(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             rules_base = Path(temp_dir) / "rules"
@@ -177,6 +197,10 @@ class ValidateRuleProfileTests(unittest.TestCase):
                     "enrich_with_municipality_intersection"
                 ]
                 profile["secondary_outputs"] = ["brazil_bbox"]
+                profile["quality_outputs"] = {
+                    "attribute_duplicates": False,
+                    "geometric_duplicates": True,
+                }
                 profile["sld"] = {
                     "rule_name": "Single symbol",
                     "point": {
@@ -202,6 +226,13 @@ class ValidateRuleProfileTests(unittest.TestCase):
                     ["enrich_with_municipality_intersection"],
                 )
                 self.assertEqual(pipeline["secondary_outputs"], ["brazil_bbox"])
+                self.assertEqual(
+                    pipeline["quality_outputs"],
+                    {
+                        "attribute_duplicates": False,
+                        "geometric_duplicates": True,
+                    },
+                )
                 self.assertNotIn("sld", pipeline)
                 self.assertEqual(style["sld"]["point"]["fill"], "#1654ad")
 

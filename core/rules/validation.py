@@ -1,5 +1,14 @@
 from settings import DEFAULT_RULE_PROFILE
 from core.rules.contracts import PIPELINE_COMPONENT_KEYS, PRIMARY_OUTPUT_OPTIONS
+
+
+QUALITY_OUTPUT_OPTIONS = {
+    "attribute_duplicates",
+    "geometric_duplicates",
+    "ogc_invalid_geometries",
+    "export_report_files",
+    "full_record_duplicate_flag",
+}
 from core.rules.normalization import normalize_profile_name
 
 
@@ -99,6 +108,7 @@ def validate_pipeline_component(pipeline, fields):
         errors,
     )
     _validate_primary_output_entry(pipeline.get("primary_output", {}), errors)
+    _validate_quality_outputs_entry(pipeline.get("quality_outputs", {}), errors)
     _validate_component_errors("pipeline.json", errors)
 
 
@@ -157,6 +167,7 @@ def validate_rule_profile_structure(profile, profile_name):
         errors,
     )
     _validate_primary_output_entry(profile.get("primary_output", {}), errors)
+    _validate_quality_outputs_entry(profile.get("quality_outputs", {}), errors)
     _validate_sld_entry(profile.get("sld", {}), errors)
     _raise_profile_errors(normalized_profile_name, errors)
 
@@ -185,6 +196,7 @@ def validate_rule_profile_semantics(profile, profile_name, optional_functions=No
         errors,
     )
     _validate_primary_output_entry(profile.get("primary_output", {}), errors)
+    _validate_quality_outputs_entry(profile.get("quality_outputs", {}), errors)
     _raise_profile_errors(normalized_profile_name, errors)
 
 
@@ -379,6 +391,21 @@ def _validate_primary_output_entry(primary_output, errors):
             continue
         if not isinstance(value, bool):
             errors.append(f"Campo 'primary_output.{key}' deve ser booleano.")
+
+
+def _validate_quality_outputs_entry(quality_outputs, errors):
+    if quality_outputs in (None, {}):
+        return
+    if not isinstance(quality_outputs, dict):
+        errors.append("Campo 'quality_outputs' deve ser um objeto JSON.")
+        return
+
+    for key, value in quality_outputs.items():
+        if key not in QUALITY_OUTPUT_OPTIONS:
+            errors.append(f"Opcao desconhecida em 'quality_outputs': {key}.")
+            continue
+        if not isinstance(value, bool):
+            errors.append(f"Campo 'quality_outputs.{key}' deve ser booleano.")
 
 
 def _validate_registered_function_list(values, field_name, registered_names, errors):
