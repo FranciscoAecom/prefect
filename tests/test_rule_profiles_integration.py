@@ -74,7 +74,7 @@ class RuleProfilesIntegrationTests(unittest.TestCase):
         self.assertEqual(list_duplicate_rule_profile_stems(), {})
 
     def test_rule_profiles_do_not_contain_utf8_mojibake(self):
-        bad_tokens = ("\ufffd",)
+        bad_tokens = ("\u00bf", "\ufffd")
         mojibake_pattern = re.compile(r"[ÃÂ][\u0080-\u00bf]")
 
         for path in Path(RULES_BASE).rglob("*.json"):
