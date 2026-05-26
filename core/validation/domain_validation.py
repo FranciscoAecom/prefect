@@ -1,6 +1,10 @@
 from core.date import validate_date_fields
 from core.rules.engine import has_field_rules
-from core.validation.schema import target_column_name
+from core.validation.normalized_fields import (
+    apply_normalized_column_if_changed,
+    series_has_normalized_changes,
+    target_column_name,
+)
 from core.utils import log
 from core.validation.relation_validation import (
     apply_relation_consistency_if_needed,
@@ -11,18 +15,23 @@ from core.validation.session import validation_session_or_default
 from core.validation.summary import register_domain_validation_summary
 
 def series_has_changes(source_series, candidate_series):
-    same_mask = source_series.eq(candidate_series)
-    same_mask = same_mask | (source_series.isna() & candidate_series.isna())
-    same_mask = same_mask.fillna(False)
-    return not bool(same_mask.all())
+    return series_has_normalized_changes(source_series, candidate_series)
 
 
 def apply_target_column_if_needed(gdf, target_column, source_series, candidate_series):
-    if series_has_changes(source_series, candidate_series):
-        gdf[target_column] = candidate_series
-    elif target_column in gdf.columns:
-        gdf = gdf.drop(columns=[target_column])
-    return gdf
+    source_column = source_series.name
+    if source_column is None:
+        if series_has_changes(source_series, candidate_series):
+            gdf[target_column] = candidate_series
+        elif target_column in gdf.columns:
+            gdf = gdf.drop(columns=[target_column])
+        return gdf
+    return apply_normalized_column_if_changed(
+        gdf,
+        source_column,
+        candidate_series,
+        target_column=target_column,
+    )
 
 
 def validate_shapefile_attribute(gdf, column, rule_profile=None, **_context):

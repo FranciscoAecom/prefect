@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Callable, Literal
 
+from core.validation.normalized_fields import normalized_column_name
+
 
 OperationKind = Literal["validation", "transform", "normalization", "spatial"]
 
@@ -43,6 +45,4 @@ def infer_operation_kind(func_name):
 def _target_column(source_column, func_name):
     if not source_column or infer_operation_kind(func_name) == "validation":
         return None
-    if str(source_column).startswith("sdb_"):
-        return f"acm_{source_column[4:]}"
-    return f"acm_{source_column}"
+    return normalized_column_name(source_column)
