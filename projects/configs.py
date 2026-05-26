@@ -21,7 +21,7 @@ PROJECT_CONFIGS = {
         "project_name": "estado",
         "display_name": "Limites das unidades da federacao do Brasil",
         "theme_prefixes": ("estado",),
-        "output_name_template": "pol_loc_{theme_folder}_{date_yyyymmdd}",
+        "output_name_template": "pol_loc_sta_{date_yyyymmdd}",
         "reference_date": "20241215",
     },
     "localidades": {
@@ -56,7 +56,7 @@ PROJECT_CONFIGS = {
         "project_name": "autorizacao_para_supressao_vegetal",
         "display_name": "Autorizacao para Supressao Vegetal",
         "theme_prefixes": ("auth_supn",),
-        "output_name_template": "pol_env_{theme_folder}_{date_yyyymmdd}",
+        "output_name_template": "pol_env_auth_supn_{date_yyyymmdd}",
         "reference_date": "20250701",
     },
     "autos_infracao": {
