@@ -1,7 +1,9 @@
 from core.publish.discovery import (
     PublishItem,
     data_publish_info,
+    discover_publish_items_from_manifest,
     discover_publish_items,
+    find_publish_manifest,
     metadata_stem_for_data_stem,
 )
 from core.publish.metadata_xml import (
@@ -38,7 +40,9 @@ __all__ = [
     "data_dictionary_field_type",
     "data_dictionary_url",
     "data_publish_info",
+    "discover_publish_items_from_manifest",
     "discover_publish_items",
+    "find_publish_manifest",
     "geoserver_layer_title",
     "imb_lulc_layer_title",
     "metadata_stem_for_data_stem",

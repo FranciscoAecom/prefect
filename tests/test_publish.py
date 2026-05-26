@@ -1,5 +1,6 @@
 import tempfile
 import unittest
+import json
 from pathlib import Path
 
 from core.publish.metadata import (
@@ -47,6 +48,57 @@ class PublishTests(unittest.TestCase):
 
             self.assertEqual([item.layer for item in items], ["pnt_pcd_enov_20260514"])
             self.assertEqual(items[0].xml_path.name, "md_pcd_enov_20260514.xml")
+
+    def test_discover_publish_items_uses_manifest_for_multiple_outputs(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            folder = Path(temp_dir)
+            self._write_triplet(folder, "pnt_pcd_enov_20260514")
+            self._write_triplet(folder, "pnt_pcd_enov_bbox_brasil_20260514")
+            self._write_manifest(
+                folder,
+                primary="pnt_pcd_enov_20260514",
+                secondary=["pnt_pcd_enov_bbox_brasil_20260514"],
+                quality_reports={
+                    "attribute_duplicates": str(folder / "duplicados.xlsx")
+                },
+            )
+
+            items = discover_publish_items(folder)
+
+            self.assertEqual(
+                [item.layer for item in items],
+                [
+                    "pnt_pcd_enov_20260514",
+                    "pnt_pcd_enov_bbox_brasil_20260514",
+                ],
+            )
+            self.assertEqual(
+                [item.xml_path.name for item in items],
+                [
+                    "md_pcd_enov_20260514.xml",
+                    "md_pcd_enov_bbox_brasil_20260514.xml",
+                ],
+            )
+
+    def test_discover_publish_items_uses_single_manifest_output_overrides(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            folder = Path(temp_dir)
+            self._write_triplet(folder, "pnt_pcd_enov_20260514")
+            self._write_manifest(folder, primary="pnt_pcd_enov_20260514")
+
+            items = discover_publish_items(
+                folder,
+                store="store_custom",
+                layer="layer_custom",
+                style="style_custom",
+                layer_title="Titulo Custom",
+            )
+
+            self.assertEqual(len(items), 1)
+            self.assertEqual(items[0].store, "store_custom")
+            self.assertEqual(items[0].layer, "layer_custom")
+            self.assertEqual(items[0].style, "style_custom")
+            self.assertEqual(items[0].layer_title, "Titulo Custom")
 
     def test_metadata_title_reads_iso_title(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -216,6 +268,37 @@ class PublishTests(unittest.TestCase):
         )
         (folder / f"{metadata_stem_for_data_stem(data_stem)}.xml").write_text(
             self._metadata_xml(data_stem),
+            encoding="utf-8",
+        )
+
+    def _write_manifest(self, folder, primary, secondary=None, quality_reports=None):
+        outputs = [primary, *(secondary or [])]
+        manifest = {
+            "primary_output": {
+                "path": str(folder / f"{primary}.gpkg"),
+                "role": "primary",
+                "label": "principal",
+            },
+            "secondary_outputs": [
+                {
+                    "path": str(folder / f"{data_stem}.gpkg"),
+                    "role": "secondary",
+                    "label": "secundaria",
+                }
+                for data_stem in (secondary or [])
+            ],
+            "xml_files": [
+                str(folder / f"{metadata_stem_for_data_stem(data_stem)}.xml")
+                for data_stem in outputs
+            ],
+            "sld_files": [
+                str(folder / f"{data_stem}.sld")
+                for data_stem in outputs
+            ],
+            "quality_reports": quality_reports or {},
+        }
+        (folder / f"{primary}_manifest.json").write_text(
+            json.dumps(manifest, ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
 

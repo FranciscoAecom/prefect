@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import json
 from pathlib import Path
 
 from core.publish.metadata_xml import metadata_title
@@ -27,6 +28,16 @@ def discover_publish_items(folder, store=None, layer=None, style=None, layer_tit
     if not folder.exists():
         raise FileNotFoundError(f"Pasta de publicacao nao encontrada: {folder}")
 
+    manifest_path = find_publish_manifest(folder)
+    if manifest_path:
+        return discover_publish_items_from_manifest(
+            manifest_path,
+            store=store,
+            layer=layer,
+            style=style,
+            layer_title=layer_title,
+        )
+
     data_paths = sorted(
         path for path in folder.iterdir() if path.suffix.lower() in DATA_SUFFIXES
     )
@@ -40,11 +51,74 @@ def discover_publish_items(folder, store=None, layer=None, style=None, layer_tit
             f"correspondente na pasta. Dados encontrados: {names}"
         )
 
-    data_path = data_paths[0]
+    return [
+        build_publish_item(
+            data_paths[0],
+            store=store,
+            layer=layer,
+            style=style,
+            layer_title=layer_title,
+        )
+    ]
+
+
+def discover_publish_items_from_manifest(
+    manifest_path,
+    store=None,
+    layer=None,
+    style=None,
+    layer_title=None,
+):
+    manifest_path = Path(manifest_path)
+    manifest = load_publish_manifest(manifest_path)
+    output_entries = list(iter_manifest_dataset_outputs(manifest))
+    if not output_entries:
+        raise FileNotFoundError(
+            f"Manifest sem saidas publicaveis: {manifest_path}"
+        )
+
+    single_output = len(output_entries) == 1
+    items = []
+    for output_entry in output_entries:
+        data_path = resolve_manifest_path(
+            output_entry.get("path"),
+            manifest_path.parent,
+        )
+        items.append(
+            build_publish_item(
+                data_path,
+                sld_path=find_manifest_sld_path(manifest, data_path, manifest_path.parent),
+                xml_path=find_manifest_xml_path(manifest, data_path, manifest_path.parent),
+                store=store if single_output else None,
+                layer=layer if single_output else None,
+                style=style if single_output else None,
+                layer_title=layer_title if single_output else None,
+            )
+        )
+    return items
+
+
+def build_publish_item(
+    data_path,
+    *,
+    sld_path=None,
+    xml_path=None,
+    store=None,
+    layer=None,
+    style=None,
+    layer_title=None,
+):
+    data_path = Path(data_path)
     item_layer = layer or data_path.stem
     item_store = store or item_layer
-    sld_path = data_path.with_suffix(".sld")
-    xml_path = folder / f"{metadata_stem_for_data_stem(data_path.stem)}.xml"
+    sld_path = Path(sld_path) if sld_path else data_path.with_suffix(".sld")
+    xml_path = (
+        Path(xml_path)
+        if xml_path
+        else data_path.parent / f"{metadata_stem_for_data_stem(data_path.stem)}.xml"
+    )
+    if not data_path.exists():
+        raise FileNotFoundError(f"Arquivo de dados nao encontrado: {data_path}")
     if not sld_path.exists():
         raise FileNotFoundError(f"SLD nao encontrado para {data_path.name}: {sld_path}")
     if not xml_path.exists():
@@ -58,22 +132,97 @@ def discover_publish_items(folder, store=None, layer=None, style=None, layer_tit
         or metadata_title(xml_path)
         or item_layer
     )
-    return [
-        PublishItem(
-            data_path=data_path,
-            sld_path=sld_path,
-            xml_path=xml_path,
-            store=item_store,
-            layer=item_layer,
-            style=item_style,
-            layer_title=item_title,
-            data_type=data_info["type"],
-            data_content_type=data_info["content_type"],
-            data_endpoint=data_info["endpoint"],
-            layer_resource=data_info["layer_resource"],
-            data_label=data_info["label"],
-        )
+    return PublishItem(
+        data_path=data_path,
+        sld_path=sld_path,
+        xml_path=xml_path,
+        store=item_store,
+        layer=item_layer,
+        style=item_style,
+        layer_title=item_title,
+        data_type=data_info["type"],
+        data_content_type=data_info["content_type"],
+        data_endpoint=data_info["endpoint"],
+        layer_resource=data_info["layer_resource"],
+        data_label=data_info["label"],
+    )
+
+
+def find_publish_manifest(folder):
+    manifests = sorted(Path(folder).glob("*_manifest.json"))
+    if not manifests:
+        return None
+    return manifests[0]
+
+
+def load_publish_manifest(manifest_path):
+    with Path(manifest_path).open("r", encoding="utf-8-sig") as file:
+        manifest = json.load(file)
+    if not isinstance(manifest, dict):
+        raise ValueError(f"Manifest de publicacao invalido: {manifest_path}")
+    return manifest
+
+
+def iter_manifest_dataset_outputs(manifest):
+    primary_output = manifest.get("primary_output")
+    if isinstance(primary_output, dict):
+        yield primary_output
+    for output in manifest.get("secondary_outputs", []) or []:
+        if isinstance(output, dict):
+            yield output
+
+
+def resolve_manifest_path(path_value, manifest_dir):
+    if not path_value:
+        raise FileNotFoundError("Manifest contem caminho de saida vazio.")
+    path = Path(path_value)
+    if not path.is_absolute():
+        path = Path(manifest_dir) / path
+    return path
+
+
+def find_manifest_sld_path(manifest, data_path, manifest_dir):
+    return find_manifest_companion_path(
+        manifest.get("sld_files", []),
+        data_path,
+        manifest_dir,
+        expected_name=data_path.with_suffix(".sld").name,
+        artifact_label="SLD",
+    )
+
+
+def find_manifest_xml_path(manifest, data_path, manifest_dir):
+    return find_manifest_companion_path(
+        manifest.get("xml_files", []),
+        data_path,
+        manifest_dir,
+        expected_name=f"{metadata_stem_for_data_stem(data_path.stem)}.xml",
+        artifact_label="XML",
+    )
+
+
+def find_manifest_companion_path(
+    artifact_paths,
+    data_path,
+    manifest_dir,
+    *,
+    expected_name,
+    artifact_label,
+):
+    resolved_paths = [
+        resolve_manifest_path(path, manifest_dir)
+        for path in (artifact_paths or [])
+        if path
     ]
+    for path in resolved_paths:
+        if path.name == expected_name:
+            return path
+    fallback = data_path.parent / expected_name
+    if fallback.exists():
+        return fallback
+    raise FileNotFoundError(
+        f"{artifact_label} nao encontrado para {data_path.name}: {expected_name}"
+    )
 
 
 def metadata_stem_for_data_stem(data_stem):
@@ -114,7 +263,10 @@ def data_publish_info(data_path):
 
 __all__ = [
     "PublishItem",
+    "build_publish_item",
     "data_publish_info",
+    "discover_publish_items_from_manifest",
     "discover_publish_items",
+    "find_publish_manifest",
     "metadata_stem_for_data_stem",
 ]
