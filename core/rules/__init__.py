@@ -22,3 +22,32 @@ from core.rules.engine import (
     validate_rule_profile_structure,
 )
 from core.rules.runtime import build_auto_mapping, merge_function_mapping
+from core.rules.service import RuleProfileService, build_rule_profile_service
+
+__all__ = [
+    "RuleProfileResolutionError",
+    "RuleProfileService",
+    "build_auto_mapping",
+    "build_field_mapping",
+    "build_rule_profile_service",
+    "classify_field_value",
+    "expected_rule_profile_name",
+    "find_rule_profile_by_theme_folder",
+    "get_auto_function_mapping",
+    "get_rule_profile_project_name",
+    "has_field_rules",
+    "invalidate_rule_profile_cache",
+    "list_duplicate_rule_profile_stems",
+    "list_rule_profile_catalog",
+    "list_rule_profiles",
+    "load_rule_profile",
+    "merge_function_mapping",
+    "normalize_profile_name",
+    "normalize_rule_text",
+    "profile_exists",
+    "resolve_rule_profile_for_theme",
+    "save_rule_profile",
+    "validate_rule_profile",
+    "validate_rule_profile_semantics",
+    "validate_rule_profile_structure",
+]
