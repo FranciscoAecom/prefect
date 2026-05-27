@@ -1,11 +1,11 @@
-from difflib import get_close_matches
+﻿from difflib import get_close_matches
 
 from core.text import normalize_for_compare
 from core.utils import log
 from core.validation.schema import target_column_name
 
 
-def ur_car_transform_desc_condic(gdf, column, **_context):
+def car_uso_restrito_transform_desc_condic(gdf, column, **_context):
     target_column = target_column_name(column)
 
     if column not in gdf.columns:
@@ -45,5 +45,6 @@ def ur_car_transform_desc_condic(gdf, column, **_context):
 
 
 PROJECT_OPTIONAL_FUNCTIONS = {
-    "ur_car_transform_desc_condic": ur_car_transform_desc_condic,
+    "car_uso_restrito_transform_desc_condic": car_uso_restrito_transform_desc_condic,
+    "ur_car_transform_desc_condic": car_uso_restrito_transform_desc_condic,
 }

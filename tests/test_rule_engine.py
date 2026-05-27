@@ -23,7 +23,7 @@ class ValidateRuleProfileTests(unittest.TestCase):
             "project_name": "car_reserva_legal",
             "auto_functions": {
                 "sdb_cod_tema": ["validate_shapefile_attribute"],
-                "sdb_desc_condic": ["reserva_legal_car_transform_desc_condic"],
+                "sdb_desc_condic": ["car_reserva_legal_transform_desc_condic"],
             },
             "fields": {
                 "sdb_cod_tema": {
@@ -43,6 +43,12 @@ class ValidateRuleProfileTests(unittest.TestCase):
             "car_reserva_legal/demo",
             optional_functions=get_project_optional_functions("car_reserva_legal"),
         )
+
+    def test_legacy_project_alias_loads_new_optional_function_module(self):
+        functions = get_project_optional_functions("reserva_legal_car")
+
+        self.assertIn("car_reserva_legal_transform_desc_condic", functions)
+        self.assertIn("reserva_legal_car_transform_desc_condic", functions)
 
     def test_rejects_unknown_optional_function(self):
         profile = {

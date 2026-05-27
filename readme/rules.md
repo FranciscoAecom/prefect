@@ -36,6 +36,12 @@ Campos obrigatorios:
 - `project_name`: projeto responsavel pelo perfil.
 - `theme_folder`: deve bater com o nome final da pasta do perfil.
 
+`theme_folder` e a chave operacional da ingest/base, por exemplo `rl_car_ac`.
+`project_name` e a familia interna de regras, por exemplo `car_reserva_legal`.
+Os nomes antigos de projeto (`app_car`, `reserva_legal_car`, `sa_car`,
+`ur_car`) existem apenas como aliases de compatibilidade; novos perfis devem
+usar os nomes canonicos `car_*`.
+
 ## input_schema.json
 
 Define o contrato tabular da entrada. Ele e usado em duas etapas:

@@ -115,7 +115,7 @@ Opcionais por atributo:
 
 - `sdb_cod_tema`: `validate_shapefile_attribute`
 - `sdb_nom_tema`: `validate_shapefile_attribute`
-- `sdb_desc_condic`: `car_app_transform_desc_condic`
+- `sdb_desc_condic`: `car_area_preservacao_permanente_transform_desc_condic`
 
 Postprocess configurado:
 

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from projects.configs import resolve_project_name
+from projects.configs import canonical_project_name, resolve_project_name
 from core.rules import loader as _rule_loader
 from core.rules.constants import (
     DOMAINS_COMPONENT,
@@ -47,7 +47,7 @@ class RuleProfileResolution:
     def project_consistent(self):
         return (
             not self.profile_project_name
-            or self.profile_project_name == self.project_name
+            or canonical_project_name(self.profile_project_name) == self.project_name
         )
 
 

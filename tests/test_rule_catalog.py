@@ -50,6 +50,24 @@ class RuleCatalogTests(unittest.TestCase):
         self.assertFalse(resolution.complete)
         self.assertEqual(resolution.missing_components, ("relations.json",))
 
+    def test_legacy_project_name_is_consistent_with_canonical_project(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            rules_base = Path(temp_dir) / "rules"
+            self._write_profile(
+                rules_base / "car_reserva_legal" / "rl_car_ac",
+                project_name="reserva_legal_car",
+                theme_folder="rl_car_ac",
+            )
+
+            with patch("core.rules.loader.RULES_BASE", str(rules_base)):
+                invalidate_rule_profile_cache()
+
+                resolution = resolve_rule_profile_for_theme("rl_car_ac")
+
+        self.assertEqual(resolution.project_name, "car_reserva_legal")
+        self.assertEqual(resolution.profile_project_name, "reserva_legal_car")
+        self.assertTrue(resolution.project_consistent)
+
     def test_lists_catalog_entries(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             rules_base = Path(temp_dir) / "rules"
@@ -64,14 +82,20 @@ class RuleCatalogTests(unittest.TestCase):
         self.assertEqual(catalog[0]["profile_name"], "demo/perfil")
         self.assertTrue(catalog[0]["complete"])
 
-    def _write_profile(self, profile_dir, skip_components=None):
+    def _write_profile(
+        self,
+        profile_dir,
+        skip_components=None,
+        project_name="default",
+        theme_folder="perfil",
+    ):
         skip_components = set(skip_components or ())
         profile_dir.mkdir(parents=True, exist_ok=True)
         components = {
             "profile.json": {
-                "profile_name": "perfil",
-                "project_name": "default",
-                "theme_folder": "perfil",
+                "profile_name": theme_folder,
+                "project_name": project_name,
+                "theme_folder": theme_folder,
             },
             "domains.json": {
                 "fields": {

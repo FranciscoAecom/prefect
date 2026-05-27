@@ -76,17 +76,32 @@ PROJECT_CONFIGS = {
 }
 
 
+LEGACY_PROJECT_ALIASES = {
+    "app_car": "car_area_preservacao_permanente",
+    "reserva_legal_car": "car_reserva_legal",
+    "sa_car": "car_servidao_administrativa",
+    "ur_car": "car_uso_restrito",
+}
+
+
+def canonical_project_name(project_name=None):
+    project_name_text = str(project_name or "").strip().lower()
+    return LEGACY_PROJECT_ALIASES.get(project_name_text, project_name_text)
+
+
 @lru_cache(maxsize=None)
 def get_project_config(project_name=None):
-    if project_name and project_name in PROJECT_CONFIGS:
+    canonical_name = canonical_project_name(project_name)
+    if canonical_name and canonical_name in PROJECT_CONFIGS:
         config = dict(DEFAULT_PROJECT_CONFIG)
-        config.update(PROJECT_CONFIGS[project_name])
+        config.update(PROJECT_CONFIGS[canonical_name])
         return config
     return dict(DEFAULT_PROJECT_CONFIG)
 
 
 def resolve_project_name(theme_folder):
     theme_folder_text = str(theme_folder or "").strip().lower()
+    theme_folder_text = canonical_project_name(theme_folder_text)
     if theme_folder_text in PROJECT_CONFIGS:
         return theme_folder_text
     for project_name, config in PROJECT_CONFIGS.items():

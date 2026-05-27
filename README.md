@@ -566,9 +566,17 @@ Associacoes principais:
 
 - `app_car_*` usa `rules/car_area_preservacao_permanente/`.
 - `rl_car_*` usa `rules/car_reserva_legal/`.
+- `sa_car_*` usa `rules/car_servidao_administrativa/`.
+- `ur_car_*` usa `rules/car_uso_restrito/`.
 - `estado` usa `rules/estado/`.
 - `auth_supn` usa `rules/autorizacao_para_supressao_vegetal/`.
 - `autos_infracao` usa `rules/autos_infracao/autos_infracao/`.
+
+`theme_folder` e `project_name` tem papeis diferentes. `theme_folder` continua
+sendo a chave operacional recebida da ingest e usada em caminhos/nome de
+saida, enquanto `project_name` e a familia interna de regras. Nomes antigos de
+projeto (`app_car`, `reserva_legal_car`, `sa_car`, `ur_car`) sao aceitos apenas
+como aliases de compatibilidade e devem apontar para os projetos `car_*`.
 
 Use `rules/_template/` como base para novos perfis. O formato completo esta em
 `readme/rules.md`.

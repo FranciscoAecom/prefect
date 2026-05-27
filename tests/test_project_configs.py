@@ -2,6 +2,7 @@ import unittest
 
 from projects.configs import (
     DEFAULT_PROJECT_CONFIG,
+    canonical_project_name,
     get_project_config,
     resolve_project_config,
     resolve_project_name,
@@ -26,6 +27,13 @@ class ProjectConfigsTests(unittest.TestCase):
         config = resolve_project_config("rl_car_sp")
         self.assertEqual(config["project_name"], "car_reserva_legal")
         self.assertEqual(config["output_name_template"], "pol_pcd_{theme_folder}_{date_yyyymmdd}")
+
+    def test_legacy_project_names_resolve_to_canonical_projects(self):
+        self.assertEqual(canonical_project_name("app_car"), "car_area_preservacao_permanente")
+        self.assertEqual(canonical_project_name("reserva_legal_car"), "car_reserva_legal")
+        self.assertEqual(canonical_project_name("sa_car"), "car_servidao_administrativa")
+        self.assertEqual(canonical_project_name("ur_car"), "car_uso_restrito")
+        self.assertEqual(get_project_config("reserva_legal_car")["project_name"], "car_reserva_legal")
 
     def test_resolve_autos_infracao_project_config(self):
         config = resolve_project_config("autos_infracao")
