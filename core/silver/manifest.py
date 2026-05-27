@@ -23,7 +23,6 @@ class SilverDatasetOutput:
 @dataclass(frozen=True)
 class SilverOutputManifest:
     primary_output: SilverDatasetOutput | None = None
-    secondary_outputs: list[SilverDatasetOutput] = field(default_factory=list)
     xml_files: list[Path] = field(default_factory=list)
     sld_files: list[Path] = field(default_factory=list)
     quality_reports: dict[str, str | None] = field(default_factory=dict)
@@ -40,13 +39,11 @@ class SilverOutputManifest:
         outputs = []
         if self.primary_output is not None:
             outputs.append(self.primary_output)
-        outputs.extend(self.secondary_outputs)
         return outputs
 
     def with_artifacts(self, xml_files=None, sld_files=None):
         return SilverOutputManifest(
             primary_output=self.primary_output,
-            secondary_outputs=list(self.secondary_outputs),
             xml_files=[Path(path) for path in (xml_files or [])],
             sld_files=[Path(path) for path in (sld_files or [])],
             quality_reports=dict(self.quality_reports),
@@ -56,7 +53,6 @@ class SilverOutputManifest:
     def with_quality_reports(self, quality_reports):
         return SilverOutputManifest(
             primary_output=self.primary_output,
-            secondary_outputs=list(self.secondary_outputs),
             xml_files=list(self.xml_files),
             sld_files=list(self.sld_files),
             quality_reports=dict(quality_reports or {}),
@@ -66,7 +62,6 @@ class SilverOutputManifest:
     def with_manifest_path(self, manifest_path):
         return SilverOutputManifest(
             primary_output=self.primary_output,
-            secondary_outputs=list(self.secondary_outputs),
             xml_files=list(self.xml_files),
             sld_files=list(self.sld_files),
             quality_reports=dict(self.quality_reports),
@@ -78,9 +73,6 @@ class SilverOutputManifest:
             "primary_output": (
                 self.primary_output.to_json() if self.primary_output else None
             ),
-            "secondary_outputs": [
-                output.to_json() for output in self.secondary_outputs
-            ],
             "xml_files": [str(path) for path in self.xml_files],
             "sld_files": [str(path) for path in self.sld_files],
             "quality_reports": dict(self.quality_reports),

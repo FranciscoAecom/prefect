@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from importlib import import_module
 
-from core.spatial.brazil_bounds import filter_geometries_in_brazil_bounds
 from core.spatial.municipality_intersection import enrich_with_municipality_intersection
 from core.spatial.regional_bounds import (
     enforce_car_state_bounds as _regional_enforce_car_state_bounds,
@@ -13,14 +12,6 @@ class ConfiguredStep:
     name: str
     function: object
     label: str | None = None
-
-
-@dataclass(frozen=True)
-class SecondaryOutputStep:
-    name: str
-    builder: object
-    suffix: str
-    label: str
 
 
 _QUALIFIED_FUNCTION_CACHE = {}
@@ -48,22 +39,8 @@ POSTPROCESS_STEPS = {
 }
 
 
-SECONDARY_OUTPUT_STEPS = {
-    "brazil_bbox": SecondaryOutputStep(
-        name="brazil_bbox",
-        builder=filter_geometries_in_brazil_bounds,
-        suffix="bbox_brasil",
-        label="recorte bbox Brasil",
-    ),
-}
-
-
 def get_registered_postprocess_function_names():
     return set(POSTPROCESS_STEPS.keys())
-
-
-def get_registered_secondary_output_names():
-    return set(SECONDARY_OUTPUT_STEPS.keys())
 
 
 def resolve_postprocess_step(name):
@@ -75,11 +52,6 @@ def resolve_postprocess_step(name):
     if function:
         return ConfiguredStep(name=name, function=function, label=name)
     return None
-
-
-def resolve_secondary_output_step(name):
-    return SECONDARY_OUTPUT_STEPS.get(name)
-
 
 def resolve_qualified_function(name):
     if "." not in str(name):

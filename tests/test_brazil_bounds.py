@@ -17,7 +17,7 @@ from core.spatial.brazil_bounds import (
 
 
 class BrazilBoundsTests(unittest.TestCase):
-    def test_filters_geometries_inside_brazil_bbox(self):
+    def test_filters_geometries_inside_brazil_bounds(self):
         gdf = gpd.GeoDataFrame(
             {
                 "name": ["acre", "outside"],
@@ -32,7 +32,7 @@ class BrazilBoundsTests(unittest.TestCase):
         self.assertEqual(result["name"].tolist(), ["acre"])
         self.assertEqual(result.crs, gdf.crs)
 
-    def test_uses_standard_brazil_bbox_extent_as_fallback(self):
+    def test_uses_standard_brazil_bounds_extent_as_fallback(self):
         get_brazil_bounds_geometry.cache_clear()
         try:
             with patch("core.spatial.brazil_bounds.DEFAULT_BRAZIL_BBOX_PATH", "inexistente.shp"):

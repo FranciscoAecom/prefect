@@ -26,15 +26,15 @@ from core.publish.urls import (
 class PublishTests(unittest.TestCase):
     def test_metadata_stem_uses_md_prefix(self):
         self.assertEqual(
-            metadata_stem_for_data_stem("pnt_pcd_enov_bbox_brasil_20260514"),
-            "md_pcd_enov_bbox_brasil_20260514",
+            metadata_stem_for_data_stem("pnt_pcd_enov_20260514"),
+            "md_pcd_enov_20260514",
         )
 
     def test_discover_publish_items_rejects_multiple_outputs(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             folder = Path(temp_dir)
             self._write_triplet(folder, "pnt_pcd_enov_20260514")
-            self._write_triplet(folder, "pnt_pcd_enov_bbox_brasil_20260514")
+            self._write_triplet(folder, "pnt_pcd_enov_extra_20260514")
 
             with self.assertRaises(MultiplePublishItemsError):
                 discover_publish_items(folder)
@@ -49,15 +49,13 @@ class PublishTests(unittest.TestCase):
             self.assertEqual([item.layer for item in items], ["pnt_pcd_enov_20260514"])
             self.assertEqual(items[0].xml_path.name, "md_pcd_enov_20260514.xml")
 
-    def test_discover_publish_items_uses_manifest_for_multiple_outputs(self):
+    def test_discover_publish_items_uses_primary_manifest_output(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             folder = Path(temp_dir)
             self._write_triplet(folder, "pnt_pcd_enov_20260514")
-            self._write_triplet(folder, "pnt_pcd_enov_bbox_brasil_20260514")
             self._write_manifest(
                 folder,
                 primary="pnt_pcd_enov_20260514",
-                secondary=["pnt_pcd_enov_bbox_brasil_20260514"],
                 quality_reports={
                     "attribute_duplicates": str(folder / "duplicados.xlsx")
                 },
@@ -67,17 +65,11 @@ class PublishTests(unittest.TestCase):
 
             self.assertEqual(
                 [item.layer for item in items],
-                [
-                    "pnt_pcd_enov_20260514",
-                    "pnt_pcd_enov_bbox_brasil_20260514",
-                ],
+                ["pnt_pcd_enov_20260514"],
             )
             self.assertEqual(
                 [item.xml_path.name for item in items],
-                [
-                    "md_pcd_enov_20260514.xml",
-                    "md_pcd_enov_bbox_brasil_20260514.xml",
-                ],
+                ["md_pcd_enov_20260514.xml"],
             )
 
     def test_discover_publish_items_uses_single_manifest_output_overrides(self):
@@ -271,22 +263,14 @@ class PublishTests(unittest.TestCase):
             encoding="utf-8",
         )
 
-    def _write_manifest(self, folder, primary, secondary=None, quality_reports=None):
-        outputs = [primary, *(secondary or [])]
+    def _write_manifest(self, folder, primary, quality_reports=None):
+        outputs = [primary]
         manifest = {
             "primary_output": {
                 "path": str(folder / f"{primary}.gpkg"),
                 "role": "primary",
                 "label": "principal",
             },
-            "secondary_outputs": [
-                {
-                    "path": str(folder / f"{data_stem}.gpkg"),
-                    "role": "secondary",
-                    "label": "secundaria",
-                }
-                for data_stem in (secondary or [])
-            ],
             "xml_files": [
                 str(folder / f"{metadata_stem_for_data_stem(data_stem)}.xml")
                 for data_stem in outputs

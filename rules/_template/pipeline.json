@@ -2,9 +2,6 @@
   "postprocess_functions": [
     "enforce_car_state_bounds"
   ],
-  "secondary_outputs": [
-    "brazil_bbox"
-  ],
   "primary_output": {
     "relocate_outside_brazil_bounds_to_centroid": false
   },

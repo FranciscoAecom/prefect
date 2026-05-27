@@ -1,4 +1,4 @@
-# Spec: localidades/localidades
+﻿# Spec: localidades/localidades
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -149,9 +149,6 @@ Postprocess configurado:
 
 - nenhum
 
-Saidas secundarias configuradas:
-
-- nenhuma
 
 Saida principal configurada:
 

@@ -1,4 +1,4 @@
-# Spec: default/default
+﻿# Spec: default/default
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -115,9 +115,6 @@ Postprocess configurado:
 
 - nenhum
 
-Saidas secundarias configuradas:
-
-- nenhuma
 
 Saida principal configurada:
 
@@ -146,7 +143,7 @@ Arquivo principal:
 output\<theme_folder>\<input_stem>_validado.gpkg
 ```
 
-Arquivos secundarios:
+Outros arquivos de dados persistidos:
 
 - nenhum por padrao
 

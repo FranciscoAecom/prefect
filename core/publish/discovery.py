@@ -167,9 +167,6 @@ def iter_manifest_dataset_outputs(manifest):
     primary_output = manifest.get("primary_output")
     if isinstance(primary_output, dict):
         yield primary_output
-    for output in manifest.get("secondary_outputs", []) or []:
-        if isinstance(output, dict):
-            yield output
 
 
 def resolve_manifest_path(path_value, manifest_dir):

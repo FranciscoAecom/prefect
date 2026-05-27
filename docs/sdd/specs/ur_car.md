@@ -1,4 +1,4 @@
-# Spec: ur_car/ur_car_*
+﻿# Spec: ur_car/ur_car_*
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -123,9 +123,6 @@ Postprocess configurado:
 
 - nenhum
 
-Saidas secundarias configuradas:
-
-- nenhuma
 
 Saida principal configurada:
 
@@ -156,7 +153,7 @@ Arquivo principal:
 output\<theme_folder>\pol_pcd_<theme_folder>_20260514.gpkg
 ```
 
-Arquivos secundarios:
+Outros arquivos de dados persistidos:
 
 - nenhum
 

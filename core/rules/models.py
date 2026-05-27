@@ -86,7 +86,6 @@ class RuleProfileModel:
     postprocess_functions: list[str] = field(default_factory=list)
     primary_output: dict = field(default_factory=dict)
     quality_outputs: dict = field(default_factory=dict)
-    secondary_outputs: list[str] = field(default_factory=list)
     sld: dict = field(default_factory=dict)
 
     @classmethod
@@ -95,7 +94,7 @@ class RuleProfileModel:
         metadata = {
             key: value
             for key, value in profile.items()
-            if key not in PROFILE_DATA_KEYS
+            if key not in PROFILE_DATA_KEYS and key != "secondary_outputs"
         }
         return cls(
             metadata=metadata,
@@ -115,7 +114,6 @@ class RuleProfileModel:
             postprocess_functions=list(profile.get("postprocess_functions", []) or []),
             primary_output=dict(profile.get("primary_output", {}) or {}),
             quality_outputs=dict(profile.get("quality_outputs", {}) or {}),
-            secondary_outputs=list(profile.get("secondary_outputs", []) or []),
             sld=dict(profile.get("sld", {}) or {}),
         )
 
@@ -130,7 +128,6 @@ class RuleProfileModel:
         data["postprocess_functions"] = (pipeline or {}).get("postprocess_functions", [])
         data["primary_output"] = (pipeline or {}).get("primary_output", {})
         data["quality_outputs"] = (pipeline or {}).get("quality_outputs", {})
-        data["secondary_outputs"] = (pipeline or {}).get("secondary_outputs", [])
         data["sld"] = (style or {}).get("sld", style or {})
         return cls.from_dict(data)
 
@@ -156,7 +153,6 @@ class RuleProfileModel:
             data["primary_output"] = dict(self.primary_output)
         if self.quality_outputs:
             data["quality_outputs"] = dict(self.quality_outputs)
-        data["secondary_outputs"] = list(self.secondary_outputs)
         if self.sld:
             data["sld"] = dict(self.sld)
         return data
@@ -170,7 +166,6 @@ class RuleProfileModel:
             "postprocess_functions": list(self.postprocess_functions),
             "primary_output": dict(self.primary_output),
             "quality_outputs": dict(self.quality_outputs),
-            "secondary_outputs": list(self.secondary_outputs),
         }
         pipeline = {
             key: value

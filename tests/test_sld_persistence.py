@@ -19,7 +19,7 @@ from core.sld.persistence import (
 class SldPersistenceTests(unittest.TestCase):
     def test_render_point_sld_version_1_0(self):
         text = render_sld(
-            "pnt_pcd_enov_bbox_brasil_20260514",
+            "pnt_pcd_enov_20260514",
             "point",
             {
                 "version": "1.0.0",
@@ -37,7 +37,7 @@ class SldPersistenceTests(unittest.TestCase):
         )
 
         self.assertIn('version="1.0.0"', text)
-        self.assertIn("<Name>pnt_pcd_enov_bbox_brasil_20260514</Name>", text)
+        self.assertIn("<Name>pnt_pcd_enov_20260514</Name>", text)
         self.assertIn("<PointSymbolizer>", text)
         self.assertIn('<CssParameter name="fill">#1654ad</CssParameter>', text)
 
@@ -81,13 +81,13 @@ class SldPersistenceTests(unittest.TestCase):
         )
 
         main_style = resolve_layer_sld_style(style, "pnt_pcd_enov_20260514")
-        bbox_style = resolve_layer_sld_style(
+        fallback_style = resolve_layer_sld_style(
             style,
-            "pnt_pcd_enov_bbox_brasil_20260514",
+            "pnt_pcd_outro_20260514",
         )
 
         self.assertEqual(main_style["point"]["fill"], "#ef8e03")
-        self.assertEqual(bbox_style["point"]["fill"], "#1654ad")
+        self.assertEqual(fallback_style["point"]["fill"], "#1654ad")
 
     def test_render_categorized_polygon_sld_version_1_1(self):
         style = build_sld_style(
@@ -155,8 +155,8 @@ class SldPersistenceTests(unittest.TestCase):
 
     def test_sld_path_uses_same_stem_as_dataset(self):
         self.assertEqual(
-            sld_path_for_dataset(Path("saida") / "pnt_pcd_enov_bbox_brasil_20260514.gpkg"),
-            Path("saida") / "pnt_pcd_enov_bbox_brasil_20260514.sld",
+            sld_path_for_dataset(Path("saida") / "pnt_pcd_enov_20260514.gpkg"),
+            Path("saida") / "pnt_pcd_enov_20260514.sld",
         )
 
     def test_detect_geometry_kind(self):
@@ -181,7 +181,7 @@ class SldPersistenceTests(unittest.TestCase):
             crs="EPSG:4326",
         )
         with tempfile.TemporaryDirectory() as temp_dir:
-            dataset_path = Path(temp_dir) / "pnt_pcd_enov_bbox_brasil_20260514.gpkg"
+            dataset_path = Path(temp_dir) / "pnt_pcd_enov_20260514.gpkg"
             paths = persist_stage_slds(
                 [{"path": dataset_path, "gdf": gdf}],
                 rule_profile={
@@ -200,7 +200,7 @@ class SldPersistenceTests(unittest.TestCase):
             self.assertEqual(paths, [dataset_path.with_suffix(".sld")])
             self.assertTrue(paths[0].exists())
             self.assertIn(
-                "<se:Name>pnt_pcd_enov_bbox_brasil_20260514</se:Name>",
+                "<se:Name>pnt_pcd_enov_20260514</se:Name>",
                 paths[0].read_text(encoding="utf-8"),
             )
 

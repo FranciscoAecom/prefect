@@ -12,12 +12,10 @@ from core.silver.persistence import save_outputs, save_outputs_manifest
 
 
 class OutputPersistenceTests(unittest.TestCase):
-    @patch("core.output.secondary_outputs.write_output_gpkg")
     @patch("core.silver.persistence.write_output_gpkg")
-    def test_configured_profile_persists_complete_and_brazil_bbox_outputs(
+    def test_primary_output_relocates_outside_brazil_bounds_to_centroid(
         self,
         mock_main_write,
-        mock_secondary_write,
     ):
         record = SimpleNamespace(
             theme_folder="autos_infracao",
@@ -34,7 +32,6 @@ class OutputPersistenceTests(unittest.TestCase):
             crs="EPSG:4326",
         )
         rule_profile = {
-            "secondary_outputs": ["brazil_bbox"],
             "primary_output": {
                 "relocate_outside_brazil_bounds_to_centroid": True,
             },
@@ -44,14 +41,7 @@ class OutputPersistenceTests(unittest.TestCase):
             output_path = save_outputs(gdf, record, temp_dir, rule_profile=rule_profile)
 
         self.assertEqual(mock_main_write.call_count, 1)
-        self.assertEqual(mock_secondary_write.call_count, 1)
         self.assertEqual(Path(output_path).name, "entrada_validado.gpkg")
-        self.assertEqual(
-            Path(mock_secondary_write.call_args.args[1]).name,
-            "entrada_validado_bbox_brasil.gpkg",
-        )
-        bbox_gdf = mock_secondary_write.call_args.args[0]
-        self.assertEqual(len(bbox_gdf), 1)
 
         main_gdf = mock_main_write.call_args.args[0]
         self.assertEqual(len(main_gdf), 2)
@@ -62,12 +52,10 @@ class OutputPersistenceTests(unittest.TestCase):
         self.assertEqual(main_gdf.loc[1, "acm_long_centroide_brasil"], -46.79781)
         self.assertEqual(main_gdf.loc[1, "acm_lat_centroide_brasil"], -13.279994)
 
-    @patch("core.output.secondary_outputs.write_output_gpkg")
     @patch("core.silver.persistence.write_output_gpkg")
-    def test_secondary_outputs_are_skipped_without_profile_configuration(
+    def test_only_primary_output_is_persisted_without_profile_configuration(
         self,
         mock_main_write,
-        mock_secondary_write,
     ):
         record = SimpleNamespace(
             theme_folder="autos_infracao",
@@ -85,15 +73,12 @@ class OutputPersistenceTests(unittest.TestCase):
             save_outputs(gdf, record, temp_dir, rule_profile={})
 
         self.assertEqual(mock_main_write.call_count, 1)
-        mock_secondary_write.assert_not_called()
 
     @patch("core.silver.persistence.persist_silver_artifacts")
-    @patch("core.output.secondary_outputs.write_output_gpkg")
     @patch("core.silver.persistence.write_output_gpkg")
     def test_save_outputs_manifest_collects_outputs_and_artifacts(
         self,
         _mock_main_write,
-        _mock_secondary_write,
         mock_artifacts,
     ):
         mock_artifacts.return_value = (
@@ -115,7 +100,6 @@ class OutputPersistenceTests(unittest.TestCase):
             crs="EPSG:4326",
         )
         rule_profile = {
-            "secondary_outputs": ["brazil_bbox"],
             "quality_outputs": {
                 "attribute_duplicates": False,
                 "geometric_duplicates": False,
@@ -132,10 +116,6 @@ class OutputPersistenceTests(unittest.TestCase):
             )
 
         self.assertEqual(manifest.primary_output.path.name, "entrada_validado.gpkg")
-        self.assertEqual(
-            [output.path.name for output in manifest.secondary_outputs],
-            ["entrada_validado_bbox_brasil.gpkg"],
-        )
         self.assertEqual(
             [path.name for path in manifest.xml_files],
             ["md_entrada_validado.xml"],

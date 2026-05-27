@@ -92,6 +92,11 @@ def validate_pipeline_component(pipeline, fields):
     errors = []
     if "sld" in pipeline:
         errors.append("Campo 'sld' deve ficar em style.json, nao em pipeline.json.")
+    if "secondary_outputs" in pipeline:
+        errors.append(
+            "Campo 'secondary_outputs' foi descontinuado; configure apenas "
+            "'primary_output' quando a saida principal precisar de ajuste."
+        )
     if _pipeline_uses_component_keys(pipeline):
         auto_functions = pipeline.get("auto_functions", {})
     else:
@@ -100,11 +105,6 @@ def validate_pipeline_component(pipeline, fields):
     _validate_string_list_entry(
         pipeline.get("postprocess_functions", []),
         "postprocess_functions",
-        errors,
-    )
-    _validate_string_list_entry(
-        pipeline.get("secondary_outputs", []),
-        "secondary_outputs",
         errors,
     )
     _validate_primary_output_entry(pipeline.get("primary_output", {}), errors)
@@ -156,14 +156,14 @@ def validate_rule_profile_structure(profile, profile_name):
     _validate_input_schema_entry(profile.get("input_schema", {}), errors)
     _validate_relations_shape(profile.get("relations", {}), errors)
     _validate_auto_functions_shape(profile.get("auto_functions", {}), errors)
+    if "secondary_outputs" in profile:
+        errors.append(
+            "Campo 'secondary_outputs' foi descontinuado; configure apenas "
+            "'primary_output' quando a saida principal precisar de ajuste."
+        )
     _validate_string_list_entry(
         profile.get("postprocess_functions", []),
         "postprocess_functions",
-        errors,
-    )
-    _validate_string_list_entry(
-        profile.get("secondary_outputs", []),
-        "secondary_outputs",
         errors,
     )
     _validate_primary_output_entry(profile.get("primary_output", {}), errors)
@@ -187,12 +187,6 @@ def validate_rule_profile_semantics(profile, profile_name, optional_functions=No
         profile.get("postprocess_functions", []),
         "postprocess_functions",
         _get_registered_postprocess_function_names(),
-        errors,
-    )
-    _validate_registered_function_list(
-        profile.get("secondary_outputs", []),
-        "secondary_outputs",
-        _get_registered_secondary_output_names(),
         errors,
     )
     _validate_primary_output_entry(profile.get("primary_output", {}), errors)
@@ -479,12 +473,6 @@ def _get_registered_postprocess_function_names():
     from core.configured_steps import get_registered_postprocess_function_names
 
     return get_registered_postprocess_function_names()
-
-
-def _get_registered_secondary_output_names():
-    from core.configured_steps import get_registered_secondary_output_names
-
-    return get_registered_secondary_output_names()
 
 
 def _validate_relations_entry(relations, fields, errors):

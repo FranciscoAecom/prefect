@@ -1,4 +1,4 @@
-# Spec: autorizacao_para_supressao_vegetal/auth_supn
+﻿# Spec: autorizacao_para_supressao_vegetal/auth_supn
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -132,9 +132,6 @@ Postprocess configurado:
 
 - nenhum
 
-Saidas secundarias configuradas:
-
-- nenhuma
 
 Saida principal configurada:
 
@@ -163,7 +160,7 @@ Arquivo principal:
 output\auth_supn\pol_env_auth_supn_20250701.gpkg
 ```
 
-Arquivos secundarios:
+Outros arquivos de dados persistidos:
 
 - nenhum
 

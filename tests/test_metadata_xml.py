@@ -170,9 +170,9 @@ class MetadataXmlTests(unittest.TestCase):
         )
         self.assertEqual(
             metadata_xml_path_for_dataset(
-                Path("saida") / "pnt_pcd_enov_bbox_brasil_20260514.gpkg"
+                Path("saida") / "pnt_pcd_enov_20260514.gpkg"
             ),
-            Path("saida") / "md_pcd_enov_bbox_brasil_20260514.xml",
+            Path("saida") / "md_pcd_enov_20260514.xml",
         )
         self.assertEqual(
             metadata_xml_path_for_dataset(Path("saida") / "pol_pcd_rl_car_ac_20260301.shp"),

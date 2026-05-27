@@ -581,7 +581,6 @@ No `pipeline.json`, o perfil explicita tudo que roda de forma configuravel:
 - `auto_functions`: validacoes ou transformacoes por atributo.
 - `postprocess_functions`: etapas que alteram o GeoDataFrame final, como `enforce_car_state_bounds` ou `enrich_with_municipality_intersection`.
 - `primary_output`: ajustes aplicados somente ao arquivo principal.
-- `secondary_outputs`: arquivos extras, como `brazil_bbox`.
 
 O `style.json` concentra configuracoes de estilo, como `sld`. O `pipeline.json`
 nao deve conter configuracao visual.
@@ -593,8 +592,7 @@ contrato, a validacao e a documentacao do perfil.
 Quando configurado, `primary_output.relocate_outside_brazil_bounds_to_centroid`
 mantem todos os registros na saida principal, mas reposiciona geometrias fora
 do limite Brasil / zona costeira para um ponto unico dentro do limite
-brasileiro. Saidas secundarias, como `brazil_bbox`, continuam usando as
-geometrias originais para filtrar apenas o que ja estava dentro do limite.
+brasileiro.
 
 O `input_schema.json` define as colunas esperadas na entrada e seus tipos
 (`string`, `integer`, `number`, `date`, etc.). A validacao estrutural usa esse

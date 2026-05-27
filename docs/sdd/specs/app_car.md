@@ -1,4 +1,4 @@
-# Spec: app_car/app_car_*
+﻿# Spec: app_car/app_car_*
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -121,9 +121,6 @@ Postprocess configurado:
 
 - `enforce_car_state_bounds`
 
-Saidas secundarias configuradas:
-
-- nenhuma
 
 Saida principal configurada:
 
@@ -152,7 +149,7 @@ Arquivo principal:
 output\<theme_folder>\pol_pcd_<theme_folder>_20260301.gpkg
 ```
 
-Arquivos secundarios:
+Outros arquivos de dados persistidos:
 
 - nenhum
 
@@ -268,7 +265,6 @@ Arquivos atualizados pelo processo:
 - [ ] As funcoes obrigatorias aparecem no log.
 - [ ] As funcoes opcionais configuradas aparecem no log.
 - [ ] `enforce_car_state_bounds` fica explicito em `pipeline.json`.
-- [ ] Nao gera saida secundaria `brazil_bbox`.
 - [ ] As verificacoes obrigatorias de qualidade aparecem no log.
 - [ ] Testes automatizados relevantes passam.
 

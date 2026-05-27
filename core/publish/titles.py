@@ -77,8 +77,6 @@ def ur_car_layer_title(layer_name):
 
 def autos_infracao_layer_title(layer_name):
     layer_name = str(layer_name)
-    if layer_name.startswith("pnt_pcd_enov_bbox_brasil_"):
-        return "Autos de Infra\u00e7\u00e3o - BBox Brasil"
     if layer_name.startswith("pnt_pcd_enov_"):
         return "Autos de Infra\u00e7\u00e3o"
     return ""

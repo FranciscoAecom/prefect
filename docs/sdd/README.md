@@ -11,7 +11,7 @@ Crie ou atualize uma spec quando houver:
 - nova base, novo `theme_folder` ou novo projeto;
 - novo campo `acm_*`;
 - novo dominio ou alias em `domains.json`;
-- nova funcao obrigatoria, opcional, postprocess ou saida secundaria;
+- nova funcao obrigatoria, opcional, postprocess ou ajuste de saida principal;
 - mudanca de caminho de entrada, nome de saida ou criterio de aceite;
 - novo deployment, agenda ou forma de execucao no Prefect.
 - nova regra de download automatico.
@@ -55,9 +55,9 @@ Funcoes opcionais precisam estar explicitas no perfil, normalmente em
 `pipeline.json`, para ficar claro o que roda em cada base.
 
 O `pipeline.json` tambem pode declarar ajustes da saida principal em
-`primary_output`. Essas opcoes nao substituem `secondary_outputs`: a saida
-principal pode receber uma regra propria enquanto a saida secundaria continua
-filtrando ou derivando a partir da geometria original do resultado tratado.
+`primary_output`. As bases devem gerar somente a saida principal; ajustes como
+reposicionar pontos fora do limite Brasil / zona costeira devem ser expressos em
+`primary_output`.
 
 Novas chaves de perfil devem ser registradas no contrato tecnico em
 `core/rules/contracts.py`, validadas em `core/rules/validation.py` e descritas
@@ -94,8 +94,8 @@ publicada deve conter exatamente um conjunto:
 
 Se a pasta tiver mais de um arquivo de dados publicavel, a publicacao deve ser
 ignorada e o log deve orientar a separar os conjuntos em pastas diferentes ou
-publicar uma pasta por vez. Essa regra evita publicar uma saida secundaria junto
-com a principal sem decisao explicita.
+publicar uma pasta por vez. Cada pasta de publicacao deve representar um unico
+conjunto publicavel.
 
 O SLD e criado apenas na etapa `silver_data`. O XML importado no GeoNetwork deve
 preservar o dicionario de dados e receber o link do dicionario publicado quando

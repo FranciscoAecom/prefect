@@ -1,4 +1,4 @@
-# Spec: estado/estado
+﻿# Spec: estado/estado
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -130,9 +130,6 @@ Postprocess configurado:
 
 - nenhum
 
-Saidas secundarias configuradas:
-
-- nenhuma
 
 Saida principal configurada:
 
@@ -161,7 +158,7 @@ Arquivo principal:
 output\estado\pol_loc_sta_20241215.gpkg
 ```
 
-Arquivos secundarios:
+Outros arquivos de dados persistidos:
 
 - nenhum
 

@@ -1,4 +1,4 @@
-# Spec: <projeto>/<theme_folder>
+﻿# Spec: <projeto>/<theme_folder>
 
 Status: Draft
 Responsavel: <nome>
@@ -121,9 +121,6 @@ Postprocess configurado:
 
 - nenhum
 
-Saidas secundarias configuradas:
-
-- nenhuma
 
 Saida principal configurada:
 
@@ -154,7 +151,7 @@ Arquivo principal:
 
 ```
 
-Arquivos secundarios:
+Outros arquivos de dados persistidos:
 
 - nenhum
 
@@ -268,7 +265,6 @@ Arquivos atualizados pelo processo:
 - [ ] As funcoes obrigatorias aparecem no log.
 - [ ] As funcoes opcionais configuradas aparecem no log.
 - [ ] As verificacoes obrigatorias de qualidade aparecem no log.
-- [ ] As saidas secundarias configuradas sao geradas.
 - [ ] O SLD configurado e gerado somente no silver.
 - [ ] Testes automatizados relevantes passam.
 

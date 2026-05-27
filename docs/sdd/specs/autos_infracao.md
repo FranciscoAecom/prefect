@@ -1,4 +1,4 @@
-# Spec: autos_infracao/autos_infracao
+﻿# Spec: autos_infracao/autos_infracao
 
 Status: Implementado
 Responsavel: Ribeiro / Codex
@@ -145,9 +145,6 @@ Postprocess configurado:
 
 - `enrich_with_municipality_intersection`
 
-Saidas secundarias configuradas:
-
-- nenhuma
 
 Saida principal configurada:
 
@@ -253,8 +250,6 @@ Os campos `acm_long_centroide_brasil` e `acm_lat_centroide_brasil` devem
 permitir identificar quais registros tiveram a geometria substituida pelo
 centroide brasileiro.
 
-Esta base nao deve gerar arquivo secundario `_bbox_brasil`.
-
 O fluxo deve seguir esta ordem no log:
 
 1. Ler arquivo no `temp`.
@@ -342,7 +337,6 @@ Arquivos atualizados pelo processo:
 - [x] A base roda isolada, sem disparar todas as bases.
 - [x] O deployment Prefect existe para acompanhamento em `Runs`.
 - [x] O arquivo principal `.gpkg` e gerado.
-- [x] Nenhum arquivo secundario `_bbox_brasil.gpkg` e gerado para autos_infracao.
 - [x] A saida principal mantem registros fora do limite Brasil / zona costeira reposicionados para um ponto unico dentro do Brasil.
 - [x] Registros reposicionados preenchem `acm_long_centroide_brasil` e `acm_lat_centroide_brasil`.
 - [x] Registros dentro do limite Brasil / zona costeira mantem `acm_long_centroide_brasil` e `acm_lat_centroide_brasil` nulos.
