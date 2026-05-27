@@ -35,7 +35,7 @@ PROJECT_CONFIGS = {
         "project_name": "setor_censitario",
         "display_name": "Setores censitarios do Brasil",
         "theme_prefixes": ("setor_censitario",),
-        "output_name_template": "pol_loc_setor_censitario_{date_yyyymmdd}",
+        "output_name_template": "pol_loc_cse_{date_yyyymmdd}",
         "reference_date": "20241114",
     },
     "car_reserva_legal": {
