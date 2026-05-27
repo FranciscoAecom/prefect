@@ -42,6 +42,68 @@ A validacao estrutural de entrada deve usar
 `rules/autos_infracao/autos_infracao/input_schema.json`, ignorando campos que
 entram depois do tratamento (`acm_*`), `fid` e `geometry`.
 
+## Schema De Entrada
+
+Campos obrigatorios configurados:
+
+- 67 campos definidos em `rules/autos_infracao/autos_infracao/input_schema.json`
+
+Tipos e observacoes:
+
+- `sdb_num_longit`, `sdb_num_latitu`, `sdb_val_auto_i` e `sdb_qt_area` devem ser numericos.
+- Campos de identificador e contagem configurados como `integer` devem ser
+  coercidos conforme `input_schema.json`.
+- Os campos de data configurados devem seguir a secao `Datas`.
+- Os demais campos do schema devem ser tratados como texto.
+
+## Dominios
+
+Fonte:
+
+- `rules/autos_infracao/autos_infracao/domains.json`
+
+Aplicacao:
+
+- Campos listados em `domains.json` devem ser validados por
+  `validate_shapefile_attribute`.
+
+Campos com dominio:
+
+| Campo | Valores aceitos | Observacao |
+| --- | ---: | --- |
+| `sdb_des_status` | 4 | Status do auto |
+| `sdb_ds_sit_aut` | 2 | Situacao do auto |
+| `sdb_sit_cancel` | 2 | Situacao de cancelamento |
+| `sdb_tipo_auto` | 3 | Tipo do auto |
+| `sdb_patrimonio` | 2 | Classificacao de patrimonio |
+| `sdb_gravidade_` | 3 | Gravidade |
+| `sdb_cd_nivel_g` | 5 | Nivel de gravidade |
+| `sdb_motivacao_` | 2 | Motivacao |
+| `sdb_efeito_mei` | 5 | Efeito no meio ambiente |
+| `sdb_efeito_sau` | 5 | Efeito na saude |
+| `sdb_passivel_r` | 3 | Passivel de reparacao |
+| `sdb_forma_entr` | 5 | Forma de entrega |
+| `sdb_tipo_infra` | 12 | Tipo de infracao |
+| `sdb_des_receit` | 13 | Receita |
+| `sdb_infracao_a` | 7 | Infracao associada |
+| `sdb_tipo_acao` | 5 | Tipo de acao |
+| `sdb_tp_ult_alt` | 5 | Tipo da ultima alteracao |
+| `sdb_tp_origem_` | 2 | Tipo de origem |
+
+Campos presentes no schema sem dominio:
+
+- demais campos definidos em `input_schema.json`
+
+## Relacoes
+
+Relacoes de consistencia configuradas em `relations.json`:
+
+- nenhuma
+
+Regra de aplicacao:
+
+- nao aplicavel
+
 ## Datas
 
 Os campos abaixo devem ser tratados como data por `validate_date_fields`:
@@ -130,6 +192,39 @@ limite brasileiro:
 L:\Secure_DCS\BRBLH1PINFW001\COE_Digital\others\bouding_box\brasil\pol_br_zona_costeira.gpkg
 ```
 
+Campos derivados para controle do reposicionamento:
+
+- `acm_long_centroide_brasil`
+- `acm_lat_centroide_brasil`
+
+Esses campos devem ser preenchidos somente para registros cuja geometria
+original esta fora do limite Brasil / zona costeira e foi reposicionada para o
+centroide unico do limite brasileiro. Para registros ja contidos no limite, os
+dois campos devem permanecer nulos.
+
+Quando um registro for reposicionado:
+
+- a geometria final deve ser movida para o centroide unico do limite brasileiro;
+- `acm_long` e `acm_lat`, quando existirem, devem refletir a geometria final
+  reposicionada;
+- `acm_long_centroide_brasil` e `acm_lat_centroide_brasil` devem registrar as
+  coordenadas do centroide aplicado, arredondadas para 6 casas decimais.
+
+## Estilo SLD
+
+Arquivo:
+
+```text
+rules/autos_infracao/autos_infracao/style.json
+```
+
+Regra principal:
+
+- `pnt_pcd_enov_20260514`: ponto circular, preenchimento `#ef8e03`,
+  contorno `#232323`, largura `0.5`, tamanho `7`.
+
+O SLD deve ser gerado somente no `silver_data`; o bronze nao gera SLD.
+
 ## Saidas Esperadas
 
 Arquivo principal:
@@ -150,15 +245,13 @@ SLD esperado somente no silver:
 pnt_pcd_enov_20260514.sld
 ```
 
-Estilo SLD:
-
-- `pnt_pcd_enov_20260514`: ponto circular, preenchimento `#ef8e03`,
-  contorno `#232323`, largura `0.5`, tamanho `7`.
-
 O arquivo principal deve conter todos os pontos tratados. Pontos fora do limite
 Brasil / zona costeira devem ser mantidos no arquivo principal, mas com a
 geometria reposicionada para um ponto unico dentro do limite brasileiro. Quando
 existirem `acm_long` e `acm_lat`, esses campos devem refletir a nova geometria.
+Os campos `acm_long_centroide_brasil` e `acm_lat_centroide_brasil` devem
+permitir identificar quais registros tiveram a geometria substituida pelo
+centroide brasileiro.
 
 Esta base nao deve gerar arquivo secundario `_bbox_brasil`.
 
@@ -212,6 +305,22 @@ Parametros fixos do deployment:
 {"theme_folders": ["autos_infracao"]}
 ```
 
+Agenda:
+
+- nao configurada
+
+## Geracao De Rules
+
+Comando ou processo para regenerar rules:
+
+```powershell
+nao aplicavel
+```
+
+Arquivos atualizados pelo processo:
+
+- nao aplicavel
+
 ## Download
 
 - Status na ingest para baixar: nao aplicavel no momento
@@ -220,6 +329,14 @@ Parametros fixos do deployment:
 - Deve tratar automaticamente apos baixar: nao
 - Observacao: como nao existe conector de download para `autos_infracao`, a base deve usar `status = Waiting Update` quando o dado ja estiver disponivel para tratamento.
 
+## Versionamento
+
+- `Waiting Update`: pode criar nova versao quando houver novo bruto.
+- `Reprocessing`: deve reutilizar a ultima versao existente e nao criar nova versao.
+- A versao nao vem da ingest; ela e calculada pela existencia de arquivos em `bronze_data`.
+- Campos obrigatorios para caminho: `access_constraints`, `category_acronym`, `theme_folder`, `citation`, `date`.
+- Modulo responsavel: `core.versioning`.
+
 ## Criterios De Aceite
 
 - [x] A base roda isolada, sem disparar todas as bases.
@@ -227,6 +344,9 @@ Parametros fixos do deployment:
 - [x] O arquivo principal `.gpkg` e gerado.
 - [x] Nenhum arquivo secundario `_bbox_brasil.gpkg` e gerado para autos_infracao.
 - [x] A saida principal mantem registros fora do limite Brasil / zona costeira reposicionados para um ponto unico dentro do Brasil.
+- [x] Registros reposicionados preenchem `acm_long_centroide_brasil` e `acm_lat_centroide_brasil`.
+- [x] Registros dentro do limite Brasil / zona costeira mantem `acm_long_centroide_brasil` e `acm_lat_centroide_brasil` nulos.
+- [x] Quando houver reposicionamento, `acm_long` e `acm_lat` refletem a geometria final.
 - [x] O arquivo principal passa pelas funcoes obrigatorias.
 - [x] `clean_whitespace` aparece no log de funcoes obrigatorias.
 - [x] A intersecao municipal cria `acm_cod_munici`, `acm_municipio` e `acm_uf`.

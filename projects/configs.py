@@ -31,6 +31,13 @@ PROJECT_CONFIGS = {
         "output_name_template": "pnt_loc_loc_br_{date_yyyymmdd}",
         "reference_date": "20251119",
     },
+    "setor_censitario": {
+        "project_name": "setor_censitario",
+        "display_name": "Setores censitarios do Brasil",
+        "theme_prefixes": ("setor_censitario",),
+        "output_name_template": "pol_loc_setor_censitario_{date_yyyymmdd}",
+        "reference_date": "20241114",
+    },
     "reserva_legal_car": {
         "project_name": "reserva_legal_car",
         "display_name": "Reserva Legal (RL) nos imoveis rurais",

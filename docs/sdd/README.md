@@ -18,7 +18,8 @@ Crie ou atualize uma spec quando houver:
 
 ## Fluxo SDD
 
-1. Especificar a base em `docs/sdd/specs/<projeto>-<theme_folder>.md`.
+1. Especificar a base em `docs/sdd/specs/<slug>.md`, seguindo
+   `docs/sdd/spec-template.md`.
 2. Revisar entradas, dominios, datas, funcoes obrigatorias e opcionais.
 3. Implementar somente o necessario em `rules/`, `projects/`, `core/` e
    `scripts/`.
@@ -154,6 +155,8 @@ desses relatorios depende de `EXPORT_OUTPUT_QUALITY_REPORT_FILES = True`.
 
 ## Template
 
-Use `docs/sdd/spec-template.md` para criar a proxima especificacao.
+Use `docs/sdd/spec-template.md` para criar a proxima especificacao. Todas as
+specs devem manter a mesma ordem de secoes, mesmo quando uma secao for marcada
+como `nao aplicavel` ou `nao configurado`.
 
 As especificacoes existentes ficam listadas em `docs/sdd/specs/README.md`.

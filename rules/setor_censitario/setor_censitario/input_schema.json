@@ -1,0 +1,151 @@
+{
+  "columns": {
+    "sdb_cd_setor": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_situacao": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_sit": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_tipo": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_area_km2": {
+      "dtype": "number",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_regiao": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_nm_regiao": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_uf": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_nm_uf": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_mun": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_nm_mun": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_dist": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_nm_dist": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_subdist": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_nm_subdist": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_bairro": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_nm_bairro": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_nu": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_nm_nu": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_fcu": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_nm_fcu": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_aglom": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_nm_aglom": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_rgint": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_nm_rgint": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_rgi": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_nm_rgi": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_cd_concurb": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_nm_concurb": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    }
+  },
+  "require_geometry": true,
+  "allow_extra_columns": true
+}

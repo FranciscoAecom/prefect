@@ -11,13 +11,22 @@ uma regra comum para todos os perfis `ur_car_*`.
 
 ## Entrada
 
+- Theme folder: `ur_car_*`
 - Projeto: `ur_car`
-- Theme folders: `ur_car_ac`, `ur_car_al`, `ur_car_am`, `ur_car_ap`, `ur_car_ba`, `ur_car_ce`, `ur_car_df`, `ur_car_es`, `ur_car_go`, `ur_car_ma`, `ur_car_mg`, `ur_car_ms`, `ur_car_mt`, `ur_car_pa`, `ur_car_pb`, `ur_car_pe`, `ur_car_pi`, `ur_car_pr`, `ur_car_rj`, `ur_car_rn`, `ur_car_ro`, `ur_car_rr`, `ur_car_rs`, `ur_car_sc`, `ur_car_se`, `ur_car_sp`, `ur_car_to`
+- Status esperado na ingest para tratamento: `Waiting Update` ou `Reprocessing`
+- Status esperado na ingest para download: `Download`
+- Registro(s) de referencia na ingest: um registro por UF
 - Formato esperado: camada vetorial poligonal
 - Geometria esperada: poligono ou multipoligono
+- Fonte declarada: CAR publico por UF
+- Caminho temporario declarado: calculado pela ingest/versionamento
+- Sistema de referencia declarado: variavel por fonte, reprojetado pelo pipeline
+- Base de referencia usada para dominios: rules estaduais existentes
+- Base de referencia usada para relacoes: rules estaduais existentes
 
 ## Configuracao Do Projeto
 
+- Arquivo: `projects/configs.py`
 - `display_name`: `Area de Uso Restrito nos imoveis rurais`
 - `theme_prefixes`: `("ur_car_",)`
 - `output_name_template`: `pol_pcd_{theme_folder}_{date_yyyymmdd}`
@@ -26,6 +35,70 @@ uma regra comum para todos os perfis `ur_car_*`.
 ## Regras Do Perfil
 
 Cada UF possui perfil proprio em `rules/ur_car/<theme_folder>/`.
+
+- `rules/ur_car/<theme_folder>/profile.json`
+- `rules/ur_car/<theme_folder>/input_schema.json`
+- `rules/ur_car/<theme_folder>/domains.json`
+- `rules/ur_car/<theme_folder>/relations.json`
+- `rules/ur_car/<theme_folder>/pipeline.json`
+- `rules/ur_car/<theme_folder>/style.json`
+
+A validacao estrutural de entrada deve usar o `input_schema.json` do perfil da
+UF, permitindo colunas extras conforme configurado.
+
+## Schema De Entrada
+
+Campos obrigatorios configurados:
+
+- definidos por UF em `rules/ur_car/<theme_folder>/input_schema.json`
+
+Tipos e observacoes:
+
+- O schema deve preservar os campos de origem como `sdb_*`.
+
+## Dominios
+
+Fonte:
+
+- `rules/ur_car/<theme_folder>/domains.json`
+
+Aplicacao:
+
+- Campos listados em `domains.json` devem ser validados por
+  `validate_shapefile_attribute`.
+
+Campos com dominio:
+
+| Campo | Valores aceitos | Observacao |
+| --- | ---: | --- |
+| `sdb_cod_tema` | varia por UF | Codigo do tema UR CAR |
+| `sdb_nom_tema` | varia por UF | Nome do tema UR CAR |
+| `sdb_ind_status` | varia por UF | Indicador de status |
+
+Campos presentes no schema sem dominio:
+
+- demais campos definidos em `input_schema.json`
+
+## Relacoes
+
+Relacoes de consistencia configuradas em `relations.json`:
+
+- configuradas por UF em `rules/ur_car/<theme_folder>/relations.json`
+
+Regra de aplicacao:
+
+- Quando houver divergencia entre campos relacionados, a relacao configurada
+  deve prevalecer para normalizar o campo de destino.
+
+## Datas
+
+Campos tratados por `validate_date_fields`:
+
+- nenhum por padrao
+
+Regra de saida para datas:
+
+- nao aplicavel por padrao
 
 ## Funcoes Do Pipeline
 
@@ -54,29 +127,125 @@ Saidas secundarias configuradas:
 
 - nenhuma
 
+Saida principal configurada:
+
+- nenhuma
+
 Verificacoes obrigatorias de qualidade:
 
 - `check_attribute_duplicates`
 - `check_geometric_duplicates`
 - `check_ogc_invalid_geometries`
 
+Essas verificacoes devem aparecer no log. A geracao fisica de relatorios segue
+o valor de `EXPORT_OUTPUT_QUALITY_REPORT_FILES`.
+
+## Estilo SLD
+
+- Arquivo: `rules/ur_car/<theme_folder>/style.json`
+- Campo de categorizacao: conforme `style.json`
+- Regra principal: estilo categorizado da UF quando configurado
+
+O SLD deve ser gerado somente no `silver_data`; o bronze nao gera SLD.
+
 ## Saidas Esperadas
 
-- Arquivo principal: `output\<theme_folder>\pol_pcd_<theme_folder>_20260514.gpkg`
+Arquivo principal:
+
+```text
+output\<theme_folder>\pol_pcd_<theme_folder>_20260514.gpkg
+```
+
+Arquivos secundarios:
+
+- nenhum
+
+XML esperado no bronze e no silver:
+
+```text
+md_pcd_<theme_folder>_20260514.xml
+```
+
+SLD esperado somente no silver:
+
+```text
+pol_pcd_<theme_folder>_20260514.sld
+```
+
+Campos `acm_*` obrigatorios:
+
+- `acm_id`
+- `acm_a_ha`
+- `acm_prm_km`
+- `acm_long`
+- `acm_lat`
+
+O fluxo deve seguir esta ordem no log:
+
+1. Ler arquivo no `temp`.
+2. Copiar o bruto para `bronze_data`, sem alterar dados nem nome do arquivo.
+3. Criar o XML do bronze.
+4. Salvar o XML do bronze na pasta do bronze.
+5. Executar os tratamentos.
+6. Salvar o dado tratado no `silver_data`.
+7. Criar e salvar o XML do silver.
+8. Criar e salvar o SLD do silver, quando houver `style.json`.
+
+## Publicacao
+
+Conjunto publicavel esperado:
+
+```text
+pol_pcd_<theme_folder>_20260514.gpkg
+pol_pcd_<theme_folder>_20260514.sld
+md_pcd_<theme_folder>_20260514.xml
+```
+
+Observacoes:
+
+- A publicacao deve receber um unico conjunto de dado, XML e SLD por pasta.
 
 ## Prefect
 
-Deployment atual:
+Deployment:
 
 ```text
 Data Pipeline/CAR - Uso Restrito
 ```
 
-Comando para servir:
+Comando para servir o deployment:
 
 ```powershell
 .\.venv\Scripts\python.exe scripts\serve.py ur-car-processing
 ```
+
+Comando para disparar pelo Prefect:
+
+```powershell
+.\.venv\Scripts\python.exe -m prefect deployment run "Data Pipeline/CAR - Uso Restrito"
+```
+
+Parametros fixos do deployment:
+
+```json
+{}
+```
+
+Agenda:
+
+- agenda diaria das bases UR CAR conforme `scripts/serve.py`
+
+## Geracao De Rules
+
+Comando ou processo para regenerar rules:
+
+```powershell
+nao aplicavel
+```
+
+Arquivos atualizados pelo processo:
+
+- nao aplicavel
 
 ## Download
 
@@ -84,12 +253,38 @@ Comando para servir:
 - Dataset key: `car_uso_restrito`
 - Conector/script registrado: `car_public_api`
 - Deve tratar automaticamente apos baixar: sim
-- Observacao: o estado/UF e inferido pelo sufixo do `theme_folder`, por exemplo `ur_car_ac` -> `AC`.
+- Observacao para bases sem download automatico: nao aplicavel; o estado/UF e inferido pelo sufixo do `theme_folder`, por exemplo `ur_car_ac` -> `AC`.
+
+## Versionamento
+
+- `Waiting Update`: pode criar nova versao quando houver novo bruto.
+- `Reprocessing`: deve reutilizar a ultima versao existente e nao criar nova versao.
+- A versao nao vem da ingest; ela e calculada pela existencia de arquivos em `bronze_data`.
+- Campos obrigatorios para caminho: `access_constraints`, `category_acronym`, `theme_folder`, `citation`, `date`.
+- Modulo responsavel: `core.versioning`.
 
 ## Criterios De Aceite
 
 - [ ] Cada perfil estadual roda isoladamente.
+- [ ] O arquivo principal `.gpkg` e gerado com o nome esperado.
 - [ ] O arquivo principal abre no QGIS.
+- [ ] A validacao estrutural usa `input_schema.json`.
 - [ ] As funcoes obrigatorias aparecem no log.
+- [ ] As funcoes opcionais configuradas aparecem no log.
 - [ ] O deployment agendado usa o nome `CAR - Uso Restrito`.
+- [ ] As verificacoes obrigatorias de qualidade aparecem no log.
 - [ ] Testes automatizados relevantes passam.
+
+## Validacao
+
+Comando executado:
+
+```powershell
+nao executado
+```
+
+Resultado:
+
+```text
+nao registrado
+```
