@@ -1,4 +1,4 @@
-from functools import lru_cache
+﻿from functools import lru_cache
 
 
 DEFAULT_PROJECT_CONFIG = {
@@ -10,8 +10,8 @@ DEFAULT_PROJECT_CONFIG = {
 
 
 PROJECT_CONFIGS = {
-    "app_car": {
-        "project_name": "app_car",
+    "car_area_preservacao_permanente": {
+        "project_name": "car_area_preservacao_permanente",
         "display_name": "Areas de Preservacao Permanentes (APP) nos imoveis rurais",
         "theme_prefixes": ("app_car_",),
         "output_name_template": "pol_pcd_{theme_folder}_{date_yyyymmdd}",
@@ -38,22 +38,22 @@ PROJECT_CONFIGS = {
         "output_name_template": "pol_loc_setor_censitario_{date_yyyymmdd}",
         "reference_date": "20241114",
     },
-    "reserva_legal_car": {
-        "project_name": "reserva_legal_car",
+    "car_reserva_legal": {
+        "project_name": "car_reserva_legal",
         "display_name": "Reserva Legal (RL) nos imoveis rurais",
         "theme_prefixes": ("rl_car_",),
         "output_name_template": "pol_pcd_{theme_folder}_{date_yyyymmdd}",
         "reference_date": "20260301",
     },
-    "sa_car": {
-        "project_name": "sa_car",
+    "car_servidao_administrativa": {
+        "project_name": "car_servidao_administrativa",
         "display_name": "CAR de Servidao Administrativa",
         "theme_prefixes": ("sa_car_",),
         "output_name_template": "pol_pcd_{theme_folder}_{date_yyyymmdd}",
         "reference_date": "20260301",
     },
-    "ur_car": {
-        "project_name": "ur_car",
+    "car_uso_restrito": {
+        "project_name": "car_uso_restrito",
         "display_name": "Area de Uso Restrito nos imoveis rurais",
         "theme_prefixes": ("ur_car_",),
         "output_name_template": "pol_pcd_{theme_folder}_{date_yyyymmdd}",

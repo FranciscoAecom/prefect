@@ -1,5 +1,5 @@
 from settings import DEFAULT_RULE_PROFILE
-from core.rules.contracts import PIPELINE_COMPONENT_KEYS, PRIMARY_OUTPUT_OPTIONS
+from core.rules.contracts import PIPELINE_COMPONENT_KEYS, OUTPUT_ADJUSTMENT_OPTIONS
 
 
 QUALITY_OUTPUT_OPTIONS = {
@@ -95,7 +95,12 @@ def validate_pipeline_component(pipeline, fields):
     if "secondary_outputs" in pipeline:
         errors.append(
             "Campo 'secondary_outputs' foi descontinuado; configure apenas "
-            "'primary_output' quando a saida principal precisar de ajuste."
+            "'output_adjustments' quando a saida precisar de ajuste."
+        )
+    if "primary_output" in pipeline:
+        errors.append(
+            "Campo 'primary_output' foi renomeado para 'output_adjustments' "
+            "porque existe apenas uma saida por base."
         )
     if _pipeline_uses_component_keys(pipeline):
         auto_functions = pipeline.get("auto_functions", {})
@@ -107,7 +112,7 @@ def validate_pipeline_component(pipeline, fields):
         "postprocess_functions",
         errors,
     )
-    _validate_primary_output_entry(pipeline.get("primary_output", {}), errors)
+    _validate_output_adjustments_entry(pipeline.get("output_adjustments", {}), errors)
     _validate_quality_outputs_entry(pipeline.get("quality_outputs", {}), errors)
     _validate_component_errors("pipeline.json", errors)
 
@@ -159,14 +164,19 @@ def validate_rule_profile_structure(profile, profile_name):
     if "secondary_outputs" in profile:
         errors.append(
             "Campo 'secondary_outputs' foi descontinuado; configure apenas "
-            "'primary_output' quando a saida principal precisar de ajuste."
+            "'output_adjustments' quando a saida precisar de ajuste."
+        )
+    if "primary_output" in profile:
+        errors.append(
+            "Campo 'primary_output' foi renomeado para 'output_adjustments' "
+            "porque existe apenas uma saida por base."
         )
     _validate_string_list_entry(
         profile.get("postprocess_functions", []),
         "postprocess_functions",
         errors,
     )
-    _validate_primary_output_entry(profile.get("primary_output", {}), errors)
+    _validate_output_adjustments_entry(profile.get("output_adjustments", {}), errors)
     _validate_quality_outputs_entry(profile.get("quality_outputs", {}), errors)
     _validate_sld_entry(profile.get("sld", {}), errors, fields=profile.get("fields", {}))
     _raise_profile_errors(normalized_profile_name, errors)
@@ -189,7 +199,7 @@ def validate_rule_profile_semantics(profile, profile_name, optional_functions=No
         _get_registered_postprocess_function_names(),
         errors,
     )
-    _validate_primary_output_entry(profile.get("primary_output", {}), errors)
+    _validate_output_adjustments_entry(profile.get("output_adjustments", {}), errors)
     _validate_quality_outputs_entry(profile.get("quality_outputs", {}), errors)
     _raise_profile_errors(normalized_profile_name, errors)
 
@@ -427,19 +437,19 @@ def _iter_sld_rules(sld):
             yield from (rule for rule in layer_rules if isinstance(rule, dict))
 
 
-def _validate_primary_output_entry(primary_output, errors):
-    if primary_output in (None, {}):
+def _validate_output_adjustments_entry(output_adjustments, errors):
+    if output_adjustments in (None, {}):
         return
-    if not isinstance(primary_output, dict):
-        errors.append("Campo 'primary_output' deve ser um objeto JSON.")
+    if not isinstance(output_adjustments, dict):
+        errors.append("Campo 'output_adjustments' deve ser um objeto JSON.")
         return
 
-    for key, value in primary_output.items():
-        if key not in PRIMARY_OUTPUT_OPTIONS:
-            errors.append(f"Opcao desconhecida em 'primary_output': {key}.")
+    for key, value in output_adjustments.items():
+        if key not in OUTPUT_ADJUSTMENT_OPTIONS:
+            errors.append(f"Opcao desconhecida em 'output_adjustments': {key}.")
             continue
         if not isinstance(value, bool):
-            errors.append(f"Campo 'primary_output.{key}' deve ser booleano.")
+            errors.append(f"Campo 'output_adjustments.{key}' deve ser booleano.")
 
 
 def _validate_quality_outputs_entry(quality_outputs, errors):

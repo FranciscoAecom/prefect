@@ -1,4 +1,4 @@
-# Contrato Generico De Regras Modulares
+﻿# Contrato Generico De Regras Modulares
 
 Cada perfil em `rules/` deve ficar em uma pasta com cinco arquivos
 obrigatorios. Quando a base precisar de SLD, o perfil tambem deve conter
@@ -24,7 +24,7 @@ Metadados do perfil.
 ```json
 {
   "profile_name": "rl_car_ac",
-  "project_name": "reserva_legal_car",
+  "project_name": "car_reserva_legal",
   "theme_folder": "rl_car_ac",
   "description": "Regras para Reserva Legal do CAR AC."
 }
@@ -129,7 +129,7 @@ Define funcoes configuraveis do perfil.
   "postprocess_functions": [
     "enforce_car_state_bounds"
   ],
-  "primary_output": {
+  "output_adjustments": {
     "relocate_outside_brazil_bounds_to_centroid": false
   },
   "auto_functions": {
@@ -142,7 +142,7 @@ Define funcoes configuraveis do perfil.
 
 - `auto_functions`: funcoes por atributo. Cada chave e uma coluna e cada valor e a lista de funcoes que roda nessa coluna.
 - `postprocess_functions`: funcoes que rodam depois do processamento principal e alteram o GeoDataFrame final.
-- `primary_output`: ajustes aplicados somente ao arquivo principal.
+- `output_adjustments`: ajustes aplicados somente ao arquivo de dados persistido.
 
 Funcoes de atributo podem ser nomes curtos registrados em `projects/registry.py` ou nomes qualificados como `pacote.modulo.funcao`.
 
@@ -151,10 +151,10 @@ Funcoes de pos-processamento disponiveis no core:
 - `enforce_car_state_bounds`: valida/recorta geometrias CAR pelo bbox regional da UF inferida.
 - `enrich_with_municipality_intersection`: intersecta os pontos com a base de municipios e cria `acm_cod_munici`, `acm_municipio` e `acm_uf`.
 
-Opcoes de `primary_output`:
+Opcoes de `output_adjustments`:
 
 - `relocate_outside_brazil_bounds_to_centroid`: quando `true`, mantem todos os
-  registros no arquivo principal e move geometrias fora do limite Brasil / zona
+  registros no arquivo de dados e move geometrias fora do limite Brasil / zona
   costeira para um ponto unico dentro do limite brasileiro.
 
 Remova `postprocess_functions` quando a base nao deve usar essa etapa.
@@ -226,7 +226,6 @@ O carregador valida cada componente separadamente e depois consolida tudo em mem
   "relations": {},
   "auto_functions": {},
   "postprocess_functions": [],
-  "primary_output": {},
   "sld": {}
 }
 ```

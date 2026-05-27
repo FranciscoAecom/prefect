@@ -1,4 +1,4 @@
-# Specs Existentes
+﻿# Specs Existentes
 
 Esta pasta guarda as especificacoes SDD das bases e familias de bases do
 pipeline.
@@ -11,10 +11,10 @@ a secao e registrar `nao aplicavel`, `nao configurado` ou `nenhum`.
 
 ## Baselines
 
-- `app_car.md`
-- `reserva_legal_car.md`
-- `sa_car.md`
-- `ur_car.md`
+- `car_area_preservacao_permanente.md`
+- `car_reserva_legal.md`
+- `car_servidao_administrativa.md`
+- `car_uso_restrito.md`
 - `estado.md`
 - `localidades.md`
 - `autorizacao_para_supressao_vegetal-auth_supn.md`

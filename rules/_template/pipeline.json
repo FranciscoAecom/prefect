@@ -2,9 +2,6 @@
   "postprocess_functions": [
     "enforce_car_state_bounds"
   ],
-  "primary_output": {
-    "relocate_outside_brazil_bounds_to_centroid": false
-  },
   "auto_functions": {
     "sdb_coluna_obrigatoria": [
       "validate_shapefile_attribute"

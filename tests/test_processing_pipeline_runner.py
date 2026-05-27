@@ -1,4 +1,4 @@
-import unittest
+﻿import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
@@ -17,14 +17,14 @@ def _record():
         theme_folder="rl_car_ac",
         source_path="origem_a",
         input_path="origem_a.gpkg",
-        rule_profile="reserva_legal_car/rl_car_ac",
+        rule_profile="car_reserva_legal/rl_car_ac",
     )
 
 
 def _context():
     record = _record()
     return SimpleNamespace(
-        project_config={"project_name": "reserva_legal_car"},
+        project_config={"project_name": "car_reserva_legal"},
         record=record,
         output_dir="tests/_tmp_output",
         gdf=None,

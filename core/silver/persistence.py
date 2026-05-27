@@ -10,7 +10,7 @@ from core.silver.manifest import (
     persist_silver_manifest,
     quality_reports_from_summary,
 )
-from core.silver.primary_output import prepare_primary_output_gdf
+from core.silver.output_adjustments import prepare_output_adjustments_gdf
 from core.utils import log
 
 
@@ -47,7 +47,7 @@ def save_outputs_manifest(
         use_configured_final_name,
     )
     export_gdf = drop_internal_output_columns(final_gdf)
-    primary_export_gdf = prepare_primary_output_gdf(export_gdf, rule_profile or {})
+    primary_export_gdf = prepare_output_adjustments_gdf(export_gdf, rule_profile or {})
     log(FLOW_STAGE_SAVE_SILVER)
     persisted_output_path = persist_output_dataset(primary_export_gdf, output_path, persist_dataset)
     manifest = build_initial_silver_manifest(persisted_output_path)
@@ -120,7 +120,7 @@ def persist_output_dataset(export_gdf, output_path, persist_dataset):
 
 __all__ = [
     "build_initial_silver_manifest",
-    "prepare_primary_output_gdf",
+    "prepare_output_adjustments_gdf",
     "persist_output_dataset",
     "save_outputs",
     "save_outputs_manifest",

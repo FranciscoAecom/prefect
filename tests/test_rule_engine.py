@@ -1,4 +1,4 @@
-import json
+﻿import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -20,7 +20,7 @@ class ValidateRuleProfileTests(unittest.TestCase):
     def test_accepts_registered_short_function_names(self):
         profile = {
             "profile_name": "demo",
-            "project_name": "reserva_legal_car",
+            "project_name": "car_reserva_legal",
             "auto_functions": {
                 "sdb_cod_tema": ["validate_shapefile_attribute"],
                 "sdb_desc_condic": ["reserva_legal_car_transform_desc_condic"],
@@ -40,14 +40,14 @@ class ValidateRuleProfileTests(unittest.TestCase):
 
         validate_rule_profile(
             profile,
-            "reserva_legal_car/demo",
-            optional_functions=get_project_optional_functions("reserva_legal_car"),
+            "car_reserva_legal/demo",
+            optional_functions=get_project_optional_functions("car_reserva_legal"),
         )
 
     def test_rejects_unknown_optional_function(self):
         profile = {
             "profile_name": "demo",
-            "project_name": "app_car",
+            "project_name": "car_area_preservacao_permanente",
             "auto_functions": {
                 "sdb_cod_tema": ["funcao_que_nao_existe"],
             },
@@ -63,8 +63,8 @@ class ValidateRuleProfileTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "nao esta registrada"):
             validate_rule_profile(
                 profile,
-                "app_car/demo",
-                optional_functions=get_project_optional_functions("app_car"),
+                "car_area_preservacao_permanente/demo",
+                optional_functions=get_project_optional_functions("car_area_preservacao_permanente"),
             )
 
     def test_rejects_alias_target_outside_accepted_values(self):
@@ -315,12 +315,12 @@ class ValidateRuleProfileTests(unittest.TestCase):
                 self.assertNotIn("sld", pipeline)
                 self.assertEqual(style["sld"]["point"]["fill"], "#1654ad")
 
-    def test_autos_infracao_profile_has_only_primary_output(self):
+    def test_autos_infracao_profile_has_only_output_adjustments(self):
         profile = load_rule_profile("autos_infracao/autos_infracao")
 
         self.assertNotIn("secondary_outputs", profile)
         self.assertTrue(
-            profile["primary_output"]["relocate_outside_brazil_bounds_to_centroid"]
+            profile["output_adjustments"]["relocate_outside_brazil_bounds_to_centroid"]
         )
 
     def test_rejects_deprecated_secondary_outputs_pipeline_component(self):
@@ -339,6 +339,26 @@ class ValidateRuleProfileTests(unittest.TestCase):
             with patch("core.rules.engine.RULES_BASE", str(Path(temp_dir) / "rules")):
                 invalidate_rule_profile_cache()
                 with self.assertRaisesRegex(ValueError, "secondary_outputs"):
+                    load_rule_profile("demo/perfil")
+
+    def test_rejects_deprecated_primary_output_pipeline_component(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            profile_dir = Path(temp_dir) / "rules" / "demo" / "perfil"
+            self._write_modular_profile(
+                profile_dir,
+                pipeline={
+                    "primary_output": {
+                        "relocate_outside_brazil_bounds_to_centroid": True,
+                    },
+                    "auto_functions": {
+                        "sdb_codigo": ["validate_shapefile_attribute"],
+                    },
+                },
+            )
+
+            with patch("core.rules.engine.RULES_BASE", str(Path(temp_dir) / "rules")):
+                invalidate_rule_profile_cache()
+                with self.assertRaisesRegex(ValueError, "output_adjustments"):
                     load_rule_profile("demo/perfil")
 
     def _write_modular_profile(

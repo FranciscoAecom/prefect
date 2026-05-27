@@ -146,7 +146,7 @@ Postprocess configurado:
 - `enrich_with_municipality_intersection`
 
 
-Saida principal configurada:
+Ajuste de saida configurado:
 
 - `relocate_outside_brazil_bounds_to_centroid`
 

@@ -1,4 +1,4 @@
-# Data Pipeline
+﻿# Data Pipeline
 
 Pipeline de validacao, transformacao e padronizacao de arquivos geoespaciais
 em lote, orientado pela planilha de ingestao `input/st_Ingest_parameter.xlsx`.
@@ -57,8 +57,10 @@ data-pipeline/
 |   `-- functions/
 |-- rules/
 |   |-- _template/
-|   |-- app_car/
-|   |-- reserva_legal_car/
+|   |-- car_area_preservacao_permanente/
+|   |-- car_reserva_legal/
+|   |-- car_servidao_administrativa/
+|   |-- car_uso_restrito/
 |   |-- estado/
 |   `-- autorizacao_para_supressao_vegetal/
 |-- readme/
@@ -145,7 +147,7 @@ bases especificas pelo painel.
 No primeiro terminal, dentro da pasta do projeto, inicie o servidor local:
 
 ```powershell
-cd C:\Temp\Repositórios\prefect
+cd C:\Temp\Repositorios\prefect
 uv run python -m prefect server start --host 127.0.0.1 --port 4200
 ```
 
@@ -160,7 +162,7 @@ http://127.0.0.1:4200
 Em outro terminal, entre novamente na pasta do projeto:
 
 ```powershell
-cd C:\Temp\Repositórios\prefect
+cd C:\Temp\Repositorios\prefect
 ```
 
 Configure a API local do Prefect, se ainda nao estiver configurada:
@@ -557,13 +559,13 @@ Exemplo:
 
 ```text
 theme_folder = app_car_es
-perfil esperado = rules/app_car/app_car_es/
+perfil esperado = rules/car_area_preservacao_permanente/app_car_es/
 ```
 
 Associacoes principais:
 
-- `app_car_*` usa `rules/app_car/`.
-- `rl_car_*` usa `rules/reserva_legal_car/`.
+- `app_car_*` usa `rules/car_area_preservacao_permanente/`.
+- `rl_car_*` usa `rules/car_reserva_legal/`.
 - `estado` usa `rules/estado/`.
 - `auth_supn` usa `rules/autorizacao_para_supressao_vegetal/`.
 - `autos_infracao` usa `rules/autos_infracao/autos_infracao/`.
@@ -580,7 +582,7 @@ No `pipeline.json`, o perfil explicita tudo que roda de forma configuravel:
 
 - `auto_functions`: validacoes ou transformacoes por atributo.
 - `postprocess_functions`: etapas que alteram o GeoDataFrame final, como `enforce_car_state_bounds` ou `enrich_with_municipality_intersection`.
-- `primary_output`: ajustes aplicados somente ao arquivo principal.
+- `output_adjustments`: ajustes aplicados somente ao arquivo de dados persistido.
 
 O `style.json` concentra configuracoes de estilo, como `sld`. O `pipeline.json`
 nao deve conter configuracao visual.
@@ -589,8 +591,8 @@ As chaves permitidas dos perfis ficam centralizadas em
 `core/rules/contracts.py`; ao adicionar uma nova opcao operacional, atualize o
 contrato, a validacao e a documentacao do perfil.
 
-Quando configurado, `primary_output.relocate_outside_brazil_bounds_to_centroid`
-mantem todos os registros na saida principal, mas reposiciona geometrias fora
+Quando configurado, `output_adjustments.relocate_outside_brazil_bounds_to_centroid`
+mantem todos os registros na saida de dados, mas reposiciona geometrias fora
 do limite Brasil / zona costeira para um ponto unico dentro do limite
 brasileiro.
 
@@ -618,8 +620,8 @@ O pipeline:
 - valida geometrias OGC quando habilitado;
 - calcula area, perimetro, longitude e latitude;
 - usa `EPSG:4326` para saida e `EPSG:5880` para metricas;
-- aplica validacao regional de bounding box para bases `app_car` e
-  `reserva_legal_car`.
+- aplica validacao regional de bounding box para bases
+  `car_area_preservacao_permanente` e `car_reserva_legal`.
 
 ## Saidas
 

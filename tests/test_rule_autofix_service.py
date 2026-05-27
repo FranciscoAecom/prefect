@@ -1,4 +1,4 @@
-import unittest
+﻿import unittest
 import tempfile
 from pathlib import Path
 from types import SimpleNamespace
@@ -14,7 +14,7 @@ def _context():
             theme_folder="rl_car_ac",
             input_path="origem.gpkg",
         ),
-        rule_profile_name="reserva_legal_car/rl_car_ac",
+        rule_profile_name="car_reserva_legal/rl_car_ac",
         rule_profile={"fields": {}},
     )
 
@@ -28,7 +28,7 @@ class RuleAutofixServiceTests(unittest.TestCase):
 
         self.assertEqual(result, {"changed": False})
         self.assertEqual(mock_autofix.call_args.args[:3], (
-            "reserva_legal_car/rl_car_ac",
+            "car_reserva_legal/rl_car_ac",
             {"fields": {}},
             "gdf",
         ))

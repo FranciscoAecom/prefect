@@ -1,4 +1,4 @@
-import unittest
+﻿import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -15,7 +15,7 @@ def _record():
         status="Waiting Update",
         source_path="origem_a",
         input_path="origem_a.gpkg",
-        rule_profile="reserva_legal_car/rl_car_ac",
+        rule_profile="car_reserva_legal/rl_car_ac",
     )
 
 

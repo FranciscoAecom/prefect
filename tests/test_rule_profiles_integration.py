@@ -1,4 +1,4 @@
-import json
+﻿import json
 import re
 import unittest
 from pathlib import Path
@@ -31,20 +31,20 @@ class RuleProfilesIntegrationTests(unittest.TestCase):
         profiles = set(list_rule_profiles())
 
         self.assertIn("default", profiles)
-        self.assertIn("app_car/app_car_ac", profiles)
+        self.assertIn("car_area_preservacao_permanente/app_car_ac", profiles)
         self.assertIn("estado/estado", profiles)
-        self.assertIn("reserva_legal_car/rl_car_sp", profiles)
-        self.assertIn("sa_car/sa_car_ac", profiles)
+        self.assertIn("car_reserva_legal/rl_car_sp", profiles)
+        self.assertIn("car_servidao_administrativa/sa_car_ac", profiles)
         self.assertIn("autorizacao_para_supressao_vegetal/auth_supn", profiles)
 
     def test_modular_rule_profile_loads_as_consolidated_profile(self):
         profiles = set(list_rule_profiles())
 
-        self.assertIn("reserva_legal_car/rl_car_ac", profiles)
-        self.assertNotIn("reserva_legal_car/rl_car_ac/profile", profiles)
-        self.assertNotIn("reserva_legal_car/rl_car_ac/domains", profiles)
+        self.assertIn("car_reserva_legal/rl_car_ac", profiles)
+        self.assertNotIn("car_reserva_legal/rl_car_ac/profile", profiles)
+        self.assertNotIn("car_reserva_legal/rl_car_ac/domains", profiles)
 
-        profile = load_rule_profile("reserva_legal_car/rl_car_ac")
+        profile = load_rule_profile("car_reserva_legal/rl_car_ac")
 
         self.assertEqual(profile["profile_name"], "reserva_legal_car_ac")
         self.assertIn("input_schema", profile)
@@ -57,8 +57,8 @@ class RuleProfilesIntegrationTests(unittest.TestCase):
 
     def test_theme_folder_resolves_to_expected_project_profile(self):
         cases = {
-            "app_car_ac": "app_car/app_car_ac",
-            "rl_car_sp": "reserva_legal_car/rl_car_sp",
+            "app_car_ac": "car_area_preservacao_permanente/app_car_ac",
+            "rl_car_sp": "car_reserva_legal/rl_car_sp",
             "estado": "estado/estado",
             "auth_supn": "autorizacao_para_supressao_vegetal/auth_supn",
         }
@@ -76,7 +76,7 @@ class RuleProfilesIntegrationTests(unittest.TestCase):
 
     def test_rule_profiles_do_not_contain_utf8_mojibake(self):
         bad_tokens = ("\u00bf", "\ufffd")
-        mojibake_pattern = re.compile(r"[ÃÂ][\u0080-\u00bf]")
+        mojibake_pattern = re.compile(r"[ÃƒÃ‚][\u0080-\u00bf]")
 
         for path in Path(RULES_BASE).rglob("*.json"):
             with self.subTest(path=str(path)):

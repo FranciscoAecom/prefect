@@ -13,7 +13,7 @@ from core.silver.persistence import save_outputs, save_outputs_manifest
 
 class OutputPersistenceTests(unittest.TestCase):
     @patch("core.silver.persistence.write_output_gpkg")
-    def test_primary_output_relocates_outside_brazil_bounds_to_centroid(
+    def test_output_adjustments_relocates_outside_brazil_bounds_to_centroid(
         self,
         mock_main_write,
     ):
@@ -32,7 +32,7 @@ class OutputPersistenceTests(unittest.TestCase):
             crs="EPSG:4326",
         )
         rule_profile = {
-            "primary_output": {
+            "output_adjustments": {
                 "relocate_outside_brazil_bounds_to_centroid": True,
             },
         }
@@ -53,7 +53,7 @@ class OutputPersistenceTests(unittest.TestCase):
         self.assertEqual(main_gdf.loc[1, "acm_lat_centroide_brasil"], -13.279994)
 
     @patch("core.silver.persistence.write_output_gpkg")
-    def test_only_primary_output_is_persisted_without_profile_configuration(
+    def test_single_output_is_persisted_without_profile_configuration(
         self,
         mock_main_write,
     ):

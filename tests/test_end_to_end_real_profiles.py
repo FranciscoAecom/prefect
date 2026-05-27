@@ -1,4 +1,4 @@
-import unittest
+﻿import unittest
 import shutil
 from pathlib import Path
 from types import SimpleNamespace
@@ -105,7 +105,7 @@ class EndToEndRealProfilesTests(unittest.TestCase):
                 _record(
                     input_path=input_path,
                     theme_folder="rl_car_ac",
-                    rule_profile="reserva_legal_car/rl_car_ac",
+                    rule_profile="car_reserva_legal/rl_car_ac",
                     theme="Reserva Legal",
                 ),
                 output_dir=output_dir,

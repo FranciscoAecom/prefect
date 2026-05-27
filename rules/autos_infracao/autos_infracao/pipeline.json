@@ -2,7 +2,7 @@
   "postprocess_functions": [
     "enrich_with_municipality_intersection"
   ],
-  "primary_output": {
+  "output_adjustments": {
     "relocate_outside_brazil_bounds_to_centroid": true
   },
   "auto_functions": {

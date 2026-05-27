@@ -10,8 +10,11 @@ from projects.configs import (
 
 class ProjectConfigsTests(unittest.TestCase):
     def test_resolve_project_name_by_theme_prefix(self):
-        self.assertEqual(resolve_project_name("app_car_ac"), "app_car")
-        self.assertEqual(resolve_project_name("rl_car_sp"), "reserva_legal_car")
+        self.assertEqual(
+            resolve_project_name("app_car_ac"),
+            "car_area_preservacao_permanente",
+        )
+        self.assertEqual(resolve_project_name("rl_car_sp"), "car_reserva_legal")
         self.assertEqual(resolve_project_name("estado"), "estado")
         self.assertEqual(resolve_project_name("auth_supn"), "autorizacao_para_supressao_vegetal")
 
@@ -21,7 +24,7 @@ class ProjectConfigsTests(unittest.TestCase):
 
     def test_resolve_project_config_returns_expected_template(self):
         config = resolve_project_config("rl_car_sp")
-        self.assertEqual(config["project_name"], "reserva_legal_car")
+        self.assertEqual(config["project_name"], "car_reserva_legal")
         self.assertEqual(config["output_name_template"], "pol_pcd_{theme_folder}_{date_yyyymmdd}")
 
     def test_resolve_autos_infracao_project_config(self):

@@ -84,7 +84,7 @@ class RuleProfileModel:
     relations: dict[str, dict[str, str]] = field(default_factory=dict)
     auto_functions: dict[str, list[str]] = field(default_factory=dict)
     postprocess_functions: list[str] = field(default_factory=list)
-    primary_output: dict = field(default_factory=dict)
+    output_adjustments: dict = field(default_factory=dict)
     quality_outputs: dict = field(default_factory=dict)
     sld: dict = field(default_factory=dict)
 
@@ -94,7 +94,8 @@ class RuleProfileModel:
         metadata = {
             key: value
             for key, value in profile.items()
-            if key not in PROFILE_DATA_KEYS and key != "secondary_outputs"
+            if key not in PROFILE_DATA_KEYS
+            and key not in {"primary_output", "secondary_outputs"}
         }
         return cls(
             metadata=metadata,
@@ -112,7 +113,7 @@ class RuleProfileModel:
                 for column, functions in (profile.get("auto_functions", {}) or {}).items()
             },
             postprocess_functions=list(profile.get("postprocess_functions", []) or []),
-            primary_output=dict(profile.get("primary_output", {}) or {}),
+            output_adjustments=dict(profile.get("output_adjustments", {}) or {}),
             quality_outputs=dict(profile.get("quality_outputs", {}) or {}),
             sld=dict(profile.get("sld", {}) or {}),
         )
@@ -126,7 +127,7 @@ class RuleProfileModel:
         data["relations"] = (relations or {}).get("relations", relations or {})
         data["auto_functions"] = (pipeline or {}).get("auto_functions", pipeline or {})
         data["postprocess_functions"] = (pipeline or {}).get("postprocess_functions", [])
-        data["primary_output"] = (pipeline or {}).get("primary_output", {})
+        data["output_adjustments"] = (pipeline or {}).get("output_adjustments", {})
         data["quality_outputs"] = (pipeline or {}).get("quality_outputs", {})
         data["sld"] = (style or {}).get("sld", style or {})
         return cls.from_dict(data)
@@ -149,8 +150,8 @@ class RuleProfileModel:
             for column, functions in self.auto_functions.items()
         }
         data["postprocess_functions"] = list(self.postprocess_functions)
-        if self.primary_output:
-            data["primary_output"] = dict(self.primary_output)
+        if self.output_adjustments:
+            data["output_adjustments"] = dict(self.output_adjustments)
         if self.quality_outputs:
             data["quality_outputs"] = dict(self.quality_outputs)
         if self.sld:
@@ -164,9 +165,10 @@ class RuleProfileModel:
                 for column, functions in self.auto_functions.items()
             },
             "postprocess_functions": list(self.postprocess_functions),
-            "primary_output": dict(self.primary_output),
             "quality_outputs": dict(self.quality_outputs),
         }
+        if self.output_adjustments:
+            pipeline["output_adjustments"] = dict(self.output_adjustments)
         pipeline = {
             key: value
             for key, value in pipeline.items()

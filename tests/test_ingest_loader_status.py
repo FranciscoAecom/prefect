@@ -1,4 +1,4 @@
-import unittest
+﻿import unittest
 from unittest.mock import patch
 
 import pandas as pd
@@ -56,11 +56,11 @@ class IngestLoaderStatusTests(unittest.TestCase):
         mock_resolve_rule_profile.side_effect = lambda theme_folder: RuleProfileResolution(
             theme_folder=theme_folder,
             normalized_theme_folder=theme_folder,
-            project_name="ur_car",
+            project_name="car_uso_restrito",
             expected_profile_name=f"ur_car/{theme_folder}",
             profile_name=f"ur_car/{theme_folder}",
             profile_dir=None,
-            profile_project_name="ur_car",
+            profile_project_name="car_uso_restrito",
         )
         mock_resolve_paths.side_effect = lambda source_path: (f"{source_path}.gpkg",)
         mock_resolve_version_plan.return_value.silver_dir = r"L:\silver\ur_car"

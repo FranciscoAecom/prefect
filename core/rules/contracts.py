@@ -1,4 +1,4 @@
-from core.silver.primary_output import RELOCATE_OUTSIDE_BRAZIL_BOUNDS_KEY
+from core.silver.output_adjustments import RELOCATE_OUTSIDE_BRAZIL_BOUNDS_KEY
 
 
 PROFILE_METADATA_KEYS = {
@@ -14,7 +14,7 @@ PROFILE_DATA_KEYS = {
     "relations",
     "auto_functions",
     "postprocess_functions",
-    "primary_output",
+    "output_adjustments",
     "quality_outputs",
     "sld",
 }
@@ -22,18 +22,18 @@ PROFILE_DATA_KEYS = {
 PIPELINE_COMPONENT_KEYS = {
     "auto_functions",
     "postprocess_functions",
-    "primary_output",
+    "output_adjustments",
     "quality_outputs",
 }
 
-PRIMARY_OUTPUT_OPTIONS = {
+OUTPUT_ADJUSTMENT_OPTIONS = {
     RELOCATE_OUTSIDE_BRAZIL_BOUNDS_KEY,
 }
 
 
 __all__ = [
     "PIPELINE_COMPONENT_KEYS",
-    "PRIMARY_OUTPUT_OPTIONS",
+    "OUTPUT_ADJUSTMENT_OPTIONS",
     "PROFILE_DATA_KEYS",
     "PROFILE_METADATA_KEYS",
 ]

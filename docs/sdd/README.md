@@ -55,9 +55,9 @@ Funcoes opcionais precisam estar explicitas no perfil, normalmente em
 `pipeline.json`, para ficar claro o que roda em cada base.
 
 O `pipeline.json` tambem pode declarar ajustes da saida principal em
-`primary_output`. As bases devem gerar somente a saida principal; ajustes como
+`output_adjustments`. As bases devem gerar somente uma saida; ajustes como
 reposicionar pontos fora do limite Brasil / zona costeira devem ser expressos em
-`primary_output`.
+`output_adjustments`.
 
 Novas chaves de perfil devem ser registradas no contrato tecnico em
 `core/rules/contracts.py`, validadas em `core/rules/validation.py` e descritas

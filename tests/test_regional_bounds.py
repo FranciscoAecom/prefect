@@ -1,4 +1,4 @@
-import unittest
+﻿import unittest
 from types import SimpleNamespace
 
 import geopandas as gpd
@@ -12,7 +12,7 @@ class RegionalBoundsTests(unittest.TestCase):
         record = SimpleNamespace(
             theme_folder="app_car_ma",
             input_path="C:/dados/pol_pcd_app_car_ma_20260301.gpkg",
-            rule_profile="app_car/app_car_ma",
+            rule_profile="car_area_preservacao_permanente/app_car_ma",
             source_path="",
             theme="",
         )
@@ -23,7 +23,7 @@ class RegionalBoundsTests(unittest.TestCase):
         record = SimpleNamespace(
             theme_folder="rl_car_ma",
             input_path="C:/dados/pol_pcd_rl_car_ma_20260301.gpkg",
-            rule_profile="reserva_legal_car/rl_car_ma",
+            rule_profile="car_reserva_legal/rl_car_ma",
             source_path="",
             theme="",
         )
@@ -63,7 +63,7 @@ class RegionalBoundsTests(unittest.TestCase):
         record = SimpleNamespace(
             theme_folder="app_car_ma",
             input_path="pol_pcd_app_car_ma_20260301.gpkg",
-            rule_profile="app_car/app_car_ma",
+            rule_profile="car_area_preservacao_permanente/app_car_ma",
             source_path="",
             theme="",
         )
