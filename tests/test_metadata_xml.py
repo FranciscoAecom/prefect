@@ -226,9 +226,8 @@ class MetadataXmlTests(unittest.TestCase):
         self.assertIn("<name>acm_id</name>", xml_text)
         self.assertNotIn("00:00:00", xml_text)
 
-    @patch("core.metadata.xml.inspect_dataset_fields")
-    def test_bronze_metadata_uses_loaded_gdf_when_available(self, mock_inspect_fields):
-        mock_inspect_fields.return_value = ["cod_tema", "geometry"]
+    @patch("core.metadata.xml.inspect_input_attributes")
+    def test_bronze_metadata_uses_loaded_gdf_when_available(self, mock_inspect_input_attributes):
         descriptions = {"tema teste": {"original": {}, "aecom": {}}}
 
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -259,8 +258,7 @@ class MetadataXmlTests(unittest.TestCase):
                 fallback_gdf=gdf,
             )
 
-        mock_inspect_fields.assert_called_once()
-        self.assertIs(mock_inspect_fields.call_args.kwargs["fallback_gdf"], gdf)
+        mock_inspect_input_attributes.assert_not_called()
 
 
 if __name__ == "__main__":

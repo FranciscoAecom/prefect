@@ -125,10 +125,10 @@ def find_first_geographic_dataset(directory):
 
 def inspect_dataset_fields(path, fallback_gdf=None):
     path = Path(path)
-    if path.exists() and path.suffix.lower() in {".gpkg", ".shp"}:
-        return inspect_input_attributes(path)
     if fallback_gdf is not None:
         return list(fallback_gdf.columns)
+    if path.exists() and path.suffix.lower() in {".gpkg", ".shp"}:
+        return inspect_input_attributes(path)
     return []
 
 
