@@ -2,10 +2,13 @@ import unittest
 from unittest.mock import patch
 
 import geopandas as gpd
+import pandas as pd
 from shapely.geometry import Point
 
 from core.spatial.brazil_bounds import (
     BRAZIL_BOUNDS,
+    BRAZIL_CENTROID_LATITUDE_FIELD,
+    BRAZIL_CENTROID_LONGITUDE_FIELD,
     brazil_bounds_centroid,
     filter_geometries_in_brazil_bounds,
     get_brazil_bounds_geometry,
@@ -58,6 +61,16 @@ class BrazilBoundsTests(unittest.TestCase):
         self.assertEqual(result.loc[1, "geometry"], Point(centroid.x, centroid.y))
         self.assertEqual(result.loc[1, "acm_long"], round(centroid.x, 6))
         self.assertEqual(result.loc[1, "acm_lat"], round(centroid.y, 6))
+        self.assertTrue(pd.isna(result.loc[0, BRAZIL_CENTROID_LONGITUDE_FIELD]))
+        self.assertTrue(pd.isna(result.loc[0, BRAZIL_CENTROID_LATITUDE_FIELD]))
+        self.assertEqual(
+            result.loc[1, BRAZIL_CENTROID_LONGITUDE_FIELD],
+            round(centroid.x, 6),
+        )
+        self.assertEqual(
+            result.loc[1, BRAZIL_CENTROID_LATITUDE_FIELD],
+            round(centroid.y, 6),
+        )
 
 
 if __name__ == "__main__":

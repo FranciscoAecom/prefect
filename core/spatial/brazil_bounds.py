@@ -2,10 +2,14 @@ from functools import lru_cache
 from pathlib import Path
 
 import geopandas as gpd
+import pandas as pd
 from shapely.geometry import Point, box
 from shapely.ops import unary_union
 
 from core.config.defaults import DEFAULT_BRAZIL_BBOX_PATH
+
+BRAZIL_CENTROID_LONGITUDE_FIELD = "acm_long_centroide_brasil"
+BRAZIL_CENTROID_LATITUDE_FIELD = "acm_lat_centroide_brasil"
 
 BRAZIL_BOUNDS = (
     -73.99044999999995,
@@ -46,10 +50,17 @@ def relocate_geometries_outside_brazil_bounds_to_centroid(gdf):
         return output
 
     centroid = brazil_bounds_centroid(output.crs)
+    if BRAZIL_CENTROID_LONGITUDE_FIELD not in output.columns:
+        output[BRAZIL_CENTROID_LONGITUDE_FIELD] = pd.NA
+    if BRAZIL_CENTROID_LATITUDE_FIELD not in output.columns:
+        output[BRAZIL_CENTROID_LATITUDE_FIELD] = pd.NA
+
     output.loc[outside_mask, "geometry"] = [
         Point(centroid.x, centroid.y)
         for _ in range(int(outside_mask.sum()))
     ]
+    output.loc[outside_mask, BRAZIL_CENTROID_LONGITUDE_FIELD] = round(centroid.x, 6)
+    output.loc[outside_mask, BRAZIL_CENTROID_LATITUDE_FIELD] = round(centroid.y, 6)
     if "acm_long" in output.columns:
         output.loc[outside_mask, "acm_long"] = round(centroid.x, 6)
     if "acm_lat" in output.columns:
@@ -85,6 +96,8 @@ def get_brazil_bounds_geometry(target_crs=None):
 
 __all__ = [
     "BRAZIL_BOUNDS",
+    "BRAZIL_CENTROID_LATITUDE_FIELD",
+    "BRAZIL_CENTROID_LONGITUDE_FIELD",
     "brazil_bounds_centroid",
     "filter_geometries_in_brazil_bounds",
     "get_brazil_bounds_geometry",

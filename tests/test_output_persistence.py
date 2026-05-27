@@ -5,6 +5,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 import geopandas as gpd
+import pandas as pd
 from shapely.geometry import Point
 
 from core.silver.persistence import save_outputs, save_outputs_manifest
@@ -55,6 +56,11 @@ class OutputPersistenceTests(unittest.TestCase):
         main_gdf = mock_main_write.call_args.args[0]
         self.assertEqual(len(main_gdf), 2)
         self.assertNotEqual(main_gdf.loc[1, "geometry"], Point(0.0, 50.0))
+        self.assertIn("acm_long_centroide_brasil", main_gdf.columns)
+        self.assertIn("acm_lat_centroide_brasil", main_gdf.columns)
+        self.assertTrue(pd.isna(main_gdf.loc[0, "acm_long_centroide_brasil"]))
+        self.assertEqual(main_gdf.loc[1, "acm_long_centroide_brasil"], -46.79781)
+        self.assertEqual(main_gdf.loc[1, "acm_lat_centroide_brasil"], -13.279994)
 
     @patch("core.output.secondary_outputs.write_output_gpkg")
     @patch("core.silver.persistence.write_output_gpkg")
