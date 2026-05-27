@@ -38,6 +38,7 @@ def persist_bronze_step(context, use_configured_final_name=False):
         bronze_dataset_path,
         load_dictionary_descriptions(),
         base_name,
+        fallback_gdf=getattr(context, "gdf", None),
     )
     if xml_path:
         log(stage_message(FLOW_STAGE_SAVE_BRONZE_XML, str(xml_path)))

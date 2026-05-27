@@ -55,7 +55,13 @@ def persist_stage_metadata_xmls(
     return outputs
 
 
-def persist_bronze_metadata_xml(record, bronze_dataset_path, descriptions, base_name):
+def persist_bronze_metadata_xml(
+    record,
+    bronze_dataset_path,
+    descriptions,
+    base_name,
+    fallback_gdf=None,
+):
     bronze_dir_value = stringify(getattr(record, "bronze_dir", ""))
     if not bronze_dir_value:
         return None
@@ -66,7 +72,10 @@ def persist_bronze_metadata_xml(record, bronze_dataset_path, descriptions, base_
 
     fields = [
         bronze_field_name(field)
-        for field in inspect_dataset_fields(bronze_dataset_path)
+        for field in inspect_dataset_fields(
+            bronze_dataset_path,
+            fallback_gdf=fallback_gdf,
+        )
         if should_include_dictionary_field(field, stage="bronze")
     ]
     xml_path = bronze_dir / metadata_xml_name_for_base(base_name)
