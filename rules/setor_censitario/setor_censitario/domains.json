@@ -2,6 +2,7 @@
   "fields": {
     "sdb_situacao": {
       "accepted_values": [
+        "Massas de água",
         "Rural",
         "Urbana"
       ],
