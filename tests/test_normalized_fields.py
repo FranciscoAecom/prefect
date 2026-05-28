@@ -7,6 +7,7 @@ from shapely.geometry import Point
 from core.validation.domain_validation import validate_shapefile_attribute
 from core.validation.normalized_fields import (
     apply_normalized_column_if_changed,
+    fill_missing_normalized_columns,
     is_normalized_column,
     is_source_column,
     normalized_column_name,
@@ -73,6 +74,24 @@ class NormalizedFieldsTests(unittest.TestCase):
 
         self.assertEqual(result.loc[0, "sdb_nm_rgi"], "Ilheus")
         self.assertEqual(result.loc[0, "acm_nm_rgi"], "Ilheus - Itabuna")
+
+    def test_fills_missing_normalized_values_after_batch_concat(self):
+        gdf = gpd.GeoDataFrame(
+            {
+                "sdb_nm_rgi": ["Cacoal", "Goiana - Timbauba"],
+                "acm_nm_rgi": [pd.NA, "Goiana - Timbauba"],
+                "geometry": [Point(0, 0), Point(1, 1)],
+            },
+            geometry="geometry",
+            crs="EPSG:4326",
+        )
+
+        result = fill_missing_normalized_columns(gdf)
+
+        self.assertEqual(
+            result["acm_nm_rgi"].tolist(),
+            ["Cacoal", "Goiana - Timbauba"],
+        )
 
 
 if __name__ == "__main__":

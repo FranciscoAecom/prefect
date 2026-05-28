@@ -45,10 +45,26 @@ def apply_normalized_column_if_changed(
     return gdf
 
 
+def fill_missing_normalized_columns(gdf):
+    for target_column in list(gdf.columns):
+        if not is_normalized_column(target_column):
+            continue
+
+        source_column = f"{SOURCE_FIELD_PREFIX}{target_column[len(NORMALIZED_FIELD_PREFIX):]}"
+        if source_column not in gdf.columns:
+            continue
+
+        missing_mask = gdf[target_column].isna() & gdf[source_column].notna()
+        if bool(missing_mask.any()):
+            gdf.loc[missing_mask, target_column] = gdf.loc[missing_mask, source_column]
+    return gdf
+
+
 __all__ = [
     "NORMALIZED_FIELD_PREFIX",
     "SOURCE_FIELD_PREFIX",
     "apply_normalized_column_if_changed",
+    "fill_missing_normalized_columns",
     "is_normalized_column",
     "is_source_column",
     "normalized_column_name",

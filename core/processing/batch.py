@@ -3,6 +3,7 @@ import pandas as pd
 
 from core.processing.mandatory_pipeline import MANDATORY_FUNCTIONS, run_pipeline
 from core.utils import log
+from core.validation.normalized_fields import fill_missing_normalized_columns
 from core.validation.summary import log_validation_summary
 from settings import BATCH_SIZE
 
@@ -92,6 +93,7 @@ def process_in_batches(
         geometry="geometry",
         crs=results[0].crs,
     )
+    final_gdf = fill_missing_normalized_columns(final_gdf)
 
     final_stats = _finalize_stats(stats_total)
 
