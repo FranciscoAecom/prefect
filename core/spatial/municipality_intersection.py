@@ -169,6 +169,7 @@ def assign_municipality_fields_by_intersection(gdf, municipalities):
     enriched["acm_municipio"] = joined["__mun_nome"].reindex(enriched.index)
     enriched["acm_uf"] = normalize_uf_values(joined["__mun_uf"]).reindex(enriched.index)
     enriched = fill_missing_municipality_intersection(enriched)
+    enriched = fill_missing_uf_from_source(enriched)
 
     matched = int(enriched["acm_cod_munici"].notna().sum())
     log(
@@ -187,6 +188,18 @@ def fill_missing_municipality_intersection(gdf):
         gdf[column] = gdf[column].astype("object")
         gdf.loc[missing_mask, column] = OUTSIDE_TERRITORIAL_LIMIT_MESSAGE
 
+    return gdf
+
+
+def fill_missing_uf_from_source(gdf):
+    if "acm_uf" not in gdf.columns or "sdb_uf" not in gdf.columns:
+        return gdf
+
+    missing_mask = gdf["acm_uf"].isna() & gdf["sdb_uf"].notna()
+    if bool(missing_mask.any()):
+        gdf.loc[missing_mask, "acm_uf"] = normalize_uf_values(
+            gdf.loc[missing_mask, "sdb_uf"]
+        )
     return gdf
 
 
@@ -209,6 +222,7 @@ __all__ = [
     "OUTSIDE_TERRITORIAL_LIMIT_MESSAGE",
     "assign_municipality_fields_by_intersection",
     "enrich_with_municipality_intersection",
+    "fill_missing_uf_from_source",
     "fill_missing_municipality_intersection",
     "find_latest_municipalities_path_from_ingest",
     "load_municipalities_base",

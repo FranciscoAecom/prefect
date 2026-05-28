@@ -77,6 +77,37 @@ class MunicipalityIntersectionTests(unittest.TestCase):
         self.assertEqual(result.loc[0, "acm_municipio"], "Alta Floresta D'Oeste")
         self.assertEqual(result.loc[0, "acm_uf"], "RO")
 
+    def test_fills_missing_intersected_uf_from_source_uf(self):
+        autos = gpd.GeoDataFrame(
+            {
+                "sdb_uf": ["RS"],
+                "geometry": [Point(0.5, 0.5)],
+            },
+            geometry="geometry",
+            crs="EPSG:4326",
+        )
+        municipalities = gpd.GeoDataFrame(
+            {
+                "sdb_cd_mun": ["4300002"],
+                "sdb_nm_mun": ['Area Operacional "Lagoa dos Patos"'],
+                "sdb_sigla_uf": [None],
+                "geometry": [
+                    Polygon([(0, 0), (1, 0), (1, 1), (0, 1), (0, 0)]),
+                ],
+            },
+            geometry="geometry",
+            crs="EPSG:4326",
+        )
+
+        result = assign_municipality_fields_by_intersection(autos, municipalities)
+
+        self.assertEqual(result.loc[0, "acm_cod_munici"], "4300002")
+        self.assertEqual(
+            result.loc[0, "acm_municipio"],
+            'Area Operacional "Lagoa dos Patos"',
+        )
+        self.assertEqual(result.loc[0, "acm_uf"], "RS")
+
     def test_marks_features_without_municipality_intersection(self):
         autos = gpd.GeoDataFrame(
             {"geometry": [Point(10, 10)]},
