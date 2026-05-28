@@ -167,7 +167,8 @@ SLD esperado somente no silver:
 nao aplicavel
 ```
 
-Quando aplicavel, usar o padrao `sld_<nome_do_dataset>.sld`.
+Quando aplicavel, usar o padrao `sld_<nome_sem_prefixo_geometrico>.sld`.
+Prefixos como `pnt_`, `pol_`, `lin_` e `rst_` nao entram no nome do SLD.
 
 Campos `acm_*` obrigatorios:
 

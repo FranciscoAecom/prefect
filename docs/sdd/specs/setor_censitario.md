@@ -245,7 +245,7 @@ md_loc_cse_20241114.xml
 SLD esperado somente no silver:
 
 ```text
-sld_pol_loc_cse_20241114.sld
+sld_loc_cse_20241114.sld
 ```
 
 Campos `acm_*` obrigatorios:
@@ -276,7 +276,7 @@ Esta base gera um unico conjunto publicavel:
 
 ```text
 pol_loc_cse_20241114.gpkg
-sld_pol_loc_cse_20241114.sld
+sld_loc_cse_20241114.sld
 md_loc_cse_20241114.xml
 ```
 
@@ -351,7 +351,7 @@ Arquivos atualizados pelo processo:
 - [ ] As funcoes obrigatorias aparecem no log.
 - [ ] O XML do bronze e do silver usa prefixo `md_`.
 - [ ] O bronze preserva o bruto sem alterar dados nem nome do arquivo.
-- [ ] O SLD simples e gerado somente no silver com nome `sld_pol_loc_cse_20241114.sld`.
+- [ ] O SLD simples e gerado somente no silver com nome `sld_loc_cse_20241114.sld`.
 - [ ] Testes automatizados relevantes passam.
 
 ## Validacao

@@ -10,7 +10,8 @@ Todas as specs devem seguir a ordem de secoes definida em
 a secao e registrar `nao aplicavel`, `nao configurado` ou `nenhum`.
 
 Quando houver SLD, ele deve existir somente no `silver_data` e o nome deve
-comecar com `sld_`, no formato `sld_<nome_do_dataset>.sld`.
+comecar com `sld_`, no formato `sld_<nome_sem_prefixo_geometrico>.sld`.
+Prefixos como `pnt_`, `pol_`, `lin_` e `rst_` nao entram no nome do SLD.
 
 ## Baselines
 

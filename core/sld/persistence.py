@@ -4,6 +4,9 @@ from xml.sax.saxutils import escape
 from core.utils import log
 
 
+SLD_OMITTED_DATASET_PREFIXES = {"pnt", "pol", "lin", "rst"}
+
+
 DEFAULT_SLD_STYLE = {
     "version": "1.0.0",
     "rule_name": "Single symbol",
@@ -152,7 +155,14 @@ def resolve_layer_sld_style(base_style, layer_name):
 
 def sld_path_for_dataset(dataset_path):
     dataset_path = Path(dataset_path)
-    return dataset_path.parent / f"sld_{dataset_path.stem}.sld"
+    return dataset_path.parent / f"sld_{sld_stem_for_dataset_stem(dataset_path.stem)}.sld"
+
+
+def sld_stem_for_dataset_stem(dataset_stem):
+    parts = str(dataset_stem).split("_", 1)
+    if parts[0] in SLD_OMITTED_DATASET_PREFIXES and len(parts) == 2:
+        return parts[1]
+    return str(dataset_stem)
 
 
 def detect_geometry_kind(gdf):
@@ -525,5 +535,7 @@ __all__ = [
     "persist_stage_slds",
     "render_sld",
     "resolve_layer_sld_style",
+    "SLD_OMITTED_DATASET_PREFIXES",
     "sld_path_for_dataset",
+    "sld_stem_for_dataset_stem",
 ]

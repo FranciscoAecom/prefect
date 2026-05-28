@@ -3,7 +3,7 @@ from pathlib import Path
 from core.rules import loader as rule_loader
 from core.rules.constants import STYLE_COMPONENT
 from core.rules.generation.style import generate_categorized_style_from_domain
-from core.sld.persistence import build_sld_style, render_sld
+from core.sld.persistence import build_sld_style, render_sld, sld_stem_for_dataset_stem
 
 
 class RuleProfileService:
@@ -75,7 +75,7 @@ class RuleProfileService:
         )
         output_dir = Path(output_dir or "output/sld_preview")
         output_dir.mkdir(parents=True, exist_ok=True)
-        output_path = output_dir / f"sld_{layer_name}.sld"
+        output_path = output_dir / f"sld_{sld_stem_for_dataset_stem(layer_name)}.sld"
         output_path.write_text(sld_text, encoding="utf-8")
         return output_path
 

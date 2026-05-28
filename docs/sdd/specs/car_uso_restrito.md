@@ -166,7 +166,7 @@ md_pcd_<theme_folder>_20260514.xml
 SLD esperado somente no silver:
 
 ```text
-sld_pol_pcd_<theme_folder>_20260514.sld
+sld_pcd_<theme_folder>_20260514.sld
 ```
 
 Campos `acm_*` obrigatorios:
@@ -194,7 +194,7 @@ Conjunto publicavel esperado:
 
 ```text
 pol_pcd_<theme_folder>_20260514.gpkg
-sld_pol_pcd_<theme_folder>_20260514.sld
+sld_pcd_<theme_folder>_20260514.sld
 md_pcd_<theme_folder>_20260514.xml
 ```
 

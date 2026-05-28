@@ -4,6 +4,7 @@ from pathlib import Path
 
 from core.publish.metadata_xml import metadata_title
 from core.publish.policy import DATA_SUFFIXES, MultiplePublishItemsError, SPATIAL_PREFIXES
+from core.sld.persistence import sld_path_for_dataset
 from core.publish.titles import geoserver_layer_title
 
 
@@ -185,6 +186,7 @@ def find_manifest_sld_path(manifest, data_path, manifest_dir):
         manifest_dir,
         expected_names=[
             sld_path_for_data_path(data_path).name,
+            data_path.parent.joinpath(f"sld_{data_path.stem}.sld").name,
             data_path.with_suffix(".sld").name,
         ],
         artifact_label="SLD",
@@ -238,8 +240,7 @@ def metadata_stem_for_data_stem(data_stem):
 
 
 def sld_path_for_data_path(data_path):
-    data_path = Path(data_path)
-    return data_path.parent / f"sld_{data_path.stem}.sld"
+    return sld_path_for_dataset(data_path)
 
 
 def data_publish_info(data_path):

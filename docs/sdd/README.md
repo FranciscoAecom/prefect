@@ -98,9 +98,10 @@ publicar uma pasta por vez. Cada pasta de publicacao deve representar um unico
 conjunto publicavel.
 
 O SLD e criado apenas na etapa `silver_data` e deve seguir o padrao
-`sld_<nome_do_dataset>.sld`. O XML importado no GeoNetwork deve preservar o
-dicionario de dados e receber o link do dicionario publicado quando o GeoServer
-retornar os tipos dos atributos.
+`sld_<nome_sem_prefixo_geometrico>.sld`. Prefixos como `pnt_`, `pol_`, `lin_`
+e `rst_` nao entram no nome do SLD. O XML importado no GeoNetwork deve
+preservar o dicionario de dados e receber o link do dicionario publicado quando
+o GeoServer retornar os tipos dos atributos.
 
 ## Status Da Ingest
 
