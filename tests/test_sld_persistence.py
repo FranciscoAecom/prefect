@@ -153,6 +153,22 @@ class SldPersistenceTests(unittest.TestCase):
         self.assertIn("<ogc:Literal>Cidade</ogc:Literal>", text)
         self.assertIn('<se:SvgParameter name="fill">#1654AD</se:SvgParameter>', text)
 
+    def test_setor_censitario_style_matches_single_symbol_polygon_model(self):
+        style_path = Path("rules/setor_censitario/setor_censitario/style.json")
+        style = build_sld_style(json.loads(style_path.read_text(encoding="utf-8")))
+        text = render_sld("pol_loc_cse_20241114", "polygon", style)
+
+        self.assertIn('version="1.1.0"', text)
+        self.assertIn("<se:Name>pol_loc_cse_20241114</se:Name>", text)
+        self.assertIn("<se:Name>Single symbol</se:Name>", text)
+        self.assertIn('<se:SvgParameter name="fill">#ef8e03</se:SvgParameter>', text)
+        self.assertIn('<se:SvgParameter name="stroke">#232323</se:SvgParameter>', text)
+        self.assertIn('<se:SvgParameter name="stroke-width">1</se:SvgParameter>', text)
+        self.assertIn(
+            '<se:SvgParameter name="stroke-linejoin">bevel</se:SvgParameter>',
+            text,
+        )
+
     def test_sld_path_uses_same_stem_as_dataset(self):
         self.assertEqual(
             sld_path_for_dataset(Path("saida") / "pnt_pcd_enov_20260514.gpkg"),

@@ -447,14 +447,19 @@ def render_polygon_symbolizer(style):
             ]
         )
     if "stroke" in style:
+        stroke_linejoin = style_value(style, "stroke_linejoin", "stroke-linejoin")
         lines.extend(
             [
                 "            <Stroke>",
                 f"              <CssParameter name=\"stroke\">{escape(style['stroke'])}</CssParameter>",
                 f"              <CssParameter name=\"stroke-width\">{escape(style.get('stroke_width', '0.5'))}</CssParameter>",
-                "            </Stroke>",
             ]
         )
+        if stroke_linejoin:
+            lines.append(
+                f"              <CssParameter name=\"stroke-linejoin\">{escape(stroke_linejoin)}</CssParameter>"
+            )
+        lines.append("            </Stroke>")
     lines.append("          </PolygonSymbolizer>")
     return "\n".join(lines)
 
@@ -488,16 +493,29 @@ def render_polygon_symbolizer_1_1(style):
             ]
         )
     if "stroke" in style:
+        stroke_linejoin = style_value(style, "stroke_linejoin", "stroke-linejoin")
         lines.extend(
             [
                 "            <se:Stroke>",
                 f"              <se:SvgParameter name=\"stroke\">{escape(style['stroke'])}</se:SvgParameter>",
                 f"              <se:SvgParameter name=\"stroke-width\">{escape(style.get('stroke_width', '0.5'))}</se:SvgParameter>",
-                "            </se:Stroke>",
             ]
         )
+        if stroke_linejoin:
+            lines.append(
+                f"              <se:SvgParameter name=\"stroke-linejoin\">{escape(stroke_linejoin)}</se:SvgParameter>"
+            )
+        lines.append("            </se:Stroke>")
     lines.append("          </se:PolygonSymbolizer>")
     return "\n".join(lines)
+
+
+def style_value(style, *keys):
+    for key in keys:
+        value = style.get(key)
+        if value is not None and str(value).strip():
+            return str(value)
+    return ""
 
 
 __all__ = [

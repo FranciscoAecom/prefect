@@ -1,0 +1,12 @@
+{
+  "sld": {
+    "version": "1.1.0",
+    "rule_name": "Single symbol",
+    "polygon": {
+      "fill": "#ef8e03",
+      "stroke": "#232323",
+      "stroke_width": "1",
+      "stroke_linejoin": "bevel"
+    }
+  }
+}
