@@ -21,48 +21,6 @@
     "sdb_nm_uf": [
       "validate_shapefile_attribute"
     ],
-    "sdb_cd_mun": [
-      "validate_shapefile_attribute"
-    ],
-    "sdb_nm_mun": [
-      "validate_shapefile_attribute"
-    ],
-    "sdb_cd_dist": [
-      "validate_shapefile_attribute"
-    ],
-    "sdb_nm_dist": [
-      "validate_shapefile_attribute"
-    ],
-    "sdb_cd_subdist": [
-      "validate_shapefile_attribute"
-    ],
-    "sdb_nm_subdist": [
-      "validate_shapefile_attribute"
-    ],
-    "sdb_cd_bairro": [
-      "validate_shapefile_attribute"
-    ],
-    "sdb_nm_bairro": [
-      "validate_shapefile_attribute"
-    ],
-    "sdb_cd_nu": [
-      "validate_shapefile_attribute"
-    ],
-    "sdb_nm_nu": [
-      "validate_shapefile_attribute"
-    ],
-    "sdb_cd_fcu": [
-      "validate_shapefile_attribute"
-    ],
-    "sdb_nm_fcu": [
-      "validate_shapefile_attribute"
-    ],
-    "sdb_cd_aglom": [
-      "validate_shapefile_attribute"
-    ],
-    "sdb_nm_aglom": [
-      "validate_shapefile_attribute"
-    ],
     "sdb_cd_rgint": [
       "validate_shapefile_attribute"
     ],
@@ -73,12 +31,6 @@
       "validate_shapefile_attribute"
     ],
     "sdb_nm_rgi": [
-      "validate_shapefile_attribute"
-    ],
-    "sdb_cd_concurb": [
-      "validate_shapefile_attribute"
-    ],
-    "sdb_nm_concurb": [
       "validate_shapefile_attribute"
     ]
   }
