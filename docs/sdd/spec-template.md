@@ -167,6 +167,8 @@ SLD esperado somente no silver:
 nao aplicavel
 ```
 
+Quando aplicavel, usar o padrao `sld_<nome_do_dataset>.sld`.
+
 Campos `acm_*` obrigatorios:
 
 - `acm_id`

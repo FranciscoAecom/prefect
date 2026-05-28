@@ -212,7 +212,7 @@ md_loc_loc_br_20251119.xml
 SLD esperado somente no silver:
 
 ```text
-pnt_loc_loc_br_20251119.sld
+sld_pnt_loc_loc_br_20251119.sld
 ```
 
 O bronze nao deve gerar SLD. Ele deve conter somente o dado bruto e o XML de
@@ -235,7 +235,7 @@ Esta base gera um unico conjunto publicavel:
 
 ```text
 pnt_loc_loc_br_20251119.gpkg
-pnt_loc_loc_br_20251119.sld
+sld_pnt_loc_loc_br_20251119.sld
 md_loc_loc_br_20251119.xml
 ```
 

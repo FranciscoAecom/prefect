@@ -89,7 +89,7 @@ A publicacao e uma etapa separada da geracao da camada `silver_data`. A pasta
 publicada deve conter exatamente um conjunto:
 
 - um arquivo de dados (`.gpkg`, `.rst` ou `.tif`);
-- um arquivo `.sld`;
+- um arquivo `.sld` com nome iniciado por `sld_`;
 - um XML de metadados correspondente.
 
 Se a pasta tiver mais de um arquivo de dados publicavel, a publicacao deve ser
@@ -97,9 +97,10 @@ ignorada e o log deve orientar a separar os conjuntos em pastas diferentes ou
 publicar uma pasta por vez. Cada pasta de publicacao deve representar um unico
 conjunto publicavel.
 
-O SLD e criado apenas na etapa `silver_data`. O XML importado no GeoNetwork deve
-preservar o dicionario de dados e receber o link do dicionario publicado quando
-o GeoServer retornar os tipos dos atributos.
+O SLD e criado apenas na etapa `silver_data` e deve seguir o padrao
+`sld_<nome_do_dataset>.sld`. O XML importado no GeoNetwork deve preservar o
+dicionario de dados e receber o link do dicionario publicado quando o GeoServer
+retornar os tipos dos atributos.
 
 ## Status Da Ingest
 

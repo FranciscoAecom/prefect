@@ -9,6 +9,9 @@ Todas as specs devem seguir a ordem de secoes definida em
 `docs/sdd/spec-template.md`. Quando uma secao nao se aplicar a uma base, manter
 a secao e registrar `nao aplicavel`, `nao configurado` ou `nenhum`.
 
+Quando houver SLD, ele deve existir somente no `silver_data` e o nome deve
+comecar com `sld_`, no formato `sld_<nome_do_dataset>.sld`.
+
 ## Baselines
 
 - `car_area_preservacao_permanente.md`
@@ -17,6 +20,7 @@ a secao e registrar `nao aplicavel`, `nao configurado` ou `nenhum`.
 - `car_uso_restrito.md`
 - `estado.md`
 - `localidades.md`
+- `setor_censitario.md`
 - `autorizacao_para_supressao_vegetal-auth_supn.md`
 - `autos_infracao.md`
 - `default.md`

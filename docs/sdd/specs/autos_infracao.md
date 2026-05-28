@@ -239,7 +239,7 @@ md_pcd_enov_20260514.xml
 SLD esperado somente no silver:
 
 ```text
-pnt_pcd_enov_20260514.sld
+sld_pnt_pcd_enov_20260514.sld
 ```
 
 O arquivo principal deve conter todos os pontos tratados. Pontos fora do limite
@@ -270,7 +270,7 @@ Esta base gera um unico conjunto publicavel:
 
 ```text
 pnt_pcd_enov_20260514.gpkg
-pnt_pcd_enov_20260514.sld
+sld_pnt_pcd_enov_20260514.sld
 md_pcd_enov_20260514.xml
 ```
 
