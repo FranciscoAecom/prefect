@@ -111,7 +111,7 @@ def build_publish_item(
     data_path = Path(data_path)
     item_layer = layer or data_path.stem
     item_store = store or item_layer
-    sld_path = Path(sld_path) if sld_path else data_path.with_suffix(".sld")
+    sld_path = Path(sld_path) if sld_path else sld_path_for_data_path(data_path)
     xml_path = (
         Path(xml_path)
         if xml_path
@@ -183,7 +183,10 @@ def find_manifest_sld_path(manifest, data_path, manifest_dir):
         manifest.get("sld_files", []),
         data_path,
         manifest_dir,
-        expected_name=data_path.with_suffix(".sld").name,
+        expected_names=[
+            sld_path_for_data_path(data_path).name,
+            data_path.with_suffix(".sld").name,
+        ],
         artifact_label="SLD",
     )
 
@@ -203,22 +206,27 @@ def find_manifest_companion_path(
     data_path,
     manifest_dir,
     *,
-    expected_name,
+    expected_name=None,
+    expected_names=None,
     artifact_label,
 ):
+    names = list(expected_names or [])
+    if expected_name:
+        names.append(expected_name)
     resolved_paths = [
         resolve_manifest_path(path, manifest_dir)
         for path in (artifact_paths or [])
         if path
     ]
     for path in resolved_paths:
-        if path.name == expected_name:
+        if path.name in names:
             return path
-    fallback = data_path.parent / expected_name
-    if fallback.exists():
-        return fallback
+    for name in names:
+        fallback = data_path.parent / name
+        if fallback.exists():
+            return fallback
     raise FileNotFoundError(
-        f"{artifact_label} nao encontrado para {data_path.name}: {expected_name}"
+        f"{artifact_label} nao encontrado para {data_path.name}: {', '.join(names)}"
     )
 
 
@@ -227,6 +235,11 @@ def metadata_stem_for_data_stem(data_stem):
     if parts[0] in SPATIAL_PREFIXES and len(parts) == 2:
         return f"md_{parts[1]}"
     return f"md_{data_stem}"
+
+
+def sld_path_for_data_path(data_path):
+    data_path = Path(data_path)
+    return data_path.parent / f"sld_{data_path.stem}.sld"
 
 
 def data_publish_info(data_path):
@@ -266,4 +279,5 @@ __all__ = [
     "discover_publish_items",
     "find_publish_manifest",
     "metadata_stem_for_data_stem",
+    "sld_path_for_data_path",
 ]

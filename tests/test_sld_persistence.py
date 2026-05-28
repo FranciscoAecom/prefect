@@ -172,7 +172,7 @@ class SldPersistenceTests(unittest.TestCase):
     def test_sld_path_uses_same_stem_as_dataset(self):
         self.assertEqual(
             sld_path_for_dataset(Path("saida") / "pnt_pcd_enov_20260514.gpkg"),
-            Path("saida") / "pnt_pcd_enov_20260514.sld",
+            Path("saida") / "sld_pnt_pcd_enov_20260514.sld",
         )
 
     def test_detect_geometry_kind(self):
@@ -213,7 +213,10 @@ class SldPersistenceTests(unittest.TestCase):
                 },
             )
 
-            self.assertEqual(paths, [dataset_path.with_suffix(".sld")])
+            self.assertEqual(
+                paths,
+                [dataset_path.parent / "sld_pnt_pcd_enov_20260514.sld"],
+            )
             self.assertTrue(paths[0].exists())
             self.assertIn(
                 "<se:Name>pnt_pcd_enov_20260514</se:Name>",

@@ -151,7 +151,8 @@ def resolve_layer_sld_style(base_style, layer_name):
 
 
 def sld_path_for_dataset(dataset_path):
-    return Path(dataset_path).with_suffix(".sld")
+    dataset_path = Path(dataset_path)
+    return dataset_path.parent / f"sld_{dataset_path.stem}.sld"
 
 
 def detect_geometry_kind(gdf):

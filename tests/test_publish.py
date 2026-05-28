@@ -47,6 +47,8 @@ class PublishTests(unittest.TestCase):
             items = discover_publish_items(folder)
 
             self.assertEqual([item.layer for item in items], ["pnt_pcd_enov_20260514"])
+            self.assertEqual(items[0].sld_path.name, "sld_pnt_pcd_enov_20260514.sld")
+            self.assertEqual(items[0].style, "sld_pnt_pcd_enov_20260514")
             self.assertEqual(items[0].xml_path.name, "md_pcd_enov_20260514.xml")
 
     def test_discover_publish_items_uses_primary_manifest_output(self):
@@ -254,7 +256,7 @@ class PublishTests(unittest.TestCase):
 
     def _write_triplet(self, folder, data_stem):
         (folder / f"{data_stem}.gpkg").write_bytes(b"gpkg")
-        (folder / f"{data_stem}.sld").write_text(
+        (folder / f"sld_{data_stem}.sld").write_text(
             "<StyledLayerDescriptor />",
             encoding="utf-8",
         )
@@ -276,7 +278,7 @@ class PublishTests(unittest.TestCase):
                 for data_stem in outputs
             ],
             "sld_files": [
-                str(folder / f"{data_stem}.sld")
+                str(folder / f"sld_{data_stem}.sld")
                 for data_stem in outputs
             ],
             "quality_reports": quality_reports or {},

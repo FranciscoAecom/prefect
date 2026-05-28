@@ -60,7 +60,7 @@ class RuleProfileServiceTests(unittest.TestCase):
                 output_dir=output_dir,
             )
 
-            self.assertEqual(path, output_dir / "camada_teste.sld")
+            self.assertEqual(path, output_dir / "sld_camada_teste.sld")
             self.assertIn(
                 "<se:Name>camada_teste</se:Name>",
                 path.read_text(encoding="utf-8"),

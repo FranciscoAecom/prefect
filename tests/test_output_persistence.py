@@ -83,7 +83,7 @@ class OutputPersistenceTests(unittest.TestCase):
     ):
         mock_artifacts.return_value = (
             [Path("saida") / "md_entrada_validado.xml"],
-            [Path("saida") / "entrada_validado.sld"],
+            [Path("saida") / "sld_entrada_validado.sld"],
         )
         record = SimpleNamespace(
             theme_folder="autos_infracao",
@@ -122,7 +122,7 @@ class OutputPersistenceTests(unittest.TestCase):
         )
         self.assertEqual(
             [path.name for path in manifest.sld_files],
-            ["entrada_validado.sld"],
+            ["sld_entrada_validado.sld"],
         )
         self.assertEqual(
             manifest.quality_reports,

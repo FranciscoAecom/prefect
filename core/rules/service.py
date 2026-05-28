@@ -75,7 +75,7 @@ class RuleProfileService:
         )
         output_dir = Path(output_dir or "output/sld_preview")
         output_dir.mkdir(parents=True, exist_ok=True)
-        output_path = output_dir / f"{layer_name}.sld"
+        output_path = output_dir / f"sld_{layer_name}.sld"
         output_path.write_text(sld_text, encoding="utf-8")
         return output_path
 
