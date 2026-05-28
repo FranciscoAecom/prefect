@@ -48,12 +48,16 @@ class SetorCensitarioRulesTest(unittest.TestCase):
         self.assertEqual(relations["cd_regiao_to_nm_regiao"]["1"], "Norte")
         self.assertEqual(relations["cd_sit_to_situacao"]["1"], "Urbana")
         self.assertEqual(relations["cd_sit_to_situacao"]["8"], "Rural")
-        self.assertEqual(relations["cd_sit_to_situacao"]["9"], "Massas de água")
+        self.assertNotIn("9", relations["cd_sit_to_situacao"])
 
-    def test_sector_situation_domain_includes_water_masses_from_data_dictionary(self):
+    def test_sector_situation_domain_keeps_only_broad_situation_values(self):
         domains = _load_json("domains.json")["fields"]
 
-        self.assertIn("Massas de água", domains["sdb_situacao"]["accepted_values"])
+        self.assertEqual(
+            set(domains["sdb_situacao"]["accepted_values"]),
+            {"Rural", "Urbana"},
+        )
+        self.assertIn("9", domains["sdb_cd_sit"]["accepted_values"])
 
     def test_mojibake_variants_are_aliases_not_canonical_values(self):
         domains = _load_json("domains.json")["fields"]
