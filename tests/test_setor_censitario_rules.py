@@ -46,9 +46,7 @@ class SetorCensitarioRulesTest(unittest.TestCase):
         self.assertEqual(relations["cd_uf_to_nm_uf"]["11"], "Rondônia")
         self.assertEqual(relations["cd_uf_to_nm_uf"]["35"], "São Paulo")
         self.assertEqual(relations["cd_regiao_to_nm_regiao"]["1"], "Norte")
-        self.assertEqual(relations["cd_sit_to_situacao"]["1"], "Urbana")
-        self.assertEqual(relations["cd_sit_to_situacao"]["8"], "Rural")
-        self.assertNotIn("9", relations["cd_sit_to_situacao"])
+        self.assertNotIn("cd_sit_to_situacao", relations)
 
     def test_sector_situation_domain_keeps_only_broad_situation_values(self):
         domains = _load_json("domains.json")["fields"]

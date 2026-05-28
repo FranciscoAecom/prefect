@@ -1,14 +1,5 @@
 {
   "relations": {
-    "cd_sit_to_situacao": {
-      "1": "Urbana",
-      "2": "Urbana",
-      "3": "Urbana",
-      "5": "Rural",
-      "6": "Rural",
-      "7": "Rural",
-      "8": "Rural"
-    },
     "cd_regiao_to_nm_regiao": {
       "1": "Norte",
       "2": "Nordeste",
