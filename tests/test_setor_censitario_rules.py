@@ -2,8 +2,14 @@ import json
 import unittest
 from pathlib import Path
 
+from core.rules.engine import classify_field_value, load_rule_profile
+
 
 PROFILE_DIR = Path("rules") / "setor_censitario" / "setor_censitario"
+ILHEUS_ALIAS = "Ilh\u00e9us \u00bf Itabuna"
+ILHEUS_CANONICAL = "Ilh\u00e9us - Itabuna"
+GOIANA_ALIAS = "Goiana \u00bf Timba\u00faba"
+GOIANA_CANONICAL = "Goiana - Timba\u00faba"
 
 
 def _load_json(name):
@@ -42,6 +48,40 @@ class SetorCensitarioRulesTest(unittest.TestCase):
         self.assertEqual(relations["cd_regiao_to_nm_regiao"]["1"], "Norte")
         self.assertEqual(relations["cd_sit_to_situacao"]["1"], "Urbana")
         self.assertEqual(relations["cd_sit_to_situacao"]["8"], "Rural")
+
+    def test_mojibake_variants_are_aliases_not_canonical_values(self):
+        domains = _load_json("domains.json")["fields"]
+
+        self.assertNotIn(
+            ILHEUS_ALIAS,
+            domains["sdb_nm_rgint"]["accepted_values"],
+        )
+        self.assertEqual(
+            domains["sdb_nm_rgint"]["aliases"][ILHEUS_ALIAS],
+            ILHEUS_CANONICAL,
+        )
+        self.assertNotIn(
+            GOIANA_ALIAS,
+            domains["sdb_nm_rgi"]["accepted_values"],
+        )
+        self.assertEqual(
+            domains["sdb_nm_rgi"]["aliases"][GOIANA_ALIAS],
+            GOIANA_CANONICAL,
+        )
+
+        profile = load_rule_profile("setor_censitario/setor_censitario")
+        result = classify_field_value(profile, "sdb_nm_rgi", GOIANA_ALIAS)
+        self.assertEqual(result["status"], "normalized")
+        self.assertEqual(result["normalized_value"], GOIANA_CANONICAL)
+
+        for field_name, field_rules in domains.items():
+            with self.subTest(field_name=field_name):
+                self.assertFalse(
+                    any("\u00bf" in value for value in field_rules["accepted_values"])
+                )
+                self.assertFalse(
+                    any("\u00bf" in value for value in field_rules.get("aliases", {}).values())
+                )
 
 
 if __name__ == "__main__":

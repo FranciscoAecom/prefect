@@ -33,5 +33,7 @@
     "sdb_nm_rgi": [
       "validate_shapefile_attribute"
     ]
-  }
+  },
+  "postprocess_functions": [],
+  "quality_outputs": {}
 }
