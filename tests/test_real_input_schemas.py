@@ -1,8 +1,11 @@
 import json
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
+import pandas as pd
 from projects.registry import get_project_optional_functions
+from core.input.preparation import apply_legacy_column_aliases
 from core.rules.engine import (
     list_rule_profiles,
     load_rule_profile,
@@ -50,14 +53,30 @@ class RealInputSchemaTests(unittest.TestCase):
                     self.assertIsInstance(rule.required, bool)
                     self.assertIsInstance(rule.nullable, bool)
 
-    def test_rule_json_files_do_not_use_old_desc_condic_name(self):
+    def test_car_rule_json_files_use_des_condic_name(self):
         offenders = []
-        for path in Path("rules").rglob("*.json"):
-            data = path.read_text(encoding="utf-8-sig")
-            if "sdb_des_condic" in data or "acm_des_condic" in data:
-                offenders.append(str(path))
+        rule_dirs = [
+            Path("rules/car_area_preservacao_permanente"),
+            Path("rules/car_reserva_legal"),
+            Path("rules/car_servidao_administrativa"),
+            Path("rules/car_uso_restrito"),
+        ]
+        for rule_dir in rule_dirs:
+            for path in rule_dir.rglob("*.json"):
+                data = path.read_text(encoding="utf-8-sig")
+                if "sdb_desc_condic" in data or "acm_desc_condic" in data:
+                    offenders.append(str(path))
 
         self.assertEqual(offenders, [])
+
+    def test_legacy_desc_condic_input_aliases_to_des_condic_when_profile_expects_it(self):
+        record = SimpleNamespace(rule_profile="car_uso_restrito/ur_car_ac")
+        dataframe = pd.DataFrame({"sdb_desc_condic": ["Analisado"]})
+
+        result = apply_legacy_column_aliases(dataframe, record)
+
+        self.assertIn("sdb_des_condic", result.columns)
+        self.assertNotIn("sdb_desc_condic", result.columns)
 
     def test_input_schema_files_use_explicit_column_rule_objects(self):
         offenders = []

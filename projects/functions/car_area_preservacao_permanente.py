@@ -5,7 +5,7 @@ from core.utils import log
 from core.validation.schema import target_column_name
 
 
-def car_area_preservacao_permanente_transform_desc_condic(gdf, column, **_context):
+def car_area_preservacao_permanente_transform_des_condic(gdf, column, **_context):
     target_column = target_column_name(column)
 
     if column not in gdf.columns:
@@ -45,6 +45,6 @@ def car_area_preservacao_permanente_transform_desc_condic(gdf, column, **_contex
 
 
 PROJECT_OPTIONAL_FUNCTIONS = {
-    "car_area_preservacao_permanente_transform_desc_condic": car_area_preservacao_permanente_transform_desc_condic,
-    "car_app_transform_desc_condic": car_area_preservacao_permanente_transform_desc_condic,
+    "car_area_preservacao_permanente_transform_des_condic": car_area_preservacao_permanente_transform_des_condic,
+    "car_app_transform_des_condic": car_area_preservacao_permanente_transform_des_condic,
 }

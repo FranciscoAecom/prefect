@@ -74,6 +74,7 @@ Campos com dominio:
 | `sdb_cod_tema` | varia por UF | Codigo do tema RL CAR |
 | `sdb_nom_tema` | varia por UF | Nome do tema RL CAR |
 | `sdb_ind_status` | varia por UF | Indicador de status |
+| `sdb_des_condic` | varia por UF | Descricao da condicao do cadastro |
 
 Campos presentes no schema sem dominio:
 
@@ -117,7 +118,7 @@ Opcionais por atributo:
 - `sdb_cod_tema`: `validate_shapefile_attribute`
 - `sdb_nom_tema`: `validate_shapefile_attribute`
 - `sdb_ind_status`: `validate_shapefile_attribute`
-- `sdb_desc_condic`: `car_reserva_legal_transform_desc_condic`
+- `sdb_des_condic`: `car_reserva_legal_transform_des_condic`
 
 Postprocess configurado:
 

@@ -12,8 +12,8 @@
     "sdb_ind_status": [
       "validate_shapefile_attribute"
     ],
-    "sdb_desc_condic": [
-      "car_reserva_legal_transform_desc_condic"
+    "sdb_des_condic": [
+      "car_reserva_legal_transform_des_condic"
     ]
   }
 }

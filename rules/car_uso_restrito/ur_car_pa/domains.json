@@ -1,4 +1,4 @@
-{
+﻿{
   "fields": {
     "sdb_cod_tema": {
       "accepted_values": [
@@ -23,7 +23,7 @@
       ],
       "aliases": {}
     },
-    "sdb_desc_condic": {
+    "sdb_des_condic": {
       "accepted_values": [
         "Aguardando analise",
         "Analisado sem pendencias",

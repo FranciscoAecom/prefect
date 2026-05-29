@@ -79,6 +79,48 @@ class EndToEndRealProfilesTests(unittest.TestCase):
         finally:
             shutil.rmtree(temp_dir, ignore_errors=True)
 
+    def test_car_app_real_profile_preserves_des_condic_source_name(self):
+        temp_dir = Path("tests") / "_tmp_e2e_app_car"
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            input_path = str(temp_dir / "app_car_input.gpkg")
+            output_dir = str(temp_dir / "output")
+            source_gdf = gpd.GeoDataFrame(
+                {
+                    "sdb_cod_tema": ["APP_TOTAL"],
+                    "sdb_nom_tema": ["APP Total"],
+                    "sdb_ind_status": ["AT"],
+                    "sdb_des_condic": ["Analisado sem pendencias"],
+                    "sdb_cod_imovel": ["AC-000001"],
+                    "sdb_num_area": [10.5],
+                    "geometry": [Point(1, 1)],
+                },
+                geometry="geometry",
+                crs="EPSG:4674",
+            )
+            source_gdf.to_file(input_path, driver="GPKG")
+
+            result = process_record(
+                _record(
+                    input_path=input_path,
+                    theme_folder="app_car_ac",
+                    rule_profile="car_area_preservacao_permanente/app_car_ac",
+                    theme="Area de Preservacao Permanente",
+                ),
+                output_dir=output_dir,
+                use_configured_final_name=True,
+                persist_individual_output=True,
+            )
+
+            self.assertEqual(result.processed_count, 1)
+            self.assertIn("sdb_des_condic", result.final_gdf.columns)
+            self.assertNotIn("sdb_desc_condic", result.final_gdf.columns)
+            self.assertIn("acm_des_condic", result.final_gdf.columns)
+            self.assertEqual(result.final_gdf.loc[0, "acm_des_condic"], "Analisado")
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
     def test_reserva_legal_real_profile_transforms_and_normalizes_fields(self):
         temp_dir = Path("tests") / "_tmp_e2e_rl_car"
         shutil.rmtree(temp_dir, ignore_errors=True)
@@ -91,7 +133,7 @@ class EndToEndRealProfilesTests(unittest.TestCase):
                     "sdb_cod_tema": ["ARL_AVERBADA"],
                     "sdb_nom_tema": ["Reserva Legal Averbada"],
                     "sdb_ind_status": ["AT"],
-                    "sdb_desc_condic": ["Analisado sem pendencias"],
+                    "sdb_des_condic": ["Analisado sem pendencias"],
                     "sdb_cod_imovel": ["AC-000001"],
                     "sdb_num_area": [10.5],
                     "geometry": [Point(1, 1)],
@@ -119,13 +161,15 @@ class EndToEndRealProfilesTests(unittest.TestCase):
             self.assertIn("sdb_cod_tema", result.final_gdf.columns)
             self.assertIn("sdb_nom_tema", result.final_gdf.columns)
             self.assertIn("sdb_ind_status", result.final_gdf.columns)
-            self.assertIn("acm_desc_condic", result.final_gdf.columns)
+            self.assertIn("sdb_des_condic", result.final_gdf.columns)
+            self.assertNotIn("sdb_desc_condic", result.final_gdf.columns)
+            self.assertIn("acm_des_condic", result.final_gdf.columns)
             self.assertEqual(result.final_gdf.loc[0, "sdb_cod_tema"], "ARL_AVERBADA")
             self.assertEqual(
                 result.final_gdf.loc[0, "sdb_nom_tema"],
                 "Reserva Legal Averbada",
             )
             self.assertEqual(result.final_gdf.loc[0, "sdb_ind_status"], "AT")
-            self.assertEqual(result.final_gdf.loc[0, "acm_desc_condic"], "Analisado")
+            self.assertEqual(result.final_gdf.loc[0, "acm_des_condic"], "Analisado")
         finally:
             shutil.rmtree(temp_dir, ignore_errors=True)

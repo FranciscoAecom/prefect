@@ -5,7 +5,7 @@ from core.utils import log
 from core.validation.schema import target_column_name
 
 
-def car_reserva_legal_transform_desc_condic(gdf, column, **_context):
+def car_reserva_legal_transform_des_condic(gdf, column, **_context):
     target_column = target_column_name(column)
 
     if column not in gdf.columns:
@@ -45,6 +45,6 @@ def car_reserva_legal_transform_desc_condic(gdf, column, **_context):
 
 
 PROJECT_OPTIONAL_FUNCTIONS = {
-    "car_reserva_legal_transform_desc_condic": car_reserva_legal_transform_desc_condic,
-    "reserva_legal_car_transform_desc_condic": car_reserva_legal_transform_desc_condic,
+    "car_reserva_legal_transform_des_condic": car_reserva_legal_transform_des_condic,
+    "reserva_legal_car_transform_des_condic": car_reserva_legal_transform_des_condic,
 }

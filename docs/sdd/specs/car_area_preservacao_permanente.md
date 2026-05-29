@@ -73,6 +73,7 @@ Campos com dominio:
 | --- | ---: | --- |
 | `sdb_cod_tema` | varia por UF | Codigo do tema APP CAR |
 | `sdb_nom_tema` | varia por UF | Nome do tema APP CAR |
+| `sdb_ind_status` | varia por UF | Indicador de status |
 
 Campos presentes no schema sem dominio:
 
@@ -115,7 +116,8 @@ Opcionais por atributo:
 
 - `sdb_cod_tema`: `validate_shapefile_attribute`
 - `sdb_nom_tema`: `validate_shapefile_attribute`
-- `sdb_desc_condic`: `car_area_preservacao_permanente_transform_desc_condic`
+- `sdb_ind_status`: `validate_shapefile_attribute`
+- `sdb_des_condic`: `car_area_preservacao_permanente_transform_des_condic`
 
 Postprocess configurado:
 
