@@ -1,0 +1,4 @@
+from settings import DEFAULT_RULE_PROFILE, RULES_BASE
+
+
+__all__ = ["DEFAULT_RULE_PROFILE", "RULES_BASE"]

@@ -1,4 +1,4 @@
-from settings import RULES_BASE
+from core.rules.config import RULES_BASE
 from core.rules.repository import RuleRepository, is_auxiliary_rule_path
 
 

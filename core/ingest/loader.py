@@ -37,111 +37,176 @@ def load_processing_queue(
     run_request=None,
     force=False,
 ):
-    run_request = run_request or IngestRunRequest.from_legacy(
+    run_request = _build_run_request(
+        run_request=run_request,
         theme_folders=theme_folders,
         ready_status=ready_status,
         queue_filter=queue_filter,
         source_path_overrides=source_path_overrides,
         force=force,
     )
-    ingest_repository = build_ingest_repository(
+    ingest_repository = _build_repository(workbook_path, sheet_name, repository)
+    eligible_records = []
+    issues = []
+    ready_candidates = 0
+    total_records = 0
+
+    for catalog_row in ingest_repository.iter_rows():
+        total_records += 1
+        queue_entry = _build_queue_entry(catalog_row, run_request)
+
+        if not queue_entry["eligibility"].status_allowed:
+            continue
+
+        ready_candidates += 1
+
+        if not queue_entry["eligibility"].theme_requested:
+            continue
+
+        input_issue = _resolve_input_issue(queue_entry)
+        if input_issue:
+            issues.append(input_issue)
+            continue
+
+        rule_resolution, rule_issue = _resolve_rule_profile(queue_entry)
+        if rule_issue:
+            issues.append(rule_issue)
+            continue
+
+        input_paths, dataset_issue = _resolve_input_paths(queue_entry)
+        if dataset_issue:
+            issues.append(dataset_issue)
+            continue
+
+        eligible_records.extend(
+            _build_records_for_input_paths(queue_entry, rule_resolution, input_paths)
+        )
+
+    summary = _build_summary(total_records, ready_candidates, eligible_records, issues, run_request)
+    return eligible_records, issues, summary
+
+
+def _build_run_request(
+    run_request,
+    theme_folders,
+    ready_status,
+    queue_filter,
+    source_path_overrides,
+    force,
+):
+    return run_request or IngestRunRequest.from_legacy(
+        theme_folders=theme_folders,
+        ready_status=ready_status,
+        queue_filter=queue_filter,
+        source_path_overrides=source_path_overrides,
+        force=force,
+    )
+
+
+def _build_repository(workbook_path, sheet_name, repository):
+    return build_ingest_repository(
         workbook_path=workbook_path,
         sheet_name=sheet_name,
         repository=repository,
     )
 
-    eligible_records = []
-    issues = []
-    ready_candidates = 0
 
-    total_records = 0
-    for catalog_row in ingest_repository.iter_rows():
-        total_records += 1
-        row = catalog_row.data
-        sheet_row = catalog_row.sheet_row
-        record_id = row.get("ID")
-        theme = stringify(row.get("theme"))
-        theme_folder = stringify(row.get("theme_folder"))
-        status = stringify(row.get("status"))
-        versioning_metadata = _extract_versioning_metadata(row)
-        xml_metadata = _extract_xml_metadata(row)
-        eligibility = evaluate_ingest_row(row, run_request)
-        source_path = eligibility.source_path
-        issue_context = {
-            "sheet_row": sheet_row,
-            "record_id": record_id,
+def _build_queue_entry(catalog_row, run_request):
+    row = catalog_row.data
+    theme_folder = stringify(row.get("theme_folder"))
+    status = stringify(row.get("status"))
+    eligibility = evaluate_ingest_row(row, run_request)
+    source_path = eligibility.source_path
+    return {
+        "sheet_row": catalog_row.sheet_row,
+        "record_id": row.get("ID"),
+        "theme": stringify(row.get("theme")),
+        "theme_folder": theme_folder,
+        "status": status,
+        "source_path": source_path,
+        "versioning_metadata": _extract_versioning_metadata(row),
+        "xml_metadata": _extract_xml_metadata(row),
+        "eligibility": eligibility,
+        "issue_context": {
+            "sheet_row": catalog_row.sheet_row,
+            "record_id": row.get("ID"),
             "theme_folder": theme_folder,
             "status": status,
             "source_path": source_path,
-        }
+        },
+    }
 
-        if not eligibility.status_allowed:
-            continue
 
-        ready_candidates += 1
+def _resolve_input_issue(queue_entry):
+    eligibility = queue_entry["eligibility"]
+    issue_context = queue_entry["issue_context"]
 
-        if not eligibility.theme_requested:
-            continue
+    if eligibility.missing_source_path:
+        return missing_source_path_issue(issue_context)
+    if eligibility.zip_source_path:
+        return zip_source_path_issue(issue_context)
+    return None
 
-        if eligibility.missing_source_path:
-            issues.append(missing_source_path_issue(issue_context))
-            continue
 
-        if eligibility.zip_source_path:
-            issues.append(zip_source_path_issue(issue_context))
-            continue
+def _resolve_rule_profile(queue_entry):
+    issue_context = queue_entry["issue_context"]
+    try:
+        rule_resolution = resolve_rule_profile_for_theme(queue_entry["theme_folder"])
+    except RuleProfileResolutionError as exc:
+        return None, rule_profile_resolution_error_issue(issue_context, exc)
 
-        try:
-            rule_resolution = resolve_rule_profile_for_theme(theme_folder)
-        except RuleProfileResolutionError as exc:
-            issues.append(rule_profile_resolution_error_issue(issue_context, exc))
-            continue
+    if not rule_resolution.found:
+        return None, missing_rule_profile_issue(issue_context, rule_resolution)
+    if rule_resolution.missing_components:
+        return None, incomplete_rule_profile_issue(issue_context, rule_resolution)
+    if not rule_resolution.project_consistent:
+        return None, inconsistent_rule_profile_issue(issue_context, rule_resolution)
 
-        if not rule_resolution.found:
-            issues.append(missing_rule_profile_issue(issue_context, rule_resolution))
-            continue
+    return rule_resolution, None
 
-        if rule_resolution.missing_components:
-            issues.append(incomplete_rule_profile_issue(issue_context, rule_resolution))
-            continue
 
-        if not rule_resolution.project_consistent:
-            issues.append(inconsistent_rule_profile_issue(issue_context, rule_resolution))
-            continue
+def _resolve_input_paths(queue_entry):
+    try:
+        return resolve_input_dataset_paths_cached(queue_entry["source_path"]), None
+    except (FileNotFoundError, ValueError, PermissionError, OSError) as exc:
+        return None, input_dataset_resolution_error_issue(
+            queue_entry["issue_context"],
+            exc,
+        )
 
-        try:
-            input_paths = resolve_input_dataset_paths_cached(source_path)
-        except (FileNotFoundError, ValueError, PermissionError, OSError) as exc:
-            issues.append(input_dataset_resolution_error_issue(issue_context, exc))
-            continue
 
-        for input_path in input_paths:
-            versioned_dirs = _resolve_versioned_dirs(
-                {
-                    "status": status,
-                    "theme_folder": theme_folder,
-                    **versioning_metadata,
-                }
+def _build_records_for_input_paths(queue_entry, rule_resolution, input_paths):
+    records = []
+    for input_path in input_paths:
+        versioned_dirs = _resolve_versioned_dirs(
+            {
+                "status": queue_entry["status"],
+                "theme_folder": queue_entry["theme_folder"],
+                **queue_entry["versioning_metadata"],
+            }
+        )
+        records.append(
+            IngestRecord(
+                sheet_row=queue_entry["sheet_row"],
+                record_id=queue_entry["record_id"],
+                theme=queue_entry["theme"],
+                theme_folder=queue_entry["theme_folder"],
+                status=queue_entry["status"],
+                source_path=queue_entry["source_path"],
+                input_path=input_path,
+                rule_profile=rule_resolution.profile_name,
+                **queue_entry["versioning_metadata"],
+                **queue_entry["xml_metadata"],
+                output_dir=versioned_dirs["output_dir"],
+                bronze_dir=versioned_dirs["bronze_dir"],
+                temp_dir=versioned_dirs["temp_dir"],
             )
-            eligible_records.append(
-                IngestRecord(
-                    sheet_row=sheet_row,
-                    record_id=record_id,
-                    theme=theme,
-                    theme_folder=theme_folder,
-                    status=status,
-                    source_path=source_path,
-                    input_path=input_path,
-                    rule_profile=rule_resolution.profile_name,
-                    **versioning_metadata,
-                    **xml_metadata,
-                    output_dir=versioned_dirs["output_dir"],
-                    bronze_dir=versioned_dirs["bronze_dir"],
-                    temp_dir=versioned_dirs["temp_dir"],
-                )
-            )
+        )
+    return records
 
-    summary = {
+
+def _build_summary(total_records, ready_candidates, eligible_records, issues, run_request):
+    return {
         "total_records": total_records,
         "ready_candidates": ready_candidates,
         "eligible_records": len(eligible_records),
@@ -149,8 +214,6 @@ def load_processing_queue(
         "processing_statuses": run_request.processing_statuses_display(),
         "force": run_request.force,
     }
-
-    return eligible_records, issues, summary
 
 
 def _extract_versioning_metadata(row):

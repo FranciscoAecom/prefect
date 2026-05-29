@@ -50,44 +50,8 @@ def validate_coordinate_ranges_for_crs(geom, crs, result, label=None):
 
     current_label = label or geom.geom_type
 
-    if isinstance(geom, MultiPoint):
-        for index, item in enumerate(geom.geoms, 1):
-            validate_coordinate_ranges_for_crs(
-                item,
-                crs,
-                result,
-                label=f"MultiPoint[{index}]",
-            )
-        return
-
-    if isinstance(geom, MultiLineString):
-        for index, item in enumerate(geom.geoms, 1):
-            validate_coordinate_ranges_for_crs(
-                item,
-                crs,
-                result,
-                label=f"MultiLineString[{index}]",
-            )
-        return
-
-    if isinstance(geom, MultiPolygon):
-        for index, item in enumerate(geom.geoms, 1):
-            validate_coordinate_ranges_for_crs(
-                item,
-                crs,
-                result,
-                label=f"MultiPolygon[{index}]",
-            )
-        return
-
-    if isinstance(geom, GeometryCollection):
-        for index, item in enumerate(geom.geoms, 1):
-            validate_coordinate_ranges_for_crs(
-                item,
-                crs,
-                result,
-                label=f"GeometryCollection[{index}]",
-            )
+    if isinstance(geom, (MultiPoint, MultiLineString, MultiPolygon, GeometryCollection)):
+        validate_collection_coordinate_ranges(geom, crs, result)
         return
 
     if not is_geographic_crs(crs):
@@ -113,6 +77,16 @@ def validate_coordinate_ranges_for_crs(geom, crs, result, label=None):
             f"(minx={minx}, miny={miny}, maxx={maxx}, maxy={maxy})."
         ),
     )
+
+
+def validate_collection_coordinate_ranges(geom, crs, result):
+    for index, item in enumerate(geom.geoms, 1):
+        validate_coordinate_ranges_for_crs(
+            item,
+            crs,
+            result,
+            label=f"{geom.geom_type}[{index}]",
+        )
 
 
 def can_skip_detailed_ogc_check(gdf, crs_esperado=None, srid_esperado=None, normalizar=False):
@@ -144,59 +118,74 @@ def get_invalid_ogc_records(gdf, crs_esperado=None, srid_esperado=None, normaliz
         srid_esperado=srid_esperado,
         normalizar=normalizar,
     ):
-        empty_gdf = gpd.GeoDataFrame(
-            columns=list(gdf.columns) + ["ogc_motivo"],
-            geometry="geometry",
-            crs=gdf.crs,
-        )
-        return empty_gdf, 0, {}
-
-    repair_flag_column = INTERNAL_SAFE_REPAIR_FLAG
-    safe_repair_null_mask = (
-        gdf[repair_flag_column].fillna(False).astype(bool)
-        if repair_flag_column in gdf.columns
-        else pd.Series(False, index=gdf.index)
-    )
+        return empty_invalid_ogc_gdf(gdf), 0, {}
 
     invalid_indices = []
     invalid_reasons = []
     error_counter = Counter()
+    safe_repair_null_mask = safe_repair_null_geometry_mask(gdf)
 
     for idx, geom in gdf.geometry.items():
-        if safe_repair_null_mask.loc[idx]:
-            reason_text = "Geometria ficou nula apos tentativa de reparo seguro."
-            invalid_indices.append(idx)
-            invalid_reasons.append(reason_text)
-            error_counter.update([reason_text])
-            continue
-
-        resultado = validar_geometria(
+        reason_text, errors = validate_ogc_record_geometry(
             geom,
-            crs=gdf.crs,
+            gdf.crs,
+            safe_repair_null_mask.loc[idx],
             srid_esperado=srid_esperado,
             crs_esperado=crs_esperado,
             normalizar=normalizar,
         )
-
-        if resultado["valido"]:
+        if not reason_text:
             continue
 
-        reason_text = " | ".join(resultado["erros"])
         invalid_indices.append(idx)
         invalid_reasons.append(reason_text)
-        error_counter.update(resultado["erros"])
+        error_counter.update(errors)
 
     if not invalid_indices:
-        empty_gdf = gpd.GeoDataFrame(
-            columns=list(gdf.columns) + ["ogc_motivo"],
-            geometry="geometry",
-            crs=gdf.crs,
-        )
-        return empty_gdf, 0, {}
+        return empty_invalid_ogc_gdf(gdf), 0, {}
 
     invalid_gdf = gdf.loc[invalid_indices].copy()
     invalid_gdf["ogc_motivo"] = invalid_reasons
     return invalid_gdf, len(invalid_gdf), dict(error_counter.most_common())
+
+
+def safe_repair_null_geometry_mask(gdf):
+    repair_flag_column = INTERNAL_SAFE_REPAIR_FLAG
+    if repair_flag_column not in gdf.columns:
+        return pd.Series(False, index=gdf.index)
+    return gdf[repair_flag_column].fillna(False).astype(bool)
+
+
+def empty_invalid_ogc_gdf(gdf):
+    return gpd.GeoDataFrame(
+        columns=list(gdf.columns) + ["ogc_motivo"],
+        geometry="geometry",
+        crs=gdf.crs,
+    )
+
+
+def validate_ogc_record_geometry(
+    geom,
+    crs,
+    safe_repair_null,
+    srid_esperado=None,
+    crs_esperado=None,
+    normalizar=False,
+):
+    if safe_repair_null:
+        reason_text = "Geometria ficou nula apos tentativa de reparo seguro."
+        return reason_text, [reason_text]
+
+    resultado = validate_geometry(
+        geom,
+        crs=crs,
+        expected_srid=srid_esperado,
+        expected_crs=crs_esperado,
+        normalize=normalizar,
+    )
+    if resultado["valido"]:
+        return "", []
+    return " | ".join(resultado["erros"]), resultado["erros"]
 
 
 def new_validation_result(geom):
@@ -297,6 +286,10 @@ def validar_tipo(geom):
 
 
 def validar_coordenadas(geom, crs=None):
+    return validate_coordinates(geom, crs=crs)
+
+
+def validate_coordinates(geom, crs=None):
     result = new_validation_result(geom)
 
     if geom is None:
@@ -369,6 +362,10 @@ def validar_coordenadas(geom, crs=None):
 
 
 def validar_regras_topologicas(geom):
+    return validate_topological_rules(geom)
+
+
+def validate_topological_rules(geom):
     result = new_validation_result(geom)
 
     if geom is None:
@@ -409,6 +406,15 @@ def validar_regras_topologicas(geom):
 
 
 def validar_srid_ou_crs(geom, crs=None, srid_esperado=None, crs_esperado=None):
+    return validate_srid_or_crs(
+        geom,
+        crs=crs,
+        expected_srid=srid_esperado,
+        expected_crs=crs_esperado,
+    )
+
+
+def validate_srid_or_crs(geom, crs=None, expected_srid=None, expected_crs=None):
     result = new_validation_result(geom)
 
     if geom is None:
@@ -421,28 +427,32 @@ def validar_srid_ou_crs(geom, crs=None, srid_esperado=None, crs_esperado=None):
     except Exception:
         srid_atual = None
 
-    if srid_esperado is not None:
+    if expected_srid is not None:
         if srid_atual in (None, 0):
-            add_error(result, f"SRID ausente. Esperado: {srid_esperado}.")
-        elif srid_atual != srid_esperado:
+            add_error(result, f"SRID ausente. Esperado: {expected_srid}.")
+        elif srid_atual != expected_srid:
             add_error(
                 result,
-                f"SRID incompativel. Atual: {srid_atual}. Esperado: {srid_esperado}."
+                f"SRID incompativel. Atual: {srid_atual}. Esperado: {expected_srid}."
             )
 
-    if crs_esperado is not None:
+    if expected_crs is not None:
         if crs is None:
-            add_error(result, f"CRS ausente. Esperado: {crs_esperado}.")
-        elif str(crs) != str(crs_esperado):
+            add_error(result, f"CRS ausente. Esperado: {expected_crs}.")
+        elif str(crs) != str(expected_crs):
             add_error(
                 result,
-                f"CRS incompativel. Atual: {crs}. Esperado: {crs_esperado}."
+                f"CRS incompativel. Atual: {crs}. Esperado: {expected_crs}."
             )
 
     return result
 
 
 def normalizar_geometria(geom):
+    return normalize_geometry(geom)
+
+
+def normalize_geometry(geom):
     result = new_validation_result(geom)
 
     if geom is None:
@@ -475,11 +485,27 @@ def normalizar_geometria(geom):
 
 
 def validar_geometria(geom, crs=None, srid_esperado=None, crs_esperado=None, normalizar=False):
+    return validate_geometry(
+        geom,
+        crs=crs,
+        expected_srid=srid_esperado,
+        expected_crs=crs_esperado,
+        normalize=normalizar,
+    )
+
+
+def validate_geometry(
+    geom,
+    crs=None,
+    expected_srid=None,
+    expected_crs=None,
+    normalize=False,
+):
     resultado = new_validation_result(geom)
     geometria_avaliada = geom
 
-    if normalizar:
-        normalizacao = normalizar_geometria(geometria_avaliada)
+    if normalize:
+        normalizacao = normalize_geometry(geometria_avaliada)
         resultado["avisos"].extend(normalizacao["avisos"])
         resultado["erros"].extend(normalizacao["erros"])
         resultado["normalizada"] = normalizacao["normalizada"]
@@ -488,13 +514,13 @@ def validar_geometria(geom, crs=None, srid_esperado=None, crs_esperado=None, nor
 
     validacoes = [
         validar_tipo(geometria_avaliada),
-        validar_coordenadas(geometria_avaliada, crs=crs),
-        validar_regras_topologicas(geometria_avaliada),
-        validar_srid_ou_crs(
+        validate_coordinates(geometria_avaliada, crs=crs),
+        validate_topological_rules(geometria_avaliada),
+        validate_srid_or_crs(
             geometria_avaliada,
             crs=crs,
-            srid_esperado=srid_esperado,
-            crs_esperado=crs_esperado,
+            expected_srid=expected_srid,
+            expected_crs=expected_crs,
         ),
     ]
 
@@ -540,11 +566,14 @@ __all__ = [
     "GEOMETRY_TYPES",
     "add_error",
     "can_skip_detailed_ogc_check",
+    "empty_invalid_ogc_gdf",
     "gerar_relatorio_erros",
     "get_invalid_ogc_records",
     "is_finite_number",
     "new_validation_result",
     "normalizar_geometria",
+    "normalize_geometry",
+    "safe_repair_null_geometry_mask",
     "validar_coordenadas",
     "validar_geometria",
     "validar_regras_topologicas",
@@ -552,6 +581,12 @@ __all__ = [
     "validar_tipo",
     "validate_coordinate_ranges_for_crs",
     "validate_coordinate_tuple",
+    "validate_collection_coordinate_ranges",
+    "validate_coordinates",
+    "validate_geometry",
     "validate_linestring_coords",
+    "validate_ogc_record_geometry",
     "validate_polygon_coords",
+    "validate_srid_or_crs",
+    "validate_topological_rules",
 ]

@@ -1,6 +1,7 @@
 .venv/
 *.egg-info/
 /output/
+/logs/
 /input/car_downloads/
 /input/download_archives/
 /input/downloads/

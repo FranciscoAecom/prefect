@@ -3,7 +3,6 @@ from functools import lru_cache
 from pathlib import Path
 
 from projects.configs import resolve_project_name
-from settings import DEFAULT_RULE_PROFILE
 from core.rules.constants import (
     DOMAINS_COMPONENT,
     INPUT_SCHEMA_COMPONENT,
@@ -12,6 +11,7 @@ from core.rules.constants import (
     RELATIONS_COMPONENT,
     STYLE_COMPONENT,
 )
+from core.rules.config import DEFAULT_RULE_PROFILE
 from core.rules.models import RuleProfileModel
 from core.rules.normalization import (
     RuleProfileResolutionError,

@@ -96,6 +96,7 @@ def prepare_validate_shapefile_attribute_mappings(
     mapping,
     rule_profile,
     validation_session=None,
+    input_func=input,
 ):
     validation_session = validation_session_or_default(validation_session)
     for column, funcs in mapping.items():
@@ -123,81 +124,112 @@ def prepare_validate_shapefile_attribute_mappings(
             validation_session.attribute_mappings[column] = replacements
             continue
 
-        log(f"\nSugestoes de correcao De:Para para {column}:", raw=True)
+        validation_session.attribute_mappings[column] = _resolve_fuzzy_attribute_mapping(
+            column,
+            replacements,
+            corrections,
+            input_func=input_func,
+        )
 
-        if not corrections:
-            log("  Nenhuma sugestao de correcao encontrada.", raw=True)
-            validation_session.attribute_mappings[column] = {}
-            continue
 
-        max_display = 100
-        displayed_suggestions = corrections[:max_display]
+def _resolve_fuzzy_attribute_mapping(
+    column,
+    replacements,
+    corrections,
+    input_func=input,
+):
+    log(f"\nSugestoes de correcao De:Para para {column}:", raw=True)
 
-        for idx, (value, target) in enumerate(displayed_suggestions, 1):
-            log(f" {idx}. {value:80} -> {target}", raw=True)
+    if not corrections:
+        log("  Nenhuma sugestao de correcao encontrada.", raw=True)
+        return {}
 
-        if len(corrections) > max_display:
-            log(f"  ... e mais {len(corrections) - max_display} correcoes", raw=True)
+    displayed_suggestions = _display_correction_suggestions(corrections)
 
-        log("", raw=True)
-        if not INTERACTIVE_ATTRIBUTE_REVIEW:
-            log(
-                "Modo nao interativo habilitado em settings.py; "
-                "nenhuma sugestao fuzzy sera aplicada automaticamente.",
-                raw=True,
-            )
-            validation_session.attribute_mappings[column] = {}
-            continue
-
-        log("Informe os numeros das correcoes que deseja aplicar.", raw=True)
-        log("Exemplos: 1,3,4 | all | ENTER para nao aplicar nenhuma", raw=True)
-
-        choice = input(f"Aplicar quais correcoes para a coluna '{column}'? ")
-        normalized_choice = choice.strip().lower()
-
-        if not normalized_choice:
-            log(f"Nenhuma correcao aplicada para {column}.", raw=True)
-            validation_session.attribute_mappings[column] = {}
-            continue
-
-        if normalized_choice == "all":
-            selected_suggestions = displayed_suggestions
-        else:
-            try:
-                selected_indices = {
-                    int(item.strip()) for item in choice.split(",") if item.strip()
-                }
-            except ValueError:
-                log(f"Entrada invalida para {column}. Nenhuma correcao aplicada.", raw=True)
-                validation_session.attribute_mappings[column] = {}
-                continue
-
-            invalid_indices = [
-                idx for idx in selected_indices if idx < 1 or idx > len(displayed_suggestions)
-            ]
-            if invalid_indices:
-                log(
-                    f"Indices invalidos para {column}: {', '.join(str(i) for i in sorted(invalid_indices))}. "
-                    "Nenhuma correcao aplicada.",
-                    raw=True,
-                )
-                validation_session.attribute_mappings[column] = {}
-                continue
-
-            selected_suggestions = [
-                displayed_suggestions[idx - 1]
-                for idx in sorted(selected_indices)
-            ]
-
-        selected_replacements = {value: value for value in replacements.keys()}
-        for value, target in selected_suggestions:
-            selected_replacements[value] = target
-
-        validation_session.attribute_mappings[column] = selected_replacements
+    log("", raw=True)
+    if not INTERACTIVE_ATTRIBUTE_REVIEW:
         log(
-            f"{len(selected_suggestions)} correcao(oes) aplicada(s) para {column}.",
+            "Modo nao interativo habilitado em settings.py; "
+            "nenhuma sugestao fuzzy sera aplicada automaticamente.",
             raw=True,
         )
+        return {}
+
+    selected_suggestions = _prompt_selected_suggestions(
+        column,
+        displayed_suggestions,
+        input_func=input_func,
+    )
+    if not selected_suggestions:
+        return {}
+
+    selected_replacements = _build_selected_replacements(
+        replacements,
+        selected_suggestions,
+    )
+    log(
+        f"{len(selected_suggestions)} correcao(oes) aplicada(s) para {column}.",
+        raw=True,
+    )
+    return selected_replacements
+
+
+def _display_correction_suggestions(corrections, max_display=100):
+    displayed_suggestions = corrections[:max_display]
+    for idx, (value, target) in enumerate(displayed_suggestions, 1):
+        log(f" {idx}. {value:80} -> {target}", raw=True)
+
+    if len(corrections) > max_display:
+        log(f"  ... e mais {len(corrections) - max_display} correcoes", raw=True)
+
+    return displayed_suggestions
+
+
+def _prompt_selected_suggestions(column, displayed_suggestions, input_func=input):
+    log("Informe os numeros das correcoes que deseja aplicar.", raw=True)
+    log("Exemplos: 1,3,4 | all | ENTER para nao aplicar nenhuma", raw=True)
+
+    choice = input_func(f"Aplicar quais correcoes para a coluna '{column}'? ")
+    normalized_choice = choice.strip().lower()
+
+    if not normalized_choice:
+        log(f"Nenhuma correcao aplicada para {column}.", raw=True)
+        return []
+
+    if normalized_choice == "all":
+        return displayed_suggestions
+
+    try:
+        selected_indices = {
+            int(item.strip()) for item in choice.split(",") if item.strip()
+        }
+    except ValueError:
+        log(f"Entrada invalida para {column}. Nenhuma correcao aplicada.", raw=True)
+        return []
+
+    invalid_indices = [
+        idx for idx in selected_indices if idx < 1 or idx > len(displayed_suggestions)
+    ]
+    if invalid_indices:
+        invalid_display = ", ".join(str(i) for i in sorted(invalid_indices))
+        log(
+            f"Indices invalidos para {column}: {invalid_display}. "
+            "Nenhuma correcao aplicada.",
+            raw=True,
+        )
+        return []
+
+    return [
+        displayed_suggestions[idx - 1]
+        for idx in sorted(selected_indices)
+    ]
+
+
+def _build_selected_replacements(replacements, selected_suggestions):
+    selected_replacements = {value: value for value in replacements.keys()}
+    for value, target in selected_suggestions:
+        selected_replacements[value] = target
+    return selected_replacements
 
 
 __all__ = [

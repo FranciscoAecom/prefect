@@ -1,9 +1,9 @@
-from settings import RULES_BASE
 from core.rules import loader as _rule_loader
 from core.rules.catalog import (
     list_rule_profile_catalog as _list_rule_profile_catalog,
     resolve_rule_profile_for_theme as _resolve_rule_profile_for_theme,
 )
+from core.rules.config import RULES_BASE
 from core.rules.domain import (
     build_field_mapping,
     classify_field_value,

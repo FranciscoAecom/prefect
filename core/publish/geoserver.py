@@ -10,41 +10,7 @@ from core.utils import log
 
 def publish_to_geoserver(item, config, credentials, dry_run=False, skip_data=False):
     auth = basic_auth(credentials.geoserver_username, credentials.geoserver_password)
-    if skip_data:
-        log("1/5 - Upload de dados ignorado por configuracao.")
-    else:
-        log(f"1/5 - Publicando {item.data_label} no GeoServer: {item.layer}")
-        run_curl(
-            [
-                "--fail-with-body",
-                "--show-error",
-                "--location",
-                "--retry",
-                "3",
-                "--retry-delay",
-                "10",
-                "--connect-timeout",
-                "60",
-                "--max-time",
-                "0",
-                "--request",
-                "PUT",
-                "--header",
-                f"Authorization: Basic {auth}",
-                "--header",
-                f"Content-Type: {item.data_content_type}",
-                "--upload-file",
-                str(item.data_path),
-                urls.geoserver_data_upload_url(
-                    config.geoserver,
-                    config.workspace,
-                    item.data_endpoint,
-                    item.store,
-                    item.data_type,
-                ),
-            ],
-            dry_run=dry_run,
-        )
+    upload_data_to_geoserver(item, config, auth, dry_run=dry_run, skip_data=skip_data)
 
     set_layer_title(item, config, auth, dry_run=dry_run)
     publish_style(item, config, auth, dry_run=dry_run)
@@ -54,40 +20,21 @@ def publish_to_geoserver(item, config, credentials, dry_run=False, skip_data=Fal
     return {}
 
 
+def upload_data_to_geoserver(item, config, auth, dry_run=False, skip_data=False):
+    if skip_data:
+        log("1/5 - Upload de dados ignorado por configuracao.")
+        return
+
+    log(f"1/5 - Publicando {item.data_label} no GeoServer: {item.layer}")
+    run_curl(data_upload_command(item, config, auth), dry_run=dry_run)
+
+
 def set_layer_title(item, config, auth, dry_run=False):
     log(f"2/5 - Ajustando titulo da camada: {item.layer}")
     resource = "featureType" if item.layer_resource == "featuretypes" else "coverage"
     body = f'<?xml version="1.0" encoding="UTF-8"?><{resource}><title>{xml_escape(item.layer_title)}</title></{resource}>'
     run_curl_with_stdin(
-        [
-            "--fail-with-body",
-            "--show-error",
-            "--location",
-            "--retry",
-            "3",
-            "--retry-delay",
-            "5",
-            "--connect-timeout",
-            "60",
-            "--max-time",
-            "0",
-            "--request",
-            "PUT",
-            "--header",
-            f"Authorization: Basic {auth}",
-            "--header",
-            "Content-Type: application/xml; charset=UTF-8",
-            "--data-binary",
-            "@-",
-            urls.geoserver_layer_resource_url(
-                config.geoserver,
-                config.workspace,
-                item.data_endpoint,
-                item.store,
-                item.layer_resource,
-                item.layer,
-            ),
-        ],
+        layer_title_command(item, config, auth),
         body,
         dry_run=dry_run,
     )
@@ -98,66 +45,7 @@ def publish_style(item, config, auth, dry_run=False):
     upload_sld = prepare_sld_for_upload(item.sld_path, item.style, item.layer)
     content_type = sld_content_type(upload_sld)
     try:
-        try:
-            run_curl(
-                [
-                    "--fail-with-body",
-                    "--show-error",
-                    "--location",
-                    "--retry",
-                    "3",
-                    "--retry-delay",
-                    "5",
-                    "--connect-timeout",
-                    "60",
-                    "--max-time",
-                    "0",
-                    "--request",
-                    "POST",
-                    "--header",
-                    f"Authorization: Basic {auth}",
-                    "--header",
-                    f"Content-Type: {content_type}",
-                    "--data-binary",
-                    f"@{upload_sld}",
-                    urls.geoserver_style_collection_url(
-                        config.geoserver,
-                        config.workspace,
-                        item.style,
-                    ),
-                ],
-                dry_run=dry_run,
-            )
-        except RuntimeError:
-            run_curl(
-                [
-                    "--fail-with-body",
-                    "--show-error",
-                    "--location",
-                    "--retry",
-                    "3",
-                    "--retry-delay",
-                    "5",
-                    "--connect-timeout",
-                    "60",
-                    "--max-time",
-                    "0",
-                    "--request",
-                    "PUT",
-                    "--header",
-                    f"Authorization: Basic {auth}",
-                    "--header",
-                    f"Content-Type: {content_type}",
-                    "--data-binary",
-                    f"@{upload_sld}",
-                    urls.geoserver_style_url(
-                        config.geoserver,
-                        config.workspace,
-                        item.style,
-                    ),
-                ],
-                dry_run=dry_run,
-            )
+        create_or_update_style(item, config, auth, upload_sld, content_type, dry_run)
     finally:
         if upload_sld != Path(item.sld_path):
             upload_sld.unlink(missing_ok=True)
@@ -176,28 +64,7 @@ def set_default_style(item, config, auth, dry_run=False):
         }
     )
     run_curl_with_stdin(
-        [
-            "--fail-with-body",
-            "--show-error",
-            "--location",
-            "--retry",
-            "3",
-            "--retry-delay",
-            "5",
-            "--connect-timeout",
-            "60",
-            "--max-time",
-            "0",
-            "--request",
-            "PUT",
-            "--header",
-            f"Authorization: Basic {auth}",
-            "--header",
-            "Content-Type: application/json",
-            "--data-binary",
-            "@-",
-            urls.geoserver_layer_url(config.geoserver, config.workspace, item.layer),
-        ],
+        default_style_command(item, config, auth),
         body,
         dry_run=dry_run,
     )
@@ -206,29 +73,7 @@ def set_default_style(item, config, auth, dry_run=False):
 def get_geoserver_attribute_types(item, config, auth):
     log(f"Coletando tipos dos atributos publicados no GeoServer: {item.layer}")
     response = run_curl(
-        [
-            "--fail-with-body",
-            "--show-error",
-            "--location",
-            "--retry",
-            "3",
-            "--retry-delay",
-            "5",
-            "--connect-timeout",
-            "60",
-            "--max-time",
-            "0",
-            "--header",
-            f"Authorization: Basic {auth}",
-            "--header",
-            "Accept: application/json",
-            urls.geoserver_feature_type_url(
-                config.geoserver,
-                config.workspace,
-                item.store,
-                item.layer,
-            ),
-        ],
+        feature_type_command(item, config, auth),
         capture=True,
     )
     try:
@@ -258,6 +103,147 @@ def get_geoserver_attribute_types(item, config, auth):
         attribute_types["fid"] = "Integer64"
     log(f"Tipos coletados no GeoServer: {len(attribute_types)}")
     return attribute_types
+
+
+def create_or_update_style(item, config, auth, upload_sld, content_type, dry_run=False):
+    try:
+        run_curl(
+            style_create_command(item, config, auth, upload_sld, content_type),
+            dry_run=dry_run,
+        )
+    except RuntimeError:
+        run_curl(
+            style_update_command(item, config, auth, upload_sld, content_type),
+            dry_run=dry_run,
+        )
+
+
+def curl_base_command(retry_delay="5"):
+    return [
+        "--fail-with-body",
+        "--show-error",
+        "--location",
+        "--retry",
+        "3",
+        "--retry-delay",
+        retry_delay,
+        "--connect-timeout",
+        "60",
+        "--max-time",
+        "0",
+    ]
+
+
+def data_upload_command(item, config, auth):
+    return [
+        *curl_base_command(retry_delay="10"),
+        "--request",
+        "PUT",
+        "--header",
+        f"Authorization: Basic {auth}",
+        "--header",
+        f"Content-Type: {item.data_content_type}",
+        "--upload-file",
+        str(item.data_path),
+        urls.geoserver_data_upload_url(
+            config.geoserver,
+            config.workspace,
+            item.data_endpoint,
+            item.store,
+            item.data_type,
+        ),
+    ]
+
+
+def layer_title_command(item, config, auth):
+    return [
+        *curl_base_command(),
+        "--request",
+        "PUT",
+        "--header",
+        f"Authorization: Basic {auth}",
+        "--header",
+        "Content-Type: application/xml; charset=UTF-8",
+        "--data-binary",
+        "@-",
+        urls.geoserver_layer_resource_url(
+            config.geoserver,
+            config.workspace,
+            item.data_endpoint,
+            item.store,
+            item.layer_resource,
+            item.layer,
+        ),
+    ]
+
+
+def style_create_command(item, config, auth, upload_sld, content_type):
+    return [
+        *curl_base_command(),
+        "--request",
+        "POST",
+        "--header",
+        f"Authorization: Basic {auth}",
+        "--header",
+        f"Content-Type: {content_type}",
+        "--data-binary",
+        f"@{upload_sld}",
+        urls.geoserver_style_collection_url(
+            config.geoserver,
+            config.workspace,
+            item.style,
+        ),
+    ]
+
+
+def style_update_command(item, config, auth, upload_sld, content_type):
+    return [
+        *curl_base_command(),
+        "--request",
+        "PUT",
+        "--header",
+        f"Authorization: Basic {auth}",
+        "--header",
+        f"Content-Type: {content_type}",
+        "--data-binary",
+        f"@{upload_sld}",
+        urls.geoserver_style_url(
+            config.geoserver,
+            config.workspace,
+            item.style,
+        ),
+    ]
+
+
+def default_style_command(item, config, auth):
+    return [
+        *curl_base_command(),
+        "--request",
+        "PUT",
+        "--header",
+        f"Authorization: Basic {auth}",
+        "--header",
+        "Content-Type: application/json",
+        "--data-binary",
+        "@-",
+        urls.geoserver_layer_url(config.geoserver, config.workspace, item.layer),
+    ]
+
+
+def feature_type_command(item, config, auth):
+    return [
+        *curl_base_command(),
+        "--header",
+        f"Authorization: Basic {auth}",
+        "--header",
+        "Accept: application/json",
+        urls.geoserver_feature_type_url(
+            config.geoserver,
+            config.workspace,
+            item.store,
+            item.layer,
+        ),
+    ]
 
 
 def convert_geoserver_binding(binding):

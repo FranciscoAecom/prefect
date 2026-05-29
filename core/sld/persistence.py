@@ -36,20 +36,29 @@ def persist_stage_slds(outputs, rule_profile=None, persist_dataset=True):
     base_style = build_sld_style(rule_profile or {})
     sld_paths = []
     for output in outputs:
-        output_path = Path(output["path"])
-        style = resolve_layer_sld_style(base_style, output_path.stem)
-        sld_path = sld_path_for_dataset(output_path)
-        sld_text = render_sld(
-            layer_name=output_path.stem,
-            geometry_kind=detect_geometry_kind(output.get("gdf")),
-            style=style,
-        )
-        sld_path.write_text(sld_text, encoding="utf-8")
+        sld_path, sld_text = build_output_sld(output, base_style)
+        write_sld_file(sld_path, sld_text)
         sld_paths.append(sld_path)
 
     if sld_paths:
         log("Arquivos SLD gerados: " + ", ".join(str(path) for path in sld_paths))
     return sld_paths
+
+
+def build_output_sld(output, base_style):
+    output_path = Path(output["path"])
+    style = resolve_layer_sld_style(base_style, output_path.stem)
+    sld_path = sld_path_for_dataset(output_path)
+    sld_text = render_sld(
+        layer_name=output_path.stem,
+        geometry_kind=detect_geometry_kind(output.get("gdf")),
+        style=style,
+    )
+    return sld_path, sld_text
+
+
+def write_sld_file(sld_path, sld_text):
+    Path(sld_path).write_text(sld_text, encoding="utf-8")
 
 
 def build_sld_style(rule_profile):
@@ -475,22 +484,6 @@ def render_polygon_symbolizer(style):
     return "\n".join(lines)
 
 
-def _old_render_polygon_symbolizer(style):
-    return "\n".join(
-        [
-            "          <PolygonSymbolizer>",
-            "            <Fill>",
-            f"              <CssParameter name=\"fill\">{escape(style['fill'])}</CssParameter>",
-            "            </Fill>",
-            "            <Stroke>",
-            f"              <CssParameter name=\"stroke\">{escape(style['stroke'])}</CssParameter>",
-            f"              <CssParameter name=\"stroke-width\">{escape(style['stroke_width'])}</CssParameter>",
-            "            </Stroke>",
-            "          </PolygonSymbolizer>",
-        ]
-    )
-
-
 def render_polygon_symbolizer_1_1(style):
     lines = [
         "          <se:PolygonSymbolizer>",
@@ -530,6 +523,7 @@ def style_value(style, *keys):
 
 
 __all__ = [
+    "build_output_sld",
     "build_sld_style",
     "detect_geometry_kind",
     "persist_stage_slds",
@@ -538,4 +532,5 @@ __all__ = [
     "SLD_OMITTED_DATASET_PREFIXES",
     "sld_path_for_dataset",
     "sld_stem_for_dataset_stem",
+    "write_sld_file",
 ]
