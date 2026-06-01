@@ -1,0 +1,10 @@
+{
+  "sld": {
+    "version": "1.1.0",
+    "rule_name": "Single symbol",
+    "polygon": {
+      "fill": "#c4912b",
+      "stroke": null
+    }
+  }
+}

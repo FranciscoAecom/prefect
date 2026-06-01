@@ -83,7 +83,7 @@ def build_sld_style(rule_profile):
 
     for section in ("point", "line", "polygon"):
         if isinstance(configured.get(section), dict):
-            style[section].update(normalize_style_mapping(configured[section]))
+            apply_style_mapping(style[section], configured[section])
 
     if isinstance(configured.get("rules"), list):
         style["rules"] = normalize_sld_rules(configured["rules"])
@@ -135,6 +135,15 @@ def normalize_style_mapping(style_mapping):
         for key, value in style_mapping.items()
         if value is not None
     }
+
+
+def apply_style_mapping(target, configured):
+    for key, value in configured.items():
+        key = str(key)
+        if value is None:
+            target.pop(key, None)
+            continue
+        target[key] = str(value)
 
 
 def resolve_layer_sld_style(base_style, layer_name):

@@ -169,6 +169,17 @@ class SldPersistenceTests(unittest.TestCase):
             text,
         )
 
+    def test_degradacao_amazonia_style_matches_single_symbol_polygon_model(self):
+        style_path = Path("rules/degradacao_amazonia/degradacao_amazonia/style.json")
+        style = build_sld_style(json.loads(style_path.read_text(encoding="utf-8")))
+        text = render_sld("pol_dfaab_imb_20260601", "polygon", style)
+
+        self.assertIn('version="1.1.0"', text)
+        self.assertIn("<se:Name>pol_dfaab_imb_20260601</se:Name>", text)
+        self.assertIn("<se:Name>Single symbol</se:Name>", text)
+        self.assertIn('<se:SvgParameter name="fill">#c4912b</se:SvgParameter>', text)
+        self.assertNotIn("<se:Stroke>", text)
+
     def test_sld_path_uses_same_stem_as_dataset(self):
         self.assertEqual(
             sld_path_for_dataset(Path("saida") / "pnt_pcd_enov_20260514.gpkg"),
