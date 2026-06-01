@@ -48,3 +48,11 @@ class ProjectConfigsTests(unittest.TestCase):
         config = get_project_config("nao_existe")
         self.assertEqual(config["project_name"], "default")
         self.assertIsNone(config["reference_date"])
+
+    def test_resolve_degradacao_project_config(self):
+        config = resolve_project_config("degradacao")
+
+        self.assertEqual(resolve_project_name("degradacao"), "degradacao")
+        self.assertEqual(config["project_name"], "degradacao")
+        self.assertEqual(config["theme_prefixes"], ("dfaab",))
+        self.assertEqual(config["output_name_template"], "pol_dfaab_imb_{date_yyyymmdd}")

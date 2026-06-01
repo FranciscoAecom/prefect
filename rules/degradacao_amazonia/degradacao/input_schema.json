@@ -1,0 +1,71 @@
+{
+  "columns": {
+    "sdb_fid": {
+      "dtype": "string",
+      "required": true,
+      "nullable": false
+    },
+    "sdb_classname": {
+      "dtype": "string",
+      "required": true,
+      "nullable": false
+    },
+    "sdb_quadrant": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_path_row": {
+      "dtype": "string",
+      "required": true,
+      "nullable": false
+    },
+    "sdb_view_date": {
+      "dtype": "date",
+      "required": true,
+      "nullable": false
+    },
+    "sdb_sensor": {
+      "dtype": "string",
+      "required": true,
+      "nullable": false
+    },
+    "sdb_satellite": {
+      "dtype": "string",
+      "required": true,
+      "nullable": false
+    },
+    "sdb_areauckm": {
+      "dtype": "number",
+      "required": true,
+      "nullable": false
+    },
+    "sdb_uc": {
+      "dtype": "string",
+      "required": true,
+      "nullable": true
+    },
+    "sdb_areamunkm": {
+      "dtype": "number",
+      "required": true,
+      "nullable": false
+    },
+    "sdb_municipali": {
+      "dtype": "string",
+      "required": true,
+      "nullable": false
+    },
+    "sdb_geocodibge": {
+      "dtype": "string",
+      "required": true,
+      "nullable": false
+    },
+    "sdb_uf": {
+      "dtype": "string",
+      "required": true,
+      "nullable": false
+    }
+  },
+  "require_geometry": true,
+  "allow_extra_columns": true
+}

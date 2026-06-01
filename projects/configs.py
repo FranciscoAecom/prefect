@@ -73,6 +73,13 @@ PROJECT_CONFIGS = {
         "output_name_template": "pnt_pcd_enov_{date_yyyymmdd}",
         "reference_date": "20260514",
     },
+    "degradacao": {
+        "project_name": "degradacao",
+        "display_name": "Degradacao da Amazonia",
+        "theme_prefixes": ("dfaab",),
+        "output_name_template": "pol_dfaab_imb_{date_yyyymmdd}",
+        "reference_date": None,
+    },
 }
 
 
