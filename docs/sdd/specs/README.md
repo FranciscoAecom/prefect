@@ -24,6 +24,7 @@ Prefixos como `pnt_`, `pol_`, `lin_` e `rst_` nao entram no nome do SLD.
 - `setor_censitario.md`
 - `autorizacao_para_supressao_vegetal-auth_supn.md`
 - `autos_infracao.md`
+- `degradacao_amazonia.md`
 - `default.md`
 
 As specs de baseline descrevem o comportamento atual do repositorio. Quando uma

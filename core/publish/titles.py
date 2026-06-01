@@ -4,9 +4,15 @@ import re
 def geoserver_layer_title(layer_name):
     title_builders = (
         app_car_layer_title,
+        rl_car_layer_title,
         sa_car_layer_title,
         ur_car_layer_title,
+        estado_layer_title,
+        localidades_layer_title,
+        setor_censitario_layer_title,
+        auth_supn_layer_title,
         autos_infracao_layer_title,
+        degradacao_amazonia_layer_title,
         imb_lulc_layer_title,
     )
     for builder in title_builders:
@@ -68,6 +74,13 @@ def sa_car_layer_title(layer_name):
     return f"Servid\u00e3o Administrativa - Im\u00f3veis {state_name}" if state_name else ""
 
 
+def rl_car_layer_title(layer_name):
+    if not str(layer_name).startswith("pol_pcd_rl_car_"):
+        return ""
+    state_name = state_name_from_layer(layer_name)
+    return f"Reserva Legal - Im\u00f3veis {state_name}" if state_name else ""
+
+
 def ur_car_layer_title(layer_name):
     if not str(layer_name).startswith("pol_pcd_ur_car_"):
         return ""
@@ -75,10 +88,40 @@ def ur_car_layer_title(layer_name):
     return f"Uso Restrito - Im\u00f3veis {state_name}" if state_name else ""
 
 
+def estado_layer_title(layer_name):
+    if str(layer_name).startswith("pol_loc_sta_"):
+        return "Limites das unidades da federa\u00e7\u00e3o do Brasil"
+    return ""
+
+
+def localidades_layer_title(layer_name):
+    if str(layer_name).startswith("pnt_loc_loc_br_"):
+        return "Localidades do Brasil"
+    return ""
+
+
+def setor_censitario_layer_title(layer_name):
+    if str(layer_name).startswith("pol_loc_cse_"):
+        return "Setores censit\u00e1rios do Brasil"
+    return ""
+
+
+def auth_supn_layer_title(layer_name):
+    if str(layer_name).startswith("pol_env_auth_supn_"):
+        return "Autoriza\u00e7\u00e3o para Supress\u00e3o Vegetal"
+    return ""
+
+
 def autos_infracao_layer_title(layer_name):
     layer_name = str(layer_name)
     if layer_name.startswith("pnt_pcd_enov_"):
         return "Autos de Infra\u00e7\u00e3o"
+    return ""
+
+
+def degradacao_amazonia_layer_title(layer_name):
+    if str(layer_name).startswith("pol_dfaab_imb_"):
+        return "Degrada\u00e7\u00e3o da Amaz\u00f4nia"
     return ""
 
 
@@ -96,10 +139,16 @@ def imb_lulc_layer_title(layer_name):
 
 __all__ = [
     "app_car_layer_title",
+    "auth_supn_layer_title",
     "autos_infracao_layer_title",
+    "degradacao_amazonia_layer_title",
+    "estado_layer_title",
     "geoserver_layer_title",
     "imb_lulc_layer_title",
+    "localidades_layer_title",
+    "rl_car_layer_title",
     "sa_car_layer_title",
+    "setor_censitario_layer_title",
     "state_name_from_layer",
     "ur_car_layer_title",
 ]

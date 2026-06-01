@@ -107,6 +107,20 @@ class PublishTests(unittest.TestCase):
             "Uso Restrito - Imóveis Acre",
         )
 
+    def test_geoserver_layer_title_for_registered_projects(self):
+        cases = {
+            "pol_pcd_rl_car_am_20260301": "Reserva Legal - Im\u00f3veis Amazonas",
+            "pol_loc_sta_20241215": "Limites das unidades da federa\u00e7\u00e3o do Brasil",
+            "pnt_loc_loc_br_20251119": "Localidades do Brasil",
+            "pol_loc_cse_20241114": "Setores censit\u00e1rios do Brasil",
+            "pol_env_auth_supn_20250701": "Autoriza\u00e7\u00e3o para Supress\u00e3o Vegetal",
+            "pol_dfaab_imb_20260601": "Degrada\u00e7\u00e3o da Amaz\u00f4nia",
+        }
+
+        for layer_name, expected_title in cases.items():
+            with self.subTest(layer_name=layer_name):
+                self.assertEqual(geoserver_layer_title(layer_name), expected_title)
+
     def test_add_data_dictionary_link_replaces_placeholder(self):
         content = "<distribution>Estrutura de 2 link associado</distribution>"
 
