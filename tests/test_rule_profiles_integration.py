@@ -36,6 +36,7 @@ class RuleProfilesIntegrationTests(unittest.TestCase):
         self.assertIn("car_reserva_legal/rl_car_sp", profiles)
         self.assertIn("car_servidao_administrativa/sa_car_ac", profiles)
         self.assertIn("autorizacao_para_supressao_vegetal/auth_supn", profiles)
+        self.assertIn("degradacao_amazonia/degradacao_amazonia", profiles)
 
     def test_modular_rule_profile_loads_as_consolidated_profile(self):
         profiles = set(list_rule_profiles())
@@ -61,6 +62,7 @@ class RuleProfilesIntegrationTests(unittest.TestCase):
             "rl_car_sp": "car_reserva_legal/rl_car_sp",
             "estado": "estado/estado",
             "auth_supn": "autorizacao_para_supressao_vegetal/auth_supn",
+            "degradacao_amazonia": "degradacao_amazonia/degradacao_amazonia",
         }
 
         for theme_folder, expected_profile in cases.items():

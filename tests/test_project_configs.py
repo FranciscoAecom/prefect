@@ -49,10 +49,11 @@ class ProjectConfigsTests(unittest.TestCase):
         self.assertEqual(config["project_name"], "default")
         self.assertIsNone(config["reference_date"])
 
-    def test_resolve_degradacao_project_config(self):
-        config = resolve_project_config("degradacao")
+    def test_resolve_degradacao_amazonia_project_config(self):
+        config = resolve_project_config("degradacao_amazonia")
 
-        self.assertEqual(resolve_project_name("degradacao"), "degradacao")
-        self.assertEqual(config["project_name"], "degradacao")
+        self.assertEqual(resolve_project_name("degradacao_amazonia"), "degradacao_amazonia")
+        self.assertEqual(resolve_project_name("degradacao"), "degradacao_amazonia")
+        self.assertEqual(config["project_name"], "degradacao_amazonia")
         self.assertEqual(config["theme_prefixes"], ("dfaab",))
         self.assertEqual(config["output_name_template"], "pol_dfaab_imb_{date_yyyymmdd}")

@@ -73,8 +73,8 @@ PROJECT_CONFIGS = {
         "output_name_template": "pnt_pcd_enov_{date_yyyymmdd}",
         "reference_date": "20260514",
     },
-    "degradacao": {
-        "project_name": "degradacao",
+    "degradacao_amazonia": {
+        "project_name": "degradacao_amazonia",
         "display_name": "Degradacao da Amazonia",
         "theme_prefixes": ("dfaab",),
         "output_name_template": "pol_dfaab_imb_{date_yyyymmdd}",
@@ -88,6 +88,7 @@ LEGACY_PROJECT_ALIASES = {
     "reserva_legal_car": "car_reserva_legal",
     "sa_car": "car_servidao_administrativa",
     "ur_car": "car_uso_restrito",
+    "degradacao": "degradacao_amazonia",
 }
 
 

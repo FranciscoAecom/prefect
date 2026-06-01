@@ -1,4 +1,4 @@
-# Spec: degradacao/degradacao
+# Spec: degradacao_amazonia/degradacao_amazonia
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -13,9 +13,9 @@ espacial.
 
 ## Entrada
 
-- Theme folder: `degradacao`
-- Projeto: `degradacao`
-- Pasta fisica das rules: `rules/degradacao_amazonia/degradacao`
+- Theme folder: `degradacao_amazonia`
+- Projeto: `degradacao_amazonia`
+- Pasta fisica das rules: `rules/degradacao_amazonia/degradacao_amazonia`
 - Status esperado na ingest para tratamento: `Waiting Update` ou `Reprocessing`
 - Status esperado na ingest para download: nao aplicavel no momento
 - Registro(s) de referencia na ingest: ainda nao cadastrado
@@ -42,15 +42,15 @@ execucao.
 
 ## Regras Do Perfil
 
-- `rules/degradacao_amazonia/degradacao/profile.json`
-- `rules/degradacao_amazonia/degradacao/input_schema.json`
-- `rules/degradacao_amazonia/degradacao/domains.json`
-- `rules/degradacao_amazonia/degradacao/relations.json`
-- `rules/degradacao_amazonia/degradacao/pipeline.json`
-- `rules/degradacao_amazonia/degradacao/style.json`: nao configurado
+- `rules/degradacao_amazonia/degradacao_amazonia/profile.json`
+- `rules/degradacao_amazonia/degradacao_amazonia/input_schema.json`
+- `rules/degradacao_amazonia/degradacao_amazonia/domains.json`
+- `rules/degradacao_amazonia/degradacao_amazonia/relations.json`
+- `rules/degradacao_amazonia/degradacao_amazonia/pipeline.json`
+- `rules/degradacao_amazonia/degradacao_amazonia/style.json`: nao configurado
 
 A validacao estrutural de entrada deve usar
-`rules/degradacao_amazonia/degradacao/input_schema.json`, permitindo colunas
+`rules/degradacao_amazonia/degradacao_amazonia/input_schema.json`, permitindo colunas
 extras conforme o perfil.
 
 ## Schema De Entrada
@@ -83,7 +83,7 @@ Tipos e observacoes:
 
 Fonte:
 
-- `rules/degradacao_amazonia/degradacao/domains.json`
+- `rules/degradacao_amazonia/degradacao_amazonia/domains.json`
 
 Aplicacao:
 
@@ -210,7 +210,7 @@ Fora do limite territorial brasileiro / zona costeira
 Arquivo principal:
 
 ```text
-output\degradacao\pol_dfaab_imb_{date_yyyymmdd}.gpkg
+output\degradacao_amazonia\pol_dfaab_imb_{date_yyyymmdd}.gpkg
 ```
 
 Outros arquivos de dados persistidos:
@@ -275,19 +275,19 @@ Data Pipeline
 Comando para servir o deployment:
 
 ```powershell
-nao configurado especificamente para degradacao
+nao configurado especificamente para degradacao_amazonia
 ```
 
 Comando para disparar pelo Prefect:
 
 ```powershell
-.\.venv\Scripts\python.exe -m prefect deployment run "Data Pipeline/<deployment>" --param theme_folders='["degradacao"]'
+.\.venv\Scripts\python.exe -m prefect deployment run "Data Pipeline/<deployment>" --param theme_folders='["degradacao_amazonia"]'
 ```
 
 Parametros fixos do deployment:
 
 ```json
-{"theme_folders": ["degradacao"]}
+{"theme_folders": ["degradacao_amazonia"]}
 ```
 
 Agenda:
