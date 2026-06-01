@@ -1,3 +1,4 @@
+from core.rules.domain_hygiene import looks_like_mojibake
 from core.rules.validators.common import validate_component_errors
 
 
@@ -43,6 +44,10 @@ def _validate_field_rules(field_name, field_rules, errors):
         errors.append(
             f"'accepted_values' de '{field_name}' deve conter apenas strings."
         )
+    elif any(looks_like_mojibake(value) for value in accepted_values):
+        errors.append(
+            f"'accepted_values' de '{field_name}' nao deve conter texto com possivel mojibake."
+        )
 
     if aliases is None:
         aliases = {}
@@ -54,6 +59,10 @@ def _validate_field_rules(field_name, field_rules, errors):
         errors.append(f"'aliases' de '{field_name}' deve usar chaves string.")
     if not all(isinstance(value, str) for value in aliases.values()):
         errors.append(f"'aliases' de '{field_name}' deve usar valores string.")
+    elif any(looks_like_mojibake(value) for value in aliases.values()):
+        errors.append(
+            f"Destinos de 'aliases' de '{field_name}' nao devem conter texto com possivel mojibake."
+        )
 
     _validate_alias_targets(field_name, accepted_values, aliases, errors)
 
@@ -68,4 +77,3 @@ def _validate_alias_targets(field_name, accepted_values, aliases, errors):
                 f"Alias '{alias}' de '{field_name}' aponta para valor fora de "
                 f"'accepted_values': {canonical}."
             )
-

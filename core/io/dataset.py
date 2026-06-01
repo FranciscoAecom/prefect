@@ -20,11 +20,16 @@ OUTPUT_LOCK_WAIT_SECONDS = 30 * 60
 
 def _read_dataframe_with_fallback(path, layer=None):
     read_kwargs = {"layer": layer}
+    path_obj = Path(path)
+    is_shapefile = path_obj.suffix.lower() == ".shp"
 
-    if USE_ARROW_IO and Path(path).suffix.lower() == ".shp":
+    if is_shapefile and not path_obj.with_suffix(".cpg").exists():
+        read_kwargs["encoding"] = "UTF-8"
+
+    if USE_ARROW_IO and is_shapefile:
         log(
             "Leitura Arrow desabilitada para shapefile; usando leitura padrao do pyogrio "
-            "para evitar falhas de encoding em campos texto."
+            "com encoding declarado no .cpg ou UTF-8 quando o .cpg estiver ausente."
         )
     elif USE_ARROW_IO:
         try:

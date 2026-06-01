@@ -1,7 +1,4 @@
 {
-  "postprocess_functions": [
-    "enrich_with_municipality_intersection"
-  ],
   "auto_functions": {
     "sdb_classname": [
       "validate_shapefile_attribute"
@@ -24,5 +21,9 @@
     "sdb_uf": [
       "validate_shapefile_attribute"
     ]
-  }
+  },
+  "postprocess_functions": [
+    "enrich_with_municipality_intersection"
+  ],
+  "quality_outputs": {}
 }

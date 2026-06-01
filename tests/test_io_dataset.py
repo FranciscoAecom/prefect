@@ -2,13 +2,58 @@ import tempfile
 import unittest
 from pathlib import Path
 import gc
+from unittest.mock import patch
 
 import geopandas as gpd
 import pandas as pd
 import pyogrio
 from shapely.geometry import Point
 
-from core.io.dataset import write_output_gpkg
+from core.io.dataset import _read_dataframe_with_fallback, write_output_gpkg
+
+
+class ReadInputDatasetTest(unittest.TestCase):
+    @patch("core.io.dataset.pyogrio.read_dataframe")
+    @patch("core.io.dataset.USE_ARROW_IO", True)
+    def test_shapefile_uses_utf8_without_arrow(self, mock_read_dataframe):
+        _read_dataframe_with_fallback("entrada.shp")
+
+        mock_read_dataframe.assert_called_once_with(
+            "entrada.shp",
+            layer=None,
+            encoding="UTF-8",
+        )
+
+    @patch("core.io.dataset.pyogrio.read_dataframe")
+    @patch("core.io.dataset.USE_ARROW_IO", False)
+    def test_shapefile_uses_utf8_when_arrow_setting_is_disabled(
+        self,
+        mock_read_dataframe,
+    ):
+        _read_dataframe_with_fallback("entrada.shp")
+
+        mock_read_dataframe.assert_called_once_with(
+            "entrada.shp",
+            layer=None,
+            encoding="UTF-8",
+        )
+
+    @patch("core.io.dataset.pyogrio.read_dataframe")
+    @patch("core.io.dataset.USE_ARROW_IO", True)
+    def test_shapefile_keeps_driver_encoding_when_cpg_exists(
+        self,
+        mock_read_dataframe,
+    ):
+        with tempfile.TemporaryDirectory() as tmp:
+            shapefile = Path(tmp) / "entrada.shp"
+            shapefile.with_suffix(".cpg").write_text("CP1252", encoding="ascii")
+
+            _read_dataframe_with_fallback(shapefile)
+
+        mock_read_dataframe.assert_called_once_with(
+            shapefile,
+            layer=None,
+        )
 
 
 class WriteOutputGpkgTest(unittest.TestCase):

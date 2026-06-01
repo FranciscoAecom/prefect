@@ -33,6 +33,19 @@ class RuleValidatorTests(unittest.TestCase):
                 }
             )
 
+    def test_domains_component_rejects_mojibake_in_accepted_values(self):
+        with self.assertRaisesRegex(ValueError, "possivel mojibake"):
+            validate_domains_component(
+                {
+                    "fields": {
+                        "sdb_uc": {
+                            "accepted_values": ["ESTAÃ\u0087Ã\u0083O ECOLÃ\u0093GICA"],
+                            "aliases": {},
+                        }
+                    }
+                }
+            )
+
     def test_relations_component_rejects_unknown_relation_field(self):
         with self.assertRaisesRegex(ValueError, "origem nao configurado"):
             validate_relations_component(

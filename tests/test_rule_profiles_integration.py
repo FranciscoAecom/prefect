@@ -83,15 +83,17 @@ class RuleProfilesIntegrationTests(unittest.TestCase):
         for path in Path(RULES_BASE).rglob("*.json"):
             with self.subTest(path=str(path)):
                 text = path.read_text(encoding="utf-8-sig")
-                self.assertFalse(
-                    "\ufffd" in text or mojibake_pattern.search(text),
-                    f"Possivel problema de UTF-8 em {path}",
-                )
-
                 data = json.loads(text)
                 for field_rules in data.get("fields", {}).values():
                     for accepted_value in field_rules.get("accepted_values", []):
                         self.assertFalse(
-                            any(token in accepted_value for token in bad_tokens),
+                            any(token in accepted_value for token in bad_tokens)
+                            or mojibake_pattern.search(accepted_value),
+                            f"Possivel problema de UTF-8 em {path}",
+                        )
+                    for canonical in field_rules.get("aliases", {}).values():
+                        self.assertFalse(
+                            any(token in canonical for token in bad_tokens)
+                            or mojibake_pattern.search(canonical),
                             f"Possivel problema de UTF-8 em {path}",
                         )

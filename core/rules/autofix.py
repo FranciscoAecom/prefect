@@ -3,6 +3,7 @@ from collections import defaultdict
 
 import pandas as pd
 
+from core.rules.domain_hygiene import looks_like_mojibake, repair_utf8_mojibake
 from core.rules.unique_values import export_unique_values_from_dataframe
 from core.rules.engine import (
     classify_field_value,
@@ -90,6 +91,22 @@ def _update_fields(profile, invalid_by_column):
 
             normalized = normalize_rule_text(value)
             if normalized in accepted_lookup or normalized in alias_lookup:
+                continue
+
+            if looks_like_mojibake(value):
+                repaired_value = repair_utf8_mojibake(value)
+                if not repaired_value:
+                    continue
+                repaired_normalized = normalize_rule_text(repaired_value)
+                alias_target = accepted_lookup.get(repaired_normalized)
+                if not alias_target:
+                    alias_target = repaired_value
+                    accepted_values.append(alias_target)
+                    accepted_lookup[repaired_normalized] = alias_target
+                    summary["accepted_values_added"][column].append(alias_target)
+                aliases[value] = alias_target
+                summary["aliases_added"][column][value] = alias_target
+                alias_lookup[normalized] = value
                 continue
 
             alias_target = _infer_alias_target(value, accepted_values)
@@ -206,9 +223,8 @@ def autofix_rule_profile_from_invalid_domains(
 
     field_summary = _update_fields(profile, invalid_by_column)
     relation_summary = _update_relations(profile, gdf)
-    profile_path = save_rule_profile(profile_name, profile)
-
     changed = any(field_summary["accepted_values_added"].values()) or any(field_summary["aliases_added"].values()) or any(relation_summary.values())
+    profile_path = save_rule_profile(profile_name, profile) if changed else None
 
     return {
         "changed": changed,
