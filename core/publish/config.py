@@ -98,39 +98,42 @@ def load_publish_credentials(
     geonetwork_username=None,
     geonetwork_password=None,
 ):
-    geo_user = geoserver_username or os.getenv("PUBLISH_GEOSERVER_USERNAME", "")
-    geo_password = geoserver_password or os.getenv("PUBLISH_GEOSERVER_PASSWORD", "")
+    geo_user, geo_password = resolve_credentials(
+        username=geoserver_username,
+        password=geoserver_password,
+        username_env="PUBLISH_GEOSERVER_USERNAME",
+        password_env="PUBLISH_GEOSERVER_PASSWORD",
+        username_prompt="Usuario GeoServer: ",
+        password_prompt="Senha GeoServer: ",
+        allow_prompt=allow_prompt,
+    )
     catalog_user = geonetwork_username or os.getenv("PUBLISH_GEONETWORK_USERNAME", "")
     catalog_password = geonetwork_password or os.getenv("PUBLISH_GEONETWORK_PASSWORD", "")
-
-    if not allow_prompt and (not geo_user or not geo_password):
-        geo_user = geo_user or "DRYRUN"
-        geo_password = geo_password or "DRYRUN"
-
-    if allow_prompt and (not geo_user or not geo_password):
-        geo_user = geo_user or input("Usuario GeoServer: ")
-        geo_password = geo_password or getpass("Senha GeoServer: ")
 
     if same_credential_for_catalog:
         catalog_user = catalog_user or geo_user
         catalog_password = catalog_password or geo_password
-    elif not allow_prompt and (not catalog_user or not catalog_password):
-        catalog_user = catalog_user or "DRYRUN"
-        catalog_password = catalog_password or "DRYRUN"
-    elif allow_prompt and (not catalog_user or not catalog_password):
-        catalog_user = catalog_user or input("Usuario GeoNetwork: ")
-        catalog_password = catalog_password or getpass("Senha GeoNetwork: ")
+    else:
+        catalog_user, catalog_password = resolve_credentials(
+            username=catalog_user,
+            password=catalog_password,
+            username_prompt="Usuario GeoNetwork: ",
+            password_prompt="Senha GeoNetwork: ",
+            allow_prompt=allow_prompt,
+        )
 
-    if not geo_user or not geo_password:
-        raise ValueError(
-            "Credenciais do GeoServer nao informadas. Configure "
-            "PUBLISH_GEOSERVER_USERNAME e PUBLISH_GEOSERVER_PASSWORD."
-        )
-    if not catalog_user or not catalog_password:
-        raise ValueError(
-            "Credenciais do GeoNetwork nao informadas. Configure "
-            "PUBLISH_GEONETWORK_USERNAME e PUBLISH_GEONETWORK_PASSWORD."
-        )
+    require_credentials(
+        geo_user,
+        geo_password,
+        "GeoServer",
+        "PUBLISH_GEOSERVER_USERNAME e PUBLISH_GEOSERVER_PASSWORD",
+    )
+    require_credentials(
+        catalog_user,
+        catalog_password,
+        "GeoNetwork",
+        "PUBLISH_GEONETWORK_USERNAME e PUBLISH_GEONETWORK_PASSWORD",
+    )
 
     return PublishCredentials(
         geoserver_username=geo_user,
@@ -138,6 +141,29 @@ def load_publish_credentials(
         catalog_username=catalog_user,
         catalog_password=catalog_password,
     )
+
+
+def resolve_credentials(
+    username=None,
+    password=None,
+    username_env=None,
+    password_env=None,
+    username_prompt="Usuario: ",
+    password_prompt="Senha: ",
+    allow_prompt=True,
+):
+    username = username or (os.getenv(username_env, "") if username_env else "")
+    password = password or (os.getenv(password_env, "") if password_env else "")
+    if not allow_prompt:
+        return username or "DRYRUN", password or "DRYRUN"
+    return username or input(username_prompt), password or getpass(password_prompt)
+
+
+def require_credentials(username, password, service, environment_variables):
+    if not username or not password:
+        raise ValueError(
+            f"Credenciais do {service} nao informadas. Configure {environment_variables}."
+        )
 
 
 def config_for_environment(environment="qas", **overrides):

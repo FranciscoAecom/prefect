@@ -1,4 +1,3 @@
-import math
 from collections import Counter
 
 import geopandas as gpd
@@ -6,12 +5,7 @@ import pandas as pd
 from shapely import get_srid
 from shapely.geometry import (
     GeometryCollection,
-    LinearRing,
-    LineString,
-    MultiLineString,
-    MultiPoint,
     MultiPolygon,
-    Point,
     Polygon,
 )
 from shapely.geometry.base import BaseGeometry
@@ -20,73 +14,19 @@ from shapely.validation import explain_validity, make_valid
 
 from core.spatial.crs import (
     geometry_series_matches_crs_coordinate_range,
-    is_geographic_crs,
-    is_within_geographic_bounds,
 )
+from core.spatial.ogc_coordinates import (
+    is_finite_number,
+    validar_coordenadas,
+    validate_collection_coordinate_ranges,
+    validate_coordinate_ranges_for_crs,
+    validate_coordinate_tuple,
+    validate_coordinates,
+    validate_linestring_coords,
+    validate_polygon_coords,
+)
+from core.spatial.ogc_results import GEOMETRY_TYPES, add_error, new_validation_result
 from core.spatial.repair import INTERNAL_SAFE_REPAIR_FLAG
-
-
-GEOMETRY_TYPES = {
-    "Point",
-    "LineString",
-    "LinearRing",
-    "Polygon",
-    "MultiPoint",
-    "MultiLineString",
-    "MultiPolygon",
-    "GeometryCollection",
-}
-
-
-def validate_coordinate_ranges_for_crs(geom, crs, result, label=None):
-    if geom is None:
-        return
-
-    try:
-        if geom.is_empty:
-            return
-    except Exception:
-        return
-
-    current_label = label or geom.geom_type
-
-    if isinstance(geom, (MultiPoint, MultiLineString, MultiPolygon, GeometryCollection)):
-        validate_collection_coordinate_ranges(geom, crs, result)
-        return
-
-    if not is_geographic_crs(crs):
-        return
-
-    try:
-        bounds = geom.bounds
-    except Exception:
-        add_error(
-            result,
-            f"{current_label}: nao foi possivel obter bounds para validar compatibilidade com o CRS {crs}.",
-        )
-        return
-
-    if is_within_geographic_bounds(bounds):
-        return
-
-    minx, miny, maxx, maxy = bounds
-    add_error(
-        result,
-        (
-            f"{current_label}: bounds incompativeis com o CRS geografico {crs} "
-            f"(minx={minx}, miny={miny}, maxx={maxx}, maxy={maxy})."
-        ),
-    )
-
-
-def validate_collection_coordinate_ranges(geom, crs, result):
-    for index, item in enumerate(geom.geoms, 1):
-        validate_coordinate_ranges_for_crs(
-            item,
-            crs,
-            result,
-            label=f"{geom.geom_type}[{index}]",
-        )
 
 
 def can_skip_detailed_ogc_check(gdf, crs_esperado=None, srid_esperado=None, normalizar=False):
@@ -188,86 +128,6 @@ def validate_ogc_record_geometry(
     return " | ".join(resultado["erros"]), resultado["erros"]
 
 
-def new_validation_result(geom):
-    return {
-        "valido": True,
-        "tipo": getattr(geom, "geom_type", None),
-        "erros": [],
-        "avisos": [],
-        "normalizada": False,
-        "geometria": geom,
-    }
-
-
-def add_error(result, message):
-    result["valido"] = False
-    result["erros"].append(message)
-
-
-def is_finite_number(value):
-    return isinstance(value, (int, float)) and math.isfinite(value)
-
-
-def validate_coordinate_tuple(coord, label, result):
-    if coord is None:
-        add_error(result, f"{label}: coordenada nula.")
-        return
-
-    if len(coord) < 2:
-        add_error(result, f"{label}: coordenada com dimensao insuficiente.")
-        return
-
-    for axis_index, axis_value in enumerate(coord):
-        if axis_value is None:
-            add_error(result, f"{label}: eixo {axis_index} com valor nulo.")
-            continue
-
-        if not is_finite_number(axis_value):
-            add_error(
-                result,
-                f"{label}: eixo {axis_index} com valor invalido ({axis_value})."
-            )
-
-
-def validate_linestring_coords(coords, label, result, minimum_points=2, must_be_closed=False):
-    if len(coords) < minimum_points:
-        add_error(
-            result,
-            f"{label}: quantidade insuficiente de pontos ({len(coords)})."
-        )
-
-    for coord in coords:
-        validate_coordinate_tuple(coord, label, result)
-
-    distinct_points = {tuple(coord[:2]) for coord in coords if coord is not None and len(coord) >= 2}
-    if len(distinct_points) < 2:
-        add_error(result, f"{label}: precisa de pelo menos 2 pontos distintos.")
-
-    if must_be_closed and coords and coords[0] != coords[-1]:
-        add_error(result, f"{label}: anel nao esta fechado.")
-
-
-def validate_polygon_coords(polygon, label, result):
-    exterior_coords = list(polygon.exterior.coords)
-    validate_linestring_coords(
-        exterior_coords,
-        f"{label} - anel externo",
-        result,
-        minimum_points=4,
-        must_be_closed=True,
-    )
-
-    for ring_index, interior in enumerate(polygon.interiors, 1):
-        interior_coords = list(interior.coords)
-        validate_linestring_coords(
-            interior_coords,
-            f"{label} - buraco {ring_index}",
-            result,
-            minimum_points=4,
-            must_be_closed=True,
-        )
-
-
 def validar_tipo(geom):
     result = new_validation_result(geom)
 
@@ -282,82 +142,6 @@ def validar_tipo(geom):
     if geom.geom_type not in GEOMETRY_TYPES:
         add_error(result, f"Tipo geometrico nao suportado: {geom.geom_type}.")
 
-    return result
-
-
-def validar_coordenadas(geom, crs=None):
-    return validate_coordinates(geom, crs=crs)
-
-
-def validate_coordinates(geom, crs=None):
-    result = new_validation_result(geom)
-
-    if geom is None:
-        add_error(result, "Geometria nula.")
-        return result
-
-    if geom.is_empty:
-        add_error(result, "Geometria vazia.")
-        return result
-
-    if isinstance(geom, Point):
-        validate_coordinate_tuple(geom.coords[0], "Point", result)
-        validate_coordinate_ranges_for_crs(geom, crs, result)
-        return result
-
-    if isinstance(geom, (LineString, LinearRing)):
-        validate_linestring_coords(
-            list(geom.coords),
-            geom.geom_type,
-            result,
-            minimum_points=4 if isinstance(geom, LinearRing) else 2,
-            must_be_closed=isinstance(geom, LinearRing),
-        )
-        validate_coordinate_ranges_for_crs(geom, crs, result)
-        return result
-
-    if isinstance(geom, Polygon):
-        validate_polygon_coords(geom, "Polygon", result)
-        validate_coordinate_ranges_for_crs(geom, crs, result)
-        return result
-
-    if isinstance(geom, MultiPoint):
-        if len(geom.geoms) == 0:
-            add_error(result, "MultiPoint sem geometrias.")
-        for index, item in enumerate(geom.geoms, 1):
-            child_result = validar_coordenadas(item, crs=crs)
-            for error in child_result["erros"]:
-                add_error(result, f"MultiPoint[{index}]: {error}")
-        return result
-
-    if isinstance(geom, MultiLineString):
-        if len(geom.geoms) == 0:
-            add_error(result, "MultiLineString sem geometrias.")
-        for index, item in enumerate(geom.geoms, 1):
-            child_result = validar_coordenadas(item, crs=crs)
-            for error in child_result["erros"]:
-                add_error(result, f"MultiLineString[{index}]: {error}")
-        return result
-
-    if isinstance(geom, MultiPolygon):
-        if len(geom.geoms) == 0:
-            add_error(result, "MultiPolygon sem geometrias.")
-        for index, item in enumerate(geom.geoms, 1):
-            child_result = validar_coordenadas(item, crs=crs)
-            for error in child_result["erros"]:
-                add_error(result, f"MultiPolygon[{index}]: {error}")
-        return result
-
-    if isinstance(geom, GeometryCollection):
-        if len(geom.geoms) == 0:
-            add_error(result, "GeometryCollection sem geometrias.")
-        for index, item in enumerate(geom.geoms, 1):
-            child_result = validar_coordenadas(item, crs=crs)
-            for error in child_result["erros"]:
-                add_error(result, f"GeometryCollection[{index}]: {error}")
-        return result
-
-    add_error(result, f"Nao foi possivel validar coordenadas para {geom.geom_type}.")
     return result
 
 
