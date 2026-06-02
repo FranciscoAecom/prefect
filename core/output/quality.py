@@ -30,6 +30,18 @@ QUALITY_OUTPUT_GEOMETRIC_DUPLICATES = "geometric_duplicates"
 QUALITY_OUTPUT_OGC_INVALID_GEOMETRIES = "ogc_invalid_geometries"
 QUALITY_OUTPUT_FULL_RECORD_DUPLICATE_FLAG = "full_record_duplicate_flag"
 
+REPORT_LOG_SPECS = (
+    ("attribute_duplicates", "duplicados atributos", "attr_report"),
+    ("geometric_duplicates", "duplicados geometricos", "geom_report"),
+    ("ogc_invalid_geometries", "geometrias invalidas OGC", "ogc_report"),
+)
+
+TOTAL_LOG_SPECS = (
+    ("duplicados atributos", "attr_count"),
+    ("duplicados geometricos", "geom_count"),
+    ("geometrias invalidas OGC", "ogc_invalid_count"),
+)
+
 
 @dataclass(frozen=True)
 class OutputQualityConfig:
@@ -132,41 +144,27 @@ def log_output_quality_summary(summary):
     else:
         log("Verificacoes obrigatorias de qualidade: desabilitadas")
 
-    if summary.config.attribute_duplicates:
-        if not summary.config.export_report_files:
-            log("Relatorio duplicados atributos: exportacao de arquivo desabilitada")
-        else:
-            log(f"Relatorio duplicados atributos: {summary.attr_report or 'nao gerado'}")
-    else:
-        log("Relatorio duplicados atributos: desabilitado")
+    for config_field, label, report_field in REPORT_LOG_SPECS:
+        _log_report_status(summary, config_field, label, report_field)
 
-    if summary.config.geometric_duplicates:
-        if not summary.config.export_report_files:
-            log("Relatorio duplicados geometricos: exportacao de arquivo desabilitada")
-        else:
-            log(f"Relatorio duplicados geometricos: {summary.geom_report or 'nao gerado'}")
-    else:
-        log("Relatorio duplicados geometricos: desabilitado")
-
-    if summary.config.ogc_invalid_geometries:
-        if not summary.config.export_report_files:
-            log("Relatorio geometrias invalidas OGC: exportacao de arquivo desabilitada")
-        elif summary.ogc_report:
-            log(f"Relatorio geometrias invalidas OGC: {summary.ogc_report}")
-        else:
-            log("Relatorio geometrias invalidas OGC: nao gerado")
-    else:
-        log("Relatorio geometrias invalidas OGC: desabilitado")
-
-    log(f"Total duplicados atributos: {summary.attr_count}")
-    log(f"Total duplicados geometricos: {summary.geom_count}")
-    log(f"Total geometrias invalidas OGC: {summary.ogc_invalid_count}")
+    for label, count_field in TOTAL_LOG_SPECS:
+        log(f"Total {label}: {getattr(summary, count_field)}")
     if summary.safe_null_count:
         log(f"Total geometrias nulas por reparo seguro: {summary.safe_null_count}")
     if summary.config.ogc_invalid_geometries and summary.ogc_error_summary:
         log("Resumo erros OGC:")
         for erro, quantidade in summary.ogc_error_summary.items():
             log(f"  {quantidade}x - {erro}")
+
+
+def _log_report_status(summary, config_field, label, report_field):
+    if not getattr(summary.config, config_field):
+        status = "desabilitado"
+    elif not summary.config.export_report_files:
+        status = "exportacao de arquivo desabilitada"
+    else:
+        status = getattr(summary, report_field) or "nao gerado"
+    log(f"Relatorio {label}: {status}")
 
 
 def _enabled_quality_checks(config=None):

@@ -2,14 +2,10 @@ from importlib import import_module
 
 from core.optional_functions import get_optional_functions
 from projects.configs import canonical_project_name
+from projects.functions.car_common import CAR_PROJECT_OPERATIONS
 
 _PROJECT_FUNCTIONS_CACHE = {}
-PROJECT_FUNCTION_MODULES = {
-    "car_area_preservacao_permanente": "car_common",
-    "car_reserva_legal": "car_common",
-    "car_servidao_administrativa": "car_common",
-    "car_uso_restrito": "car_common",
-}
+PROJECT_FUNCTION_MODULES = dict.fromkeys(CAR_PROJECT_OPERATIONS, "car_common")
 
 
 def _load_project_functions(project_name):

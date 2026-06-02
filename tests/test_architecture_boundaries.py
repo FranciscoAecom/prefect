@@ -3,6 +3,30 @@ from pathlib import Path
 
 
 class ArchitectureBoundaryTests(unittest.TestCase):
+    def test_car_projects_use_single_shared_optional_functions_module(self):
+        from projects.functions.car_common import CAR_PROJECT_OPERATIONS
+        from projects.registry import PROJECT_FUNCTION_MODULES
+
+        self.assertEqual(
+            PROJECT_FUNCTION_MODULES,
+            dict.fromkeys(CAR_PROJECT_OPERATIONS, "car_common"),
+        )
+        legacy_modules = [
+            Path("projects/functions") / f"{project_name}.py"
+            for project_name in CAR_PROJECT_OPERATIONS
+        ]
+        self.assertEqual([str(path) for path in legacy_modules if path.exists()], [])
+
+    def test_ogc_coordinates_does_not_depend_on_persistence(self):
+        text = Path("core/spatial/ogc_coordinates.py").read_text(encoding="utf-8")
+
+        self.assertNotIn("persistence", text)
+
+    def test_metadata_dictionary_does_not_depend_on_xml_templates(self):
+        text = Path("core/metadata/dictionary.py").read_text(encoding="utf-8")
+
+        self.assertNotIn("template", text.lower())
+
     def test_tabular_validation_modules_do_not_import_rule_layer(self):
         offenders = self._files_containing(
             Path("core/validation"),

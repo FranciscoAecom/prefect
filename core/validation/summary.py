@@ -42,39 +42,33 @@ def log_validation_summary(validation_session=None):
     validation_session = validation_session_or_default(validation_session)
     for column, entry in validation_session.summary["fields"].items():
         status_counts = entry["status_counts"]
-        normalized_count = status_counts.get("normalized", 0)
-        invalid_count = status_counts.get("invalid", 0)
-        empty_count = status_counts.get("empty", 0)
-
-        if normalized_count == 0 and invalid_count == 0 and empty_count == 0:
+        parts = _count_parts(
+            status_counts,
+            (
+                ("normalized", "normalizado(s) por alias"),
+                ("invalid", "invalido(s)"),
+                ("empty", "vazio(s)"),
+            ),
+        )
+        if not parts:
             continue
-
-        parts = []
-        if normalized_count:
-            parts.append(f"{normalized_count} normalizado(s) por alias")
-        if invalid_count:
-            parts.append(f"{invalid_count} invalido(s)")
-        if empty_count:
-            parts.append(f"{empty_count} vazio(s)")
 
         log(f"Resumo validacao {column}: {', '.join(parts)}")
-        for reason, count in entry["reason_counts"].most_common(5):
-            log(f"  {count}x - {reason}")
+        _log_counter(entry["reason_counts"], limit=5)
 
     for relation_key, consistency in validation_session.summary["relations"].items():
-        autocorrected = consistency["status_counts"].get("autocorrected", 0)
-        inconsistent = consistency["status_counts"].get("inconsistent", 0)
-        unchecked = consistency["status_counts"].get("unchecked", 0)
-        if not (autocorrected or inconsistent or unchecked):
+        status_counts = consistency["status_counts"]
+        parts = _count_parts(
+            status_counts,
+            (
+                ("autocorrected", f"autocorrigido(s) pela relacao {relation_key}"),
+                ("inconsistent", "inconsistente(s)"),
+                ("unchecked", "nao verificado(s)"),
+            ),
+        )
+        if not parts:
             continue
 
-        parts = []
-        if autocorrected:
-            parts.append(f"{autocorrected} autocorrigido(s) pela relacao {relation_key}")
-        if inconsistent:
-            parts.append(f"{inconsistent} inconsistente(s)")
-        if unchecked:
-            parts.append(f"{unchecked} nao verificado(s)")
         log(f"Resumo consistencia relacao {relation_key}: {', '.join(parts)}")
 
         relation_map = consistency.get("relation_map", {})
@@ -82,11 +76,23 @@ def log_validation_summary(validation_session=None):
             expected_target = relation_map.get(source_value)
             if expected_target:
                 log(f"  {count}x - Valor ajustado automaticamente para {source_value}: {expected_target}")
-        if unchecked:
+        if status_counts.get("unchecked", 0):
             for source_value, count in consistency["unchecked_source_counts"].most_common(10):
                 log(f"  {count}x - Valor fonte fora do dominio configurado: {source_value}")
-        for reason, count in consistency["reason_counts"].most_common(5):
-            log(f"  {count}x - {reason}")
+        _log_counter(consistency["reason_counts"], limit=5)
+
+
+def _count_parts(counts, labels):
+    return [
+        f"{counts.get(key, 0)} {label}"
+        for key, label in labels
+        if counts.get(key, 0)
+    ]
+
+
+def _log_counter(counter, limit):
+    for reason, count in counter.most_common(limit):
+        log(f"  {count}x - {reason}")
 
 
 __all__ = [

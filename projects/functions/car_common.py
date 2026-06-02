@@ -11,6 +11,25 @@ CONDITION_LABELS = {
     "AGUARDANDO ANALISE": "Aguardando analise",
 }
 
+CAR_PROJECT_OPERATIONS = {
+    "car_area_preservacao_permanente": {
+        "operation": "car_area_preservacao_permanente_transform_des_condic",
+        "aliases": ("car_app_transform_des_condic",),
+    },
+    "car_reserva_legal": {
+        "operation": "car_reserva_legal_transform_des_condic",
+        "aliases": ("reserva_legal_car_transform_des_condic",),
+    },
+    "car_servidao_administrativa": {
+        "operation": "car_servidao_administrativa_transform_des_condic",
+        "aliases": ("sa_car_transform_des_condic",),
+    },
+    "car_uso_restrito": {
+        "operation": "car_uso_restrito_transform_des_condic",
+        "aliases": ("ur_car_transform_des_condic",),
+    },
+}
+
 
 def transform_car_condition(gdf, column, **_context):
     target_column = target_column_name(column)
@@ -44,15 +63,14 @@ def normalize_car_condition(value):
 
 
 PROJECT_OPTIONAL_FUNCTIONS = {
-    "car_area_preservacao_permanente_transform_des_condic": transform_car_condition,
-    "car_app_transform_des_condic": transform_car_condition,
-    "car_reserva_legal_transform_des_condic": transform_car_condition,
-    "reserva_legal_car_transform_des_condic": transform_car_condition,
-    "car_servidao_administrativa_transform_des_condic": transform_car_condition,
-    "sa_car_transform_des_condic": transform_car_condition,
-    "car_uso_restrito_transform_des_condic": transform_car_condition,
-    "ur_car_transform_des_condic": transform_car_condition,
+    operation_name: transform_car_condition
+    for spec in CAR_PROJECT_OPERATIONS.values()
+    for operation_name in (spec["operation"], *spec["aliases"])
 }
 
 
-__all__ = ["normalize_car_condition", "transform_car_condition"]
+__all__ = [
+    "CAR_PROJECT_OPERATIONS",
+    "normalize_car_condition",
+    "transform_car_condition",
+]
