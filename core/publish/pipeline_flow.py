@@ -6,7 +6,7 @@ from core.execution_locks import named_execution_lock
 from core.ingest.run_request import IngestRunRequest
 from core.prefect_support.run_names import flow_run_name
 from core.prefect_flow import prepare_queue_task, run_queue_record_task
-from core.publish.config import config_for_environment, load_publish_credentials
+from core.publish.config import PublishOptions
 from core.publish.execution import publish_folder_items
 from core.publish.flow import discover_publish_items_task, publish_item_task
 from core.queue.group_state import QueueGroupState
@@ -39,6 +39,24 @@ def data_pipeline_publish_flow(
     skip_catalog=False,
     force=False,
 ):
+    publish_options = PublishOptions(
+        environment=environment,
+        workspace=workspace,
+        geoserver=geoserver,
+        catalog=catalog,
+        catalog_group=catalog_group,
+        catalog_category=catalog_category,
+        data_dictionary_base_url=data_dictionary_base_url,
+        same_credential_for_catalog=same_credential_for_catalog,
+        geoserver_username=geoserver_username,
+        geoserver_password=geoserver_password,
+        geonetwork_username=geonetwork_username,
+        geonetwork_password=geonetwork_password,
+        dry_run=dry_run_publish,
+        skip_geoserver=skip_geoserver,
+        skip_data=skip_data,
+        skip_catalog=skip_catalog,
+    )
     settings = QueueRunSettings.from_output_base(output_base)
     run_request = IngestRunRequest.from_legacy(
         theme_folders=theme_folders,
@@ -72,22 +90,7 @@ def data_pipeline_publish_flow(
             publish_record_outputs(
                 record,
                 queue_context.output_dir,
-                environment=environment,
-                workspace=workspace,
-                geoserver=geoserver,
-                catalog=catalog,
-                catalog_group=catalog_group,
-                catalog_category=catalog_category,
-                data_dictionary_base_url=data_dictionary_base_url,
-                same_credential_for_catalog=same_credential_for_catalog,
-                geoserver_username=geoserver_username,
-                geoserver_password=geoserver_password,
-                geonetwork_username=geonetwork_username,
-                geonetwork_password=geonetwork_password,
-                dry_run=dry_run_publish,
-                skip_geoserver=skip_geoserver,
-                skip_data=skip_data,
-                skip_catalog=skip_catalog,
+                **publish_options.task_kwargs(),
             )
 
         log("Processamento e publicacao finalizados")
@@ -127,6 +130,24 @@ def run_pipeline_publish_direct(
     skip_catalog=False,
     force=False,
 ):
+    publish_options = PublishOptions(
+        environment=environment,
+        workspace=workspace,
+        geoserver=geoserver,
+        catalog=catalog,
+        catalog_group=catalog_group,
+        catalog_category=catalog_category,
+        data_dictionary_base_url=data_dictionary_base_url,
+        same_credential_for_catalog=same_credential_for_catalog,
+        geoserver_username=geoserver_username,
+        geoserver_password=geoserver_password,
+        geonetwork_username=geonetwork_username,
+        geonetwork_password=geonetwork_password,
+        dry_run=dry_run_publish,
+        skip_geoserver=skip_geoserver,
+        skip_data=skip_data,
+        skip_catalog=skip_catalog,
+    )
     settings = QueueRunSettings.from_output_base(output_base)
     run_request = IngestRunRequest.from_legacy(
         theme_folders=theme_folders,
@@ -134,23 +155,8 @@ def run_pipeline_publish_direct(
         force=force,
     )
     queue_filter = run_request.queue_filter
-    config = config_for_environment(
-        environment,
-        geoserver=geoserver,
-        catalog=catalog,
-        workspace=workspace,
-        catalog_group=catalog_group,
-        catalog_category=catalog_category,
-        data_dictionary_base_url=data_dictionary_base_url,
-    )
-    credentials = load_publish_credentials(
-        same_credential_for_catalog=same_credential_for_catalog,
-        allow_prompt=False,
-        geoserver_username=geoserver_username,
-        geoserver_password=geoserver_password,
-        geonetwork_username=geonetwork_username,
-        geonetwork_password=geonetwork_password,
-    )
+    config = publish_options.build_config()
+    credentials = publish_options.load_credentials()
 
     with _queue_filter_locks(queue_filter):
         queue_context = prepare_processing_queue(
@@ -178,10 +184,7 @@ def run_pipeline_publish_direct(
                 getattr(record, "output_dir", "") or queue_context.output_dir,
                 config,
                 credentials,
-                dry_run=dry_run_publish,
-                skip_geoserver=skip_geoserver,
-                skip_data=skip_data,
-                skip_catalog=skip_catalog,
+                **publish_options.execution_kwargs(),
             )
 
     log("Processamento e publicacao finalizados")

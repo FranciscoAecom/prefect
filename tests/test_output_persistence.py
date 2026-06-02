@@ -9,6 +9,7 @@ import pandas as pd
 from shapely.geometry import Point
 
 from core.silver.persistence import save_outputs, save_outputs_manifest
+from core.spatial.brazil_bounds import brazil_bounds_centroid
 
 
 class OutputPersistenceTests(unittest.TestCase):
@@ -49,8 +50,9 @@ class OutputPersistenceTests(unittest.TestCase):
         self.assertIn("acm_long_centroide_brasil", main_gdf.columns)
         self.assertIn("acm_lat_centroide_brasil", main_gdf.columns)
         self.assertTrue(pd.isna(main_gdf.loc[0, "acm_long_centroide_brasil"]))
-        self.assertEqual(main_gdf.loc[1, "acm_long_centroide_brasil"], -46.79781)
-        self.assertEqual(main_gdf.loc[1, "acm_lat_centroide_brasil"], -13.279994)
+        centroid = brazil_bounds_centroid("EPSG:4326")
+        self.assertEqual(main_gdf.loc[1, "acm_long_centroide_brasil"], round(centroid.x, 6))
+        self.assertEqual(main_gdf.loc[1, "acm_lat_centroide_brasil"], round(centroid.y, 6))
 
     @patch("core.silver.persistence.write_output_gpkg")
     def test_single_output_is_persisted_without_profile_configuration(

@@ -1,6 +1,6 @@
 from prefect import flow, task
 
-from core.publish.config import config_for_environment, load_publish_credentials
+from core.publish.config import PublishOptions
 from core.publish.execution import discover_items_for_publish, publish_item_to_targets
 from core.utils import log
 
@@ -42,32 +42,30 @@ def publish_item_task(
     skip_data=False,
     skip_catalog=False,
 ):
-    config = config_for_environment(
-        environment,
+    options = PublishOptions(
+        environment=environment,
+        workspace=workspace,
         geoserver=geoserver,
         catalog=catalog,
-        workspace=workspace,
         catalog_group=catalog_group,
         catalog_category=catalog_category,
         data_dictionary_base_url=data_dictionary_base_url,
-    )
-    credentials = load_publish_credentials(
         same_credential_for_catalog=same_credential_for_catalog,
-        allow_prompt=False,
         geoserver_username=geoserver_username,
         geoserver_password=geoserver_password,
         geonetwork_username=geonetwork_username,
         geonetwork_password=geonetwork_password,
-    )
-
-    publish_item_to_targets(
-        item,
-        config,
-        credentials,
         dry_run=dry_run,
         skip_geoserver=skip_geoserver,
         skip_data=skip_data,
         skip_catalog=skip_catalog,
+    )
+
+    publish_item_to_targets(
+        item,
+        options.build_config(),
+        options.load_credentials(),
+        **options.execution_kwargs(),
     )
 
 
@@ -95,6 +93,24 @@ def data_publish_flow(
     skip_data=False,
     skip_catalog=False,
 ):
+    options = PublishOptions(
+        environment=environment,
+        workspace=workspace,
+        geoserver=geoserver,
+        catalog=catalog,
+        catalog_group=catalog_group,
+        catalog_category=catalog_category,
+        data_dictionary_base_url=data_dictionary_base_url,
+        same_credential_for_catalog=same_credential_for_catalog,
+        geoserver_username=geoserver_username,
+        geoserver_password=geoserver_password,
+        geonetwork_username=geonetwork_username,
+        geonetwork_password=geonetwork_password,
+        dry_run=dry_run,
+        skip_geoserver=skip_geoserver,
+        skip_data=skip_data,
+        skip_catalog=skip_catalog,
+    )
     items = discover_publish_items_task(
         folder,
         store=store,
@@ -105,22 +121,7 @@ def data_publish_flow(
     for item in items:
         publish_item_task(
             item,
-            environment=environment,
-            geoserver=geoserver,
-            catalog=catalog,
-            workspace=workspace,
-            catalog_group=catalog_group,
-            catalog_category=catalog_category,
-            data_dictionary_base_url=data_dictionary_base_url,
-            same_credential_for_catalog=same_credential_for_catalog,
-            geoserver_username=geoserver_username,
-            geoserver_password=geoserver_password,
-            geonetwork_username=geonetwork_username,
-            geonetwork_password=geonetwork_password,
-            dry_run=dry_run,
-            skip_geoserver=skip_geoserver,
-            skip_data=skip_data,
-            skip_catalog=skip_catalog,
+            **options.task_kwargs(),
         )
 
 

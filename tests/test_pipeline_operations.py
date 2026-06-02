@@ -1,4 +1,4 @@
-﻿import unittest
+import unittest
 
 from core.optional_functions import build_pipeline_operations
 from core.processing.operations import infer_operation_kind

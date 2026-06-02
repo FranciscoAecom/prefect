@@ -1,4 +1,4 @@
-﻿import unittest
+import unittest
 from types import SimpleNamespace
 
 import geopandas as gpd

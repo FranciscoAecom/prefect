@@ -78,8 +78,8 @@ def brazil_bounds_centroid(target_crs=None):
 
 @lru_cache(maxsize=4)
 def get_brazil_bounds_geometry(target_crs=None):
-    source_path = Path(DEFAULT_BRAZIL_BBOX_PATH)
-    if source_path.exists():
+    source_path = Path(DEFAULT_BRAZIL_BBOX_PATH) if DEFAULT_BRAZIL_BBOX_PATH else None
+    if source_path and source_path.exists():
         bounds_gdf = gpd.read_file(source_path)
         if target_crs and bounds_gdf.crs and bounds_gdf.crs != target_crs:
             bounds_gdf = bounds_gdf.to_crs(target_crs)

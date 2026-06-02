@@ -24,6 +24,72 @@ class PublishCredentials:
     catalog_password: str
 
 
+@dataclass(frozen=True)
+class PublishOptions:
+    environment: str = "qas"
+    workspace: str = "gold"
+    geoserver: str | None = None
+    catalog: str | None = None
+    catalog_group: str = "2"
+    catalog_category: str = "2"
+    data_dictionary_base_url: str | None = None
+    same_credential_for_catalog: bool = True
+    geoserver_username: str | None = None
+    geoserver_password: str | None = None
+    geonetwork_username: str | None = None
+    geonetwork_password: str | None = None
+    dry_run: bool = False
+    skip_geoserver: bool = False
+    skip_data: bool = False
+    skip_catalog: bool = False
+
+    def build_config(self):
+        return config_for_environment(
+            self.environment,
+            geoserver=self.geoserver,
+            catalog=self.catalog,
+            workspace=self.workspace,
+            catalog_group=self.catalog_group,
+            catalog_category=self.catalog_category,
+            data_dictionary_base_url=self.data_dictionary_base_url,
+        )
+
+    def load_credentials(self, allow_prompt=False):
+        return load_publish_credentials(
+            same_credential_for_catalog=self.same_credential_for_catalog,
+            allow_prompt=allow_prompt,
+            geoserver_username=self.geoserver_username,
+            geoserver_password=self.geoserver_password,
+            geonetwork_username=self.geonetwork_username,
+            geonetwork_password=self.geonetwork_password,
+        )
+
+    def execution_kwargs(self):
+        return {
+            "dry_run": self.dry_run,
+            "skip_geoserver": self.skip_geoserver,
+            "skip_data": self.skip_data,
+            "skip_catalog": self.skip_catalog,
+        }
+
+    def task_kwargs(self):
+        return {
+            "environment": self.environment,
+            "workspace": self.workspace,
+            "geoserver": self.geoserver,
+            "catalog": self.catalog,
+            "catalog_group": self.catalog_group,
+            "catalog_category": self.catalog_category,
+            "data_dictionary_base_url": self.data_dictionary_base_url,
+            "same_credential_for_catalog": self.same_credential_for_catalog,
+            "geoserver_username": self.geoserver_username,
+            "geoserver_password": self.geoserver_password,
+            "geonetwork_username": self.geonetwork_username,
+            "geonetwork_password": self.geonetwork_password,
+            **self.execution_kwargs(),
+        }
+
+
 def load_publish_credentials(
     same_credential_for_catalog=True,
     allow_prompt=True,

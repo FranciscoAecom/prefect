@@ -26,12 +26,13 @@ def set_default_variables(print_fn=print):
         "car_public_api_base": DEFAULT_CAR_PUBLIC_API_BASE,
         "download_archive_base": str(DEFAULT_DOWNLOAD_ARCHIVE_BASE),
         "download_extract_base": str(DEFAULT_DOWNLOAD_EXTRACT_BASE),
-        "municipios_base_path": str(DEFAULT_MUNICIPALITIES_BASE_PATH),
         "ur_car_sequence_start_date": DEFAULT_UR_CAR_SEQUENCE_START_DATE.isoformat(),
         "ur_car_sequence_hour": DEFAULT_UR_CAR_SEQUENCE_HOUR,
         "ur_car_sequence_minute": DEFAULT_UR_CAR_SEQUENCE_MINUTE,
         "ur_car_sequence_timezone": DEFAULT_UR_CAR_SEQUENCE_TIMEZONE,
     }
+    if DEFAULT_MUNICIPALITIES_BASE_PATH:
+        variables["municipios_base_path"] = str(DEFAULT_MUNICIPALITIES_BASE_PATH)
     for name, value in variables.items():
         set_prefect_variable(name, value, tags=["data-pipeline", "config"])
         print_fn(f"Variable definida: {name}={value}")

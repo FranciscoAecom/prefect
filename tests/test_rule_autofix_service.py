@@ -1,4 +1,4 @@
-﻿import unittest
+import unittest
 import tempfile
 from pathlib import Path
 from types import SimpleNamespace

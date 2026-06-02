@@ -1,4 +1,4 @@
-﻿from difflib import get_close_matches
+from difflib import get_close_matches
 
 from core.text import normalize_for_compare
 from core.utils import log

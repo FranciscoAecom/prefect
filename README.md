@@ -423,19 +423,19 @@ nao funciona dentro de task Prefect.
 Para testar sem publicar de verdade, use `dry_run=true`:
 
 ```powershell
-'{"folder":"L:\\Secure_DCS\\BRBLH1PINFW001\\COE_Digital\\coe_digital_data\\silver_data\\restricted\\pcd\\autos_infracao\\IBAMA\\20210915\\00","environment":"qas","workspace":"gold","dry_run":true}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Publish/Publish GeoServer GeoNetwork" --params -
+'{"folder":"<silver-folder>","environment":"qas","workspace":"gold","dry_run":true}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Publish/Publish GeoServer GeoNetwork" --params -
 ```
 
 Para publicar de verdade, use `dry_run=false` ou omita o parametro:
 
 ```powershell
-'{"folder":"L:\\Secure_DCS\\BRBLH1PINFW001\\COE_Digital\\coe_digital_data\\silver_data\\restricted\\pcd\\autos_infracao\\IBAMA\\20210915\\00","environment":"qas","workspace":"gold"}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Publish/Publish GeoServer GeoNetwork" --params -
+'{"folder":"<silver-folder>","environment":"qas","workspace":"gold"}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Publish/Publish GeoServer GeoNetwork" --params -
 ```
 
 Exemplo passando credenciais por parametro:
 
 ```powershell
-'{"folder":"L:\\Secure_DCS\\BRBLH1PINFW001\\COE_Digital\\coe_digital_data\\silver_data\\restricted\\pcd\\autos_infracao\\IBAMA\\20210915\\00","environment":"qas","workspace":"gold","dry_run":false,"geoserver_username":"admin","geoserver_password":"<senha>","geonetwork_username":"admin","geonetwork_password":"<senha>"}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Publish/Publish GeoServer GeoNetwork" --params -
+'{"folder":"<silver-folder>","environment":"qas","workspace":"gold","dry_run":false,"geoserver_username":"admin","geoserver_password":"<senha>","geonetwork_username":"admin","geonetwork_password":"<senha>"}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Publish/Publish GeoServer GeoNetwork" --params -
 ```
 
 O flow publica o arquivo de dados no GeoServer, cria ou atualiza o SLD, associa
@@ -674,10 +674,10 @@ arquivos de apoio, habilite `EXPORT_OUTPUT_QUALITY_REPORT_FILES = True`.
 ## Versionamento Temp/Bronze/Silver
 
 O modulo `core.versioning` monta os caminhos padronizados das camadas
-`temp`, `bronze_data` e `silver_data` a partir de:
+`temp`, `bronze_data` e `silver_data` a partir da variavel de ambiente:
 
 ```text
-L:\Secure_DCS\BRBLH1PINFW001\COE_Digital\coe_digital_data
+DATA_LAKE_BASE
 ```
 
 Estrutura:
@@ -715,6 +715,12 @@ As constantes principais ficam em `settings.py`, incluindo:
 - `KEEP_INDIVIDUAL_OUTPUTS_WHEN_GROUPING`
 - `USE_ARROW_IO`
 - `INTERACTIVE_ATTRIBUTE_REVIEW`
+
+Os caminhos dependentes do ambiente devem ser informados externamente:
+
+- `DATA_LAKE_BASE`: raiz das camadas `temp`, `bronze_data` e `silver_data`.
+- `MUNICIPALITIES_BASE_PATH`: arquivo de referencia de municipios.
+- `BRAZIL_BBOX_PATH`: arquivo opcional com o limite Brasil / zona costeira.
 
 Configuracoes por projeto ficam em `projects/configs.py`, e funcoes opcionais
 ficam registradas em `projects/registry.py`.

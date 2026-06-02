@@ -118,10 +118,10 @@ Nao criar uma coluna separada para modo de processamento.
 O modulo `core.versioning` centraliza a montagem dos caminhos das camadas
 `temp`, `bronze_data` e `silver_data`.
 
-Base fixa:
+Base configurada pela variavel de ambiente:
 
 ```text
-L:\Secure_DCS\BRBLH1PINFW001\COE_Digital\coe_digital_data
+DATA_LAKE_BASE
 ```
 
 Estrutura:

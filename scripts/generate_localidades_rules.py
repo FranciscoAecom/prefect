@@ -1,5 +1,6 @@
 import argparse
 import glob
+import os
 from pathlib import Path
 
 from core.rules.generation.localidades import (
@@ -9,11 +10,8 @@ from core.rules.generation.localidades import (
 from core.rules.engine import invalidate_rule_profile_cache
 
 
-DEFAULT_DOMAINS_SOURCE = r"C:\Temp\Reposit*\explorer\teste.xlsx"
-DEFAULT_RELATIONS_SOURCE = (
-    r"L:\Secure_DCS\BRBLH1PINFW001\COE_Digital\coe_digital_data\temp"
-    r"\localidade\Localidades_Brasil_gpkg\BR_localidades_2022.gpkg"
-)
+DEFAULT_DOMAINS_SOURCE = os.getenv("LOCALIDADES_DOMAINS_SOURCE", "")
+DEFAULT_RELATIONS_SOURCE = os.getenv("LOCALIDADES_RELATIONS_SOURCE", "")
 DEFAULT_RULES_DIR = Path("rules/localidades/localidades")
 DEFAULT_PROFILE_NAME = "localidades/localidades"
 
@@ -53,6 +51,8 @@ def main():
 
 
 def resolve_source_path(value):
+    if not value:
+        raise ValueError("Informe o caminho de origem pela linha de comando ou variavel de ambiente.")
     if "*" not in str(value):
         return value
     matches = [Path(match) for match in glob.glob(str(value))]

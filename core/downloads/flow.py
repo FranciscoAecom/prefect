@@ -13,6 +13,7 @@ from core.downloads.queue import load_download_queue
 from core.prefect_flow import data_pipeline_flow
 from core.prefect_support.variables import get_path_variable
 from core.publish.flow import data_publish_flow
+from core.publish.config import PublishOptions
 from core.queue.filters import QueueFilter
 from core.utils import log
 from core.versioning import resolve_dataset_version_plan
@@ -188,6 +189,24 @@ def data_download_flow(
     publish_skip_catalog=False,
     theme_folders=None,
 ):
+    publish_options = PublishOptions(
+        environment=publish_environment,
+        workspace=publish_workspace,
+        geoserver=publish_geoserver,
+        catalog=publish_catalog,
+        catalog_group=publish_catalog_group,
+        catalog_category=publish_catalog_category,
+        data_dictionary_base_url=publish_data_dictionary_base_url,
+        same_credential_for_catalog=publish_same_credential_for_catalog,
+        geoserver_username=publish_geoserver_username,
+        geoserver_password=publish_geoserver_password,
+        geonetwork_username=publish_geonetwork_username,
+        geonetwork_password=publish_geonetwork_password,
+        dry_run=publish_dry_run,
+        skip_geoserver=publish_skip_geoserver,
+        skip_data=publish_skip_data,
+        skip_catalog=publish_skip_catalog,
+    )
     records = load_download_queue_task(theme_folders=theme_folders)
     if not records:
         log("Nenhum registro elegivel para download.")
@@ -208,22 +227,7 @@ def data_download_flow(
                 emit_download_event=emit_download_event,
                 process_after_download=process_after_download,
                 publish_after_process=publish_after_process,
-                publish_environment=publish_environment,
-                publish_workspace=publish_workspace,
-                publish_geoserver=publish_geoserver,
-                publish_catalog=publish_catalog,
-                publish_catalog_group=publish_catalog_group,
-                publish_catalog_category=publish_catalog_category,
-                publish_data_dictionary_base_url=publish_data_dictionary_base_url,
-                publish_same_credential_for_catalog=publish_same_credential_for_catalog,
-                publish_geoserver_username=publish_geoserver_username,
-                publish_geoserver_password=publish_geoserver_password,
-                publish_geonetwork_username=publish_geonetwork_username,
-                publish_geonetwork_password=publish_geonetwork_password,
-                publish_dry_run=publish_dry_run,
-                publish_skip_geoserver=publish_skip_geoserver,
-                publish_skip_data=publish_skip_data,
-                publish_skip_catalog=publish_skip_catalog,
+                publish_options=publish_options,
             )
         )
     return results
@@ -241,22 +245,7 @@ def _run_single_download(
     emit_download_event=True,
     process_after_download=True,
     publish_after_process=False,
-    publish_environment="qas",
-    publish_workspace="gold",
-    publish_geoserver=None,
-    publish_catalog=None,
-    publish_catalog_group="2",
-    publish_catalog_category="2",
-    publish_data_dictionary_base_url=None,
-    publish_same_credential_for_catalog=True,
-    publish_geoserver_username=None,
-    publish_geoserver_password=None,
-    publish_geonetwork_username=None,
-    publish_geonetwork_password=None,
-    publish_dry_run=False,
-    publish_skip_geoserver=False,
-    publish_skip_data=False,
-    publish_skip_catalog=False,
+    publish_options=None,
 ):
     version_plan = resolve_download_version_plan_task(record)
     temp_dir = Path(version_plan["temp_dir"])
@@ -296,24 +285,10 @@ def _run_single_download(
         )
 
     if publish_after_process:
+        publish_options = publish_options or PublishOptions()
         data_publish_flow(
             folder=extracted["silver_dir"],
-            environment=publish_environment,
-            workspace=publish_workspace,
-            geoserver=publish_geoserver,
-            catalog=publish_catalog,
-            catalog_group=publish_catalog_group,
-            catalog_category=publish_catalog_category,
-            data_dictionary_base_url=publish_data_dictionary_base_url,
-            same_credential_for_catalog=publish_same_credential_for_catalog,
-            geoserver_username=publish_geoserver_username,
-            geoserver_password=publish_geoserver_password,
-            geonetwork_username=publish_geonetwork_username,
-            geonetwork_password=publish_geonetwork_password,
-            dry_run=publish_dry_run,
-            skip_geoserver=publish_skip_geoserver,
-            skip_data=publish_skip_data,
-            skip_catalog=publish_skip_catalog,
+            **publish_options.task_kwargs(),
         )
 
     return extracted

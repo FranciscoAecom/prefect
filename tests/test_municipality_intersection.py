@@ -1,3 +1,4 @@
+import os
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -16,11 +17,7 @@ from core.spatial.municipality_intersection import (
 
 
 class MunicipalityIntersectionTests(unittest.TestCase):
-    MUNICIPALITIES_GPKG_PATH = (
-        r"L:\Secure_DCS\BRBLH1PINFW001\COE_Digital\coe_digital_data"
-        r"\silver_data\restricted\loc\municipios\IBGE\20240101\00"
-        r"\pol_loc_mun_20230101.gpkg"
-    )
+    MUNICIPALITIES_GPKG_PATH = os.getenv("MUNICIPALITIES_BASE_PATH", "")
 
     def test_assigns_municipality_fields_from_spatial_intersection(self):
         autos = gpd.GeoDataFrame(
@@ -134,7 +131,7 @@ class MunicipalityIntersectionTests(unittest.TestCase):
         self.assertEqual(result.loc[0, "acm_uf"], OUTSIDE_TERRITORIAL_LIMIT_MESSAGE)
 
     @unittest.skipUnless(
-        Path(MUNICIPALITIES_GPKG_PATH).exists(),
+        MUNICIPALITIES_GPKG_PATH and Path(MUNICIPALITIES_GPKG_PATH).exists(),
         "Base local de municipios nao disponivel neste ambiente.",
     )
     def test_loads_configured_municipality_gpkg(self):

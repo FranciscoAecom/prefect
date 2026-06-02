@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from core.prefect_flow import data_pipeline_flow
-from core.publish.config import config_for_environment, load_publish_credentials
+from core.publish.config import PublishOptions
 from core.publish.pipeline_flow import publish_record_outputs_direct
 from core.utils import log
 
@@ -40,23 +40,26 @@ def run_download_publish_direct(
         log("Nenhum registro elegivel para download.")
         return []
 
-    config = config_for_environment(
-        publish_environment,
+    publish_options = PublishOptions(
+        environment=publish_environment,
+        workspace=publish_workspace,
         geoserver=publish_geoserver,
         catalog=publish_catalog,
-        workspace=publish_workspace,
         catalog_group=publish_catalog_group,
         catalog_category=publish_catalog_category,
         data_dictionary_base_url=publish_data_dictionary_base_url,
-    )
-    credentials = load_publish_credentials(
         same_credential_for_catalog=publish_same_credential_for_catalog,
-        allow_prompt=False,
         geoserver_username=publish_geoserver_username,
         geoserver_password=publish_geoserver_password,
         geonetwork_username=publish_geonetwork_username,
         geonetwork_password=publish_geonetwork_password,
+        dry_run=publish_dry_run,
+        skip_geoserver=publish_skip_geoserver,
+        skip_data=publish_skip_data,
+        skip_catalog=publish_skip_catalog,
     )
+    config = publish_options.build_config()
+    credentials = publish_options.load_credentials()
 
     results = []
     for record in records:
@@ -77,10 +80,7 @@ def run_download_publish_direct(
                 extracted["silver_dir"],
                 config,
                 credentials,
-                dry_run=publish_dry_run,
-                skip_geoserver=publish_skip_geoserver,
-                skip_data=publish_skip_data,
-                skip_catalog=publish_skip_catalog,
+                **publish_options.execution_kwargs(),
             )
         results.append(extracted)
     return results
