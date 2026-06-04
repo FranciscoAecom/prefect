@@ -26,7 +26,7 @@ dev = [
     "ruff>=0.11.0",
 ]
 raster = [
-    "GDAL[numpy]>=3.12.4,<3.13",
+    "GDAL[numpy]>=3.12.4,<3.14",
 ]
 
 [tool.setuptools]

@@ -12,6 +12,7 @@ def _import_gdal_or_skip(testcase):
         from osgeo import gdal, osr
     except ImportError:
         testcase.skipTest("GDAL/osgeo nao esta instalado neste ambiente")
+    gdal.UseExceptions()
     return gdal, osr
 
 
