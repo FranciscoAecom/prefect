@@ -1,8 +1,8 @@
-from core.ingest.filters import QueueFilter
+﻿from core.ingest.filters import ThemeFolderFilter
 
 
 def normalize_theme_folders_for_name(theme_folders):
-    return sorted(QueueFilter.from_theme_folders(theme_folders).theme_folders)
+    return sorted(ThemeFolderFilter.from_theme_folders(theme_folders).theme_folders)
 
 
 def flow_run_name():
@@ -39,3 +39,4 @@ __all__ = [
     "record_task_run_name",
     "scheduled_flow_run_name",
 ]
+

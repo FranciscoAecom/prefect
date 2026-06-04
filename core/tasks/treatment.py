@@ -2,18 +2,18 @@ from prefect import task
 
 from core.ingest.run_request import IngestRunRequest
 from core.prefect_support.run_names import record_task_run_name
-from core.treatment.run_loader import prepare_treatment_queue
+from core.treatment.run_loader import prepare_treatment_run
 from core.treatment.runner import run_treatment_record
 
 
 @task(name="Preparar tratamento", log_prints=True)
-def prepare_treatment_queue_task(output_base, theme_folders=None, source_path_overrides=None, force=False):
-    run_request = IngestRunRequest.from_legacy(
+def prepare_treatment_run_task(output_base, theme_folders=None, source_path_overrides=None, force=False):
+    run_request = IngestRunRequest.from_parameters(
         theme_folders=theme_folders,
         source_path_overrides=source_path_overrides,
         force=force,
     )
-    return prepare_treatment_queue(
+    return prepare_treatment_run(
         output_base,
         run_request=run_request,
     )
@@ -39,6 +39,6 @@ def run_treatment_record_task(
 
 
 __all__ = [
-    "prepare_treatment_queue_task",
+    "prepare_treatment_run_task",
     "run_treatment_record_task",
 ]

@@ -5,9 +5,9 @@ from core.ingest.diagnostics import (
     diagnose_ingest_theme,
     format_ingest_theme_diagnostic,
 )
-from core.ingest.loader import load_treatment_queue
+from core.ingest.loader import load_treatment_records
 from core.ingest.run_request import IngestRunRequest
-from core.ingest.filters import QueueFilter
+from core.ingest.filters import ThemeFolderFilter
 from core.treatment.issue_report import export_treatment_issues_report
 from core.treatment.summary import log_treatment_summary
 from core.utils import log
@@ -19,22 +19,22 @@ class TreatmentRunContext:
     output_dir: str
 
 
-def prepare_treatment_queue(
+def prepare_treatment_run(
     output_base,
     theme_folders=None,
-    queue_filter=None,
+    theme_filter=None,
     source_path_overrides=None,
     run_request=None,
     force=False,
 ):
-    run_request = run_request or IngestRunRequest.from_legacy(
+    run_request = run_request or IngestRunRequest.from_parameters(
         theme_folders=theme_folders,
-        queue_filter=queue_filter,
+        theme_filter=theme_filter,
         source_path_overrides=source_path_overrides,
         force=force,
     )
     try:
-        treatment_records, treatment_issues, treatment_summary = load_treatment_queue(
+        treatment_records, treatment_issues, treatment_summary = load_treatment_records(
             run_request=run_request,
         )
     except Exception as exc:
@@ -63,12 +63,12 @@ def _export_treatment_issues(output_base, treatment_issues):
         log(f"Relatorio de issues do tratamento gerado: {report_path}")
 
 
-def log_empty_treatment_diagnostics(theme_folders=None, queue_filter=None, run_request=None):
-    run_request = run_request or IngestRunRequest.from_legacy(
+def log_empty_treatment_diagnostics(theme_folders=None, theme_filter=None, run_request=None):
+    run_request = run_request or IngestRunRequest.from_parameters(
         theme_folders=theme_folders,
-        queue_filter=queue_filter,
+        theme_filter=theme_filter,
     )
-    effective_filter = run_request.queue_filter
+    effective_filter = run_request.theme_filter
     if not effective_filter.theme_folders:
         return
 
@@ -82,5 +82,5 @@ def log_empty_treatment_diagnostics(theme_folders=None, queue_filter=None, run_r
 __all__ = [
     "TreatmentRunContext",
     "log_empty_treatment_diagnostics",
-    "prepare_treatment_queue",
+    "prepare_treatment_run",
 ]

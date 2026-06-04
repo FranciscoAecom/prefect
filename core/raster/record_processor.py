@@ -9,7 +9,7 @@ from core.treatment.steps.stages import (
     FLOW_STAGE_SILVER_AND_XML,
     FLOW_STAGE_TREATMENTS,
 )
-from core.raster.processing import build_raster_request, process_raster_request
+from core.raster.treatment import build_raster_request, process_raster_request
 from core.utils import log, timed_log_step
 
 

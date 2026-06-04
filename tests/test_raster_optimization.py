@@ -9,7 +9,7 @@ from core.raster.optimization import (
     choose_resampling,
     resolve_nodata,
 )
-from core.raster.processing import build_raster_request
+from core.raster.treatment import build_raster_request
 
 
 class RasterOptimizationTests(unittest.TestCase):

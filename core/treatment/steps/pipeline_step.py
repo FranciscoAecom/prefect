@@ -27,7 +27,4 @@ def _ensure_final_geodataframe(final_gdf):
         return final_gdf
 
 
-run_pipeline_step = run_configured_treatment_step
-
-
-__all__ = ["run_configured_treatment_step", "run_pipeline_step"]
+__all__ = ["run_configured_treatment_step"]

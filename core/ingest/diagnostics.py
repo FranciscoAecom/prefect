@@ -28,7 +28,7 @@ def diagnose_ingest_theme(
     run_request=None,
     force=False,
 ):
-    run_request = run_request or IngestRunRequest.from_legacy(
+    run_request = run_request or IngestRunRequest.from_parameters(
         theme_folders=[theme_folder],
         ready_status=ready_status,
         source_path_overrides=None,

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+﻿from dataclasses import dataclass
 
 import pandas as pd
 
@@ -8,7 +8,7 @@ from core.downloads.catalog import (
 )
 from core.ingest.normalization import normalize_theme_folder, stringify
 from core.ingest.plan import build_ingest_execution_plan
-from core.ingest.filters import QueueFilter
+from core.ingest.filters import ThemeFolderFilter
 from settings import INGEST_DOWNLOAD_STATUS, INGEST_SHEET_NAME, INGEST_WORKBOOK_PATH
 
 
@@ -45,7 +45,7 @@ def load_download_queue(
     queue_filter=None,
 ):
     dataframe = pd.read_excel(workbook_path, sheet_name=sheet_name)
-    queue_filter = queue_filter or QueueFilter.from_theme_folders(theme_folders)
+    queue_filter = queue_filter or ThemeFolderFilter.from_theme_folders(theme_folders)
 
     eligible_records = []
     issues = []
@@ -145,3 +145,4 @@ def _extract_versioning_metadata(row):
 
 
 __all__ = ["DownloadQueueIssue", "DownloadQueueRecord", "load_download_queue"]
+

@@ -212,7 +212,7 @@ Data Treatment/CAR - Uso Restrito
 Comando para servir o deployment:
 
 ```powershell
-.\.venv\Scripts\python.exe scripts\serve.py ur-car-processing
+.\.venv\Scripts\python.exe scripts\serve.py ur-car-treatment
 ```
 
 Comando para disparar pelo Prefect:

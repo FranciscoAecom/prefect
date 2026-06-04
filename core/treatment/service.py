@@ -51,18 +51,18 @@ class TreatmentService:
 
 
 def run_data_treatment(output_base=None, theme_folders=None, source_path_overrides=None, force=False):
-    from core.tasks.treatment import prepare_treatment_queue_task, run_treatment_record_task
+    from core.tasks.treatment import prepare_treatment_run_task, run_treatment_record_task
 
     settings = TreatmentRunSettings.from_output_base(output_base)
-    run_request = IngestRunRequest.from_legacy(
+    run_request = IngestRunRequest.from_parameters(
         theme_folders=theme_folders,
         source_path_overrides=source_path_overrides,
         force=force,
     )
-    queue_filter = run_request.queue_filter
+    theme_filter = run_request.theme_filter
 
-    with _queue_filter_locks(queue_filter):
-        treatment_context = prepare_treatment_queue_task(
+    with _theme_filter_locks(theme_filter):
+        treatment_context = prepare_treatment_run_task(
             settings.output_base,
             theme_folders,
             source_path_overrides,
@@ -87,9 +87,9 @@ def run_data_treatment(output_base=None, theme_folders=None, source_path_overrid
         log("Tratamento finalizado")
 
 
-def _queue_filter_locks(queue_filter):
+def _theme_filter_locks(theme_filter):
     stack = ExitStack()
-    for theme_folder in sorted(queue_filter.theme_folders):
+    for theme_folder in sorted(theme_filter.theme_folders):
         stack.enter_context(named_execution_lock(f"treatment-{theme_folder}"))
     return stack
 

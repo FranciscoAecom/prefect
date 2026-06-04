@@ -1,9 +1,9 @@
-import unittest
+﻿import unittest
 from unittest.mock import patch
 
 import pandas as pd
 
-from core.ingest.loader import load_treatment_queue
+from core.ingest.loader import load_treatment_records
 from core.ingest.run_request import IngestRunRequest
 from core.rules.catalog import RuleProfileResolution
 
@@ -13,7 +13,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
     @patch("core.ingest.loader.resolve_dataset_version_plan")
     @patch("core.ingest.loader.resolve_rule_profile_for_theme")
     @patch("core.ingest.repository.pd.read_excel")
-    def test_treatment_queue_accepts_treatment_flags(
+    def test_treatment_records_accepts_treatment_flags(
         self,
         mock_read_excel,
         mock_resolve_rule_profile,
@@ -65,7 +65,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
         mock_resolve_paths.side_effect = lambda source_path: (f"{source_path}.gpkg",)
         mock_resolve_version_plan.return_value.silver_dir = r"L:\silver\ur_car"
 
-        records, issues, summary = load_treatment_queue()
+        records, issues, summary = load_treatment_records()
 
         self.assertEqual(issues, [])
         self.assertEqual(summary["ready_candidates"], 2)
@@ -126,8 +126,8 @@ class IngestLoaderStatusTests(unittest.TestCase):
         mock_resolve_paths.return_value = ("base.gpkg",)
         mock_resolve_version_plan.return_value.silver_dir = r"L:\silver\localidades"
 
-        records, issues, summary = load_treatment_queue(
-            run_request=IngestRunRequest.from_legacy(
+        records, issues, summary = load_treatment_records(
+            run_request=IngestRunRequest.from_parameters(
                 theme_folders=["localidades"],
                 force=True,
             )
@@ -175,8 +175,8 @@ class IngestLoaderStatusTests(unittest.TestCase):
         mock_resolve_paths.return_value = ("base_nova.gpkg",)
         mock_resolve_version_plan.return_value.silver_dir = r"L:\silver\localidades"
 
-        records, issues, _summary = load_treatment_queue(
-            run_request=IngestRunRequest.from_legacy(
+        records, issues, _summary = load_treatment_records(
+            run_request=IngestRunRequest.from_parameters(
                 theme_folders=["localidades"],
                 source_path_overrides={"localidades": "base_nova"},
             )
@@ -190,7 +190,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
     @patch("core.ingest.loader.resolve_dataset_version_plan")
     @patch("core.ingest.loader.resolve_rule_profile_for_theme")
     @patch("core.ingest.repository.pd.read_excel")
-    def test_treatment_queue_accepts_raster_without_rule_profile(
+    def test_treatment_records_accepts_raster_without_rule_profile(
         self,
         mock_read_excel,
         mock_resolve_rule_profile,
@@ -221,7 +221,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
         mock_resolve_version_plan.return_value.bronze_dir = r"L:\bronze\raster"
         mock_resolve_version_plan.return_value.temp_dir = r"L:\temp\raster"
 
-        records, issues, summary = load_treatment_queue()
+        records, issues, summary = load_treatment_records()
 
         self.assertEqual(issues, [])
         self.assertEqual(summary["eligible_records"], 1)
@@ -237,3 +237,5 @@ class IngestLoaderStatusTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+

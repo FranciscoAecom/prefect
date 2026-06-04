@@ -4,7 +4,7 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 
-from core.raster.processing import build_raster_request, process_raster_request
+from core.raster.treatment import build_raster_request, process_raster_request
 
 
 def _import_gdal_or_skip(testcase):

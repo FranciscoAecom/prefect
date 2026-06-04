@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 from core.ingest.plan import build_ingest_execution_plan
 from core.ingest.normalization import normalize_status, normalize_theme_folder, stringify
-from core.ingest.filters import QueueFilter
+from core.ingest.filters import ThemeFolderFilter
 from core.ingest.status_flags import (
     STATUS_FLAG_TREATMENT,
     status_flags_display,
@@ -19,18 +19,18 @@ class IngestRunRequest:
     force: bool = False
 
     @classmethod
-    def from_legacy(
+    def from_parameters(
         cls,
         *,
         theme_folders=None,
         ready_status=None,
-        queue_filter=None,
+        theme_filter=None,
         source_path_overrides=None,
         force=False,
     ):
         if isinstance(theme_folders, cls):
             return theme_folders
-        effective_filter = queue_filter or QueueFilter.from_theme_folders(theme_folders)
+        effective_filter = theme_filter or ThemeFolderFilter.from_theme_folders(theme_folders)
         return cls(
             theme_folders=tuple(sorted(effective_filter.theme_folders)),
             ready_statuses=normalize_ready_statuses_for_request(ready_status),
@@ -40,11 +40,11 @@ class IngestRunRequest:
         )
 
     @property
-    def queue_filter(self):
-        return QueueFilter(theme_folders=frozenset(self.theme_folders))
+    def theme_filter(self):
+        return ThemeFolderFilter(theme_folders=frozenset(self.theme_folders))
 
     def matches_theme_folder(self, theme_folder):
-        return self.queue_filter.matches_theme_folder(theme_folder)
+        return self.theme_filter.matches_theme_folder(theme_folder)
 
     def source_path_override_for(self, theme_folder):
         return self.source_path_overrides.get(normalize_theme_folder(theme_folder), "")

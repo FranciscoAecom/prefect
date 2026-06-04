@@ -48,17 +48,13 @@ def _target_column(source_column, func_name):
     return normalized_column_name(source_column)
 
 
-PipelineOperation = TreatmentOperation
-build_pipeline_operation = build_treatment_operation
 infer_operation_kind = infer_treatment_operation_kind
 
 
 __all__ = [
     "OperationKind",
     "TreatmentOperation",
-    "PipelineOperation",
     "build_treatment_operation",
-    "build_pipeline_operation",
     "infer_treatment_operation_kind",
     "infer_operation_kind",
 ]

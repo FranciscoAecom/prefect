@@ -4,7 +4,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from core.ingest.run_request import IngestRunRequest
-from core.treatment.run_loader import TreatmentRunContext, prepare_treatment_queue
+from core.treatment.run_loader import TreatmentRunContext, prepare_treatment_run
 
 
 def _record():
@@ -23,10 +23,10 @@ class TreatmentRunLoaderTests(unittest.TestCase):
     @patch("core.treatment.run_loader.os.makedirs")
     @patch("core.treatment.run_loader.export_treatment_issues_report")
     @patch("core.treatment.run_loader.log_treatment_summary")
-    @patch("core.treatment.run_loader.load_treatment_queue")
+    @patch("core.treatment.run_loader.load_treatment_records")
     def test_prepares_treatment_context(
         self,
-        mock_load_treatment_queue,
+        mock_load_treatment_records,
         mock_log_treatment_summary,
         mock_export_treatment_issues_report,
         mock_makedirs,
@@ -34,9 +34,9 @@ class TreatmentRunLoaderTests(unittest.TestCase):
         records = [_record()]
         summary = {"total_records": 1}
         issues = []
-        mock_load_treatment_queue.return_value = (records, issues, summary)
+        mock_load_treatment_records.return_value = (records, issues, summary)
 
-        result = prepare_treatment_queue(self.output_base)
+        result = prepare_treatment_run(self.output_base)
 
         self.assertEqual(
             result,
@@ -49,19 +49,19 @@ class TreatmentRunLoaderTests(unittest.TestCase):
     @patch("core.treatment.run_loader.log")
     @patch("core.treatment.run_loader.export_treatment_issues_report")
     @patch("core.treatment.run_loader.log_treatment_summary")
-    @patch("core.treatment.run_loader.load_treatment_queue")
+    @patch("core.treatment.run_loader.load_treatment_records")
     def test_returns_none_for_empty_treatment(
         self,
-        mock_load_treatment_queue,
+        mock_load_treatment_records,
         mock_log_treatment_summary,
         mock_export_treatment_issues_report,
         mock_log,
     ):
         summary = {"total_records": 0}
         issues = []
-        mock_load_treatment_queue.return_value = ([], issues, summary)
+        mock_load_treatment_records.return_value = ([], issues, summary)
 
-        result = prepare_treatment_queue(self.output_base)
+        result = prepare_treatment_run(self.output_base)
 
         self.assertIsNone(result)
         mock_log_treatment_summary.assert_called_once_with(summary, issues)
@@ -73,10 +73,10 @@ class TreatmentRunLoaderTests(unittest.TestCase):
     @patch("core.treatment.run_loader.log")
     @patch("core.treatment.run_loader.export_treatment_issues_report")
     @patch("core.treatment.run_loader.log_treatment_summary")
-    @patch("core.treatment.run_loader.load_treatment_queue")
+    @patch("core.treatment.run_loader.load_treatment_records")
     def test_exports_treatment_issues_report(
         self,
-        mock_load_treatment_queue,
+        mock_load_treatment_records,
         _mock_log_treatment_summary,
         mock_export_treatment_issues_report,
         mock_log,
@@ -91,7 +91,7 @@ class TreatmentRunLoaderTests(unittest.TestCase):
             code="missing_source_path",
             reason="caminho vazio",
         )
-        mock_load_treatment_queue.return_value = (
+        mock_load_treatment_records.return_value = (
             records,
             [issue],
             {"total_records": 1},
@@ -100,7 +100,7 @@ class TreatmentRunLoaderTests(unittest.TestCase):
             r"C:\tmp\treatment_issues_20260526_154500.xlsx"
         )
 
-        prepare_treatment_queue(self.output_base)
+        prepare_treatment_run(self.output_base)
 
         mock_export_treatment_issues_report.assert_called_once_with(
             [issue],
@@ -112,15 +112,15 @@ class TreatmentRunLoaderTests(unittest.TestCase):
         )
 
     @patch("core.treatment.run_loader.log")
-    @patch("core.treatment.run_loader.load_treatment_queue")
+    @patch("core.treatment.run_loader.load_treatment_records")
     def test_returns_none_when_treatment_loading_fails(
         self,
-        mock_load_treatment_queue,
+        mock_load_treatment_records,
         mock_log,
     ):
-        mock_load_treatment_queue.side_effect = RuntimeError("boom")
+        mock_load_treatment_records.side_effect = RuntimeError("boom")
 
-        result = prepare_treatment_queue(self.output_base)
+        result = prepare_treatment_run(self.output_base)
 
         self.assertIsNone(result)
         mock_log.assert_called_once_with(
@@ -129,21 +129,23 @@ class TreatmentRunLoaderTests(unittest.TestCase):
 
     @patch("core.treatment.run_loader.os.makedirs")
     @patch("core.treatment.run_loader.log_treatment_summary")
-    @patch("core.treatment.run_loader.load_treatment_queue")
+    @patch("core.treatment.run_loader.load_treatment_records")
     def test_passes_run_request_to_loader(
         self,
-        mock_load_treatment_queue,
+        mock_load_treatment_records,
         _mock_log_treatment_summary,
         _mock_makedirs,
     ):
         records = [_record()]
-        mock_load_treatment_queue.return_value = (records, [], {"total_records": 1})
-        run_request = IngestRunRequest.from_legacy(
+        mock_load_treatment_records.return_value = (records, [], {"total_records": 1})
+        run_request = IngestRunRequest.from_parameters(
             theme_folders=["localidades"],
             force=True,
         )
 
-        prepare_treatment_queue(self.output_base, run_request=run_request)
+        prepare_treatment_run(self.output_base, run_request=run_request)
 
-        self.assertIs(mock_load_treatment_queue.call_args.kwargs["run_request"], run_request)
+        self.assertIs(mock_load_treatment_records.call_args.kwargs["run_request"], run_request)
+
+
 

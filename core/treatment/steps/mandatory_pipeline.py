@@ -86,7 +86,4 @@ def run_mandatory_treatments(
     return _ensure_geodataframe(gdf), stats
 
 
-run_pipeline = run_mandatory_treatments
-
-
-__all__ = ["MANDATORY_FUNCTIONS", "run_mandatory_treatments", "run_pipeline"]
+__all__ = ["MANDATORY_FUNCTIONS", "run_mandatory_treatments"]

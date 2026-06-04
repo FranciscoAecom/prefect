@@ -111,6 +111,3 @@ def apply_optional_functions(
 
     return gdf
 
-
-resolve_pipeline_operation = resolve_treatment_operation
-build_pipeline_operations = build_treatment_operations

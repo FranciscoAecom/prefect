@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+﻿from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd
@@ -6,7 +6,7 @@ import pandas as pd
 from core.ingest.normalization import normalize_theme_folder, stringify
 from core.ingest.plan import build_ingest_execution_plan
 from core.publish.policy import DATA_SUFFIXES
-from core.ingest.filters import QueueFilter
+from core.ingest.filters import ThemeFolderFilter
 from core.versioning.paths import build_stage_root, normalize_date_folder
 from settings import (
     DATA_LAKE_BASE,
@@ -41,7 +41,7 @@ def load_publish_queue(
     queue_filter=None,
 ):
     dataframe = pd.read_excel(workbook_path, sheet_name=sheet_name)
-    queue_filter = queue_filter or QueueFilter.from_theme_folders(theme_folders)
+    queue_filter = queue_filter or ThemeFolderFilter.from_theme_folders(theme_folders)
     records = []
     issues = []
     publish_candidates = 0
@@ -157,3 +157,4 @@ __all__ = [
     "find_latest_publishable_silver_dir",
     "load_publish_queue",
 ]
+

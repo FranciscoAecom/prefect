@@ -4,7 +4,7 @@ from core.raster.models import (
     RasterOptimizationRequest,
     RasterOptimizationResult,
 )
-from core.raster.processing import process_raster_request
+from core.raster.treatment import process_raster_request
 
 __all__ = [
     "RasterAnalysis",

@@ -1,8 +1,8 @@
 __all__ = [
     "TreatmentRunContext",
     "TreatmentService",
-    "load_treatment_queue",
-    "prepare_treatment_queue",
+    "load_treatment_records",
+    "prepare_treatment_run",
     "process_treatment_record_by_dataset_kind",
     "run_data_treatment",
     "run_treatment_record",
@@ -16,16 +16,16 @@ def __getattr__(name):
         return process_treatment_record_by_dataset_kind
     if name in {
         "TreatmentRunContext",
-        "load_treatment_queue",
-        "prepare_treatment_queue",
+        "load_treatment_records",
+        "prepare_treatment_run",
     }:
-        from core.ingest.loader import load_treatment_queue
-        from core.treatment.run_loader import TreatmentRunContext, prepare_treatment_queue
+        from core.ingest.loader import load_treatment_records
+        from core.treatment.run_loader import TreatmentRunContext, prepare_treatment_run
 
         return {
             "TreatmentRunContext": TreatmentRunContext,
-            "load_treatment_queue": load_treatment_queue,
-            "prepare_treatment_queue": prepare_treatment_queue,
+            "load_treatment_records": load_treatment_records,
+            "prepare_treatment_run": prepare_treatment_run,
         }[name]
     if name == "run_treatment_record":
         from core.treatment.runner import run_treatment_record

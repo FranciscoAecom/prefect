@@ -1,8 +1,8 @@
-from prefect import flow
+﻿from prefect import flow
 
 from core.downloads.config import DownloadFlowOptions, DownloadRunOptions
 from core.downloads.service import run_data_download
-from core.ingest.filters import QueueFilter
+from core.ingest.filters import ThemeFolderFilter
 from core.publish.config import PublishOptions
 from core.tasks.downloads import load_download_queue_task
 
@@ -12,7 +12,7 @@ def data_download_flow_run_name():
 
     parameters = flow_run.parameters or {}
     theme_folders = sorted(
-        QueueFilter.from_theme_folders(parameters.get("theme_folders")).theme_folders
+        ThemeFolderFilter.from_theme_folders(parameters.get("theme_folders")).theme_folders
     )
     if len(theme_folders) == 1:
         return f"download_{theme_folders[0]}"
@@ -149,3 +149,4 @@ __all__ = [
     "data_download_flow_run_name",
     "run_download_publish_direct",
 ]
+

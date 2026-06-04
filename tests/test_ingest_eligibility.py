@@ -1,4 +1,4 @@
-import unittest
+﻿import unittest
 
 from core.ingest.eligibility import (
     REASON_FORCE_ENABLED,
@@ -21,7 +21,7 @@ class IngestEligibilityTests(unittest.TestCase):
                 "status": "treatment",
                 "path_shapefile_temp": r"L:\base.gpkg",
             },
-            IngestRunRequest.from_legacy(theme_folders=["localidades"]),
+            IngestRunRequest.from_parameters(theme_folders=["localidades"]),
         )
 
         self.assertTrue(eligibility.status_allowed)
@@ -37,7 +37,7 @@ class IngestEligibilityTests(unittest.TestCase):
                 "status": "Complete",
                 "path_shapefile_temp": r"L:\base.gpkg",
             },
-            IngestRunRequest.from_legacy(theme_folders=["localidades"]),
+            IngestRunRequest.from_parameters(theme_folders=["localidades"]),
         )
 
         self.assertFalse(eligibility.selected_by_request)
@@ -51,7 +51,7 @@ class IngestEligibilityTests(unittest.TestCase):
                 "status": "treatment-foo",
                 "path_shapefile_temp": r"L:\base.gpkg",
             },
-            IngestRunRequest.from_legacy(theme_folders=["localidades"]),
+            IngestRunRequest.from_parameters(theme_folders=["localidades"]),
         )
 
         self.assertFalse(eligibility.status_allowed)
@@ -65,7 +65,7 @@ class IngestEligibilityTests(unittest.TestCase):
                 "status": "Complete",
                 "path_shapefile_temp": r"L:\base.gpkg",
             },
-            IngestRunRequest.from_legacy(
+            IngestRunRequest.from_parameters(
                 theme_folders=["localidades"],
                 force=True,
             ),
@@ -82,7 +82,7 @@ class IngestEligibilityTests(unittest.TestCase):
                 "status": "Complete",
                 "path_shapefile_temp": r"L:\old.gpkg",
             },
-            IngestRunRequest.from_legacy(
+            IngestRunRequest.from_parameters(
                 theme_folders=["localidades"],
                 source_path_overrides={"localidades": r"L:\new.gpkg"},
             ),
@@ -95,7 +95,7 @@ class IngestEligibilityTests(unittest.TestCase):
     def test_reports_missing_source_path(self):
         eligibility = evaluate_ingest_row(
             {"theme_folder": "localidades", "status": "treatment"},
-            IngestRunRequest.from_legacy(theme_folders=["localidades"]),
+            IngestRunRequest.from_parameters(theme_folders=["localidades"]),
         )
 
         self.assertFalse(eligibility.can_attempt_treatment)
@@ -108,7 +108,7 @@ class IngestEligibilityTests(unittest.TestCase):
                 "status": "treatment",
                 "path_shapefile_temp": r"L:\base.zip",
             },
-            IngestRunRequest.from_legacy(theme_folders=["localidades"]),
+            IngestRunRequest.from_parameters(theme_folders=["localidades"]),
         )
 
         self.assertFalse(eligibility.can_attempt_treatment)
@@ -117,3 +117,4 @@ class IngestEligibilityTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

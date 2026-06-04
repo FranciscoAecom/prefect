@@ -31,12 +31,12 @@ from settings import (
 )
 
 
-def load_treatment_queue(
+def load_treatment_records(
     workbook_path=INGEST_WORKBOOK_PATH,
     sheet_name=INGEST_SHEET_NAME,
     ready_status=INGEST_TREATMENT_STATUSES,
     theme_folders=None,
-    queue_filter=None,
+    theme_filter=None,
     source_path_overrides=None,
     repository=None,
     run_request=None,
@@ -46,7 +46,7 @@ def load_treatment_queue(
         run_request=run_request,
         theme_folders=theme_folders,
         ready_status=ready_status,
-        queue_filter=queue_filter,
+        theme_filter=theme_filter,
         source_path_overrides=source_path_overrides,
         force=force,
     )
@@ -58,22 +58,22 @@ def load_treatment_queue(
 
     for catalog_row in ingest_repository.iter_rows():
         total_records += 1
-        queue_entry = _build_queue_entry(catalog_row, run_request)
+        treatment_entry = _build_treatment_entry(catalog_row, run_request)
 
-        if not queue_entry["eligibility"].status_allowed:
+        if not treatment_entry["eligibility"].status_allowed:
             continue
 
         ready_candidates += 1
 
-        if not queue_entry["eligibility"].theme_requested:
+        if not treatment_entry["eligibility"].theme_requested:
             continue
 
-        input_issue = _resolve_input_issue(queue_entry)
+        input_issue = _resolve_input_issue(treatment_entry)
         if input_issue:
             issues.append(input_issue)
             continue
 
-        input_paths, dataset_issue = _resolve_input_paths(queue_entry)
+        input_paths, dataset_issue = _resolve_input_paths(treatment_entry)
         if dataset_issue:
             issues.append(dataset_issue)
             continue
@@ -81,13 +81,13 @@ def load_treatment_queue(
         input_kinds = {dataset_kind_for_path(input_path) for input_path in input_paths}
         rule_resolution = None
         if DATASET_KIND_VECTOR in input_kinds:
-            rule_resolution, rule_issue = _resolve_rule_profile(queue_entry)
+            rule_resolution, rule_issue = _resolve_rule_profile(treatment_entry)
             if rule_issue:
                 issues.append(rule_issue)
                 continue
 
         eligible_records.extend(
-            _build_records_for_input_paths(queue_entry, rule_resolution, input_paths)
+            _build_records_for_input_paths(treatment_entry, rule_resolution, input_paths)
         )
 
     summary = _build_summary(total_records, ready_candidates, eligible_records, issues, run_request)
@@ -98,14 +98,14 @@ def _build_run_request(
     run_request,
     theme_folders,
     ready_status,
-    queue_filter,
+    theme_filter,
     source_path_overrides,
     force,
 ):
-    return run_request or IngestRunRequest.from_legacy(
+    return run_request or IngestRunRequest.from_parameters(
         theme_folders=theme_folders,
         ready_status=ready_status,
-        queue_filter=queue_filter,
+        theme_filter=theme_filter,
         source_path_overrides=source_path_overrides,
         force=force,
     )
@@ -119,7 +119,7 @@ def _build_repository(workbook_path, sheet_name, repository):
     )
 
 
-def _build_queue_entry(catalog_row, run_request):
+def _build_treatment_entry(catalog_row, run_request):
     row = catalog_row.data
     theme_folder = stringify(row.get("theme_folder"))
     status = stringify(row.get("status"))
@@ -146,9 +146,9 @@ def _build_queue_entry(catalog_row, run_request):
     }
 
 
-def _resolve_input_issue(queue_entry):
-    eligibility = queue_entry["eligibility"]
-    issue_context = queue_entry["issue_context"]
+def _resolve_input_issue(treatment_entry):
+    eligibility = treatment_entry["eligibility"]
+    issue_context = treatment_entry["issue_context"]
 
     if eligibility.missing_source_path:
         return missing_source_path_issue(issue_context)
@@ -157,10 +157,10 @@ def _resolve_input_issue(queue_entry):
     return None
 
 
-def _resolve_rule_profile(queue_entry):
-    issue_context = queue_entry["issue_context"]
+def _resolve_rule_profile(treatment_entry):
+    issue_context = treatment_entry["issue_context"]
     try:
-        rule_resolution = resolve_rule_profile_for_theme(queue_entry["theme_folder"])
+        rule_resolution = resolve_rule_profile_for_theme(treatment_entry["theme_folder"])
     except RuleProfileResolutionError as exc:
         return None, rule_profile_resolution_error_issue(issue_context, exc)
 
@@ -174,41 +174,41 @@ def _resolve_rule_profile(queue_entry):
     return rule_resolution, None
 
 
-def _resolve_input_paths(queue_entry):
+def _resolve_input_paths(treatment_entry):
     try:
-        return resolve_input_dataset_paths_cached(queue_entry["source_path"]), None
+        return resolve_input_dataset_paths_cached(treatment_entry["source_path"]), None
     except (FileNotFoundError, ValueError, PermissionError, OSError) as exc:
         return None, input_dataset_resolution_error_issue(
-            queue_entry["issue_context"],
+            treatment_entry["issue_context"],
             exc,
         )
 
 
-def _build_records_for_input_paths(queue_entry, rule_resolution, input_paths):
+def _build_records_for_input_paths(treatment_entry, rule_resolution, input_paths):
     records = []
     for input_path in input_paths:
         dataset_kind = _resolve_dataset_kind(input_path)
         versioned_dirs = _resolve_versioned_dirs(
             {
-                "status": queue_entry["status"],
-                "theme_folder": queue_entry["theme_folder"],
-                **queue_entry["versioning_metadata"],
+                "status": treatment_entry["status"],
+                "theme_folder": treatment_entry["theme_folder"],
+                **treatment_entry["versioning_metadata"],
             }
         )
         records.append(
             IngestRecord(
-                sheet_row=queue_entry["sheet_row"],
-                record_id=queue_entry["record_id"],
-                theme=queue_entry["theme"],
-                theme_folder=queue_entry["theme_folder"],
-                status=queue_entry["status"],
-                source_path=queue_entry["source_path"],
+                sheet_row=treatment_entry["sheet_row"],
+                record_id=treatment_entry["record_id"],
+                theme=treatment_entry["theme"],
+                theme_folder=treatment_entry["theme_folder"],
+                status=treatment_entry["status"],
+                source_path=treatment_entry["source_path"],
                 input_path=input_path,
                 rule_profile=(rule_resolution.profile_name if rule_resolution else ""),
                 dataset_kind=dataset_kind,
-                **queue_entry["raster_options"],
-                **queue_entry["versioning_metadata"],
-                **queue_entry["xml_metadata"],
+                **treatment_entry["raster_options"],
+                **treatment_entry["versioning_metadata"],
+                **treatment_entry["xml_metadata"],
                 output_dir=versioned_dirs["output_dir"],
                 bronze_dir=versioned_dirs["bronze_dir"],
                 temp_dir=versioned_dirs["temp_dir"],
@@ -319,4 +319,4 @@ def _resolve_versioned_dirs(record):
         "temp_dir": str(plan.temp_dir),
     }
 
-__all__ = ["load_treatment_queue"]
+__all__ = ["load_treatment_records"]

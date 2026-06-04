@@ -79,8 +79,8 @@ Com o servidor Prefect ja aberto:
 Atalho:
 
 ```powershell
-.\scripts\run_pipeline_gdal.ps1 -CheckOnly
-.\scripts\run_pipeline_gdal.ps1
+.\scripts\run_treatment_gdal.ps1 -CheckOnly
+.\scripts\run_treatment_gdal.ps1
 ```
 
 ## Integracao com a ingest

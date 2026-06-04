@@ -1,27 +1,27 @@
 from core.ingest.run_request import IngestRunRequest
-from core.ingest.filters import QueueFilter
+from core.ingest.filters import ThemeFolderFilter
 from core.treatment.group_state import TreatmentGroupState
-from core.treatment.run_loader import prepare_treatment_queue
+from core.treatment.run_loader import prepare_treatment_run
 from core.treatment.record_runner import run_treatment_record
 from core.treatment.settings import TreatmentRunSettings
 from core.utils import log
 
 
-def run_treatment_queue(
+def run_treatment(
     output_base=None,
     settings=None,
     theme_folders=None,
-    queue_filter=None,
+    theme_filter=None,
     run_request=None,
     force=False,
 ):
     settings = settings or TreatmentRunSettings.from_output_base(output_base)
-    run_request = run_request or IngestRunRequest.from_legacy(
+    run_request = run_request or IngestRunRequest.from_parameters(
         theme_folders=theme_folders,
-        queue_filter=queue_filter,
+        theme_filter=theme_filter,
         force=force,
     )
-    treatment_context = prepare_treatment_queue(
+    treatment_context = prepare_treatment_run(
         settings.output_base,
         run_request=run_request,
     )
@@ -46,4 +46,4 @@ def run_treatment_queue(
     log("Tratamento finalizado")
 
 
-__all__ = ["run_treatment_queue"]
+__all__ = ["run_treatment"]

@@ -4,7 +4,7 @@ from core.ingest.normalization import normalize_theme_folder, stringify
 
 
 @dataclass(frozen=True)
-class QueueFilter:
+class ThemeFolderFilter:
     theme_folders: frozenset[str] = frozenset()
 
     @classmethod
@@ -49,4 +49,4 @@ def _parse_theme_folder_string(theme_folders):
     return parsed
 
 
-__all__ = ["QueueFilter"]
+__all__ = ["ThemeFolderFilter"]
