@@ -1,9 +1,6 @@
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 
-from core.flow.flows import PREFECT_FLOWS
-from core.flow.raster import raster_pipeline_flow
 from core.raster.models import RasterAnalysis
 from core.raster.optimization import (
     build_creation_options,
@@ -13,7 +10,6 @@ from core.raster.optimization import (
     resolve_nodata,
 )
 from core.raster.processing import build_raster_request
-from core.tasks.tasks import PREFECT_TASKS
 
 
 class RasterOptimizationTests(unittest.TestCase):
@@ -88,22 +84,6 @@ class RasterOptimizationTests(unittest.TestCase):
 
         self.assertEqual(request.input_raster.name, "entrada.tif")
         self.assertEqual(request.output_raster.name, "entrada_wgs84_lzw.tif")
-
-    @patch("core.flow.raster.optimize_raster_task")
-    def test_raster_flow_calls_optimize_task(self, mock_task):
-        mock_task.return_value = {"output_raster": "saida.tif"}
-
-        result = raster_pipeline_flow.fn("entrada.tif", output_raster="saida.tif")
-
-        self.assertEqual(result, {"output_raster": "saida.tif"})
-        mock_task.assert_called_once()
-        self.assertEqual(mock_task.call_args.kwargs["input_raster"], "entrada.tif")
-        self.assertEqual(mock_task.call_args.kwargs["output_raster"], "saida.tif")
-
-    def test_raster_flow_and_task_are_registered(self):
-        self.assertIs(PREFECT_FLOWS["raster_pipeline"], raster_pipeline_flow)
-        self.assertIn("optimize_raster", PREFECT_TASKS)
-
 
 if __name__ == "__main__":
     unittest.main()

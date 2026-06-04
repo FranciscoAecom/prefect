@@ -1,6 +1,8 @@
-from core.ingest.dataset_resolver import (
+from core.ingest.dataset_types import (
     DATASET_KIND_VECTOR,
     dataset_kind_for_path,
+)
+from core.ingest.dataset_resolver import (
     resolve_input_dataset_paths_cached,
 )
 from core.ingest.eligibility import evaluate_ingest_row

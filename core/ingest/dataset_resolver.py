@@ -2,25 +2,19 @@ from functools import lru_cache
 from pathlib import Path
 import re
 
+from core.ingest.dataset_types import (
+    DATASET_KIND_RASTER,
+    DATASET_KIND_VECTOR,
+    RASTER_DATASET_SUFFIXES,
+    SUPPORTED_DATASET_SUFFIXES,
+    VECTOR_DATASET_SUFFIXES,
+    dataset_kind_for_path,
+)
 from core.ingest.normalization import stringify
-
-
-VECTOR_DATASET_SUFFIXES = {".shp", ".gpkg"}
-RASTER_DATASET_SUFFIXES = {".tif", ".tiff"}
-SUPPORTED_DATASET_SUFFIXES = VECTOR_DATASET_SUFFIXES | RASTER_DATASET_SUFFIXES
-DATASET_KIND_VECTOR = "vector"
-DATASET_KIND_RASTER = "raster"
 
 
 def is_zip_path(path_value):
     return stringify(path_value).lower().endswith(".zip")
-
-
-def dataset_kind_for_path(path_value):
-    suffix = Path(stringify(path_value)).suffix.lower()
-    if suffix in RASTER_DATASET_SUFFIXES:
-        return DATASET_KIND_RASTER
-    return DATASET_KIND_VECTOR
 
 
 def resolve_numbered_sibling_datasets(path, supported_suffixes=SUPPORTED_DATASET_SUFFIXES):

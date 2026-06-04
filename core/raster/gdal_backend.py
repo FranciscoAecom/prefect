@@ -28,7 +28,7 @@ def import_gdal():
     except ImportError as exc:
         raise RuntimeError(
             "GDAL/osgeo nao esta disponivel neste ambiente. "
-            "Execute o flow raster em um ambiente isolado com GDAL instalado "
+            "Execute o processamento raster em um ambiente isolado com GDAL instalado "
             "(por exemplo OSGeo4W ou uma venv/conda especifica para raster)."
         ) from exc
 

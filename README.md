@@ -142,7 +142,7 @@ output/<theme_folder>/
 O projeto usa Prefect 3 para visualizar execucoes, agendar rotinas e disparar
 bases especificas pelo painel.
 
-O flow experimental de raster com GDAL esta documentado em
+O processamento raster com GDAL esta documentado em
 `docs/raster_pipeline.md`.
 
 ### Painel Local
