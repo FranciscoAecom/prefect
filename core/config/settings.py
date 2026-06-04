@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import os
+import warnings
 from pathlib import Path
 
 from core.config.defaults import (
@@ -44,8 +45,17 @@ class IngestSettings:
     publish_status: str = "publish"
 
     @property
-    def processing_statuses(self):
+    def treatment_statuses(self):
         return (self.treatment_status,)
+
+    @property
+    def processing_statuses(self):
+        warnings.warn(
+            "processing_statuses esta depreciado; use treatment_statuses.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.treatment_statuses
 
 
 @dataclass(frozen=True)

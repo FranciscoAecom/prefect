@@ -173,6 +173,34 @@ class ArchitectureBoundaryTests(unittest.TestCase):
 
         self.assertEqual(offenders, [])
 
+    def test_runtime_code_uses_treatment_status_names(self):
+        offenders = []
+        forbidden_terms = [
+            "INGEST_PROCESSING_STATUSES",
+            "processing_statuses_display",
+            "can_attempt_processing",
+            "processing_queue",
+        ]
+        allowed_paths = {
+            Path("core/config/settings.py"),
+            Path("core/ingest/__init__.py"),
+            Path("core/ingest/eligibility.py"),
+            Path("core/ingest/loader.py"),
+            Path("core/ingest/run_request.py"),
+            Path("core/queue/__init__.py"),
+            Path("core/queue/queue_loader.py"),
+            Path("core/queue/runner.py"),
+            Path("core/treatment/summary.py"),
+        }
+        for path in Path("core").rglob("*.py"):
+            if path in allowed_paths:
+                continue
+            text = path.read_text(encoding="utf-8")
+            if any(term in text for term in forbidden_terms):
+                offenders.append(str(path))
+
+        self.assertEqual(offenders, [])
+
     def test_prefect_decorators_stay_in_flow_and_tasks_packages(self):
         allowed_roots = {Path("core/flow"), Path("core/tasks")}
         offenders = []

@@ -13,7 +13,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
     @patch("core.ingest.loader.resolve_dataset_version_plan")
     @patch("core.ingest.loader.resolve_rule_profile_for_theme")
     @patch("core.ingest.repository.pd.read_excel")
-    def test_processing_queue_accepts_treatment_flags(
+    def test_treatment_queue_accepts_treatment_flags(
         self,
         mock_read_excel,
         mock_resolve_rule_profile,
@@ -71,7 +71,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
         self.assertEqual(summary["ready_candidates"], 2)
         self.assertEqual(summary["eligible_records"], 2)
         self.assertEqual(
-            summary["processing_statuses"],
+            summary["treatment_statuses"],
             ["treatment"],
         )
         self.assertEqual(
@@ -190,7 +190,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
     @patch("core.ingest.loader.resolve_dataset_version_plan")
     @patch("core.ingest.loader.resolve_rule_profile_for_theme")
     @patch("core.ingest.repository.pd.read_excel")
-    def test_processing_queue_accepts_raster_without_rule_profile(
+    def test_treatment_queue_accepts_raster_without_rule_profile(
         self,
         mock_read_excel,
         mock_resolve_rule_profile,

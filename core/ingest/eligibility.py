@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import warnings
 
 from core.ingest.dataset_resolver import is_zip_path
 from core.ingest.normalization import stringify
@@ -44,12 +45,21 @@ class IngestEligibility:
         return self.status_allowed and self.theme_requested
 
     @property
-    def can_attempt_processing(self):
+    def can_attempt_treatment(self):
         return (
             self.selected_by_request
             and not self.missing_source_path
             and not self.zip_source_path
         )
+
+    @property
+    def can_attempt_processing(self):
+        warnings.warn(
+            "can_attempt_processing esta depreciado; use can_attempt_treatment.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.can_attempt_treatment
 
     def request_messages(self):
         return tuple(reason_message(reason) for reason in self.request_reasons)

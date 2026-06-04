@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+import warnings
 
 from core.ingest.plan import build_ingest_execution_plan
 from core.ingest.normalization import normalize_status, normalize_theme_folder, stringify
@@ -7,13 +8,13 @@ from core.ingest.status_flags import (
     STATUS_FLAG_TREATMENT,
     status_flags_display,
 )
-from settings import INGEST_PROCESSING_STATUSES
+from settings import INGEST_TREATMENT_STATUSES
 
 
 @dataclass(frozen=True)
 class IngestRunRequest:
     theme_folders: tuple[str, ...] = ()
-    ready_statuses: tuple[str, ...] = INGEST_PROCESSING_STATUSES
+    ready_statuses: tuple[str, ...] = INGEST_TREATMENT_STATUSES
     required_status_flag: str = STATUS_FLAG_TREATMENT
     source_path_overrides: dict[str, str] = field(default_factory=dict)
     force: bool = False
@@ -59,13 +60,21 @@ class IngestRunRequest:
             return False
         return self.required_status_flag in plan.flags
 
-    def processing_statuses_display(self):
+    def treatment_statuses_display(self):
         return status_flags_display((self.required_status_flag,))
+
+    def processing_statuses_display(self):
+        warnings.warn(
+            "processing_statuses_display() esta depreciado; use treatment_statuses_display().",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.treatment_statuses_display()
 
     def to_diagnostic_context(self):
         return {
             "theme_folders": list(self.theme_folders),
-            "ready_statuses": self.processing_statuses_display(),
+            "ready_statuses": self.treatment_statuses_display(),
             "force": self.force,
             "source_path_overrides": dict(self.source_path_overrides),
         }

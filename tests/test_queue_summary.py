@@ -13,7 +13,7 @@ class QueueSummaryTests(unittest.TestCase):
             "ready_candidates": 1,
             "eligible_records": 1,
             "issues": 1,
-            "processing_statuses": ["treatment", "treatment"],
+            "treatment_statuses": ["treatment", "treatment"],
         }
         issues = [
             SimpleNamespace(

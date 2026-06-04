@@ -79,6 +79,30 @@ class DeprecatedTreatmentAliasesTests(unittest.TestCase):
         self.assertTrue(callable(process_record))
         self.assertTrue(any(item.category is DeprecationWarning for item in caught))
 
+    def test_ingest_processing_statuses_display_alias_warns(self):
+        from core.ingest.run_request import IngestRunRequest
+
+        request = IngestRunRequest()
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            result = request.processing_statuses_display()
+
+        self.assertEqual(result, request.treatment_statuses_display())
+        self.assertTrue(any(item.category is DeprecationWarning for item in caught))
+
+    def test_ingest_settings_processing_statuses_alias_warns(self):
+        from core.config.settings import IngestSettings
+
+        settings = IngestSettings()
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            result = settings.processing_statuses
+
+        self.assertEqual(result, settings.treatment_statuses)
+        self.assertTrue(any(item.category is DeprecationWarning for item in caught))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -26,7 +26,7 @@ from core.rules.engine import (
 from core.versioning import resolve_dataset_version_plan
 import warnings
 from settings import (
-    INGEST_PROCESSING_STATUSES,
+    INGEST_TREATMENT_STATUSES,
     INGEST_SHEET_NAME,
     INGEST_WORKBOOK_PATH,
 )
@@ -35,7 +35,7 @@ from settings import (
 def load_treatment_queue(
     workbook_path=INGEST_WORKBOOK_PATH,
     sheet_name=INGEST_SHEET_NAME,
-    ready_status=INGEST_PROCESSING_STATUSES,
+    ready_status=INGEST_TREATMENT_STATUSES,
     theme_folders=None,
     queue_filter=None,
     source_path_overrides=None,
@@ -233,7 +233,8 @@ def _build_summary(total_records, ready_candidates, eligible_records, issues, ru
         "ready_candidates": ready_candidates,
         "eligible_records": len(eligible_records),
         "issues": len(issues),
-        "processing_statuses": run_request.processing_statuses_display(),
+        "treatment_statuses": run_request.treatment_statuses_display(),
+        "processing_statuses": run_request.treatment_statuses_display(),
         "force": run_request.force,
     }
 

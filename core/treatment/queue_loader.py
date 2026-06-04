@@ -34,7 +34,7 @@ def prepare_treatment_queue(
         force=force,
     )
     try:
-        processing_queue, queue_issues, queue_summary = load_treatment_queue(
+        treatment_queue, queue_issues, queue_summary = load_treatment_queue(
             run_request=run_request,
         )
     except Exception as exc:
@@ -44,15 +44,15 @@ def prepare_treatment_queue(
     log_queue_summary(queue_summary, queue_issues)
     _export_queue_issues(output_base, queue_issues)
 
-    if not processing_queue:
+    if not treatment_queue:
         log("Nenhum arquivo elegivel encontrado para iniciar a esteira.")
         log_empty_queue_diagnostics(run_request=run_request)
         return None
 
     output_dir = str(output_base)
-    if not all(getattr(record, "output_dir", "") for record in processing_queue):
+    if not all(getattr(record, "output_dir", "") for record in treatment_queue):
         os.makedirs(output_dir, exist_ok=True)
-    return QueueRunContext(records=processing_queue, output_dir=output_dir)
+    return QueueRunContext(records=treatment_queue, output_dir=output_dir)
 
 
 TreatmentQueueRunContext = QueueRunContext

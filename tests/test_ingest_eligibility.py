@@ -27,7 +27,7 @@ class IngestEligibilityTests(unittest.TestCase):
         self.assertTrue(eligibility.status_allowed)
         self.assertTrue(eligibility.theme_requested)
         self.assertTrue(eligibility.selected_by_request)
-        self.assertTrue(eligibility.can_attempt_processing)
+        self.assertTrue(eligibility.can_attempt_treatment)
         self.assertEqual(eligibility.blocking_reasons, ())
 
     def test_reports_status_and_theme_blocks(self):
@@ -98,7 +98,7 @@ class IngestEligibilityTests(unittest.TestCase):
             IngestRunRequest.from_legacy(theme_folders=["localidades"]),
         )
 
-        self.assertFalse(eligibility.can_attempt_processing)
+        self.assertFalse(eligibility.can_attempt_treatment)
         self.assertIn(REASON_MISSING_SOURCE_PATH, eligibility.blocking_reasons)
 
     def test_reports_zip_source_path(self):
@@ -111,7 +111,7 @@ class IngestEligibilityTests(unittest.TestCase):
             IngestRunRequest.from_legacy(theme_folders=["localidades"]),
         )
 
-        self.assertFalse(eligibility.can_attempt_processing)
+        self.assertFalse(eligibility.can_attempt_treatment)
         self.assertIn(REASON_ZIP_SOURCE_PATH, eligibility.blocking_reasons)
 
 

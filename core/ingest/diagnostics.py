@@ -13,7 +13,7 @@ from core.ingest.repository import build_ingest_repository
 from core.ingest.run_request import IngestRunRequest
 from core.rules.engine import resolve_rule_profile_for_theme
 from settings import (
-    INGEST_PROCESSING_STATUSES,
+    INGEST_TREATMENT_STATUSES,
     INGEST_SHEET_NAME,
     INGEST_WORKBOOK_PATH,
 )
@@ -23,7 +23,7 @@ def diagnose_ingest_theme(
     theme_folder,
     workbook_path=INGEST_WORKBOOK_PATH,
     sheet_name=INGEST_SHEET_NAME,
-    ready_status=INGEST_PROCESSING_STATUSES,
+    ready_status=INGEST_TREATMENT_STATUSES,
     repository=None,
     run_request=None,
     force=False,
@@ -95,7 +95,7 @@ def diagnose_ingest_theme(
         "normalized_theme_folder": target_theme,
         "workbook_path": str(workbook_path),
         "sheet_name": sheet_name,
-        "ready_statuses": run_request.processing_statuses_display(),
+        "ready_statuses": run_request.treatment_statuses_display(),
         "run_request": run_request.to_diagnostic_context(),
         "matches": matches,
     }
