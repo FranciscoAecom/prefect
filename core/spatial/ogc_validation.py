@@ -10,6 +10,7 @@ from shapely.geometry import (
 )
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import orient
+from shapely.errors import GEOSException
 from shapely.validation import explain_validity, make_valid
 
 from core.spatial.crs import (
@@ -208,7 +209,7 @@ def validate_srid_or_crs(geom, crs=None, expected_srid=None, expected_crs=None):
     srid_atual = None
     try:
         srid_atual = get_srid(geom)
-    except Exception:
+    except (AttributeError, GEOSException, TypeError, ValueError):
         srid_atual = None
 
     if expected_srid is not None:
@@ -249,7 +250,7 @@ def normalize_geometry(geom):
         if not normalized.is_valid:
             normalized = make_valid(normalized)
             result["normalizada"] = True
-    except Exception as exc:
+    except (GEOSException, TypeError, ValueError) as exc:
         add_error(result, f"Erro ao corrigir geometria com make_valid: {exc}")
         result["geometria"] = geom
         return result
@@ -261,7 +262,7 @@ def normalize_geometry(geom):
         elif isinstance(normalized, MultiPolygon):
             normalized = MultiPolygon([orient(poly, sign=1.0) for poly in normalized.geoms])
             result["normalizada"] = True
-    except Exception as exc:
+    except (AttributeError, GEOSException, TypeError, ValueError) as exc:
         result["avisos"].append(f"Nao foi possivel orientar aneis: {exc}")
 
     result["geometria"] = normalized

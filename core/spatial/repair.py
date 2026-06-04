@@ -3,6 +3,7 @@ import math
 import numpy as np
 import pandas as pd
 from shapely import force_2d, get_coordinate_dimension
+from shapely.errors import GEOSException
 from shapely.validation import make_valid
 
 from core.utils import log
@@ -41,12 +42,12 @@ def geometry_bounds_are_finite(geom):
     try:
         if geom.is_empty:
             return False
-    except Exception:
+    except (AttributeError, GEOSException, TypeError, ValueError):
         return False
 
     try:
         bounds = geom.bounds
-    except Exception:
+    except (AttributeError, GEOSException, TypeError, ValueError):
         return False
 
     if not bounds:
@@ -67,7 +68,7 @@ def get_finite_geometry_mask(geometry):
             index=geometry.index,
         )
         return base_mask & finite_bounds_mask
-    except Exception:
+    except (AttributeError, GEOSException, TypeError, ValueError):
         return geometry.apply(geometry_bounds_are_finite)
 
 
@@ -83,16 +84,16 @@ def safe_prepare_invalid_geometry_for_measurement(geom):
     try:
         if prepared.is_empty:
             return None
-    except Exception:
+    except (AttributeError, GEOSException, TypeError, ValueError):
         return None
 
     try:
         if not prepared.is_valid:
             prepared = make_valid(prepared)
-    except Exception:
+    except (GEOSException, TypeError, ValueError):
         try:
             prepared = prepared.buffer(0)
-        except Exception:
+        except (AttributeError, GEOSException, TypeError, ValueError):
             return None
 
     if prepared is None or not geometry_bounds_are_finite(prepared):
@@ -101,7 +102,7 @@ def safe_prepare_invalid_geometry_for_measurement(geom):
     try:
         if prepared.is_empty or not prepared.is_valid:
             return None
-    except Exception:
+    except (AttributeError, GEOSException, TypeError, ValueError):
         return None
 
     return prepared
@@ -114,7 +115,7 @@ def repair_geometry_safely(geom):
     try:
         if geom.is_empty:
             return geom
-    except Exception:
+    except (AttributeError, GEOSException, TypeError, ValueError):
         return None
 
     if not geometry_bounds_are_finite(geom):
@@ -125,10 +126,10 @@ def repair_geometry_safely(geom):
     try:
         if not repaired.is_valid:
             repaired = make_valid(repaired)
-    except Exception:
+    except (GEOSException, TypeError, ValueError):
         try:
             repaired = repaired.buffer(0)
-        except Exception:
+        except (AttributeError, GEOSException, TypeError, ValueError):
             return None
 
     try:
@@ -138,7 +139,7 @@ def repair_geometry_safely(geom):
             fallback = repaired.buffer(0)
             if fallback is not None:
                 repaired = fallback
-    except Exception:
+    except (AttributeError, GEOSException, TypeError, ValueError):
         return None
 
     return repaired
@@ -177,8 +178,11 @@ def repair_invalid_geometries(gdf):
             repaired_geometry.loc[fast_repair_mask.index[fast_repair_mask]] = (
                 invalid_geometry.loc[fast_repair_mask].buffer(0)
             )
-        except Exception:
-            pass
+        except (GEOSException, TypeError, ValueError) as exc:
+            log(
+                "Aviso: reparo vetorizado com buffer(0) falhou; "
+                f"usando fallback linha a linha: {exc}"
+            )
 
     remaining_invalid_mask = repaired_geometry.notna() & (~repaired_geometry.is_valid)
     remaining_invalid_mask &= invalid_mask

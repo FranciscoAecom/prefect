@@ -1,64 +1,56 @@
-import os
-from pathlib import Path
+from core.config.settings import APP_SETTINGS
 
-from core.config.defaults import (
-    DEFAULT_CAR_PUBLIC_API_BASE,
-    DEFAULT_DOWNLOAD_ARCHIVE_BASE,
-    DEFAULT_DOWNLOAD_EXTRACT_BASE,
-)
+PROJECT_ROOT = APP_SETTINGS.paths.project_root
+DATA_LAKE_BASE = APP_SETTINGS.paths.data_lake_base
+DATA_LAKE_TEMP_STAGE = APP_SETTINGS.paths.data_lake_temp_stage
+DATA_LAKE_BRONZE_STAGE = APP_SETTINGS.paths.data_lake_bronze_stage
+DATA_LAKE_SILVER_STAGE = APP_SETTINGS.paths.data_lake_silver_stage
 
-PROJECT_ROOT = Path(__file__).resolve().parent
-DATA_LAKE_BASE = Path(os.getenv("DATA_LAKE_BASE", PROJECT_ROOT / "output"))
-DATA_LAKE_TEMP_STAGE = "temp"
-DATA_LAKE_BRONZE_STAGE = "bronze_data"
-DATA_LAKE_SILVER_STAGE = "silver_data"
+INGEST_WORKBOOK_PATH = APP_SETTINGS.paths.ingest_workbook_path
+INGEST_SHEET_NAME = APP_SETTINGS.paths.ingest_sheet_name
+DICTIONARIES_SHEET_NAME = APP_SETTINGS.paths.dictionaries_sheet_name
+INGEST_READY_STATUS = APP_SETTINGS.ingest.ready_status
+INGEST_DOWNLOAD_STATUS = APP_SETTINGS.ingest.download_status
+INGEST_REPROCESSING_STATUS = APP_SETTINGS.ingest.reprocessing_status
+INGEST_PROCESSING_STATUSES = APP_SETTINGS.ingest.processing_statuses
 
-INGEST_WORKBOOK_PATH = PROJECT_ROOT / "input" / "st_Ingest_parameter.xlsx"
-INGEST_SHEET_NAME = "datas"
-DICTIONARIES_SHEET_NAME = "dictionaries"
-INGEST_READY_STATUS = "Waiting Update"
-INGEST_DOWNLOAD_STATUS = "Download"
-INGEST_REPROCESSING_STATUS = "Reprocessing"
-INGEST_PROCESSING_STATUSES = (
-    INGEST_READY_STATUS,
-    INGEST_REPROCESSING_STATUS,
-)
+OUTPUT_BASE = APP_SETTINGS.paths.output_base
 
-OUTPUT_BASE = PROJECT_ROOT / "output"
-
-CAR_PUBLIC_API_BASE = DEFAULT_CAR_PUBLIC_API_BASE
-DOWNLOAD_ARCHIVE_BASE = DEFAULT_DOWNLOAD_ARCHIVE_BASE
-DOWNLOAD_EXTRACT_BASE = DEFAULT_DOWNLOAD_EXTRACT_BASE
+CAR_PUBLIC_API_BASE = APP_SETTINGS.downloads.car_public_api_base
+DOWNLOAD_ARCHIVE_BASE = APP_SETTINGS.downloads.archive_base
+DOWNLOAD_EXTRACT_BASE = APP_SETTINGS.downloads.extract_base
 CAR_DOWNLOAD_EXTRACT_BASE = DOWNLOAD_EXTRACT_BASE
 
-RULES_BASE = PROJECT_ROOT / "rules"
-DEFAULT_RULE_PROFILE = "default"
+RULES_BASE = APP_SETTINGS.paths.rules_base
+DEFAULT_RULE_PROFILE = APP_SETTINGS.default_rule_profile
 
-REQUIRES_PYTHON = ">=3.14"
+REQUIRES_PYTHON = APP_SETTINGS.processing.requires_python
 
-BATCH_SIZE = 50000
-SPATIAL_TRANSFORM_CHUNK_SIZE = 5000
+BATCH_SIZE = APP_SETTINGS.processing.batch_size
+SPATIAL_TRANSFORM_CHUNK_SIZE = APP_SETTINGS.processing.spatial_transform_chunk_size
 
-CRS_WGS84 = "EPSG:4326"
-CRS_EQUAL_AREA = "EPSG:5880"
-DEFAULT_INPUT_CRS = "EPSG:4674"
+CRS_WGS84 = APP_SETTINGS.processing.crs_wgs84
+CRS_EQUAL_AREA = APP_SETTINGS.processing.crs_equal_area
+DEFAULT_INPUT_CRS = APP_SETTINGS.processing.default_input_crs
 
-ID_FIELD = "acm_id"
-AREA_FIELD = "acm_a_ha"
-PERIMETER_FIELD = "acm_prm_km"
-LONGITUDE_FIELD = "acm_long"
-LATITUDE_FIELD = "acm_lat"
+ID_FIELD = APP_SETTINGS.processing.id_field
+AREA_FIELD = APP_SETTINGS.processing.area_field
+PERIMETER_FIELD = APP_SETTINGS.processing.perimeter_field
+LONGITUDE_FIELD = APP_SETTINGS.processing.longitude_field
+LATITUDE_FIELD = APP_SETTINGS.processing.latitude_field
 
-GEOM_DUPLICATES_LAYER = "duplicados_geometrias"
-OGC_INVALID_LAYER = "geometrias_invalidas_ogc"
-OGC_REASON_FIELD = "ogc_motivo"
+GEOM_DUPLICATES_LAYER = APP_SETTINGS.quality.geom_duplicates_layer
+OGC_INVALID_LAYER = APP_SETTINGS.quality.ogc_invalid_layer
+OGC_REASON_FIELD = APP_SETTINGS.quality.ogc_reason_field
 
-ENABLE_ATTRIBUTE_DUPLICATE_REPORT = True
-ENABLE_GEOMETRIC_DUPLICATE_REPORT = True
-ENABLE_OGC_INVALID_REPORT = True
-EXPORT_OUTPUT_QUALITY_REPORT_FILES = True
-ENABLE_GROUP_CONSOLIDATION = False
-KEEP_INDIVIDUAL_OUTPUTS_WHEN_GROUPING = False
+ENABLE_ATTRIBUTE_DUPLICATE_REPORT = APP_SETTINGS.quality.enable_attribute_duplicate_report
+ENABLE_GEOMETRIC_DUPLICATE_REPORT = APP_SETTINGS.quality.enable_geometric_duplicate_report
+ENABLE_OGC_INVALID_REPORT = APP_SETTINGS.quality.enable_ogc_invalid_report
+EXPORT_OUTPUT_QUALITY_REPORT_FILES = APP_SETTINGS.quality.export_output_quality_report_files
+ENABLE_GROUP_CONSOLIDATION = APP_SETTINGS.quality.enable_group_consolidation
+KEEP_INDIVIDUAL_OUTPUTS_WHEN_GROUPING = (
+    APP_SETTINGS.quality.keep_individual_outputs_when_grouping
+)
 
-USE_ARROW_IO = True
-INTERACTIVE_ATTRIBUTE_REVIEW = False
+USE_ARROW_IO = APP_SETTINGS.processing.use_arrow_io
+INTERACTIVE_ATTRIBUTE_REVIEW = APP_SETTINGS.processing.interactive_attribute_review

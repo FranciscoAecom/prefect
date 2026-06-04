@@ -3,6 +3,7 @@ import math
 import geopandas as gpd
 import pandas as pd
 from pyproj import CRS
+from pyproj.exceptions import CRSError
 from shapely.errors import GEOSException
 
 from settings import CRS_WGS84, SPATIAL_TRANSFORM_CHUNK_SIZE
@@ -25,7 +26,7 @@ def is_wgs84_crs(crs):
 
     try:
         normalized_crs = CRS.from_user_input(crs)
-    except Exception:
+    except (CRSError, TypeError, ValueError):
         return False
 
     epsg = normalized_crs.to_epsg()
@@ -34,7 +35,7 @@ def is_wgs84_crs(crs):
 
     try:
         return normalized_crs == CRS.from_epsg(4326)
-    except Exception:
+    except (CRSError, TypeError, ValueError):
         return False
 
 
@@ -44,12 +45,12 @@ def is_geographic_crs(crs):
 
     try:
         normalized_crs = CRS.from_user_input(crs)
-    except Exception:
+    except (CRSError, TypeError, ValueError):
         return False
 
     try:
         return bool(normalized_crs.is_geographic)
-    except Exception:
+    except (CRSError, TypeError, ValueError):
         return False
 
 
@@ -90,7 +91,7 @@ def geometry_series_matches_crs_coordinate_range(geometry, crs):
         compatible_mask = pd.Series(compatible_mask, index=geometry.index)
         compatible_mask.loc[~base_mask] = True
         return compatible_mask
-    except Exception:
+    except (AttributeError, GEOSException, TypeError, ValueError):
         compatible_mask = pd.Series(True, index=geometry.index)
         for idx, geom in geometry.items():
             if geom is None:
@@ -98,13 +99,13 @@ def geometry_series_matches_crs_coordinate_range(geometry, crs):
             try:
                 if geom.is_empty:
                     continue
-            except Exception:
+            except (AttributeError, GEOSException, TypeError, ValueError):
                 compatible_mask.loc[idx] = False
                 continue
 
             try:
                 compatible_mask.loc[idx] = is_within_geographic_bounds(geom.bounds)
-            except Exception:
+            except (AttributeError, GEOSException, TypeError, ValueError):
                 compatible_mask.loc[idx] = False
         return compatible_mask
 

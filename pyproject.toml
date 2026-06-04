@@ -20,8 +20,25 @@ dependencies = [
     "shapely>=2.1.2",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.0.3",
+    "ruff>=0.11.0",
+]
+
 [tool.setuptools]
 py-modules = ["main", "settings"]
 
 [tool.setuptools.packages.find]
 include = ["core*", "projects*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[tool.ruff]
+line-length = 99
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

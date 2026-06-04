@@ -1,7 +1,7 @@
 from pathlib import Path
 
+from core.downloads.config import DownloadRunOptions
 from core.prefect_flow import data_pipeline_flow
-from core.publish.config import PublishOptions
 from core.publish.pipeline_flow import publish_record_outputs_direct
 from core.utils import log
 
@@ -33,31 +33,40 @@ def run_download_publish_direct(
     publish_skip_catalog=False,
     theme_folders=None,
 ):
-    from core.downloads.flow import load_download_queue_task
+    from core.downloads.flow import build_download_flow_options, load_download_queue_task
 
     records = load_download_queue_task.fn(theme_folders=theme_folders)
     if not records:
         log("Nenhum registro elegivel para download.")
         return []
 
-    publish_options = PublishOptions(
-        environment=publish_environment,
-        workspace=publish_workspace,
-        geoserver=publish_geoserver,
-        catalog=publish_catalog,
-        catalog_group=publish_catalog_group,
-        catalog_category=publish_catalog_category,
-        data_dictionary_base_url=publish_data_dictionary_base_url,
-        same_credential_for_catalog=publish_same_credential_for_catalog,
-        geoserver_username=publish_geoserver_username,
-        geoserver_password=publish_geoserver_password,
-        geonetwork_username=publish_geonetwork_username,
-        geonetwork_password=publish_geonetwork_password,
-        dry_run=publish_dry_run,
-        skip_geoserver=publish_skip_geoserver,
-        skip_data=publish_skip_data,
-        skip_catalog=publish_skip_catalog,
+    options = build_download_flow_options(
+        source_root=source_root,
+        output_dir=output_dir,
+        extract_base=extract_base,
+        output_base=output_base,
+        force=force,
+        emit_download_event=emit_download_event,
+        process_after_download=process_after_download,
+        publish_after_process=publish_after_process,
+        publish_environment=publish_environment,
+        publish_workspace=publish_workspace,
+        publish_geoserver=publish_geoserver,
+        publish_catalog=publish_catalog,
+        publish_catalog_group=publish_catalog_group,
+        publish_catalog_category=publish_catalog_category,
+        publish_data_dictionary_base_url=publish_data_dictionary_base_url,
+        publish_same_credential_for_catalog=publish_same_credential_for_catalog,
+        publish_geoserver_username=publish_geoserver_username,
+        publish_geoserver_password=publish_geoserver_password,
+        publish_geonetwork_username=publish_geonetwork_username,
+        publish_geonetwork_password=publish_geonetwork_password,
+        publish_dry_run=publish_dry_run,
+        publish_skip_geoserver=publish_skip_geoserver,
+        publish_skip_data=publish_skip_data,
+        publish_skip_catalog=publish_skip_catalog,
     )
+    publish_options = options.publish
     config = publish_options.build_config()
     credentials = publish_options.load_credentials()
 
@@ -67,15 +76,9 @@ def run_download_publish_direct(
             record=record,
             dataset_key=record["dataset_key"],
             region=record["region"],
-            source_root=source_root,
-            output_dir=output_dir,
-            extract_base=extract_base,
-            output_base=output_base,
-            force=force,
-            emit_download_event=emit_download_event,
-            process_after_download=process_after_download,
+            run_options=options.run,
         )
-        if publish_after_process:
+        if options.run.publish_after_process:
             publish_record_outputs_direct(
                 extracted["silver_dir"],
                 config,
@@ -97,6 +100,7 @@ def run_single_download_direct(
     force=False,
     emit_download_event=False,
     process_after_download=True,
+    run_options=None,
 ):
     from core.downloads.flow import (
         download_dataset_task,
@@ -105,21 +109,32 @@ def run_single_download_direct(
         resolve_download_version_plan_task,
     )
 
+    run_options = run_options or DownloadRunOptions(
+        source_root=source_root,
+        output_dir=output_dir,
+        extract_base=extract_base,
+        output_base=output_base,
+        force=force,
+        emit_download_event=emit_download_event,
+        process_after_download=process_after_download,
+    )
     version_plan = resolve_download_version_plan_task.fn(record)
     temp_dir = Path(version_plan["temp_dir"])
-    archive_output_dir = Path(output_dir) if output_dir else temp_dir / "_downloads"
+    archive_output_dir = (
+        Path(run_options.output_dir) if run_options.output_dir else temp_dir / "_downloads"
+    )
     extract_dir = temp_dir / "raw"
 
     downloaded = download_dataset_task.fn(
         dataset_key=dataset_key,
         region=region,
-        source_root=source_root,
+        source_root=run_options.source_root,
         output_dir=str(archive_output_dir),
-        force=force,
+        force=run_options.force,
     )
     extracted = extract_download_task.fn(
         downloaded,
-        extract_base=extract_base,
+        extract_base=run_options.extract_base,
         extract_dir=str(extract_dir),
     )
     extracted = {
@@ -130,12 +145,12 @@ def run_single_download_direct(
         "silver_dir": version_plan["silver_dir"],
     }
 
-    if emit_download_event:
+    if run_options.emit_download_event:
         emit_dataset_downloaded_event_task.fn(extracted)
 
-    if process_after_download:
+    if run_options.process_after_download:
         data_pipeline_flow.fn(
-            output_base=output_base,
+            output_base=run_options.output_base,
             theme_folders=[extracted["theme_folder"]],
             source_path_overrides={
                 extracted["theme_folder"]: extracted["extract_dir"],
