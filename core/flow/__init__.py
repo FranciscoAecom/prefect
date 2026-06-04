@@ -1,5 +1,5 @@
 from core.flow.downloads import data_download_flow
-from core.flow.pipeline import data_treatment_flow
+from core.flow.treatment import data_treatment_flow
 from core.flow.publish import data_publish_flow
 
 __all__ = [

@@ -3,7 +3,8 @@
 O tratamento raster fica centralizado em:
 
 - `core/raster/`: logica modular de analise, decisao de dtype, reprojecao, compressao e overviews.
-- `core/processing/dispatcher.py`: escolhe processamento vetorial ou raster por extensao/tipo resolvido.
+- `core/treatment/dispatcher.py`: escolhe handler vetorial ou raster por extensao/tipo resolvido.
+- `core/treatment/handlers/raster.py`: entrada do tratamento raster dentro da esteira comum.
 
 ## Execucao
 

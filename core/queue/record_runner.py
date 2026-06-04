@@ -1,6 +1,8 @@
 from core.output.consolidation import append_group_consolidated_output
 from core.output.paths import build_group_log_path
-from core.processing.dispatcher import process_record_by_dataset_kind
+from core.treatment.dispatcher import (
+    process_treatment_record_by_dataset_kind as process_record_by_dataset_kind,
+)
 from core.utils import clear_context_log, set_context_log
 
 

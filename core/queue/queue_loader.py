@@ -55,6 +55,10 @@ def prepare_processing_queue(
     return QueueRunContext(records=processing_queue, output_dir=output_dir)
 
 
+TreatmentQueueRunContext = QueueRunContext
+prepare_treatment_queue = prepare_processing_queue
+
+
 def _export_queue_issues(output_base, queue_issues):
     if not queue_issues:
         return

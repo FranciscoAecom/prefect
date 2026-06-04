@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 
 from core.ingest.normalization import normalize_theme_folder, stringify
-from core.ingest.status_flags import has_publish_flag, invalid_status_flags
+from core.ingest.plan import build_ingest_execution_plan
 from core.publish.policy import DATA_SUFFIXES
 from core.queue.filters import QueueFilter
 from core.versioning.paths import build_stage_root, normalize_date_folder
@@ -52,11 +52,12 @@ def load_publish_queue(
         theme_folder = stringify(row.get("theme_folder"))
         status = stringify(row.get("status"))
 
-        if not has_publish_flag(status):
+        execution_plan = build_ingest_execution_plan(status)
+        if not execution_plan.should_publish:
             continue
 
         publish_candidates += 1
-        invalid_flags = invalid_status_flags(status)
+        invalid_flags = execution_plan.invalid_flags
         if invalid_flags:
             issues.append(
                 PublishQueueIssue(

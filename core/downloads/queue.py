@@ -7,7 +7,7 @@ from core.downloads.catalog import (
     resolve_region_from_theme_folder,
 )
 from core.ingest.normalization import normalize_theme_folder, stringify
-from core.ingest.status_flags import has_download_flag, invalid_status_flags
+from core.ingest.plan import build_ingest_execution_plan
 from core.queue.filters import QueueFilter
 from settings import INGEST_DOWNLOAD_STATUS, INGEST_SHEET_NAME, INGEST_WORKBOOK_PATH
 
@@ -59,12 +59,13 @@ def load_download_queue(
         status = stringify(row.get("status"))
         versioning_metadata = _extract_versioning_metadata(row)
 
-        if not has_download_flag(status):
+        execution_plan = build_ingest_execution_plan(status)
+        if not execution_plan.should_download:
             continue
 
         download_candidates += 1
 
-        invalid_flags = invalid_status_flags(status)
+        invalid_flags = execution_plan.invalid_flags
         if invalid_flags:
             issues.append(
                 DownloadQueueIssue(

@@ -13,10 +13,10 @@ class DownloadFlowTests(unittest.TestCase):
         self.assertNotIn("region", signature.parameters)
         self.assertIn("theme_folders", signature.parameters)
 
-    @patch("core.flow.downloads.emit_dataset_downloaded_event_task")
-    @patch("core.flow.downloads.extract_download_task")
-    @patch("core.flow.downloads.resolve_download_version_plan_task")
-    @patch("core.flow.downloads.download_dataset_task")
+    @patch("core.downloads.service.emit_dataset_downloaded_event_task")
+    @patch("core.downloads.service.extract_download_task")
+    @patch("core.downloads.service.resolve_download_version_plan_task")
+    @patch("core.downloads.service.download_dataset_task")
     @patch("core.flow.downloads.load_download_queue_task")
     def test_default_flow_uses_download_queue(
         self,
@@ -102,10 +102,10 @@ class DownloadFlowTests(unittest.TestCase):
             r"L:\base\temp\restricted\pcd\app_car_ac\SICAR\20260301\00\_downloads",
         )
 
-    @patch("core.flow.downloads.emit_dataset_downloaded_event_task")
-    @patch("core.flow.downloads.extract_download_task")
-    @patch("core.flow.downloads.resolve_download_version_plan_task")
-    @patch("core.flow.downloads.download_dataset_task")
+    @patch("core.downloads.service.emit_dataset_downloaded_event_task")
+    @patch("core.downloads.service.extract_download_task")
+    @patch("core.downloads.service.resolve_download_version_plan_task")
+    @patch("core.downloads.service.download_dataset_task")
     @patch("core.flow.downloads.load_download_queue_task")
     def test_download_flow_does_not_call_other_flows(
         self,

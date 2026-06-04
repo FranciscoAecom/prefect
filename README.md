@@ -9,7 +9,7 @@ saidas finais em GeoPackage.
 
 ## Objetivo
 
-- Ler uma fila de processamento a partir da aba `datas` da planilha de ingestao.
+- Ler uma fila de tratamento a partir da aba `datas` da planilha de ingestao.
 - Processar arquivos geoespaciais por perfil de regras em `rules/`.
 - Validar estrutura tabular contra o `input_schema.json` do perfil de regras.
 - Preservar atributos originais com prefixo `sdb_*`.
@@ -51,6 +51,7 @@ data-pipeline/
 |   |-- queue/
 |   |-- rules/
 |   |-- spatial/
+|   |-- treatment/
 |   |-- validation/
 |   `-- output/
 |-- projects/
@@ -73,8 +74,9 @@ Componentes principais:
 
 - `main.py`: ponto de entrada da fila automatica.
 - `settings.py`: configuracoes centrais do pipeline.
-- `core/`: motor de ingestao, validacao, processamento, regras e escrita.
+- `core/`: motor de ingestao, validacao, tratamento, regras e escrita.
 - `core/downloads/`: catalogo, conectores e utilitarios de download.
+- `core/treatment/`: servico, fila, dispatcher e handlers vetorial/raster do tratamento.
 - `core/publish/`: descoberta, publicacao, titulos, SLD e XML para catalogo.
 - `core/silver/`: persistencia da camada silver, saida principal, XML, SLD e qualidade.
 - `core/rules/contracts.py`: contrato tecnico das chaves aceitas nos perfis JSON.
@@ -364,6 +366,10 @@ download: baixa a base quando ha conector/script registrado.
 treatment: copia temp para bronze, trata/padroniza/valida e salva silver.
 publish: publica a ultima versao silver disponivel.
 ```
+
+A interpretacao dessas flags fica centralizada em `core/ingest/plan.py`.
+Download, treatment e publish usam o mesmo `IngestExecutionPlan`, evitando que
+cada etapa leia o `status` de um jeito diferente.
 
 As flags podem ser combinadas com hifen, por exemplo:
 

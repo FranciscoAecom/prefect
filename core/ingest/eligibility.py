@@ -2,8 +2,8 @@ from dataclasses import dataclass
 
 from core.ingest.dataset_resolver import is_zip_path
 from core.ingest.normalization import stringify
+from core.ingest.plan import build_ingest_execution_plan
 from core.ingest.run_request import IngestRunRequest
-from core.ingest.status_flags import invalid_status_flags as find_invalid_status_flags
 
 REASON_FORCE_ENABLED = "force_enabled"
 REASON_SOURCE_PATH_OVERRIDDEN = "source_path_overridden"
@@ -70,7 +70,8 @@ def evaluate_ingest_row(row, run_request):
     source_path_overridden = bool(override_source_path)
     missing_source_path = not bool(source_path)
     zip_source_path = bool(source_path and is_zip_path(source_path))
-    invalid_flags = find_invalid_status_flags(status)
+    execution_plan = build_ingest_execution_plan(status)
+    invalid_flags = execution_plan.invalid_flags
 
     request_reasons = []
     blocking_reasons = []

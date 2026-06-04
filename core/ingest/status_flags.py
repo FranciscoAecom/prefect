@@ -46,6 +46,10 @@ def invalid_status_flags(status):
     return tuple(sorted(parse_status_flags(status) - STATUS_FLAGS))
 
 
+def find_invalid_status_flags(status):
+    return invalid_status_flags(status)
+
+
 def status_flags_display(flags=STATUS_FLAGS):
     return [stringify(flag) for flag in sorted(flags)]
 
@@ -60,6 +64,7 @@ __all__ = [
     "has_status_flag",
     "has_treatment_flag",
     "invalid_status_flags",
+    "find_invalid_status_flags",
     "parse_status_flags",
     "status_flags_display",
 ]

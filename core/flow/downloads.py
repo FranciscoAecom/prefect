@@ -1,18 +1,10 @@
-from pathlib import Path
-
 from prefect import flow
 
 from core.downloads.config import DownloadFlowOptions, DownloadRunOptions
-from core.publish.config import PublishOptions
+from core.downloads.service import run_data_download
 from core.queue.filters import QueueFilter
-from core.tasks.downloads import (
-    download_dataset_task,
-    emit_dataset_downloaded_event_task,
-    extract_download_task,
-    load_download_queue_task,
-    resolve_download_version_plan_task,
-)
-from core.utils import log
+from core.publish.config import PublishOptions
+from core.tasks.downloads import load_download_queue_task
 
 
 def data_download_flow_run_name():
@@ -84,22 +76,7 @@ def data_download_flow(
         publish_skip_catalog=publish_skip_catalog,
     )
     records = load_download_queue_task(theme_folders=theme_folders)
-    if not records:
-        log("Nenhum registro elegivel para download.")
-        return []
-
-    results = []
-    for record in records:
-        results.append(
-            _run_single_download(
-                record=record,
-                dataset_key=record["dataset_key"],
-                region=record["region"],
-                run_options=options.run,
-                publish_options=options.publish,
-            )
-        )
-    return results
+    return run_data_download(records, run_options=options.run)
 
 
 def build_download_flow_options(
@@ -158,47 +135,6 @@ def build_download_flow_options(
             skip_catalog=publish_skip_catalog,
         ),
     )
-
-
-def _run_single_download(
-    record,
-    dataset_key,
-    region,
-    run_options=None,
-    publish_options=None,
-):
-    run_options = run_options or DownloadRunOptions()
-    version_plan = resolve_download_version_plan_task(record)
-    temp_dir = Path(version_plan["temp_dir"])
-    archive_output_dir = (
-        Path(run_options.output_dir) if run_options.output_dir else temp_dir / "_downloads"
-    )
-    extract_dir = temp_dir / "raw"
-
-    downloaded = download_dataset_task(
-        dataset_key=dataset_key,
-        region=region,
-        source_root=run_options.source_root,
-        output_dir=str(archive_output_dir),
-        force=run_options.force,
-    )
-    extracted = extract_download_task(
-        downloaded,
-        extract_base=run_options.extract_base,
-        extract_dir=str(extract_dir),
-    )
-    extracted = {
-        **extracted,
-        "version": version_plan["version"],
-        "temp_dir": version_plan["temp_dir"],
-        "bronze_dir": version_plan["bronze_dir"],
-        "silver_dir": version_plan["silver_dir"],
-    }
-
-    if run_options.emit_download_event:
-        emit_dataset_downloaded_event_task(extracted)
-
-    return extracted
 
 
 def run_download_publish_direct(*args, **kwargs):

@@ -1,11 +1,10 @@
 from dataclasses import dataclass, field
 
+from core.ingest.plan import build_ingest_execution_plan
 from core.ingest.normalization import normalize_status, normalize_theme_folder, stringify
 from core.queue.filters import QueueFilter
 from core.ingest.status_flags import (
     STATUS_FLAG_TREATMENT,
-    has_status_flag,
-    invalid_status_flags,
     status_flags_display,
 )
 from settings import INGEST_PROCESSING_STATUSES
@@ -55,9 +54,10 @@ class IngestRunRequest:
             return True
         if theme_folder and self.source_path_override_for(theme_folder):
             return True
-        if invalid_status_flags(status):
+        plan = build_ingest_execution_plan(status)
+        if not plan.is_valid:
             return False
-        return has_status_flag(status, self.required_status_flag)
+        return self.required_status_flag in plan.flags
 
     def processing_statuses_display(self):
         return status_flags_display((self.required_status_flag,))

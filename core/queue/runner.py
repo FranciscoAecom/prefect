@@ -44,3 +44,6 @@ def run_processing_queue(
         )
 
     log("Processamento finalizado")
+
+
+run_treatment_queue = run_processing_queue

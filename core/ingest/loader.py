@@ -319,4 +319,7 @@ def _resolve_versioned_dirs(record):
         "temp_dir": str(plan.temp_dir),
     }
 
-__all__ = ["load_processing_queue"]
+load_treatment_queue = load_processing_queue
+
+
+__all__ = ["load_processing_queue", "load_treatment_queue"]

@@ -3,49 +3,30 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from core.publish.metadata import MultiplePublishItemsError
-from core.flow.publish import publish_record_outputs
-from core.flow.publish import publish_record_outputs_direct
+from core.publish.service import publish_record_outputs
+from core.publish.service import publish_record_outputs_direct
 
 
 class PipelinePublishFlowTests(unittest.TestCase):
-    @patch("core.flow.publish.publish_item_task")
-    @patch("core.flow.publish.discover_publish_items_task")
-    @patch("core.flow.publish.load_publish_queue")
+    @patch("core.flow.publish.run_data_publish")
+    @patch("core.flow.publish.load_publish_folders_from_ingest")
     def test_data_publish_flow_uses_ingest_when_folder_is_not_provided(
         self,
-        mock_load_queue,
-        mock_discover,
-        mock_publish,
+        mock_load_folders,
+        mock_run_publish,
     ):
-        item = SimpleNamespace(layer="pnt_pcd_enov_20260514")
-        mock_load_queue.return_value = (
-            [SimpleNamespace(silver_dir=r"L:\silver\autos\01")],
-            [],
-            {
-                "total_records": 1,
-                "publish_candidates": 1,
-                "eligible_records": 1,
-                "issues": 0,
-            },
-        )
-        mock_discover.return_value = [item]
+        mock_load_folders.return_value = [r"L:\silver\autos\01"]
 
         from core.flow.publish import data_publish_flow
 
         data_publish_flow.fn(theme_folders=["autos_infracao"], dry_run=True)
 
-        mock_load_queue.assert_called_once_with(theme_folders=["autos_infracao"])
-        mock_discover.assert_called_once_with(
-            r"L:\silver\autos\01",
-            store=None,
-            layer=None,
-            style=None,
-            layer_title=None,
-        )
-        mock_publish.assert_called_once()
+        mock_load_folders.assert_called_once_with(["autos_infracao"])
+        mock_run_publish.assert_called_once()
+        self.assertEqual(mock_run_publish.call_args.args[0], [r"L:\silver\autos\01"])
 
-    @patch("core.flow.publish.publish_item_task")
-    @patch("core.flow.publish.discover_publish_items_task")
+    @patch("core.publish.service.publish_item_task")
+    @patch("core.publish.service.discover_publish_items_task")
     def test_publish_record_outputs_uses_record_output_dir(
         self,
         mock_discover,

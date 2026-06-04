@@ -2,11 +2,11 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from core.processing.dispatcher import process_record_by_dataset_kind
+from core.treatment.dispatcher import process_treatment_record_by_dataset_kind
 
 
 class ProcessingDispatcherTests(unittest.TestCase):
-    @patch("core.processing.dispatcher.process_record")
+    @patch("core.treatment.dispatcher.process_vector_treatment_record")
     def test_dispatches_vector_records_to_vector_processor(self, mock_process_record):
         record = SimpleNamespace(dataset_kind="vector")
         group_state = SimpleNamespace(
@@ -16,7 +16,7 @@ class ProcessingDispatcherTests(unittest.TestCase):
         )
         mock_process_record.return_value = "vector-result"
 
-        result = process_record_by_dataset_kind(
+        result = process_treatment_record_by_dataset_kind(
             record,
             "out",
             group_state,
@@ -32,8 +32,8 @@ class ProcessingDispatcherTests(unittest.TestCase):
             persist_individual_output=False,
         )
 
-    @patch("core.processing.dispatcher.process_raster_record")
-    @patch("core.processing.dispatcher.process_record")
+    @patch("core.treatment.dispatcher.process_raster_treatment_record")
+    @patch("core.treatment.dispatcher.process_vector_treatment_record")
     def test_dispatches_raster_records_to_raster_processor(
         self,
         mock_process_record,
@@ -45,7 +45,7 @@ class ProcessingDispatcherTests(unittest.TestCase):
         )
         mock_process_raster_record.return_value = "raster-result"
 
-        result = process_record_by_dataset_kind(
+        result = process_treatment_record_by_dataset_kind(
             record,
             "out",
             group_state,
