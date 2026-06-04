@@ -125,6 +125,7 @@ class ArchitectureBoundaryTests(unittest.TestCase):
         shim_paths = [
             Path("core/flow/pipeline.py"),
             Path("core/tasks/pipeline.py"),
+            Path("core/tasks/tasks.py"),
         ]
 
         existing_shims = [str(path) for path in shim_paths if path.exists()]

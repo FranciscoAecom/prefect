@@ -4,7 +4,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from core.treatment.issue_report import export_treatment_issues_report
+from core.reporting.treatment_issues import export_treatment_issues_report
 
 
 class TreatmentIssueReportTests(unittest.TestCase):
@@ -32,7 +32,7 @@ class TreatmentIssueReportTests(unittest.TestCase):
             )
             self.assertTrue(Path(path).exists())
 
-    @patch("core.treatment.issue_report.pd.DataFrame.to_excel", side_effect=RuntimeError("xlsx"))
+    @patch("core.reporting.treatment_issues.pd.DataFrame.to_excel", side_effect=RuntimeError("xlsx"))
     def test_falls_back_to_csv_when_xlsx_fails(self, _mock_to_excel):
         with tempfile.TemporaryDirectory() as temp_dir:
             issue = SimpleNamespace(

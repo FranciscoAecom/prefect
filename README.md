@@ -387,7 +387,7 @@ emit_download_event: quando true, emite o evento Prefect dataset.downloaded
 theme_folders: filtro opcional para baixar apenas alguns theme_folders com flag download
 ```
 
-Fluxo padrao:
+Etapas padrao:
 
 ```text
 Data Download
@@ -619,11 +619,14 @@ Antes de criar ou alterar regras de uma base, registre a especificacao em
 `docs/sdd/README.md`, e o template para novas bases fica em
 `docs/sdd/spec-template.md`.
 
-No `pipeline.json`, o perfil explicita tudo que roda de forma configuravel:
+No `pipeline.json`, o perfil explicita os tratamentos configuraveis da base.
+Esse arquivo e contrato dos perfis de regras, nao um flow do Prefect. Os flows
+Prefect continuam sendo `download`, `treatment` e `publish`.
 
 - `auto_functions`: validacoes ou transformacoes por atributo.
 - `postprocess_functions`: etapas que alteram o GeoDataFrame final, como `enforce_car_state_bounds` ou `enrich_with_municipality_intersection`.
 - `output_adjustments`: ajustes aplicados somente ao arquivo de dados persistido.
+- `quality_outputs`: liga/desliga verificacoes e relatorios de qualidade.
 
 O `style.json` concentra configuracoes de estilo, como `sld`. O `pipeline.json`
 nao deve conter configuracao visual.

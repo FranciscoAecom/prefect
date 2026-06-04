@@ -8,7 +8,7 @@ from core.ingest.diagnostics import (
 from core.ingest.loader import load_treatment_records
 from core.ingest.run_request import IngestRunRequest
 from core.ingest.filters import ThemeFolderFilter
-from core.treatment.issue_report import export_treatment_issues_report
+from core.reporting.treatment_issues import export_treatment_issues_report
 from core.treatment.summary import log_treatment_summary
 from core.utils import log
 
