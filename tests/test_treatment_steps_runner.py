@@ -92,7 +92,7 @@ class TreatmentStepsRunnerTests(unittest.TestCase):
 
     @patch("core.treatment.steps_runner.persist_outputs_step")
     @patch("core.treatment.steps_runner.postprocess_step")
-    @patch("core.treatment.steps_runner.run_pipeline_step")
+    @patch("core.treatment.steps_runner.run_configured_treatment_step")
     @patch("core.treatment.steps_runner.prepare_mapping_step")
     @patch("core.treatment.steps_runner.log_dataset_overview")
     @patch("core.treatment.steps_runner.validate_input_schema_step")
@@ -107,7 +107,7 @@ class TreatmentStepsRunnerTests(unittest.TestCase):
         mock_validate_input_schema_step,
         mock_log_dataset_overview,
         mock_prepare_mapping_step,
-        mock_run_pipeline_step,
+        mock_run_configured_treatment_step,
         mock_postprocess_step,
         mock_persist_outputs_step,
     ):
@@ -140,7 +140,7 @@ class TreatmentStepsRunnerTests(unittest.TestCase):
         mock_attach_rule_profile_step.return_value = context_with_profile
         mock_validate_input_schema_step.return_value = context_with_profile
         mock_prepare_mapping_step.return_value = context_with_mapping
-        mock_run_pipeline_step.return_value = context_with_final
+        mock_run_configured_treatment_step.return_value = context_with_final
         mock_postprocess_step.return_value = context_with_final
         mock_persist_outputs_step.return_value = persisted_context
 
@@ -161,7 +161,7 @@ class TreatmentStepsRunnerTests(unittest.TestCase):
         mock_validate_input_schema_step.assert_called_once_with(context_with_profile)
         mock_log_dataset_overview.assert_called_once_with(source_gdf)
         mock_prepare_mapping_step.assert_called_once_with(context_with_profile)
-        mock_run_pipeline_step.assert_called_once_with(context_with_mapping)
+        mock_run_configured_treatment_step.assert_called_once_with(context_with_mapping)
         mock_postprocess_step.assert_called_once_with(context_with_final)
         autofix_service.autofix_rule_profile.assert_called_once_with(
             context_with_final,

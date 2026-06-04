@@ -1,23 +1,23 @@
 import unittest
 
-from core.optional_functions import build_pipeline_operations
-from core.treatment.steps.operations import infer_operation_kind
+from core.optional_functions import build_treatment_operations
+from core.treatment.steps.operations import infer_treatment_operation_kind
 
 
 def _noop(gdf, column, **context):
     return gdf
 
 
-class PipelineOperationTests(unittest.TestCase):
+class TreatmentOperationTests(unittest.TestCase):
     def test_infers_operation_kind_from_function_name(self):
-        self.assertEqual(infer_operation_kind("validate_date_fields"), "validation")
+        self.assertEqual(infer_treatment_operation_kind("validate_date_fields"), "validation")
         self.assertEqual(
-            infer_operation_kind("car_area_preservacao_permanente_transform_des_condic"),
+            infer_treatment_operation_kind("car_area_preservacao_permanente_transform_des_condic"),
             "transform",
         )
 
     def test_builds_operations_from_mapping(self):
-        operations = build_pipeline_operations(
+        operations = build_treatment_operations(
             {"sdb_des_condic": ["car_area_preservacao_permanente_transform_des_condic"]},
             optional_functions={
                 "car_area_preservacao_permanente_transform_des_condic": _noop,

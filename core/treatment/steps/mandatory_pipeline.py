@@ -38,7 +38,7 @@ def _ensure_crs(gdf):
     return gdf
 
 
-def run_pipeline(
+def run_mandatory_treatments(
     gdf,
     mapping,
     id_start=1,
@@ -84,3 +84,9 @@ def run_pipeline(
         )
 
     return _ensure_geodataframe(gdf), stats
+
+
+run_pipeline = run_mandatory_treatments
+
+
+__all__ = ["MANDATORY_FUNCTIONS", "run_mandatory_treatments", "run_pipeline"]

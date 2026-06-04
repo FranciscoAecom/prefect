@@ -3,7 +3,7 @@ from core.treatment.steps.errors import log_processing_error
 from core.treatment.steps.input_step import load_input_step
 from core.treatment.steps.mapping_step import prepare_mapping_step
 from core.treatment.steps.output_step import persist_outputs_step
-from core.treatment.steps.pipeline_step import run_pipeline_step
+from core.treatment.steps.pipeline_step import run_configured_treatment_step
 from core.treatment.steps.postprocess_step import postprocess_step
 from core.treatment.steps.rules_step import attach_rule_profile_step
 from core.treatment.steps.schema_step import validate_input_schema_step
@@ -64,7 +64,7 @@ def run_treatment_steps(
         context = prepare_mapping_step(context)
 
     with timed_log_step(FLOW_STAGE_TREATMENTS):
-        context = run_pipeline_step(context)
+        context = run_configured_treatment_step(context)
 
     context = postprocess_step(context)
     autofix_summary = autofix_service.autofix_rule_profile(context, context.final_gdf)

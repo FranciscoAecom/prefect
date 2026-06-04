@@ -5,7 +5,7 @@ from unittest.mock import patch
 from core.treatment.dispatcher import process_treatment_record_by_dataset_kind
 
 
-class ProcessingDispatcherTests(unittest.TestCase):
+class TreatmentDispatcherTests(unittest.TestCase):
     @patch("core.treatment.dispatcher.process_vector_treatment_record")
     def test_dispatches_vector_records_to_vector_processor(self, mock_process_record):
         record = SimpleNamespace(dataset_kind="vector")

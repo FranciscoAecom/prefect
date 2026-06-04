@@ -8,7 +8,7 @@ OperationKind = Literal["validation", "transform", "normalization", "spatial"]
 
 
 @dataclass(frozen=True)
-class PipelineOperation:
+class TreatmentOperation:
     name: str
     kind: OperationKind
     handler: Callable
@@ -19,17 +19,17 @@ class PipelineOperation:
         return self.handler(gdf, column, **context)
 
 
-def build_pipeline_operation(func_name, handler, source_column=None):
-    return PipelineOperation(
+def build_treatment_operation(func_name, handler, source_column=None):
+    return TreatmentOperation(
         name=func_name,
-        kind=infer_operation_kind(func_name),
+        kind=infer_treatment_operation_kind(func_name),
         handler=handler,
         source_column=source_column,
         target_column=_target_column(source_column, func_name),
     )
 
 
-def infer_operation_kind(func_name):
+def infer_treatment_operation_kind(func_name):
     name = str(func_name)
     if name.startswith("validate_"):
         return "validation"
@@ -43,6 +43,22 @@ def infer_operation_kind(func_name):
 
 
 def _target_column(source_column, func_name):
-    if not source_column or infer_operation_kind(func_name) == "validation":
+    if not source_column or infer_treatment_operation_kind(func_name) == "validation":
         return None
     return normalized_column_name(source_column)
+
+
+PipelineOperation = TreatmentOperation
+build_pipeline_operation = build_treatment_operation
+infer_operation_kind = infer_treatment_operation_kind
+
+
+__all__ = [
+    "OperationKind",
+    "TreatmentOperation",
+    "PipelineOperation",
+    "build_treatment_operation",
+    "build_pipeline_operation",
+    "infer_treatment_operation_kind",
+    "infer_operation_kind",
+]

@@ -5,7 +5,7 @@ from core.treatment.context import replace_treatment_context as replace_context
 from core.utils import log
 
 
-def run_pipeline_step(context):
+def run_configured_treatment_step(context):
     final_gdf, _ = process_in_batches(
         context.gdf,
         context.mapping,
@@ -25,3 +25,9 @@ def _ensure_final_geodataframe(final_gdf):
     except Exception as exc:
         log(f"Erro ao garantir GeoDataFrame com geometria: {exc}")
         return final_gdf
+
+
+run_pipeline_step = run_configured_treatment_step
+
+
+__all__ = ["run_configured_treatment_step", "run_pipeline_step"]

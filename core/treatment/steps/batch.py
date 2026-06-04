@@ -1,7 +1,10 @@
 import geopandas as gpd
 import pandas as pd
 
-from core.treatment.steps.mandatory_pipeline import MANDATORY_FUNCTIONS, run_pipeline
+from core.treatment.steps.mandatory_pipeline import (
+    MANDATORY_FUNCTIONS,
+    run_mandatory_treatments,
+)
 from core.utils import log
 from core.validation.normalized_fields import fill_missing_normalized_columns
 from core.validation.summary import log_validation_summary
@@ -73,7 +76,7 @@ def process_in_batches(
         log(f"Processando registros {start} ate {end}")
 
         batch = gdf.iloc[start:end].copy()
-        processed, batch_stats = run_pipeline(
+        processed, batch_stats = run_mandatory_treatments(
             batch,
             mapping,
             id_start=id_start + start,

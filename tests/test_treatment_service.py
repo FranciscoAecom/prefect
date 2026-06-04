@@ -47,7 +47,7 @@ def _gdf():
 class TreatmentServiceTests(unittest.TestCase):
     @patch("core.treatment.service.run_treatment_steps")
     @patch("core.treatment.service.build_treatment_context")
-    def test_returns_zero_when_pipeline_fails(
+    def test_returns_zero_when_treatment_steps_fail(
         self,
         mock_build_treatment_context,
         mock_run_treatment_steps,

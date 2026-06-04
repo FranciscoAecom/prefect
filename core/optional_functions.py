@@ -1,6 +1,6 @@
 from core.utils import log
 from core.date import validate_date_fields
-from core.treatment.steps.operations import build_pipeline_operation
+from core.treatment.steps.operations import build_treatment_operation
 from core.validation.domain_validation import validate_shapefile_attribute
 
 _QUALIFIED_FUNCTION_CACHE = {}
@@ -46,24 +46,24 @@ def _resolve_optional_function(func_name, optional_functions):
     return func
 
 
-def resolve_pipeline_operation(func_name, optional_functions, source_column=None):
+def resolve_treatment_operation(func_name, optional_functions, source_column=None):
     func = _resolve_optional_function(func_name, optional_functions)
     if not func:
         return None
-    return build_pipeline_operation(
+    return build_treatment_operation(
         func_name,
         func,
         source_column=source_column,
     )
 
 
-def build_pipeline_operations(mapping, optional_functions=None, project_name=None):
+def build_treatment_operations(mapping, optional_functions=None, project_name=None):
     optional_functions = optional_functions or get_optional_functions(project_name)
     operations = {}
     for column, funcs in mapping.items():
         column_operations = []
         for func_name in funcs:
-            operation = resolve_pipeline_operation(
+            operation = resolve_treatment_operation(
                 func_name,
                 optional_functions,
                 source_column=column,
@@ -91,7 +91,7 @@ def apply_optional_functions(
             continue
 
         for func_name in funcs:
-            operation = resolve_pipeline_operation(
+            operation = resolve_treatment_operation(
                 func_name,
                 optional_functions,
                 source_column=column,
@@ -110,3 +110,7 @@ def apply_optional_functions(
                 log(f"Erro em {func_name}: {exc}")
 
     return gdf
+
+
+resolve_pipeline_operation = resolve_treatment_operation
+build_pipeline_operations = build_treatment_operations

@@ -3,10 +3,10 @@ import unittest
 import geopandas as gpd
 from shapely.geometry import Point, Polygon
 
-from core.treatment.steps.mandatory_pipeline import MANDATORY_FUNCTIONS, run_pipeline
+from core.treatment.steps.mandatory_pipeline import MANDATORY_FUNCTIONS, run_mandatory_treatments
 
 
-class MandatoryPipelineTests(unittest.TestCase):
+class MandatoryTreatmentsTests(unittest.TestCase):
     def test_clean_whitespace_runs_as_mandatory_function(self):
         gdf = gpd.GeoDataFrame(
             {
@@ -17,7 +17,7 @@ class MandatoryPipelineTests(unittest.TestCase):
             crs="EPSG:4326",
         )
 
-        result, _stats = run_pipeline(gdf, mapping={})
+        result, _stats = run_mandatory_treatments(gdf, mapping={})
 
         self.assertIn("clean_whitespace", MANDATORY_FUNCTIONS)
         self.assertEqual(result.loc[0, "sdb_des_status"], "Lavrado com espaco")
@@ -32,7 +32,7 @@ class MandatoryPipelineTests(unittest.TestCase):
             crs="EPSG:4326",
         )
 
-        result, stats = run_pipeline(gdf, mapping={})
+        result, stats = run_mandatory_treatments(gdf, mapping={})
 
         self.assertNotIn("acm_a_ha", result.columns)
         self.assertNotIn("acm_prm_km", result.columns)
@@ -60,7 +60,7 @@ class MandatoryPipelineTests(unittest.TestCase):
             crs="EPSG:4326",
         )
 
-        result, stats = run_pipeline(gdf, mapping={})
+        result, stats = run_mandatory_treatments(gdf, mapping={})
 
         self.assertIn("acm_a_ha", result.columns)
         self.assertIn("acm_prm_km", result.columns)
