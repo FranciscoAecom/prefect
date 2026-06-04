@@ -14,7 +14,4 @@ def data_treatment_flow(output_base=None, theme_folders=None, source_path_overri
     )
 
 
-data_pipeline_flow = data_treatment_flow
-
-
-__all__ = ["data_pipeline_flow", "data_treatment_flow"]
+__all__ = ["data_treatment_flow"]

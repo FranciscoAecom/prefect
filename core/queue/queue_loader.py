@@ -1,11 +1,12 @@
 import os
+import warnings
 from dataclasses import dataclass
 
 from core.ingest.diagnostics import (
     diagnose_ingest_theme,
     format_ingest_theme_diagnostic,
 )
-from core.ingest.loader import load_processing_queue
+from core.ingest.loader import load_treatment_queue
 from core.ingest.run_request import IngestRunRequest
 from core.queue.filters import QueueFilter
 from core.queue.issue_report import export_queue_issues_report
@@ -19,7 +20,7 @@ class QueueRunContext:
     output_dir: str
 
 
-def prepare_processing_queue(
+def prepare_treatment_queue(
     output_base,
     theme_folders=None,
     queue_filter=None,
@@ -34,7 +35,7 @@ def prepare_processing_queue(
         force=force,
     )
     try:
-        processing_queue, queue_issues, queue_summary = load_processing_queue(
+        processing_queue, queue_issues, queue_summary = load_treatment_queue(
             run_request=run_request,
         )
     except Exception as exc:
@@ -56,7 +57,15 @@ def prepare_processing_queue(
 
 
 TreatmentQueueRunContext = QueueRunContext
-prepare_treatment_queue = prepare_processing_queue
+
+
+def prepare_processing_queue(*args, **kwargs):
+    warnings.warn(
+        "prepare_processing_queue() esta depreciado; use prepare_treatment_queue().",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return prepare_treatment_queue(*args, **kwargs)
 
 
 def _export_queue_issues(output_base, queue_issues):

@@ -1,8 +1,6 @@
 from core.output.consolidation import append_group_consolidated_output
 from core.output.paths import build_group_log_path
-from core.treatment.dispatcher import (
-    process_treatment_record_by_dataset_kind as process_record_by_dataset_kind,
-)
+from core.treatment.dispatcher import process_treatment_record_by_dataset_kind
 from core.utils import clear_context_log, set_context_log
 
 
@@ -19,7 +17,7 @@ def run_queue_record(
             reset=group_state.should_reset_context_log(record),
         )
         group_state.mark_context_log_started(record)
-        record_result = process_record_by_dataset_kind(
+        record_result = process_treatment_record_by_dataset_kind(
             record,
             record_output_dir,
             group_state,

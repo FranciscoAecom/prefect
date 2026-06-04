@@ -4,7 +4,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from core.ingest.run_request import IngestRunRequest
-from core.queue.queue_loader import QueueRunContext, prepare_processing_queue
+from core.queue.queue_loader import TreatmentQueueRunContext, prepare_treatment_queue
 
 
 def _record():
@@ -23,10 +23,10 @@ class QueueLoaderTests(unittest.TestCase):
     @patch("core.queue.queue_loader.os.makedirs")
     @patch("core.queue.queue_loader.export_queue_issues_report")
     @patch("core.queue.queue_loader.log_queue_summary")
-    @patch("core.queue.queue_loader.load_processing_queue")
+    @patch("core.queue.queue_loader.load_treatment_queue")
     def test_prepares_queue_context(
         self,
-        mock_load_processing_queue,
+        mock_load_treatment_queue,
         mock_log_queue_summary,
         mock_export_queue_issues_report,
         mock_makedirs,
@@ -34,13 +34,13 @@ class QueueLoaderTests(unittest.TestCase):
         records = [_record()]
         summary = {"total_records": 1}
         issues = []
-        mock_load_processing_queue.return_value = (records, issues, summary)
+        mock_load_treatment_queue.return_value = (records, issues, summary)
 
-        result = prepare_processing_queue(self.output_base)
+        result = prepare_treatment_queue(self.output_base)
 
         self.assertEqual(
             result,
-            QueueRunContext(records=records, output_dir=self.output_base),
+            TreatmentQueueRunContext(records=records, output_dir=self.output_base),
         )
         mock_log_queue_summary.assert_called_once_with(summary, issues)
         mock_export_queue_issues_report.assert_not_called()
@@ -49,19 +49,19 @@ class QueueLoaderTests(unittest.TestCase):
     @patch("core.queue.queue_loader.log")
     @patch("core.queue.queue_loader.export_queue_issues_report")
     @patch("core.queue.queue_loader.log_queue_summary")
-    @patch("core.queue.queue_loader.load_processing_queue")
+    @patch("core.queue.queue_loader.load_treatment_queue")
     def test_returns_none_for_empty_queue(
         self,
-        mock_load_processing_queue,
+        mock_load_treatment_queue,
         mock_log_queue_summary,
         mock_export_queue_issues_report,
         mock_log,
     ):
         summary = {"total_records": 0}
         issues = []
-        mock_load_processing_queue.return_value = ([], issues, summary)
+        mock_load_treatment_queue.return_value = ([], issues, summary)
 
-        result = prepare_processing_queue(self.output_base)
+        result = prepare_treatment_queue(self.output_base)
 
         self.assertIsNone(result)
         mock_log_queue_summary.assert_called_once_with(summary, issues)
@@ -71,10 +71,10 @@ class QueueLoaderTests(unittest.TestCase):
     @patch("core.queue.queue_loader.log")
     @patch("core.queue.queue_loader.export_queue_issues_report")
     @patch("core.queue.queue_loader.log_queue_summary")
-    @patch("core.queue.queue_loader.load_processing_queue")
+    @patch("core.queue.queue_loader.load_treatment_queue")
     def test_exports_queue_issues_report(
         self,
-        mock_load_processing_queue,
+        mock_load_treatment_queue,
         _mock_log_queue_summary,
         mock_export_queue_issues_report,
         mock_log,
@@ -89,7 +89,7 @@ class QueueLoaderTests(unittest.TestCase):
             code="missing_source_path",
             reason="caminho vazio",
         )
-        mock_load_processing_queue.return_value = (
+        mock_load_treatment_queue.return_value = (
             records,
             [issue],
             {"total_records": 1},
@@ -98,7 +98,7 @@ class QueueLoaderTests(unittest.TestCase):
             r"C:\tmp\queue_issues_20260526_154500.xlsx"
         )
 
-        prepare_processing_queue(self.output_base)
+        prepare_treatment_queue(self.output_base)
 
         mock_export_queue_issues_report.assert_called_once_with(
             [issue],
@@ -110,35 +110,35 @@ class QueueLoaderTests(unittest.TestCase):
         )
 
     @patch("core.queue.queue_loader.log")
-    @patch("core.queue.queue_loader.load_processing_queue")
+    @patch("core.queue.queue_loader.load_treatment_queue")
     def test_returns_none_when_queue_loading_fails(
         self,
-        mock_load_processing_queue,
+        mock_load_treatment_queue,
         mock_log,
     ):
-        mock_load_processing_queue.side_effect = RuntimeError("boom")
+        mock_load_treatment_queue.side_effect = RuntimeError("boom")
 
-        result = prepare_processing_queue(self.output_base)
+        result = prepare_treatment_queue(self.output_base)
 
         self.assertIsNone(result)
         mock_log.assert_called_once_with("Erro ao carregar a fila ingest: boom")
 
     @patch("core.queue.queue_loader.os.makedirs")
     @patch("core.queue.queue_loader.log_queue_summary")
-    @patch("core.queue.queue_loader.load_processing_queue")
+    @patch("core.queue.queue_loader.load_treatment_queue")
     def test_passes_run_request_to_loader(
         self,
-        mock_load_processing_queue,
+        mock_load_treatment_queue,
         _mock_log_queue_summary,
         _mock_makedirs,
     ):
         records = [_record()]
-        mock_load_processing_queue.return_value = (records, [], {"total_records": 1})
+        mock_load_treatment_queue.return_value = (records, [], {"total_records": 1})
         run_request = IngestRunRequest.from_legacy(
             theme_folders=["localidades"],
             force=True,
         )
 
-        prepare_processing_queue(self.output_base, run_request=run_request)
+        prepare_treatment_queue(self.output_base, run_request=run_request)
 
-        self.assertIs(mock_load_processing_queue.call_args.kwargs["run_request"], run_request)
+        self.assertIs(mock_load_treatment_queue.call_args.kwargs["run_request"], run_request)

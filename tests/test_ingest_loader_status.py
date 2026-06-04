@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from core.ingest.loader import load_processing_queue
+from core.ingest.loader import load_treatment_queue
 from core.ingest.run_request import IngestRunRequest
 from core.rules.catalog import RuleProfileResolution
 
@@ -65,7 +65,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
         mock_resolve_paths.side_effect = lambda source_path: (f"{source_path}.gpkg",)
         mock_resolve_version_plan.return_value.silver_dir = r"L:\silver\ur_car"
 
-        records, issues, summary = load_processing_queue()
+        records, issues, summary = load_treatment_queue()
 
         self.assertEqual(issues, [])
         self.assertEqual(summary["ready_candidates"], 2)
@@ -126,7 +126,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
         mock_resolve_paths.return_value = ("base.gpkg",)
         mock_resolve_version_plan.return_value.silver_dir = r"L:\silver\localidades"
 
-        records, issues, summary = load_processing_queue(
+        records, issues, summary = load_treatment_queue(
             run_request=IngestRunRequest.from_legacy(
                 theme_folders=["localidades"],
                 force=True,
@@ -175,7 +175,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
         mock_resolve_paths.return_value = ("base_nova.gpkg",)
         mock_resolve_version_plan.return_value.silver_dir = r"L:\silver\localidades"
 
-        records, issues, _summary = load_processing_queue(
+        records, issues, _summary = load_treatment_queue(
             run_request=IngestRunRequest.from_legacy(
                 theme_folders=["localidades"],
                 source_path_overrides={"localidades": "base_nova"},
@@ -221,7 +221,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
         mock_resolve_version_plan.return_value.bronze_dir = r"L:\bronze\raster"
         mock_resolve_version_plan.return_value.temp_dir = r"L:\temp\raster"
 
-        records, issues, summary = load_processing_queue()
+        records, issues, summary = load_treatment_queue()
 
         self.assertEqual(issues, [])
         self.assertEqual(summary["eligible_records"], 1)

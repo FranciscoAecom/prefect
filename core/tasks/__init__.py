@@ -6,9 +6,7 @@ from core.tasks.downloads import (
     resolve_download_version_plan_task,
 )
 from core.tasks.treatment import (
-    prepare_queue_task,
     prepare_treatment_queue_task,
-    run_queue_record_task,
     run_treatment_record_task,
 )
 from core.tasks.publish import discover_publish_items_task, publish_item_task
@@ -19,10 +17,8 @@ __all__ = [
     "emit_dataset_downloaded_event_task",
     "extract_download_task",
     "load_download_queue_task",
-    "prepare_queue_task",
     "prepare_treatment_queue_task",
     "publish_item_task",
     "resolve_download_version_plan_task",
-    "run_queue_record_task",
     "run_treatment_record_task",
 ]

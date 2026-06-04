@@ -1,13 +1,15 @@
+import warnings
+
 from core.queue.group_state import QueueGroupState
 from core.ingest.run_request import IngestRunRequest
 from core.queue.filters import QueueFilter
-from core.queue.queue_loader import prepare_processing_queue
+from core.queue.queue_loader import prepare_treatment_queue
 from core.queue.record_runner import run_queue_record
 from core.queue.settings import QueueRunSettings
 from core.utils import log
 
 
-def run_processing_queue(
+def run_treatment_queue(
     output_base=None,
     settings=None,
     theme_folders=None,
@@ -21,7 +23,7 @@ def run_processing_queue(
         queue_filter=queue_filter,
         force=force,
     )
-    queue_context = prepare_processing_queue(
+    queue_context = prepare_treatment_queue(
         settings.output_base,
         run_request=run_request,
     )
@@ -46,4 +48,10 @@ def run_processing_queue(
     log("Processamento finalizado")
 
 
-run_treatment_queue = run_processing_queue
+def run_processing_queue(*args, **kwargs):
+    warnings.warn(
+        "run_processing_queue() esta depreciado; use run_treatment_queue().",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return run_treatment_queue(*args, **kwargs)

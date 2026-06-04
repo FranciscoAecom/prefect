@@ -23,7 +23,7 @@ def _record(sheet_row, record_id, theme_folder, source_path):
 class QueueRecordRunnerTests(unittest.TestCase):
     @patch("core.queue.record_runner.clear_context_log")
     @patch("core.queue.record_runner.append_group_consolidated_output")
-    @patch("core.queue.record_runner.process_record_by_dataset_kind")
+    @patch("core.queue.record_runner.process_treatment_record_by_dataset_kind")
     @patch("core.queue.record_runner.set_context_log")
     def test_processes_record_and_updates_group_state(
         self,
@@ -67,7 +67,7 @@ class QueueRecordRunnerTests(unittest.TestCase):
         self.assertEqual(mock_clear_context_log.call_count, 2)
 
     @patch("core.queue.record_runner.clear_context_log")
-    @patch("core.queue.record_runner.process_record_by_dataset_kind", side_effect=RuntimeError("boom"))
+    @patch("core.queue.record_runner.process_treatment_record_by_dataset_kind", side_effect=RuntimeError("boom"))
     @patch("core.queue.record_runner.set_context_log")
     def test_clears_context_log_even_when_record_processing_fails(
         self,
@@ -91,7 +91,7 @@ class QueueRecordRunnerTests(unittest.TestCase):
         mock_clear_context_log.assert_called_once()
 
     @patch("core.queue.record_runner.clear_context_log")
-    @patch("core.queue.record_runner.process_record_by_dataset_kind")
+    @patch("core.queue.record_runner.process_treatment_record_by_dataset_kind")
     @patch("core.queue.record_runner.set_context_log")
     def test_delegates_processing_to_dispatcher(
         self,

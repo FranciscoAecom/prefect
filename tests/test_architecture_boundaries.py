@@ -121,6 +121,34 @@ class ArchitectureBoundaryTests(unittest.TestCase):
 
         self.assertEqual(offenders, [])
 
+    def test_legacy_pipeline_treatment_shims_have_been_removed(self):
+        shim_paths = [
+            Path("core/flow/pipeline.py"),
+            Path("core/tasks/pipeline.py"),
+            Path("core/processing/dispatcher.py"),
+        ]
+
+        existing_shims = [str(path) for path in shim_paths if path.exists()]
+
+        self.assertEqual(existing_shims, [])
+
+    def test_runtime_code_uses_treatment_modules_instead_of_legacy_pipeline_imports(self):
+        offenders = self._files_containing(
+            Path("core"),
+            "*.py",
+            [
+                "from core.flow.pipeline",
+                "import core.flow.pipeline",
+                "from core.tasks.pipeline",
+                "import core.tasks.pipeline",
+                "from core.processing.dispatcher",
+                "import core.processing.dispatcher",
+                "data_pipeline_flow",
+            ],
+        )
+
+        self.assertEqual(offenders, [])
+
     def test_prefect_decorators_stay_in_flow_and_tasks_packages(self):
         allowed_roots = {Path("core/flow"), Path("core/tasks")}
         offenders = []

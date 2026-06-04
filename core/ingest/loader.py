@@ -24,6 +24,7 @@ from core.rules.engine import (
     resolve_rule_profile_for_theme,
 )
 from core.versioning import resolve_dataset_version_plan
+import warnings
 from settings import (
     INGEST_PROCESSING_STATUSES,
     INGEST_SHEET_NAME,
@@ -31,7 +32,7 @@ from settings import (
 )
 
 
-def load_processing_queue(
+def load_treatment_queue(
     workbook_path=INGEST_WORKBOOK_PATH,
     sheet_name=INGEST_SHEET_NAME,
     ready_status=INGEST_PROCESSING_STATUSES,
@@ -92,6 +93,15 @@ def load_processing_queue(
 
     summary = _build_summary(total_records, ready_candidates, eligible_records, issues, run_request)
     return eligible_records, issues, summary
+
+
+def load_processing_queue(*args, **kwargs):
+    warnings.warn(
+        "load_processing_queue() esta depreciado; use load_treatment_queue().",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return load_treatment_queue(*args, **kwargs)
 
 
 def _build_run_request(
@@ -318,8 +328,5 @@ def _resolve_versioned_dirs(record):
         "bronze_dir": str(plan.bronze_dir),
         "temp_dir": str(plan.temp_dir),
     }
-
-load_treatment_queue = load_processing_queue
-
 
 __all__ = ["load_processing_queue", "load_treatment_queue"]

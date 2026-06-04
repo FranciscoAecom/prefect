@@ -6,18 +6,14 @@ from core.tasks.downloads import (
     resolve_download_version_plan_task,
 )
 from core.tasks.treatment import (
-    prepare_queue_task,
     prepare_treatment_queue_task,
-    run_queue_record_task,
     run_treatment_record_task,
 )
 from core.tasks.publish import discover_publish_items_task, publish_item_task
 
 
 PREFECT_TASKS = {
-    "prepare_queue": prepare_queue_task,
     "prepare_treatment_queue": prepare_treatment_queue_task,
-    "run_queue_record": run_queue_record_task,
     "run_treatment_record": run_treatment_record_task,
     "download_dataset": download_dataset_task,
     "extract_download": extract_download_task,
@@ -36,10 +32,8 @@ __all__ = [
     "emit_dataset_downloaded_event_task",
     "extract_download_task",
     "load_download_queue_task",
-    "prepare_queue_task",
     "prepare_treatment_queue_task",
     "publish_item_task",
     "resolve_download_version_plan_task",
-    "run_queue_record_task",
     "run_treatment_record_task",
 ]
