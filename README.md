@@ -20,7 +20,8 @@ saidas finais em GeoPackage.
 
 - Arquivos `.shp`.
 - Arquivos `.gpkg`.
-- Pastas contendo `.shp` e `.gpkg`, inclusive em subpastas.
+- Arquivos `.tif` e `.tiff` para tratamento raster com GDAL.
+- Pastas contendo `.shp`, `.gpkg`, `.tif` e `.tiff`, inclusive em subpastas.
 
 Arquivos `.zip` nao sao processados diretamente.
 
@@ -87,6 +88,7 @@ Componentes principais:
 - Dependencias declaradas em `pyproject.toml`.
 - Ambiente recomendado com `uv`.
 - Prefect 3 para orquestracao do pipeline.
+- GDAL/`osgeo` apenas para processamento raster (`.tif`/`.tiff`).
 
 Clone do repositorio:
 
@@ -108,6 +110,27 @@ py -3.14 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 py -3.14 -m pip install --upgrade pip
 py -3.14 -m pip install -e .
+```
+
+### GDAL Para Raster
+
+O GDAL nao e necessario para processar apenas `.shp` e `.gpkg`. Ele passa a ser
+obrigatorio quando a ingest tiver `.tif` ou `.tiff` em `path_shapefile_temp`.
+
+No Windows, evite depender de `pip install -e ".[raster]"` como primeira opcao,
+porque o `pip` pode tentar compilar GDAL localmente e exigir Microsoft C++ Build
+Tools. Para raster, a instalacao recomendada e um ambiente conda-forge separado:
+
+```powershell
+& "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" create -n prefect-gdal -c conda-forge python=3.14 gdal geopandas pandas numpy pyarrow pyproj shapely openpyxl prefect pyogrio -y
+& "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" run -n prefect-gdal python -m pip install -e .
+```
+
+Valide o GDAL no ambiente:
+
+```powershell
+& "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" run -n prefect-gdal python -c "from osgeo import gdal; print(gdal.VersionInfo('--version'))"
+& "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" run -n prefect-gdal python -m unittest tests.test_raster_gdal_integration
 ```
 
 ## Como Usar

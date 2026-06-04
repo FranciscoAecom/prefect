@@ -26,6 +26,10 @@ O GDAL e obrigatorio para executar o tratamento raster. O import de `osgeo/gdal`
 e lazy apenas para manter o restante do repositorio importavel e testavel em
 ambientes que ainda nao tenham GDAL instalado.
 
+Quem for processar apenas `.shp` e `.gpkg` nao precisa instalar GDAL. Quem for
+processar `.tif` ou `.tiff` precisa executar o pipeline em um ambiente com
+`osgeo/gdal` disponivel.
+
 O extra `raster` declara os bindings Python:
 
 ```powershell
@@ -39,9 +43,23 @@ bindings. A documentacao oficial do pacote GDAL recomenda casar o binding com a
 versao de `gdal-config --version`, por exemplo `gdal[numpy]=="$(gdal-config
 --version).*"` em ambientes Unix-like.
 
-No Windows, a rota mais estavel tende a ser executar esse processamento em um ambiente
-isolado para raster, como OSGeo4W Shell ou conda-forge, em vez de misturar GDAL
-no mesmo ambiente usado para todo o pipeline vetorial.
+No Windows, a rota mais estavel tende a ser executar esse processamento em um
+ambiente isolado para raster, como conda-forge ou OSGeo4W Shell, em vez de
+compilar GDAL via `pip`.
+
+Exemplo com Miniforge/conda-forge:
+
+```powershell
+& "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" create -n prefect-gdal -c conda-forge python=3.14 gdal geopandas pandas numpy pyarrow pyproj shapely openpyxl prefect pyogrio -y
+& "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" run -n prefect-gdal python -m pip install -e .
+```
+
+Validacao:
+
+```powershell
+& "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" run -n prefect-gdal python -c "from osgeo import gdal; print(gdal.VersionInfo('--version'))"
+& "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" run -n prefect-gdal python -m unittest tests.test_raster_gdal_integration
+```
 
 ## Integracao com a ingest
 
