@@ -5,6 +5,8 @@ from core.prefect_support.deployment_names import (
     AUTOS_INFRACAO_TREATMENT_DEPLOYMENT_NAME,
     AUTOS_INFRACAO_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
     DATA_PUBLISH_DEPLOYMENT_NAME,
+    SCHEDULED_TREATMENT_DEPLOYMENT_NAME,
+    SCHEDULED_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
 )
 from scripts import serve
 
@@ -55,13 +57,13 @@ class ServeDeploymentsTest(unittest.TestCase):
         serve.serve_scheduled_treatment()
 
         mock_start_renamer.assert_called_once_with(
-            deployment_name="Data Treatment/Treatment Agendado pela Ingest",
+            deployment_name=SCHEDULED_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
             interval_seconds=5,
         )
         mock_build_schedules.assert_called_once_with()
         mock_serve.assert_called_once()
         _, kwargs = mock_serve.call_args
-        self.assertEqual(kwargs["name"], "Treatment Agendado pela Ingest")
+        self.assertEqual(kwargs["name"], SCHEDULED_TREATMENT_DEPLOYMENT_NAME)
         self.assertEqual(kwargs["schedules"], ["schedule"])
         self.assertIn("ingest", kwargs["tags"])
 

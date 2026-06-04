@@ -15,11 +15,10 @@ from core.prefect_support.deployment_names import (
     AUTOS_INFRACAO_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
     DATA_DOWNLOAD_DEPLOYMENT_NAME,
     DATA_PUBLISH_DEPLOYMENT_NAME,
-    UR_CAR_TREATMENT_DEPLOYMENT_NAME,
-    UR_CAR_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
+    SCHEDULED_TREATMENT_DEPLOYMENT_NAME,
+    SCHEDULED_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
 )
 from core.prefect_support.schedules import (
-    build_daily_one_shot_ur_car_schedules,
     build_ingest_scheduled_treatment_schedules,
 )
 
@@ -32,10 +31,6 @@ def main():
     subparsers.add_parser(
         "data-publish",
         help="Serve o deployment de publicacao GeoServer/GeoNetwork.",
-    )
-    subparsers.add_parser(
-        "ur-car-treatment",
-        help="Serve o tratamento agendado de CAR Uso Restrito.",
     )
     subparsers.add_parser(
         "scheduled-treatment",
@@ -58,8 +53,6 @@ def main():
         serve_data_download()
     elif args.deployment == "data-publish":
         serve_data_publish()
-    elif args.deployment == "ur-car-treatment":
-        serve_ur_car_treatment()
     elif args.deployment == "scheduled-treatment":
         serve_scheduled_treatment()
     elif args.deployment == "auto-infracoes":
@@ -92,29 +85,13 @@ def serve_data_publish():
     )
 
 
-def serve_ur_car_treatment():
-    start_scheduled_run_renamer(
-        deployment_name=UR_CAR_TREATMENT_QUALIFIED_DEPLOYMENT_NAME
-    )
-    data_treatment_flow.serve(
-        name=UR_CAR_TREATMENT_DEPLOYMENT_NAME,
-        schedules=build_daily_one_shot_ur_car_schedules(),
-        tags=["ur_car", "treatment", "scheduled"],
-        description=(
-            "Agenda diaria das 27 bases UR CAR para tratamento, "
-            "uma base por dia as 17:00."
-        ),
-    )
-
-
 def serve_scheduled_treatment():
-    deployment_name = "Treatment Agendado pela Ingest"
     start_scheduled_run_renamer(
-        deployment_name=f"Data Treatment/{deployment_name}",
+        deployment_name=SCHEDULED_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
         interval_seconds=5,
     )
     data_treatment_flow.serve(
-        name=deployment_name,
+        name=SCHEDULED_TREATMENT_DEPLOYMENT_NAME,
         schedules=build_ingest_scheduled_treatment_schedules(),
         tags=["treatment", "scheduled", "ingest"],
         description=(

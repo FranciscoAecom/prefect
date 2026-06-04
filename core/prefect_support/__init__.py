@@ -1,9 +1,8 @@
 from core.prefect_support.run_names import flow_run_name, record_task_run_name
-from core.prefect_support.schedules import UR_CAR_THEME_FOLDERS, build_ur_car_schedules
+from core.prefect_support.schedules import build_ingest_scheduled_treatment_schedules
 
 __all__ = [
-    "UR_CAR_THEME_FOLDERS",
-    "build_ur_car_schedules",
+    "build_ingest_scheduled_treatment_schedules",
     "flow_run_name",
     "record_task_run_name",
 ]

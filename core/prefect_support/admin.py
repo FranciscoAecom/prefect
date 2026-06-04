@@ -4,10 +4,11 @@ from time import sleep
 
 from prefect.client.orchestration import get_client
 
+from core.prefect_support.deployment_names import SCHEDULED_TREATMENT_QUALIFIED_DEPLOYMENT_NAME
 from core.prefect_support.run_names import scheduled_flow_run_name
 
 
-DEPLOYMENT_NAME = "Data Treatment/CAR - Uso Restrito"
+DEPLOYMENT_NAME = SCHEDULED_TREATMENT_QUALIFIED_DEPLOYMENT_NAME
 LOGGER = logging.getLogger(__name__)
 
 

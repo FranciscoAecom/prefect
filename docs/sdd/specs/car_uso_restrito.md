@@ -208,19 +208,19 @@ Observacoes:
 Deployment:
 
 ```text
-Data Treatment/CAR - Uso Restrito
+Data Treatment/Treatment Agendado pela Ingest
 ```
 
 Comando para servir o deployment:
 
 ```powershell
-.\.venv\Scripts\python.exe scripts\serve.py ur-car-treatment
+.\.venv\Scripts\python.exe scripts\serve.py scheduled-treatment
 ```
 
 Comando para disparar pelo Prefect:
 
 ```powershell
-.\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/CAR - Uso Restrito"
+.\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/Treatment Agendado pela Ingest"
 ```
 
 Parametros fixos do deployment:
@@ -231,7 +231,7 @@ Parametros fixos do deployment:
 
 Agenda:
 
-- agenda diaria das bases UR CAR conforme `scripts/serve.py`
+- agenda gerada pelas linhas `schedule YYYY-MM-DD HH:MM` da planilha ingest
 
 ## Geracao De Rules
 
@@ -268,7 +268,7 @@ Arquivos atualizados pelo processo:
 - [ ] A validacao estrutural usa `input_schema.json`.
 - [ ] As funcoes obrigatorias aparecem no log.
 - [ ] As funcoes opcionais configuradas aparecem no log.
-- [ ] O deployment agendado usa o nome `CAR - Uso Restrito`.
+- [ ] O deployment agendado usa o nome `Treatment Agendado pela Ingest`.
 - [ ] As verificacoes obrigatorias de qualidade aparecem no log.
 - [ ] Testes automatizados relevantes passam.
 

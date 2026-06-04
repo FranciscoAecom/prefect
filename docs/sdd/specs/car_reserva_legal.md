@@ -206,19 +206,19 @@ Observacoes:
 Deployment:
 
 ```text
-Data Treatment/CAR - Uso Restrito
+Data Treatment/Treatment Agendado pela Ingest
 ```
 
 Comando para servir o deployment:
 
 ```powershell
-.\.venv\Scripts\python.exe scripts\serve.py ur-car-treatment
+.\.venv\Scripts\python.exe scripts\serve.py scheduled-treatment
 ```
 
 Comando para disparar pelo Prefect:
 
 ```powershell
-.\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/CAR - Uso Restrito"
+.\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/Treatment Agendado pela Ingest"
 ```
 
 Parametros fixos do deployment:

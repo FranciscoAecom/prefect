@@ -266,24 +266,29 @@ uv run python scripts/serve.py <deployment>
 Exemplos disponiveis:
 
 ```powershell
-uv run python scripts/serve.py ur-car-treatment
+uv run python scripts/serve.py scheduled-treatment
 uv run python scripts/serve.py estado
 .\.venv\Scripts\python.exe scripts\serve.py auto-infracoes
 uv run python scripts/serve.py data-download
 uv run python scripts/serve.py data-publish
 ```
 
-Cada deployment deve deixar explicito quais `theme_folders` roda. Quando o
-deployment possui agenda, o horario e o fuso ficam definidos no proprio
-`scripts/serve.py` e podem ser alterados pelo painel do Prefect.
+O deployment `scheduled-treatment` le a planilha `ingest` e cria agendamentos
+one-shot para linhas cujo `status` esteja no formato:
+
+```text
+schedule 2026-06-05 18:49
+```
+
+Cada schedule passa `theme_folders=[...]` e `scheduled=True` para o flow de
+tratamento. Execucoes normais continuam usando `status=treatment`.
 
 Se os flows ou deployments forem deletados no painel do Prefect, o dashboard
 ficara vazio. Para recriar um deployment e seus agendamentos, deixe o servidor
 Prefect aberto e rode novamente o `scripts/serve.py` correspondente.
 
-Para bases com varios `theme_folders`, cada agenda pode passar um filtro
-especifico para o flow. Exemplo: um deployment pode agendar uma UF por dia
-usando parametros como:
+Para bases com varios `theme_folders`, cada linha agendada passa um filtro
+especifico para o flow. Exemplo dos parametros gerados:
 
 ```json
 {"theme_folders": ["ur_car_ac"]}
@@ -300,14 +305,8 @@ Para aplicar renomeacao manualmente, quando necessario:
 uv run python scripts/prefect_admin.py rename-scheduled-runs
 ```
 
-Rotinas administrativas especificas, como recriar uma agenda diaria de um
-conjunto de bases, ficam em `scripts/prefect_admin.py`.
-
-Exemplo:
-
-```powershell
-uv run python scripts/prefect_admin.py reschedule-ur-car-daily-17h
-```
+Para mudar uma agenda, altere o `status` na planilha e rode novamente
+`scripts/serve.py scheduled-treatment`.
 
 ### Variables
 
@@ -325,10 +324,6 @@ Variables usadas:
 car_public_api_base
 download_archive_base
 download_extract_base
-ur_car_sequence_start_date
-ur_car_sequence_hour
-ur_car_sequence_minute
-ur_car_sequence_timezone
 ```
 
 Esses valores tambem podem ser alterados pelo painel em `Variables`.
@@ -513,7 +508,7 @@ Para executar uma base especifica por um deployment parametrizado, envie
 Exemplo:
 
 ```powershell
-'{"theme_folders":["ur_car_pi"]}' | uv run python -m prefect deployment run "Data Treatment/CAR - Uso Restrito" --params -
+'{"theme_folders":["ur_car_pi"]}' | uv run python -m prefect deployment run "Data Treatment/Treatment Agendado pela Ingest" --params -
 ```
 
 Para executar uma lista de bases, informe todos os `theme_folders` desejados:

@@ -1,9 +1,8 @@
 import argparse
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from prefect.automations import Automation, EventTrigger, Posture, RunDeployment
 from prefect.client.orchestration import get_client
-from prefect.client.schemas.actions import DeploymentScheduleCreate
 from prefect.client.schemas.filters import (
     FlowRunFilter,
     FlowRunFilterDeploymentId,
@@ -11,9 +10,9 @@ from prefect.client.schemas.filters import (
     FlowRunFilterStateType,
 )
 from prefect.client.schemas.objects import StateType
-from prefect.client.schemas.schedules import RRuleSchedule
 
 from core.prefect_support.deployment_names import (
+    SCHEDULED_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
     UR_CAR_TREATMENT_OLD_QUALIFIED_DEPLOYMENT_NAMES,
     UR_CAR_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
 )
@@ -27,17 +26,10 @@ from core.prefect_support.bootstrap import (
     set_default_variables,
     set_default_work_pools,
 )
-from core.prefect_support.schedules import (
-    DEFAULT_UR_CAR_SEQUENCE_HOUR,
-    DEFAULT_UR_CAR_SEQUENCE_MINUTE,
-    DEFAULT_UR_CAR_SEQUENCE_START_DATE,
-    DEFAULT_UR_CAR_SEQUENCE_TIMEZONE,
-    UR_CAR_THEME_FOLDERS,
-    get_ur_car_sequence_config,
-)
 DOWNLOAD_AUTOMATION_NAME = "Dataset baixado -> tratamento de dados"
 DOWNLOAD_AUTOMATION_OLD_NAMES = ("CAR baixado -> tratamento de dados",)
 TREATMENT_DEPLOYMENT_CANDIDATES = (
+    SCHEDULED_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
     UR_CAR_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
     *UR_CAR_TREATMENT_OLD_QUALIFIED_DEPLOYMENT_NAMES,
 )
@@ -54,10 +46,6 @@ def main():
     subparsers.add_parser(
         "create-car-download-automation",
         help="Alias legado de create-download-automation.",
-    )
-    subparsers.add_parser(
-        "reschedule-ur-car-daily-17h",
-        help="Recria a agenda diaria de UR CAR as 17:00.",
     )
     subparsers.add_parser(
         "rename-scheduled-runs",
@@ -88,8 +76,6 @@ def main():
     args = parser.parse_args()
     if args.command in {"create-download-automation", "create-car-download-automation"}:
         create_download_automation()
-    elif args.command == "reschedule-ur-car-daily-17h":
-        reschedule_ur_car_daily_17h()
     elif args.command == "rename-scheduled-runs":
         rename_scheduled_runs()
     elif args.command == "set-default-variables":
@@ -156,51 +142,6 @@ def read_existing_automation(names):
     raise ValueError("Automation nao encontrada")
 
 
-def reschedule_ur_car_daily_17h():
-    start_date, hour, minute, timezone = get_ur_car_sequence_config()
-    with get_client(sync_client=True) as client:
-        deployment = read_first_existing_deployment(client, TREATMENT_DEPLOYMENT_CANDIDATES)
-
-        old_schedules = client.read_deployment_schedules(deployment.id)
-        for schedule in old_schedules:
-            client.delete_deployment_schedule(deployment.id, schedule.id)
-
-        scheduled_runs = read_scheduled_runs(client, deployment.id)
-        for flow_run in scheduled_runs:
-            client.delete_flow_run(flow_run.id)
-
-        new_schedules = [
-            DeploymentScheduleCreate(
-                schedule=RRuleSchedule(
-                    rrule=build_single_run_rrule(
-                        start_date + timedelta(days=index),
-                        hour=hour,
-                        minute=minute,
-                    ),
-                    timezone=timezone,
-                ),
-                active=True,
-                max_scheduled_runs=1,
-                parameters={"theme_folders": [theme_folder]},
-                slug=theme_folder,
-            )
-            for index, theme_folder in enumerate(UR_CAR_THEME_FOLDERS)
-        ]
-        created = client.create_deployment_schedules(deployment.id, new_schedules)
-
-    print(f"Deployment: {deployment.name}")
-    print(f"Schedules apagados: {len(old_schedules)}")
-    print(f"Flow runs scheduled apagados: {len(scheduled_runs)}")
-    print(f"Schedules criados: {len(created)}")
-    for index, theme_folder in enumerate(UR_CAR_THEME_FOLDERS):
-        scheduled_for = start_date + timedelta(days=index)
-        print(
-            f"{scheduled_for.isoformat()} "
-            f"{hour:02d}:{minute:02d} - "
-            f"{theme_folder}"
-        )
-
-
 def bootstrap_prefect():
     run_bootstrap_prefect(create_download_automation)
 
@@ -248,17 +189,6 @@ def read_scheduled_runs(client, deployment_id):
         ),
         limit=200,
     )
-
-
-def build_single_run_rrule(scheduled_date, hour, minute):
-    scheduled_at = datetime(
-        scheduled_date.year,
-        scheduled_date.month,
-        scheduled_date.day,
-        hour,
-        minute,
-    )
-    return f"DTSTART:{scheduled_at:%Y%m%dT%H%M%S}\nRRULE:FREQ=DAILY;COUNT=1"
 
 
 if __name__ == "__main__":
