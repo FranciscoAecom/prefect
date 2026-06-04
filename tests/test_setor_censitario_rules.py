@@ -17,11 +17,11 @@ def _load_json(name):
 
 
 class SetorCensitarioRulesTest(unittest.TestCase):
-    def test_pipeline_validates_only_controlled_domains(self):
-        pipeline = _load_json("pipeline.json")
+    def test_treatment_validates_only_controlled_domains(self):
+        treatment = _load_json("treatment.json")
 
         self.assertEqual(
-            set(pipeline["auto_functions"]),
+            set(treatment["auto_functions"]),
             {
                 "sdb_situacao",
                 "sdb_cd_sit",
@@ -36,8 +36,8 @@ class SetorCensitarioRulesTest(unittest.TestCase):
                 "sdb_nm_rgi",
             },
         )
-        self.assertNotIn("sdb_cd_mun", pipeline["auto_functions"])
-        self.assertNotIn("sdb_nm_mun", pipeline["auto_functions"])
+        self.assertNotIn("sdb_cd_mun", treatment["auto_functions"])
+        self.assertNotIn("sdb_nm_mun", treatment["auto_functions"])
 
     def test_relations_do_not_include_order_paired_municipality_rules(self):
         relations = _load_json("relations.json")["relations"]

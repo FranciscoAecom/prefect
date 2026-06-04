@@ -1,4 +1,4 @@
-# Data Treatment Pipeline
+﻿# Data Treatment Pipeline
 
 Pipeline de validacao, transformacao e padronizacao de arquivos geoespaciais
 em lote, orientado pela planilha de ingestao `input/st_Ingest_parameter.xlsx`.
@@ -584,7 +584,7 @@ rules/<projeto>/<perfil>/
 |-- input_schema.json
 |-- domains.json
 |-- relations.json
-|-- pipeline.json
+|-- treatment.json
 `-- style.json
 ```
 
@@ -619,7 +619,7 @@ Antes de criar ou alterar regras de uma base, registre a especificacao em
 `docs/sdd/README.md`, e o template para novas bases fica em
 `docs/sdd/spec-template.md`.
 
-No `pipeline.json`, o perfil explicita os tratamentos configuraveis da base.
+No `treatment.json`, o perfil explicita os tratamentos configuraveis da base.
 Esse arquivo e contrato dos perfis de regras, nao um flow do Prefect. Os flows
 Prefect continuam sendo `download`, `treatment` e `publish`.
 
@@ -628,7 +628,7 @@ Prefect continuam sendo `download`, `treatment` e `publish`.
 - `output_adjustments`: ajustes aplicados somente ao arquivo de dados persistido.
 - `quality_outputs`: liga/desliga verificacoes e relatorios de qualidade.
 
-O `style.json` concentra configuracoes de estilo, como `sld`. O `pipeline.json`
+O `style.json` concentra configuracoes de estilo, como `sld`. O `treatment.json`
 nao deve conter configuracao visual.
 
 As chaves permitidas dos perfis ficam centralizadas em
@@ -796,3 +796,4 @@ Documentacao complementar:
 - Se a entrada estiver em `EPSG:4326`, nao ha reprojecao desnecessaria.
 - Em bases grandes, transformacoes espaciais sao feitas em fatias para reduzir
   risco de estouro de memoria.
+

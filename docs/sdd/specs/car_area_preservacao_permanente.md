@@ -1,4 +1,4 @@
-# Spec: car_area_preservacao_permanente/app_car_*
+﻿# Spec: car_area_preservacao_permanente/app_car_*
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -40,7 +40,7 @@ Cada UF possui perfil proprio em `rules/car_area_preservacao_permanente/<theme_f
 - `rules/car_area_preservacao_permanente/<theme_folder>/input_schema.json`
 - `rules/car_area_preservacao_permanente/<theme_folder>/domains.json`
 - `rules/car_area_preservacao_permanente/<theme_folder>/relations.json`
-- `rules/car_area_preservacao_permanente/<theme_folder>/pipeline.json`
+- `rules/car_area_preservacao_permanente/<theme_folder>/treatment.json`
 - `rules/car_area_preservacao_permanente/<theme_folder>/style.json`: nao configurado
 
 A validacao estrutural de entrada deve usar o `input_schema.json` do perfil da
@@ -265,7 +265,7 @@ Arquivos atualizados pelo processo:
 - [ ] A validacao estrutural usa `input_schema.json`.
 - [ ] As funcoes obrigatorias aparecem no log.
 - [ ] As funcoes opcionais configuradas aparecem no log.
-- [ ] `enforce_car_state_bounds` fica explicito em `pipeline.json`.
+- [ ] `enforce_car_state_bounds` fica explicito em `treatment.json`.
 - [ ] As verificacoes obrigatorias de qualidade aparecem no log.
 - [ ] Testes automatizados relevantes passam.
 
@@ -282,3 +282,4 @@ Resultado:
 ```text
 nao registrado
 ```
+

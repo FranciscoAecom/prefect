@@ -204,12 +204,12 @@ class ValidateRuleProfileTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "domains.json"):
                     load_rule_profile("demo/perfil")
 
-    def test_rejects_invalid_modular_pipeline_component(self):
+    def test_rejects_invalid_modular_treatment_component(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             profile_dir = Path(temp_dir) / "rules" / "demo" / "perfil"
             self._write_modular_profile(
                 profile_dir,
-                pipeline={
+                treatment={
                     "auto_functions": {
                         "sdb_codigo": "validate_shapefile_attribute",
                     }
@@ -218,7 +218,7 @@ class ValidateRuleProfileTests(unittest.TestCase):
 
             with patch("core.rules.engine.RULES_BASE", str(Path(temp_dir) / "rules")):
                 invalidate_rule_profile_cache()
-                with self.assertRaisesRegex(ValueError, "pipeline.json"):
+                with self.assertRaisesRegex(ValueError, "treatment.json"):
                     load_rule_profile("demo/perfil")
 
     def test_rejects_invalid_quality_outputs_component(self):
@@ -226,7 +226,7 @@ class ValidateRuleProfileTests(unittest.TestCase):
             profile_dir = Path(temp_dir) / "rules" / "demo" / "perfil"
             self._write_modular_profile(
                 profile_dir,
-                pipeline={
+                treatment={
                     "auto_functions": {
                         "sdb_codigo": ["validate_shapefile_attribute"],
                     },
@@ -299,7 +299,7 @@ class ValidateRuleProfileTests(unittest.TestCase):
                 self.assertFalse((rules_base / "demo" / "perfil.json").exists())
                 domains = json.loads((profile_dir / "domains.json").read_text(encoding="utf-8"))
                 relations = json.loads((profile_dir / "relations.json").read_text(encoding="utf-8"))
-                pipeline = json.loads((profile_dir / "pipeline.json").read_text(encoding="utf-8"))
+                treatment = json.loads((profile_dir / "treatment.json").read_text(encoding="utf-8"))
                 style = json.loads((profile_dir / "style.json").read_text(encoding="utf-8"))
                 self.assertIn("B", domains["fields"]["sdb_codigo"]["accepted_values"])
                 self.assertEqual(
@@ -307,18 +307,18 @@ class ValidateRuleProfileTests(unittest.TestCase):
                     {"A": "Alpha"},
                 )
                 self.assertEqual(
-                    pipeline["postprocess_functions"],
+                    treatment["postprocess_functions"],
                     ["enrich_with_municipality_intersection"],
                 )
-                self.assertNotIn("secondary_outputs", pipeline)
+                self.assertNotIn("secondary_outputs", treatment)
                 self.assertEqual(
-                    pipeline["quality_outputs"],
+                    treatment["quality_outputs"],
                     {
                         "attribute_duplicates": False,
                         "geometric_duplicates": True,
                     },
                 )
-                self.assertNotIn("sld", pipeline)
+                self.assertNotIn("sld", treatment)
                 self.assertEqual(style["sld"]["point"]["fill"], "#1654ad")
 
     def test_autos_infracao_profile_has_only_output_adjustments(self):
@@ -329,12 +329,12 @@ class ValidateRuleProfileTests(unittest.TestCase):
             profile["output_adjustments"]["relocate_outside_brazil_bounds_to_centroid"]
         )
 
-    def test_rejects_deprecated_secondary_outputs_pipeline_component(self):
+    def test_rejects_deprecated_secondary_outputs_treatment_component(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             profile_dir = Path(temp_dir) / "rules" / "demo" / "perfil"
             self._write_modular_profile(
                 profile_dir,
-                pipeline={
+                treatment={
                     "secondary_outputs": ["deprecated_output"],
                     "auto_functions": {
                         "sdb_codigo": ["validate_shapefile_attribute"],
@@ -347,12 +347,12 @@ class ValidateRuleProfileTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "secondary_outputs"):
                     load_rule_profile("demo/perfil")
 
-    def test_rejects_deprecated_primary_output_pipeline_component(self):
+    def test_rejects_deprecated_primary_output_treatment_component(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             profile_dir = Path(temp_dir) / "rules" / "demo" / "perfil"
             self._write_modular_profile(
                 profile_dir,
-                pipeline={
+                treatment={
                     "primary_output": {
                         "relocate_outside_brazil_bounds_to_centroid": True,
                     },
@@ -373,7 +373,7 @@ class ValidateRuleProfileTests(unittest.TestCase):
         input_schema=None,
         domains=None,
         relations=None,
-        pipeline=None,
+        treatment=None,
         style=None,
     ):
         profile_dir.mkdir(parents=True, exist_ok=True)
@@ -417,9 +417,9 @@ class ValidateRuleProfileTests(unittest.TestCase):
             relations if relations is not None else {"relations": {}},
         )
         self._write_json(
-            profile_dir / "pipeline.json",
-            pipeline
-            if pipeline is not None
+            profile_dir / "treatment.json",
+            treatment
+            if treatment is not None
             else {
                 "auto_functions": {
                     "sdb_codigo": ["validate_shapefile_attribute"],

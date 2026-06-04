@@ -1,4 +1,4 @@
-# Spec: degradacao_amazonia/degradacao_amazonia
+﻿# Spec: degradacao_amazonia/degradacao_amazonia
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -26,7 +26,7 @@ espacial.
   `L:\Secure_DCS\BRBLH1PINFW001\COE_Digital\coe_digital_data\temp\degradacao\deter-amz-public-2026mai20\deter-amz-deter-public.shp`
 - Sistema de referencia observado: `EPSG:4674`
 - Base de referencia usada para dominios:
-  `C:\Temp\Repositórios\explorer\teste.xlsx`
+  `C:\Temp\RepositÃ³rios\explorer\teste.xlsx`
 - Base de referencia usada para relacoes: nao aplicavel
 
 ## Configuracao Do Projeto
@@ -46,7 +46,7 @@ execucao.
 - `rules/degradacao_amazonia/degradacao_amazonia/input_schema.json`
 - `rules/degradacao_amazonia/degradacao_amazonia/domains.json`
 - `rules/degradacao_amazonia/degradacao_amazonia/relations.json`
-- `rules/degradacao_amazonia/degradacao_amazonia/pipeline.json`
+- `rules/degradacao_amazonia/degradacao_amazonia/treatment.json`
 - `rules/degradacao_amazonia/degradacao_amazonia/style.json`: nao configurado
 
 A validacao estrutural de entrada deve usar
@@ -299,12 +299,12 @@ Agenda:
 Comando ou processo usado como apoio para montar os dominios:
 
 ```text
-C:\Temp\Repositórios\explorer
+C:\Temp\RepositÃ³rios\explorer
 ```
 
 Arquivo de referencia gerado:
 
-- `C:\Temp\Repositórios\explorer\teste.xlsx`
+- `C:\Temp\RepositÃ³rios\explorer\teste.xlsx`
 
 ## Download
 
@@ -351,3 +351,4 @@ Resultado registrado em 2026-06-01:
 Ran 12 tests
 OK
 ```
+

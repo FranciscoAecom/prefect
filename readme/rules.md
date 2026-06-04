@@ -10,7 +10,7 @@ rules/<projeto>/<perfil>/
   input_schema.json
   domains.json
   relations.json
-  pipeline.json
+  treatment.json
   style.json
 ```
 
@@ -126,7 +126,7 @@ Define consistencia entre campos.
 
 O nome da relacao segue o padrao `<origem>_to_<destino>`. O pipeline resolve esses tokens para colunas como `sdb_cod_tema` e `sdb_nom_tema`.
 
-## pipeline.json
+## treatment.json
 
 Define funcoes configuraveis do perfil.
 
@@ -165,7 +165,7 @@ Opcoes de `output_adjustments`:
 
 Remova `postprocess_functions` quando a base nao deve usar essa etapa.
 
-As chaves operacionais aceitas em `pipeline.json` sao centralizadas em
+As chaves operacionais aceitas em `treatment.json` sao centralizadas em
 `core/rules/contracts.py`. Ao criar uma nova opcao, registre a chave no contrato
 e adicione validacao explicita.
 
@@ -197,8 +197,8 @@ gerado somente para arquivos `.gpkg` persistidos na etapa `silver_data`.
 }
 ```
 
-O `pipeline.json` nao deve conter `sld`. Configuracoes visuais ficam em
-`style.json`; configuracoes de execucao ficam em `pipeline.json`. Use `layers`
+O `treatment.json` nao deve conter `sld`. Configuracoes visuais ficam em
+`style.json`; configuracoes de execucao ficam em `treatment.json`. Use `layers`
 quando uma saida especifica precisar sobrescrever o estilo padrao do perfil.
 
 ## Fluxo De Persistencia
@@ -241,3 +241,4 @@ Para verificar os perfis:
 ```powershell
 py -3.14 -m unittest tests.test_rule_profiles_integration
 ```
+

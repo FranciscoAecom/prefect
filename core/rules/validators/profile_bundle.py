@@ -5,13 +5,13 @@ from core.rules.validators.input_schema import (
     validate_input_schema_component,
     validate_input_schema_entry,
 )
-from core.rules.validators.pipeline import (
+from core.rules.validators.treatment import (
     validate_auto_functions_entry,
     validate_auto_functions_shape,
     validate_output_adjustments_entry,
-    validate_pipeline_component,
     validate_postprocess_functions,
     validate_quality_outputs_entry,
+    validate_treatment_component,
 )
 from core.rules.validators.profile import (
     validate_profile_component,
@@ -32,7 +32,7 @@ def validate_modular_components(
     input_schema,
     domains,
     relations,
-    pipeline,
+    treatment,
     style,
     normalized_profile_name,
 ):
@@ -42,7 +42,7 @@ def validate_modular_components(
 
     fields = domains.get("fields", domains)
     validate_relations_component(relations, fields)
-    validate_pipeline_component(pipeline, fields)
+    validate_treatment_component(treatment, fields)
     validate_style_component(style, fields)
 
 
@@ -112,4 +112,3 @@ def _validate_deprecated_profile_entries(profile, errors):
             "Campo 'primary_output' foi renomeado para 'output_adjustments' "
             "porque existe apenas uma saida por base."
         )
-

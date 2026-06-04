@@ -1,4 +1,4 @@
-import unittest
+﻿import unittest
 
 from core.ingest.issues import (
     ISSUE_MISSING_RULE_PROFILE,
@@ -43,12 +43,12 @@ class IngestIssuesTests(unittest.TestCase):
                 profile_name="localidades/localidades",
                 profile_dir=None,
                 profile_project_name="localidades",
-                missing_components=("domains.json", "pipeline.json"),
+                missing_components=("domains.json", "treatment.json"),
             ),
         )
 
         self.assertEqual(issue.code, ISSUE_RULE_PROFILE_INCOMPLETE)
-        self.assertIn("domains.json, pipeline.json", issue.reason)
+        self.assertIn("domains.json, treatment.json", issue.reason)
 
     def test_issue_serialization_includes_code_and_reason(self):
         issue = missing_rule_profile_issue(
@@ -83,3 +83,4 @@ def _issue_context():
 
 if __name__ == "__main__":
     unittest.main()
+

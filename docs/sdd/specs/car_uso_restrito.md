@@ -1,4 +1,4 @@
-# Spec: car_uso_restrito/ur_car_*
+﻿# Spec: car_uso_restrito/ur_car_*
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -40,7 +40,7 @@ Cada UF possui perfil proprio em `rules/car_uso_restrito/<theme_folder>/`.
 - `rules/car_uso_restrito/<theme_folder>/input_schema.json`
 - `rules/car_uso_restrito/<theme_folder>/domains.json`
 - `rules/car_uso_restrito/<theme_folder>/relations.json`
-- `rules/car_uso_restrito/<theme_folder>/pipeline.json`
+- `rules/car_uso_restrito/<theme_folder>/treatment.json`
 - `rules/car_uso_restrito/<theme_folder>/style.json`
 
 A validacao estrutural de entrada deve usar o `input_schema.json` do perfil da
@@ -285,3 +285,4 @@ Resultado:
 ```text
 nao registrado
 ```
+

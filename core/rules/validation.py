@@ -14,14 +14,14 @@ from core.rules.validators.input_schema import (
     validate_input_schema_component,
     validate_input_schema_entry as _validate_input_schema_entry,
 )
-from core.rules.validators.pipeline import (
+from core.rules.validators.treatment import (
     QUALITY_OUTPUT_OPTIONS,
-    pipeline_uses_component_keys as _pipeline_uses_component_keys,
     validate_auto_functions_entry as _validate_auto_functions_entry,
     validate_auto_functions_shape as _validate_auto_functions_shape,
     validate_output_adjustments_entry as _validate_output_adjustments_entry,
-    validate_pipeline_component,
     validate_quality_outputs_entry as _validate_quality_outputs_entry,
+    validate_treatment_component,
+    treatment_uses_component_keys as _treatment_uses_component_keys,
 )
 from core.rules.validators.profile import (
     validate_profile_component,
@@ -53,7 +53,7 @@ __all__ = [
     "validate_domains_component",
     "validate_input_schema_component",
     "validate_modular_components",
-    "validate_pipeline_component",
+    "validate_treatment_component",
     "validate_profile_component",
     "validate_relations_component",
     "validate_rule_profile",

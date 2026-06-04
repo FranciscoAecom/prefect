@@ -1,4 +1,4 @@
-# Spec: setor_censitario/setor_censitario
+﻿# Spec: setor_censitario/setor_censitario
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -40,7 +40,7 @@ somente na camada silver.
 - `rules/setor_censitario/setor_censitario/input_schema.json`
 - `rules/setor_censitario/setor_censitario/domains.json`
 - `rules/setor_censitario/setor_censitario/relations.json`
-- `rules/setor_censitario/setor_censitario/pipeline.json`
+- `rules/setor_censitario/setor_censitario/treatment.json`
 - `rules/setor_censitario/setor_censitario/style.json`
 
 A validacao estrutural de entrada deve usar
@@ -95,7 +95,7 @@ Fonte:
 
 Aplicacao:
 
-- Somente os campos listados no `pipeline.json` devem ser validados por
+- Somente os campos listados no `treatment.json` devem ser validados por
   `validate_shapefile_attribute`.
 - Campos territoriais de alta cardinalidade, como municipio, distrito,
   subdistrito, bairro, nucleo urbano, favela/comunidade urbana, aglomerado e
@@ -120,8 +120,8 @@ Campos com dominio validado:
 
 Aliases configurados:
 
-- `sdb_nm_rgint`: 1 alias para corrigir separador mojibake `¿`.
-- `sdb_nm_rgi`: 8 aliases para corrigir separador mojibake `¿`.
+- `sdb_nm_rgint`: 1 alias para corrigir separador mojibake `Â¿`.
+- `sdb_nm_rgi`: 8 aliases para corrigir separador mojibake `Â¿`.
 
 Regra importante:
 
@@ -366,3 +366,4 @@ Resultado:
 ```text
 OK
 ```
+

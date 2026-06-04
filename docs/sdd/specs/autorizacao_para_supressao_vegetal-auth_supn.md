@@ -1,4 +1,4 @@
-# Spec: autorizacao_para_supressao_vegetal/auth_supn
+﻿# Spec: autorizacao_para_supressao_vegetal/auth_supn
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -39,7 +39,7 @@ autorizacao, expiracao e data-base.
 - `rules/autorizacao_para_supressao_vegetal/auth_supn/input_schema.json`
 - `rules/autorizacao_para_supressao_vegetal/auth_supn/domains.json`
 - `rules/autorizacao_para_supressao_vegetal/auth_supn/relations.json`
-- `rules/autorizacao_para_supressao_vegetal/auth_supn/pipeline.json`
+- `rules/autorizacao_para_supressao_vegetal/auth_supn/treatment.json`
 - `rules/autorizacao_para_supressao_vegetal/auth_supn/style.json`: nao configurado
 
 A validacao estrutural de entrada deve usar
@@ -292,3 +292,4 @@ Resultado:
 ```text
 nao registrado
 ```
+

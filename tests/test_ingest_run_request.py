@@ -23,6 +23,13 @@ class IngestRunRequestTests(unittest.TestCase):
         self.assertTrue(request.is_status_eligible("download-treatment-publish"))
         self.assertFalse(request.is_status_eligible("download-publish"))
         self.assertFalse(request.is_status_eligible("download-treatment-foo"))
+        self.assertFalse(request.is_status_eligible("schedule 2026-05-13 18:49"))
+
+    def test_scheduled_request_accepts_schedule_status(self):
+        request = IngestRunRequest.from_parameters(scheduled=True)
+
+        self.assertTrue(request.is_status_eligible("schedule 2026-05-13 18:49"))
+        self.assertFalse(request.is_status_eligible("treatment"))
 
     def test_accepts_theme_filter(self):
         request = IngestRunRequest.from_parameters(

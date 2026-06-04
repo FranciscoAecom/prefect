@@ -1,4 +1,4 @@
-import json
+﻿import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -103,7 +103,7 @@ def _write_profile(base_dir):
     )
     _write_json(profile_dir / "relations.json", {"relations": {}})
     _write_json(
-        profile_dir / "pipeline.json",
+        profile_dir / "treatment.json",
         {
             "auto_functions": {
                 "sdb_tipo": ["validate_shapefile_attribute"],
@@ -133,3 +133,4 @@ def _write_json(path, data):
 
 if __name__ == "__main__":
     unittest.main()
+

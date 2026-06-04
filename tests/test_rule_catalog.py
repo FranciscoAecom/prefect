@@ -1,4 +1,4 @@
-import json
+﻿import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -106,7 +106,7 @@ class RuleCatalogTests(unittest.TestCase):
                 }
             },
             "relations.json": {"relations": {}},
-            "pipeline.json": {
+            "treatment.json": {
                 "auto_functions": {
                     "sdb_codigo": ["validate_shapefile_attribute"],
                 }
@@ -123,3 +123,4 @@ class RuleCatalogTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

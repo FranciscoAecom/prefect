@@ -6,7 +6,7 @@ from projects.configs import resolve_project_name
 from core.rules.constants import (
     DOMAINS_COMPONENT,
     INPUT_SCHEMA_COMPONENT,
-    PIPELINE_COMPONENT,
+    TREATMENT_COMPONENT,
     PROFILE_COMPONENT,
     RELATIONS_COMPONENT,
     STYLE_COMPONENT,
@@ -74,7 +74,7 @@ class RuleRepository:
         input_schema = self.read_component(profile_dir, INPUT_SCHEMA_COMPONENT)
         domains = self.read_component(profile_dir, DOMAINS_COMPONENT)
         relations = self.read_component(profile_dir, RELATIONS_COMPONENT)
-        pipeline = self.read_component(profile_dir, PIPELINE_COMPONENT)
+        treatment = self.read_component(profile_dir, TREATMENT_COMPONENT)
         style = self.read_component(profile_dir, STYLE_COMPONENT)
         normalized_profile_name = str(profile_dir.relative_to(self.rules_base)).replace("\\", "/")
         validate_modular_components(
@@ -82,7 +82,7 @@ class RuleRepository:
             input_schema,
             domains,
             relations,
-            pipeline,
+            treatment,
             style,
             normalized_profile_name,
         )
@@ -92,7 +92,7 @@ class RuleRepository:
             input_schema,
             domains,
             relations,
-            pipeline,
+            treatment,
             style,
         ).to_dict(include_empty_input_schema=bool(input_schema))
 
@@ -236,7 +236,7 @@ class RuleRepository:
         return str(path)
 
     def save_modular_profile(self, profile_dir, profile_model):
-        profile_data, input_schema_data, domains_data, relations_data, pipeline_data, style_data = (
+        profile_data, input_schema_data, domains_data, relations_data, treatment_data, style_data = (
             profile_model.to_components()
         )
 
@@ -245,7 +245,7 @@ class RuleRepository:
             input_schema_data,
             domains_data,
             relations_data,
-            pipeline_data,
+            treatment_data,
             style_data,
             str(profile_dir.relative_to(self.rules_base)).replace("\\", "/"),
         )
@@ -254,7 +254,7 @@ class RuleRepository:
         self.write_json_file(profile_dir / INPUT_SCHEMA_COMPONENT, input_schema_data)
         self.write_json_file(profile_dir / DOMAINS_COMPONENT, domains_data)
         self.write_json_file(profile_dir / RELATIONS_COMPONENT, relations_data)
-        self.write_json_file(profile_dir / PIPELINE_COMPONENT, pipeline_data)
+        self.write_json_file(profile_dir / TREATMENT_COMPONENT, treatment_data)
         if style_data:
             self.write_json_file(profile_dir / STYLE_COMPONENT, style_data)
         return profile_dir

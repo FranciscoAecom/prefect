@@ -19,7 +19,7 @@ PROFILE_DATA_KEYS = {
     "sld",
 }
 
-PIPELINE_COMPONENT_KEYS = {
+TREATMENT_COMPONENT_KEYS = {
     "auto_functions",
     "postprocess_functions",
     "output_adjustments",
@@ -32,8 +32,8 @@ OUTPUT_ADJUSTMENT_OPTIONS = {
 
 
 __all__ = [
-    "PIPELINE_COMPONENT_KEYS",
     "OUTPUT_ADJUSTMENT_OPTIONS",
     "PROFILE_DATA_KEYS",
     "PROFILE_METADATA_KEYS",
+    "TREATMENT_COMPONENT_KEYS",
 ]

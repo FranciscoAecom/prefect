@@ -17,6 +17,7 @@ class IngestRunRequest:
     required_status_flag: str = STATUS_FLAG_TREATMENT
     source_path_overrides: dict[str, str] = field(default_factory=dict)
     force: bool = False
+    scheduled: bool = False
 
     @classmethod
     def from_parameters(
@@ -27,6 +28,7 @@ class IngestRunRequest:
         theme_filter=None,
         source_path_overrides=None,
         force=False,
+        scheduled=False,
     ):
         if isinstance(theme_folders, cls):
             return theme_folders
@@ -37,6 +39,7 @@ class IngestRunRequest:
             required_status_flag=STATUS_FLAG_TREATMENT,
             source_path_overrides=normalize_source_path_overrides(source_path_overrides),
             force=bool(force),
+            scheduled=bool(scheduled),
         )
 
     @property
@@ -57,6 +60,8 @@ class IngestRunRequest:
         plan = build_ingest_execution_plan(status)
         if not plan.is_valid:
             return False
+        if self.scheduled:
+            return plan.is_scheduled_for_treatment
         return self.required_status_flag in plan.flags
 
     def treatment_statuses_display(self):
@@ -67,6 +72,7 @@ class IngestRunRequest:
             "theme_folders": list(self.theme_folders),
             "ready_statuses": self.treatment_statuses_display(),
             "force": self.force,
+            "scheduled": self.scheduled,
             "source_path_overrides": dict(self.source_path_overrides),
         }
 

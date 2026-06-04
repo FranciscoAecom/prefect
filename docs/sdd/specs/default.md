@@ -1,4 +1,4 @@
-# Spec: default/default
+﻿# Spec: default/default
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -38,7 +38,7 @@ Definir o comportamento de fallback para bases sem projeto especifico em
 - `rules/default/input_schema.json`
 - `rules/default/domains.json`
 - `rules/default/relations.json`
-- `rules/default/pipeline.json`
+- `rules/default/treatment.json`
 - `rules/default/style.json`: nao configurado
 
 O perfil default deve ser usado apenas quando nao houver regra modular
@@ -269,3 +269,4 @@ Resultado:
 ```text
 nao registrado
 ```
+

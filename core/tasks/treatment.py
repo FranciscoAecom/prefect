@@ -7,11 +7,18 @@ from core.treatment.runner import run_treatment_record
 
 
 @task(name="Preparar tratamento", log_prints=True)
-def prepare_treatment_run_task(output_base, theme_folders=None, source_path_overrides=None, force=False):
+def prepare_treatment_run_task(
+    output_base,
+    theme_folders=None,
+    source_path_overrides=None,
+    force=False,
+    scheduled=False,
+):
     run_request = IngestRunRequest.from_parameters(
         theme_folders=theme_folders,
         source_path_overrides=source_path_overrides,
         force=force,
+        scheduled=scheduled,
     )
     return prepare_treatment_run(
         output_base,

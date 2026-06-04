@@ -1,4 +1,4 @@
-# Spec: autos_infracao/autos_infracao
+﻿# Spec: autos_infracao/autos_infracao
 
 Status: Implementado
 Responsavel: Ribeiro / Codex
@@ -18,7 +18,7 @@ completa `pnt_pcd_enov_20260514.gpkg`.
 - Status esperado na ingest: `waiting update`
 - Formato esperado: camada vetorial de pontos
 - Geometria esperada: ponto
-- Base de referencia usada para montar dominios: `C:\Temp\Reposit�rios\explorer\teste.xlsx`
+- Base de referencia usada para montar dominios: `C:\Temp\Repositórios\explorer\teste.xlsx`
 - Atributos considerados em `domains.json`: apenas campos marcados em verde na planilha de referencia.
 
 ## Configuracao Do Projeto
@@ -35,7 +35,7 @@ completa `pnt_pcd_enov_20260514.gpkg`.
 - `rules/autos_infracao/autos_infracao/input_schema.json`
 - `rules/autos_infracao/autos_infracao/domains.json`
 - `rules/autos_infracao/autos_infracao/relations.json`
-- `rules/autos_infracao/autos_infracao/pipeline.json`
+- `rules/autos_infracao/autos_infracao/treatment.json`
 - `rules/autos_infracao/autos_infracao/style.json`
 
 A validacao estrutural de entrada deve usar
@@ -368,3 +368,4 @@ Resultado registrado em 2026-05-25:
 Ran 158 tests
 OK
 ```
+

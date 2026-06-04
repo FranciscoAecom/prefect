@@ -1,4 +1,4 @@
-# Spec: estado/estado
+﻿# Spec: estado/estado
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -37,7 +37,7 @@ Processar a base de limites das unidades da federacao do Brasil.
 - `rules/estado/estado/input_schema.json`
 - `rules/estado/estado/domains.json`
 - `rules/estado/estado/relations.json`
-- `rules/estado/estado/pipeline.json`
+- `rules/estado/estado/treatment.json`
 - `rules/estado/estado/style.json`: nao configurado
 
 A validacao estrutural de entrada deve usar
@@ -288,3 +288,4 @@ Resultado:
 ```text
 nao registrado
 ```
+

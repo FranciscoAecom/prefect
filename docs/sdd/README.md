@@ -1,4 +1,4 @@
-# Spec-Driven Development do Projeto
+﻿# Spec-Driven Development do Projeto
 
 Neste projeto, SDD significa registrar a regra da base antes de implementar ou
 alterar codigo. A especificacao vira o contrato entre ingest, regras, pipeline,
@@ -35,7 +35,7 @@ Cada spec deve apontar para:
 - `rules/<projeto>/<theme_folder>/profile.json`;
 - `rules/<projeto>/<theme_folder>/input_schema.json`;
 - `rules/<projeto>/<theme_folder>/domains.json`;
-- `rules/<projeto>/<theme_folder>/pipeline.json`;
+- `rules/<projeto>/<theme_folder>/treatment.json`;
 - `rules/<projeto>/<theme_folder>/relations.json`;
 - `rules/<projeto>/<theme_folder>/style.json`, quando a base gerar SLD.
 
@@ -52,9 +52,9 @@ As funcoes obrigatorias rodam para todas as bases:
 - `add_centroid_coordinates`.
 
 Funcoes opcionais precisam estar explicitas no perfil, normalmente em
-`pipeline.json`, para ficar claro o que roda em cada base.
+`treatment.json`, para ficar claro o que roda em cada base.
 
-O `pipeline.json` tambem pode declarar ajustes da saida principal em
+O `treatment.json` tambem pode declarar ajustes da saida principal em
 `output_adjustments`. As bases devem gerar somente uma saida; ajustes como
 reposicionar pontos fora do limite Brasil / zona costeira devem ser expressos em
 `output_adjustments`.
@@ -162,3 +162,4 @@ specs devem manter a mesma ordem de secoes, mesmo quando uma secao for marcada
 como `nao aplicavel` ou `nao configurado`.
 
 As especificacoes existentes ficam listadas em `docs/sdd/specs/README.md`.
+

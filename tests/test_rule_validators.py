@@ -2,7 +2,7 @@ import unittest
 
 from core.rules.validators.domains import validate_domains_component
 from core.rules.validators.input_schema import validate_input_schema_component
-from core.rules.validators.pipeline import validate_pipeline_component
+from core.rules.validators.treatment import validate_treatment_component
 from core.rules.validators.profile import validate_profile_component
 from core.rules.validators.relations import validate_relations_component
 from core.rules.validators.style import validate_style_component
@@ -53,9 +53,9 @@ class RuleValidatorTests(unittest.TestCase):
                 {"sdb_estado": {"accepted_values": ["BA"]}},
             )
 
-    def test_pipeline_component_rejects_deprecated_sld_entry(self):
+    def test_treatment_component_rejects_deprecated_sld_entry(self):
         with self.assertRaisesRegex(ValueError, "style.json"):
-            validate_pipeline_component(
+            validate_treatment_component(
                 {"sld": {"point": {"fill": "#fff"}}},
                 {},
             )

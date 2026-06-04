@@ -1,4 +1,4 @@
-from core.rules.contracts import OUTPUT_ADJUSTMENT_OPTIONS, PIPELINE_COMPONENT_KEYS
+﻿from core.rules.contracts import OUTPUT_ADJUSTMENT_OPTIONS, TREATMENT_COMPONENT_KEYS
 from core.rules.validators.common import (
     get_registered_postprocess_function_names,
     resolve_qualified_function,
@@ -17,33 +17,33 @@ QUALITY_OUTPUT_OPTIONS = {
 }
 
 
-def validate_pipeline_component(rule_pipeline_config, fields):
+def validate_treatment_component(rule_treatment_config, fields):
     errors = []
-    _validate_deprecated_pipeline_entries(rule_pipeline_config, errors)
+    _validate_deprecated_treatment_entries(rule_treatment_config, errors)
     auto_functions = (
-        rule_pipeline_config.get("auto_functions", {})
-        if pipeline_uses_component_keys(rule_pipeline_config)
-        else rule_pipeline_config
+        rule_treatment_config.get("auto_functions", {})
+        if treatment_uses_component_keys(rule_treatment_config)
+        else rule_treatment_config
     )
     validate_auto_functions_entry(auto_functions, fields, errors)
     validate_string_list_entry(
-        rule_pipeline_config.get("postprocess_functions", []),
+        rule_treatment_config.get("postprocess_functions", []),
         "postprocess_functions",
         errors,
     )
     validate_output_adjustments_entry(
-        rule_pipeline_config.get("output_adjustments", {}),
+        rule_treatment_config.get("output_adjustments", {}),
         errors,
     )
     validate_quality_outputs_entry(
-        rule_pipeline_config.get("quality_outputs", {}),
+        rule_treatment_config.get("quality_outputs", {}),
         errors,
     )
-    validate_component_errors("pipeline.json", errors)
+    validate_component_errors("treatment.json", errors)
 
 
-def pipeline_uses_component_keys(rule_pipeline_config):
-    return any(key in rule_pipeline_config for key in PIPELINE_COMPONENT_KEYS)
+def treatment_uses_component_keys(rule_treatment_config):
+    return any(key in rule_treatment_config for key in TREATMENT_COMPONENT_KEYS)
 
 
 def validate_auto_functions_shape(auto_functions, errors):
@@ -130,15 +130,15 @@ def validate_postprocess_functions(values, errors):
     )
 
 
-def _validate_deprecated_pipeline_entries(rule_pipeline_config, errors):
-    if "sld" in rule_pipeline_config:
-        errors.append("Campo 'sld' deve ficar em style.json, nao em pipeline.json.")
-    if "secondary_outputs" in rule_pipeline_config:
+def _validate_deprecated_treatment_entries(rule_treatment_config, errors):
+    if "sld" in rule_treatment_config:
+        errors.append("Campo 'sld' deve ficar em style.json, nao em treatment.json.")
+    if "secondary_outputs" in rule_treatment_config:
         errors.append(
             "Campo 'secondary_outputs' foi descontinuado; configure apenas "
             "'output_adjustments' quando a saida precisar de ajuste."
         )
-    if "primary_output" in rule_pipeline_config:
+    if "primary_output" in rule_treatment_config:
         errors.append(
             "Campo 'primary_output' foi renomeado para 'output_adjustments' "
             "porque existe apenas uma saida por base."
@@ -204,3 +204,4 @@ def _validate_auto_function_name(
             f"Campo '{column}' usa 'validate_shapefile_attribute' mas nao possui "
             "configuracao correspondente em 'fields'."
         )
+

@@ -14,12 +14,14 @@ def run_treatment(
     theme_filter=None,
     run_request=None,
     force=False,
+    scheduled=False,
 ):
     settings = settings or TreatmentRunSettings.from_output_base(output_base)
     run_request = run_request or IngestRunRequest.from_parameters(
         theme_folders=theme_folders,
         theme_filter=theme_filter,
         force=force,
+        scheduled=scheduled,
     )
     treatment_context = prepare_treatment_run(
         settings.output_base,

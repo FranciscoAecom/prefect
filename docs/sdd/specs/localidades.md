@@ -1,4 +1,4 @@
-# Spec: localidades/localidades
+﻿# Spec: localidades/localidades
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -39,7 +39,7 @@ tipo de localidade.
 - `rules/localidades/localidades/input_schema.json`
 - `rules/localidades/localidades/domains.json`
 - `rules/localidades/localidades/relations.json`
-- `rules/localidades/localidades/pipeline.json`
+- `rules/localidades/localidades/treatment.json`
 - `rules/localidades/localidades/style.json`
 
 A validacao estrutural de entrada deve usar
@@ -325,3 +325,4 @@ Resultado:
 ```text
 nao registrado
 ```
+

@@ -5,9 +5,9 @@ from projects.configs import canonical_project_name, resolve_project_name
 from core.rules import loader as _rule_loader
 from core.rules.constants import (
     DOMAINS_COMPONENT,
-    PIPELINE_COMPONENT,
     PROFILE_COMPONENT,
     RELATIONS_COMPONENT,
+    TREATMENT_COMPONENT,
 )
 from core.rules.normalization import (
     RuleProfileResolutionError,
@@ -19,7 +19,7 @@ REQUIRED_PROFILE_COMPONENTS = (
     PROFILE_COMPONENT,
     DOMAINS_COMPONENT,
     RELATIONS_COMPONENT,
-    PIPELINE_COMPONENT,
+    TREATMENT_COMPONENT,
 )
 
 

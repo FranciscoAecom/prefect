@@ -18,7 +18,10 @@ from core.prefect_support.deployment_names import (
     UR_CAR_TREATMENT_DEPLOYMENT_NAME,
     UR_CAR_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
 )
-from core.prefect_support.schedules import build_daily_one_shot_ur_car_schedules
+from core.prefect_support.schedules import (
+    build_daily_one_shot_ur_car_schedules,
+    build_ingest_scheduled_treatment_schedules,
+)
 
 
 def main():
@@ -33,6 +36,10 @@ def main():
     subparsers.add_parser(
         "ur-car-treatment",
         help="Serve o tratamento agendado de CAR Uso Restrito.",
+    )
+    subparsers.add_parser(
+        "scheduled-treatment",
+        help="Serve o tratamento agendado pelas linhas schedule da ingest.",
     )
     subparsers.add_parser(
         "auto-infracoes",
@@ -53,6 +60,8 @@ def main():
         serve_data_publish()
     elif args.deployment == "ur-car-treatment":
         serve_ur_car_treatment()
+    elif args.deployment == "scheduled-treatment":
+        serve_scheduled_treatment()
     elif args.deployment == "auto-infracoes":
         serve_autos_infracao()
     elif args.deployment == "estado":
@@ -94,6 +103,23 @@ def serve_ur_car_treatment():
         description=(
             "Agenda diaria das 27 bases UR CAR para tratamento, "
             "uma base por dia as 17:00."
+        ),
+    )
+
+
+def serve_scheduled_treatment():
+    deployment_name = "Treatment Agendado pela Ingest"
+    start_scheduled_run_renamer(
+        deployment_name=f"Data Treatment/{deployment_name}",
+        interval_seconds=5,
+    )
+    data_treatment_flow.serve(
+        name=deployment_name,
+        schedules=build_ingest_scheduled_treatment_schedules(),
+        tags=["treatment", "scheduled", "ingest"],
+        description=(
+            "Tratamento agendado a partir do status da planilha ingest no "
+            "formato: schedule YYYY-MM-DD HH:MM."
         ),
     )
 

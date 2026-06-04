@@ -41,5 +41,29 @@ class ServeDeploymentsTest(unittest.TestCase):
         self.assertIn("geoserver", kwargs["tags"])
         self.assertIn("geonetwork", kwargs["tags"])
 
+    @patch("scripts.serve.build_ingest_scheduled_treatment_schedules")
+    @patch("scripts.serve.start_scheduled_run_renamer")
+    @patch("scripts.serve.data_treatment_flow.serve")
+    def test_scheduled_treatment_serves_ingest_schedules(
+        self,
+        mock_serve,
+        mock_start_renamer,
+        mock_build_schedules,
+    ):
+        mock_build_schedules.return_value = ["schedule"]
+
+        serve.serve_scheduled_treatment()
+
+        mock_start_renamer.assert_called_once_with(
+            deployment_name="Data Treatment/Treatment Agendado pela Ingest",
+            interval_seconds=5,
+        )
+        mock_build_schedules.assert_called_once_with()
+        mock_serve.assert_called_once()
+        _, kwargs = mock_serve.call_args
+        self.assertEqual(kwargs["name"], "Treatment Agendado pela Ingest")
+        self.assertEqual(kwargs["schedules"], ["schedule"])
+        self.assertIn("ingest", kwargs["tags"])
+
 if __name__ == "__main__":
     unittest.main()

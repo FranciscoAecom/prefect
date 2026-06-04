@@ -1,4 +1,4 @@
-# Spec: <projeto>/<theme_folder>
+﻿# Spec: <projeto>/<theme_folder>
 
 Status: Draft
 Responsavel: <nome>
@@ -37,7 +37,7 @@ Descrever o que esta base representa e qual resultado o pipeline deve entregar.
 - `rules/<projeto>/<theme_folder>/input_schema.json`
 - `rules/<projeto>/<theme_folder>/domains.json`
 - `rules/<projeto>/<theme_folder>/relations.json`
-- `rules/<projeto>/<theme_folder>/pipeline.json`
+- `rules/<projeto>/<theme_folder>/treatment.json`
 - `rules/<projeto>/<theme_folder>/style.json`, quando houver SLD
 
 A validacao estrutural de entrada deve usar `input_schema.json`, permitindo ou
@@ -283,3 +283,4 @@ Resultado:
 ```text
 nao registrado
 ```
+

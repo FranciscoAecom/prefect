@@ -26,12 +26,14 @@ def prepare_treatment_run(
     source_path_overrides=None,
     run_request=None,
     force=False,
+    scheduled=False,
 ):
     run_request = run_request or IngestRunRequest.from_parameters(
         theme_folders=theme_folders,
         theme_filter=theme_filter,
         source_path_overrides=source_path_overrides,
         force=force,
+        scheduled=scheduled,
     )
     try:
         treatment_records, treatment_issues, treatment_summary = load_treatment_records(

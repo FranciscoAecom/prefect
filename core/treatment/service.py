@@ -50,7 +50,13 @@ class TreatmentService:
         return treatment_success_result(context)
 
 
-def run_data_treatment(output_base=None, theme_folders=None, source_path_overrides=None, force=False):
+def run_data_treatment(
+    output_base=None,
+    theme_folders=None,
+    source_path_overrides=None,
+    force=False,
+    scheduled=False,
+):
     from core.tasks.treatment import prepare_treatment_run_task, run_treatment_record_task
 
     settings = TreatmentRunSettings.from_output_base(output_base)
@@ -58,6 +64,7 @@ def run_data_treatment(output_base=None, theme_folders=None, source_path_overrid
         theme_folders=theme_folders,
         source_path_overrides=source_path_overrides,
         force=force,
+        scheduled=scheduled,
     )
     theme_filter = run_request.theme_filter
 
@@ -67,6 +74,7 @@ def run_data_treatment(output_base=None, theme_folders=None, source_path_overrid
             theme_folders,
             source_path_overrides,
             force,
+            scheduled,
         )
         if treatment_context is None:
             return

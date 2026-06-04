@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from core.rules.contracts import PIPELINE_COMPONENT_KEYS, PROFILE_DATA_KEYS
+from core.rules.contracts import PROFILE_DATA_KEYS, TREATMENT_COMPONENT_KEYS
 
 
 @dataclass(frozen=True)
@@ -119,16 +119,16 @@ class RuleProfileModel:
         )
 
     @classmethod
-    def from_components(cls, profile, input_schema, domains, relations, pipeline, style=None):
+    def from_components(cls, profile, input_schema, domains, relations, treatment, style=None):
         data = dict(profile or {})
         if input_schema:
             data["input_schema"] = input_schema
         data["fields"] = (domains or {}).get("fields", domains or {})
         data["relations"] = (relations or {}).get("relations", relations or {})
-        data["auto_functions"] = (pipeline or {}).get("auto_functions", pipeline or {})
-        data["postprocess_functions"] = (pipeline or {}).get("postprocess_functions", [])
-        data["output_adjustments"] = (pipeline or {}).get("output_adjustments", {})
-        data["quality_outputs"] = (pipeline or {}).get("quality_outputs", {})
+        data["auto_functions"] = (treatment or {}).get("auto_functions", treatment or {})
+        data["postprocess_functions"] = (treatment or {}).get("postprocess_functions", [])
+        data["output_adjustments"] = (treatment or {}).get("output_adjustments", {})
+        data["quality_outputs"] = (treatment or {}).get("quality_outputs", {})
         data["sld"] = (style or {}).get("sld", style or {})
         return cls.from_dict(data)
 
@@ -159,7 +159,7 @@ class RuleProfileModel:
         return data
 
     def to_components(self):
-        pipeline = {
+        treatment = {
             "auto_functions": {
                 column: list(functions)
                 for column, functions in self.auto_functions.items()
@@ -168,11 +168,11 @@ class RuleProfileModel:
             "quality_outputs": dict(self.quality_outputs),
         }
         if self.output_adjustments:
-            pipeline["output_adjustments"] = dict(self.output_adjustments)
-        pipeline = {
+            treatment["output_adjustments"] = dict(self.output_adjustments)
+        treatment = {
             key: value
-            for key, value in pipeline.items()
-            if key in PIPELINE_COMPONENT_KEYS
+            for key, value in treatment.items()
+            if key in TREATMENT_COMPONENT_KEYS
         }
         return (
             dict(self.metadata),
@@ -189,6 +189,6 @@ class RuleProfileModel:
                     for name, mapping in self.relations.items()
                 }
             },
-            pipeline,
+            treatment,
             {"sld": dict(self.sld)} if self.sld else {},
         )
