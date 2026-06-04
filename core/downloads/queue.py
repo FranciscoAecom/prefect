@@ -8,7 +8,7 @@ from core.downloads.catalog import (
 )
 from core.ingest.normalization import normalize_theme_folder, stringify
 from core.ingest.plan import build_ingest_execution_plan
-from core.queue.filters import QueueFilter
+from core.ingest.filters import QueueFilter
 from settings import INGEST_DOWNLOAD_STATUS, INGEST_SHEET_NAME, INGEST_WORKBOOK_PATH
 
 

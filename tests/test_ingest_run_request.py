@@ -1,7 +1,7 @@
 import unittest
 
 from core.ingest.run_request import IngestRunRequest
-from core.queue.filters import QueueFilter
+from core.ingest.filters import QueueFilter
 
 
 class IngestRunRequestTests(unittest.TestCase):

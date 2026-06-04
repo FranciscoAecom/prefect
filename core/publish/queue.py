@@ -6,7 +6,7 @@ import pandas as pd
 from core.ingest.normalization import normalize_theme_folder, stringify
 from core.ingest.plan import build_ingest_execution_plan
 from core.publish.policy import DATA_SUFFIXES
-from core.queue.filters import QueueFilter
+from core.ingest.filters import QueueFilter
 from core.versioning.paths import build_stage_root, normalize_date_folder
 from settings import (
     DATA_LAKE_BASE,

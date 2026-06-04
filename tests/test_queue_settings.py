@@ -1,6 +1,6 @@
 import unittest
 
-from core.queue.settings import QueueRunSettings
+from core.treatment.settings import QueueRunSettings
 
 
 class QueueRunSettingsTests(unittest.TestCase):

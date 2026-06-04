@@ -149,6 +149,18 @@ class ArchitectureBoundaryTests(unittest.TestCase):
 
         self.assertEqual(offenders, [])
 
+    def test_runtime_code_does_not_import_core_queue_compatibility_package(self):
+        offenders = []
+        forbidden_terms = ["from core.queue", "import core.queue"]
+        for path in Path("core").rglob("*.py"):
+            if path.is_relative_to(Path("core/queue")):
+                continue
+            text = path.read_text(encoding="utf-8")
+            if any(term in text for term in forbidden_terms):
+                offenders.append(str(path))
+
+        self.assertEqual(offenders, [])
+
     def test_prefect_decorators_stay_in_flow_and_tasks_packages(self):
         allowed_roots = {Path("core/flow"), Path("core/tasks")}
         offenders = []

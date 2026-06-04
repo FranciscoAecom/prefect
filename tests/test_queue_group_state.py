@@ -2,7 +2,7 @@ import unittest
 from types import SimpleNamespace
 
 from core.processing.result import ProcessRecordResult
-from core.queue.group_state import QueueGroupState
+from core.treatment.group_state import QueueGroupState
 
 
 def _record(theme_folder, source_path):

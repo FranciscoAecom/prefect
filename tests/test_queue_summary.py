@@ -2,11 +2,11 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from core.queue.summary import log_queue_summary
+from core.treatment.summary import log_queue_summary
 
 
 class QueueSummaryTests(unittest.TestCase):
-    @patch("core.queue.summary.log")
+    @patch("core.treatment.summary.log")
     def test_logs_queue_summary_and_issues(self, mock_log):
         summary = {
             "total_records": 2,
@@ -41,7 +41,7 @@ class QueueSummaryTests(unittest.TestCase):
             messages,
         )
 
-    @patch("core.queue.summary.log")
+    @patch("core.treatment.summary.log")
     def test_logs_queue_issue_without_code(self, mock_log):
         summary = {
             "total_records": 1,

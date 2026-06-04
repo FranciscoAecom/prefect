@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 from core.ingest.plan import build_ingest_execution_plan
 from core.ingest.normalization import normalize_status, normalize_theme_folder, stringify
-from core.queue.filters import QueueFilter
+from core.ingest.filters import QueueFilter
 from core.ingest.status_flags import (
     STATUS_FLAG_TREATMENT,
     status_flags_display,

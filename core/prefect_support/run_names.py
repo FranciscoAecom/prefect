@@ -1,4 +1,4 @@
-from core.queue.filters import QueueFilter
+from core.ingest.filters import QueueFilter
 
 
 def normalize_theme_folders_for_name(theme_folders):

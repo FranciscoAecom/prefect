@@ -18,7 +18,7 @@ def log_dataset_overview(gdf):
 
 
 def log_queue_summary(summary, issues):
-    from core.queue.summary import log_queue_summary as _log_queue_summary
+    from core.treatment.summary import log_queue_summary as _log_queue_summary
 
     return _log_queue_summary(summary, issues)
 

@@ -2,7 +2,7 @@ from prefect import flow
 
 from core.downloads.config import DownloadFlowOptions, DownloadRunOptions
 from core.downloads.service import run_data_download
-from core.queue.filters import QueueFilter
+from core.ingest.filters import QueueFilter
 from core.publish.config import PublishOptions
 from core.tasks.downloads import load_download_queue_task
 

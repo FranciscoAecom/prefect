@@ -3,8 +3,8 @@ from types import SimpleNamespace
 from unittest.mock import call, patch
 
 from core.processing.result import ProcessRecordResult
-from core.queue.group_state import QueueGroupState
-from core.queue.record_runner import run_queue_record
+from core.treatment.group_state import QueueGroupState
+from core.treatment.record_runner import run_treatment_record
 
 
 def _record(sheet_row, record_id, theme_folder, source_path):
@@ -21,10 +21,10 @@ def _record(sheet_row, record_id, theme_folder, source_path):
 
 
 class QueueRecordRunnerTests(unittest.TestCase):
-    @patch("core.queue.record_runner.clear_context_log")
-    @patch("core.queue.record_runner.append_group_consolidated_output")
-    @patch("core.queue.record_runner.process_treatment_record_by_dataset_kind")
-    @patch("core.queue.record_runner.set_context_log")
+    @patch("core.treatment.record_runner.clear_context_log")
+    @patch("core.treatment.record_runner.append_group_consolidated_output")
+    @patch("core.treatment.record_runner.process_treatment_record_by_dataset_kind")
+    @patch("core.treatment.record_runner.set_context_log")
     def test_processes_record_and_updates_group_state(
         self,
         mock_set_context_log,
@@ -42,13 +42,13 @@ class QueueRecordRunnerTests(unittest.TestCase):
             ProcessRecordResult(2, None, "gdf2"),
         ]
 
-        run_queue_record(
+        run_treatment_record(
             records[0],
             "tests/_tmp_output",
             group_state,
             keep_individual_outputs_when_grouping=False,
         )
-        run_queue_record(
+        run_treatment_record(
             records[1],
             "tests/_tmp_output",
             group_state,
@@ -66,9 +66,9 @@ class QueueRecordRunnerTests(unittest.TestCase):
         self.assertEqual(mock_set_context_log.call_count, 2)
         self.assertEqual(mock_clear_context_log.call_count, 2)
 
-    @patch("core.queue.record_runner.clear_context_log")
-    @patch("core.queue.record_runner.process_treatment_record_by_dataset_kind", side_effect=RuntimeError("boom"))
-    @patch("core.queue.record_runner.set_context_log")
+    @patch("core.treatment.record_runner.clear_context_log")
+    @patch("core.treatment.record_runner.process_treatment_record_by_dataset_kind", side_effect=RuntimeError("boom"))
+    @patch("core.treatment.record_runner.set_context_log")
     def test_clears_context_log_even_when_record_processing_fails(
         self,
         mock_set_context_log,
@@ -79,7 +79,7 @@ class QueueRecordRunnerTests(unittest.TestCase):
         group_state = QueueGroupState([record], enable_group_consolidation=True)
 
         with self.assertRaisesRegex(RuntimeError, "boom"):
-            run_queue_record(
+            run_treatment_record(
                 record,
                 "tests/_tmp_output",
                 group_state,
@@ -90,9 +90,9 @@ class QueueRecordRunnerTests(unittest.TestCase):
         mock_process_by_kind.assert_called_once()
         mock_clear_context_log.assert_called_once()
 
-    @patch("core.queue.record_runner.clear_context_log")
-    @patch("core.queue.record_runner.process_treatment_record_by_dataset_kind")
-    @patch("core.queue.record_runner.set_context_log")
+    @patch("core.treatment.record_runner.clear_context_log")
+    @patch("core.treatment.record_runner.process_treatment_record_by_dataset_kind")
+    @patch("core.treatment.record_runner.set_context_log")
     def test_delegates_processing_to_dispatcher(
         self,
         mock_set_context_log,
@@ -109,7 +109,7 @@ class QueueRecordRunnerTests(unittest.TestCase):
             final_gdf=None,
         )
 
-        run_queue_record(
+        run_treatment_record(
             record,
             "tests/_tmp_output",
             group_state,

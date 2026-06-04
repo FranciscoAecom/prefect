@@ -1,7 +1,4 @@
-from core.queue.record_runner import run_queue_record
-
-
-run_treatment_record = run_queue_record
+from core.treatment.record_runner import run_treatment_record
 
 
 __all__ = ["run_treatment_record"]

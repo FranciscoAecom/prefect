@@ -14,7 +14,7 @@ __all__ = [
 
 def __getattr__(name):
     if name == "QueueFilter":
-        from core.queue.filters import QueueFilter
+        from core.ingest.filters import QueueFilter
 
         return QueueFilter
     if name in {
@@ -45,15 +45,15 @@ def __getattr__(name):
 
         return run_processing_queue
     if name == "run_treatment_queue":
-        from core.queue.runner import run_treatment_queue
+        from core.treatment.queue_runner import run_treatment_queue
 
         return run_treatment_queue
     if name == "QueueRunSettings":
-        from core.queue.settings import QueueRunSettings
+        from core.treatment.settings import QueueRunSettings
 
         return QueueRunSettings
     if name == "log_queue_summary":
-        from core.queue.summary import log_queue_summary
+        from core.treatment.summary import log_queue_summary
 
         return log_queue_summary
     raise AttributeError(name)

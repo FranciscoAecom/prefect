@@ -3,8 +3,8 @@ from contextlib import ExitStack
 from core.execution_locks import named_execution_lock
 from core.ingest.run_request import IngestRunRequest
 from core.processing.service import ProcessingService
-from core.queue.group_state import QueueGroupState
-from core.queue.settings import QueueRunSettings
+from core.treatment.group_state import QueueGroupState
+from core.treatment.settings import QueueRunSettings
 from core.utils import log
 
 

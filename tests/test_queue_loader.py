@@ -4,7 +4,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from core.ingest.run_request import IngestRunRequest
-from core.queue.queue_loader import TreatmentQueueRunContext, prepare_treatment_queue
+from core.treatment.queue_loader import TreatmentQueueRunContext, prepare_treatment_queue
 
 
 def _record():
@@ -20,10 +20,10 @@ class QueueLoaderTests(unittest.TestCase):
     def setUp(self):
         self.output_base = str(Path("tests") / "_tmp_output")
 
-    @patch("core.queue.queue_loader.os.makedirs")
-    @patch("core.queue.queue_loader.export_queue_issues_report")
-    @patch("core.queue.queue_loader.log_queue_summary")
-    @patch("core.queue.queue_loader.load_treatment_queue")
+    @patch("core.treatment.queue_loader.os.makedirs")
+    @patch("core.treatment.queue_loader.export_queue_issues_report")
+    @patch("core.treatment.queue_loader.log_queue_summary")
+    @patch("core.treatment.queue_loader.load_treatment_queue")
     def test_prepares_queue_context(
         self,
         mock_load_treatment_queue,
@@ -46,10 +46,10 @@ class QueueLoaderTests(unittest.TestCase):
         mock_export_queue_issues_report.assert_not_called()
         mock_makedirs.assert_called_once_with(self.output_base, exist_ok=True)
 
-    @patch("core.queue.queue_loader.log")
-    @patch("core.queue.queue_loader.export_queue_issues_report")
-    @patch("core.queue.queue_loader.log_queue_summary")
-    @patch("core.queue.queue_loader.load_treatment_queue")
+    @patch("core.treatment.queue_loader.log")
+    @patch("core.treatment.queue_loader.export_queue_issues_report")
+    @patch("core.treatment.queue_loader.log_queue_summary")
+    @patch("core.treatment.queue_loader.load_treatment_queue")
     def test_returns_none_for_empty_queue(
         self,
         mock_load_treatment_queue,
@@ -68,10 +68,10 @@ class QueueLoaderTests(unittest.TestCase):
         mock_export_queue_issues_report.assert_not_called()
         mock_log.assert_called_once_with("Nenhum arquivo elegivel encontrado para iniciar a esteira.")
 
-    @patch("core.queue.queue_loader.log")
-    @patch("core.queue.queue_loader.export_queue_issues_report")
-    @patch("core.queue.queue_loader.log_queue_summary")
-    @patch("core.queue.queue_loader.load_treatment_queue")
+    @patch("core.treatment.queue_loader.log")
+    @patch("core.treatment.queue_loader.export_queue_issues_report")
+    @patch("core.treatment.queue_loader.log_queue_summary")
+    @patch("core.treatment.queue_loader.load_treatment_queue")
     def test_exports_queue_issues_report(
         self,
         mock_load_treatment_queue,
@@ -109,8 +109,8 @@ class QueueLoaderTests(unittest.TestCase):
             r"C:\tmp\queue_issues_20260526_154500.xlsx"
         )
 
-    @patch("core.queue.queue_loader.log")
-    @patch("core.queue.queue_loader.load_treatment_queue")
+    @patch("core.treatment.queue_loader.log")
+    @patch("core.treatment.queue_loader.load_treatment_queue")
     def test_returns_none_when_queue_loading_fails(
         self,
         mock_load_treatment_queue,
@@ -123,9 +123,9 @@ class QueueLoaderTests(unittest.TestCase):
         self.assertIsNone(result)
         mock_log.assert_called_once_with("Erro ao carregar a fila ingest: boom")
 
-    @patch("core.queue.queue_loader.os.makedirs")
-    @patch("core.queue.queue_loader.log_queue_summary")
-    @patch("core.queue.queue_loader.load_treatment_queue")
+    @patch("core.treatment.queue_loader.os.makedirs")
+    @patch("core.treatment.queue_loader.log_queue_summary")
+    @patch("core.treatment.queue_loader.load_treatment_queue")
     def test_passes_run_request_to_loader(
         self,
         mock_load_treatment_queue,
