@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from core.downloads.config import DownloadRunOptions
-from core.prefect_flow import data_pipeline_flow
-from core.publish.pipeline_flow import publish_record_outputs_direct
+from core.flow.pipeline import data_pipeline_flow
+from core.flow.pipeline_publish import publish_record_outputs_direct
 from core.utils import log
 
 
@@ -33,7 +33,8 @@ def run_download_publish_direct(
     publish_skip_catalog=False,
     theme_folders=None,
 ):
-    from core.downloads.flow import build_download_flow_options, load_download_queue_task
+    from core.flow.downloads import build_download_flow_options
+    from core.tasks.downloads import load_download_queue_task
 
     records = load_download_queue_task.fn(theme_folders=theme_folders)
     if not records:
@@ -102,7 +103,7 @@ def run_single_download_direct(
     process_after_download=True,
     run_options=None,
 ):
-    from core.downloads.flow import (
+    from core.tasks.downloads import (
         download_dataset_task,
         emit_dataset_downloaded_event_task,
         extract_download_task,

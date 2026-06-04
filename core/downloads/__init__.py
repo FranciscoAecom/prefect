@@ -1,5 +1,12 @@
 from core.downloads.catalog import DOWNLOAD_TARGETS, DownloadTarget, get_download_target
-from core.downloads.flow import data_download_flow
+
+
+def __getattr__(name):
+    if name == "data_download_flow":
+        from core.flow.downloads import data_download_flow
+
+        return data_download_flow
+    raise AttributeError(name)
 
 
 __all__ = [

@@ -121,6 +121,19 @@ class ArchitectureBoundaryTests(unittest.TestCase):
 
         self.assertEqual(offenders, [])
 
+    def test_prefect_decorators_stay_in_flow_and_tasks_packages(self):
+        allowed_roots = {Path("core/flow"), Path("core/tasks")}
+        offenders = []
+
+        for path in Path("core").rglob("*.py"):
+            text = path.read_text(encoding="utf-8")
+            if "@flow(" not in text and "@task(" not in text:
+                continue
+            if not any(path.is_relative_to(root) for root in allowed_roots):
+                offenders.append(str(path))
+
+        self.assertEqual(offenders, [])
+
     def _files_containing(self, root, pattern, forbidden_terms):
         offenders = []
         for path in root.rglob(pattern):

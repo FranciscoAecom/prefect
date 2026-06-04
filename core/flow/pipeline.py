@@ -1,48 +1,14 @@
 from contextlib import ExitStack
 
-from prefect import flow, task
+from prefect import flow
 
 from core.execution_locks import named_execution_lock
 from core.ingest.run_request import IngestRunRequest
-from core.prefect_support.run_names import flow_run_name, record_task_run_name
-from core.queue.filters import QueueFilter
+from core.prefect_support.run_names import flow_run_name
 from core.queue.group_state import QueueGroupState
-from core.queue.queue_loader import prepare_processing_queue
-from core.queue.record_runner import run_queue_record
 from core.queue.settings import QueueRunSettings
+from core.tasks.pipeline import prepare_queue_task, run_queue_record_task
 from core.utils import log
-
-
-@task(name="Preparar fila de processamento", log_prints=True)
-def prepare_queue_task(output_base, theme_folders=None, source_path_overrides=None, force=False):
-    run_request = IngestRunRequest.from_legacy(
-        theme_folders=theme_folders,
-        source_path_overrides=source_path_overrides,
-        force=force,
-    )
-    return prepare_processing_queue(
-        output_base,
-        run_request=run_request,
-    )
-
-
-@task(
-    name="Processar registro da fila",
-    task_run_name=record_task_run_name,
-    log_prints=True,
-)
-def run_queue_record_task(
-    record,
-    output_dir,
-    group_state,
-    keep_individual_outputs_when_grouping,
-):
-    run_queue_record(
-        record,
-        output_dir,
-        group_state,
-        keep_individual_outputs_when_grouping=keep_individual_outputs_when_grouping,
-    )
 
 
 @flow(name="Data Pipeline", flow_run_name=flow_run_name, log_prints=True)
@@ -86,3 +52,6 @@ def _queue_filter_locks(queue_filter):
     for theme_folder in sorted(queue_filter.theme_folders):
         stack.enter_context(named_execution_lock(f"queue-{theme_folder}"))
     return stack
+
+
+__all__ = ["data_pipeline_flow"]

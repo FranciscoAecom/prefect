@@ -3,13 +3,13 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from core.publish.metadata import MultiplePublishItemsError
-from core.publish.pipeline_flow import publish_record_outputs
-from core.publish.pipeline_flow import publish_record_outputs_direct
+from core.flow.pipeline_publish import publish_record_outputs
+from core.flow.pipeline_publish import publish_record_outputs_direct
 
 
 class PipelinePublishFlowTests(unittest.TestCase):
-    @patch("core.publish.pipeline_flow.publish_item_task")
-    @patch("core.publish.pipeline_flow.discover_publish_items_task")
+    @patch("core.flow.pipeline_publish.publish_item_task")
+    @patch("core.flow.pipeline_publish.discover_publish_items_task")
     def test_publish_record_outputs_uses_record_output_dir(
         self,
         mock_discover,

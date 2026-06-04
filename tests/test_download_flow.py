@@ -2,7 +2,7 @@ import unittest
 import inspect
 from unittest.mock import patch
 
-from core.downloads.flow import data_download_flow
+from core.flow.downloads import data_download_flow
 
 
 class DownloadFlowTests(unittest.TestCase):
@@ -13,13 +13,13 @@ class DownloadFlowTests(unittest.TestCase):
         self.assertNotIn("region", signature.parameters)
         self.assertIn("theme_folders", signature.parameters)
 
-    @patch("core.downloads.flow.data_pipeline_flow")
-    @patch("core.downloads.flow.data_publish_flow")
-    @patch("core.downloads.flow.emit_dataset_downloaded_event_task")
-    @patch("core.downloads.flow.extract_download_task")
-    @patch("core.downloads.flow.resolve_download_version_plan_task")
-    @patch("core.downloads.flow.download_dataset_task")
-    @patch("core.downloads.flow.load_download_queue_task")
+    @patch("core.flow.downloads.data_pipeline_flow")
+    @patch("core.flow.downloads.data_publish_flow")
+    @patch("core.flow.downloads.emit_dataset_downloaded_event_task")
+    @patch("core.flow.downloads.extract_download_task")
+    @patch("core.flow.downloads.resolve_download_version_plan_task")
+    @patch("core.flow.downloads.download_dataset_task")
+    @patch("core.flow.downloads.load_download_queue_task")
     def test_default_flow_uses_download_queue(
         self,
         mock_load_queue,
@@ -116,13 +116,13 @@ class DownloadFlowTests(unittest.TestCase):
         )
         mock_publish.assert_not_called()
 
-    @patch("core.downloads.flow.data_pipeline_flow")
-    @patch("core.downloads.flow.data_publish_flow")
-    @patch("core.downloads.flow.emit_dataset_downloaded_event_task")
-    @patch("core.downloads.flow.extract_download_task")
-    @patch("core.downloads.flow.resolve_download_version_plan_task")
-    @patch("core.downloads.flow.download_dataset_task")
-    @patch("core.downloads.flow.load_download_queue_task")
+    @patch("core.flow.downloads.data_pipeline_flow")
+    @patch("core.flow.downloads.data_publish_flow")
+    @patch("core.flow.downloads.emit_dataset_downloaded_event_task")
+    @patch("core.flow.downloads.extract_download_task")
+    @patch("core.flow.downloads.resolve_download_version_plan_task")
+    @patch("core.flow.downloads.download_dataset_task")
+    @patch("core.flow.downloads.load_download_queue_task")
     def test_flow_can_publish_after_download_processing(
         self,
         mock_load_queue,
@@ -182,7 +182,7 @@ class DownloadFlowTests(unittest.TestCase):
         self.assertEqual(mock_publish.call_args.kwargs["environment"], "qas")
         self.assertEqual(mock_publish.call_args.kwargs["workspace"], "gold")
 
-    @patch("core.downloads.flow.load_download_queue_task")
+    @patch("core.flow.downloads.load_download_queue_task")
     def test_default_flow_returns_empty_when_no_download_records(self, mock_load_queue):
         mock_load_queue.return_value = []
 

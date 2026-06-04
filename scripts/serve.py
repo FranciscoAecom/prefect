@@ -4,10 +4,12 @@ import threading
 
 from prefect.schedules import Cron
 
-from core.downloads.flow import data_download_flow
-from core.prefect_flow import data_pipeline_flow
-from core.publish.flow import data_publish_flow
-from core.publish.pipeline_flow import data_pipeline_publish_flow
+from core.flow.flows import (
+    data_download_flow,
+    data_pipeline_flow,
+    data_pipeline_publish_flow,
+    data_publish_flow,
+)
 from core.prefect_support.admin import scheduled_run_renamer_loop
 from core.prefect_support.deployment_names import (
     AUTOS_INFRACAO_PROCESSING_DEPLOYMENT_NAME,

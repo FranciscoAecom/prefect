@@ -1,151 +1,20 @@
-from __future__ import annotations
-
-import shutil
-import zipfile
 from pathlib import Path
 
-from prefect import flow, task
-from prefect.events import emit_event
+from prefect import flow
 
 from core.downloads.config import DownloadFlowOptions, DownloadRunOptions
-from core.downloads.connectors.car_public_api import download_car_public_api_target
-from core.downloads.catalog import get_download_target
-from core.downloads.queue import load_download_queue
-from core.prefect_flow import data_pipeline_flow
-from core.prefect_support.variables import get_path_variable
-from core.publish.flow import data_publish_flow
+from core.flow.pipeline import data_pipeline_flow
+from core.flow.publish import data_publish_flow
 from core.publish.config import PublishOptions
 from core.queue.filters import QueueFilter
+from core.tasks.downloads import (
+    download_dataset_task,
+    emit_dataset_downloaded_event_task,
+    extract_download_task,
+    load_download_queue_task,
+    resolve_download_version_plan_task,
+)
 from core.utils import log
-from core.versioning import resolve_dataset_version_plan
-from core.config.defaults import DEFAULT_DOWNLOAD_EXTRACT_BASE
-
-
-@task(name="Baixar dataset", log_prints=True)
-def download_dataset_task(
-    dataset_key,
-    region,
-    source_root=None,
-    output_dir=None,
-    force=False,
-):
-    target = get_download_target(dataset_key)
-    if target.connector == "car_public_api":
-        return download_car_public_api_target(
-            target,
-            region,
-            api_base=source_root,
-            output_dir=output_dir,
-            force=force,
-        )
-    raise ValueError(f"Conector de download nao implementado: {target.connector}")
-
-
-@task(name="Extrair dataset", log_prints=True)
-def extract_download_task(download_result, extract_base=None, extract_dir=None):
-    archive_path = Path(download_result["archive_path"])
-    theme_folder = download_result["theme_folder"]
-    if extract_dir:
-        extract_dir = Path(extract_dir)
-    else:
-        extract_root = Path(extract_base) if extract_base else get_path_variable(
-            "download_extract_base",
-            DEFAULT_DOWNLOAD_EXTRACT_BASE,
-        )
-        extract_dir = extract_root / theme_folder
-
-    if extract_dir.exists():
-        shutil.rmtree(extract_dir)
-    extract_dir.mkdir(parents=True, exist_ok=True)
-
-    log(f"Extraindo {archive_path} para {extract_dir}")
-    if archive_path.suffix.lower() == ".zip":
-        with zipfile.ZipFile(archive_path) as archive:
-            archive.extractall(extract_dir)
-    else:
-        shutil.copy2(archive_path, extract_dir / archive_path.name)
-
-    result = dict(download_result)
-    result["extract_dir"] = str(extract_dir)
-    return result
-
-
-@task(name="Emitir evento dataset baixado", log_prints=True)
-def emit_dataset_downloaded_event_task(download_result):
-    theme_folder = download_result["theme_folder"]
-    payload = {
-        "dataset_key": download_result["dataset_key"],
-        "theme_folders": [theme_folder],
-        "source_path_overrides": {theme_folder: download_result["extract_dir"]},
-        "archive_path": download_result["archive_path"],
-        "extract_dir": download_result["extract_dir"],
-    }
-    event = emit_event(
-        event="dataset.downloaded",
-        resource={
-            "prefect.resource.id": f"dataset.{theme_folder}",
-            "prefect.resource.name": theme_folder,
-            "dataset.key": download_result["dataset_key"],
-            "dataset.connector": download_result["connector"],
-            "dataset.region": download_result.get("region", ""),
-        },
-        payload=payload,
-    )
-    if download_result["connector"] == "car_public_api":
-        emit_event(
-            event="car.downloaded",
-            resource={
-                "prefect.resource.id": f"car.{theme_folder}",
-                "prefect.resource.name": theme_folder,
-                "car.theme_code": download_result["car_theme_code"],
-                "car.uf": download_result.get("region", ""),
-            },
-            payload={
-                **payload,
-                "zip_path": download_result["archive_path"],
-                "theme_code": download_result["car_theme_code"],
-            },
-        )
-    log(f"Evento dataset.downloaded emitido para {theme_folder}")
-    return str(event.id) if event else None
-
-
-@task(name="Carregar fila de downloads", log_prints=True)
-def load_download_queue_task(theme_folders=None):
-    records, issues, summary = load_download_queue(theme_folders=theme_folders)
-    log_download_queue_summary(summary, issues)
-    return [record.__dict__ for record in records]
-
-
-@task(name="Resolver versao do download", log_prints=True)
-def resolve_download_version_plan_task(record):
-    plan = resolve_dataset_version_plan(record)
-    log(f"Diretorio temp do download: {plan.temp_dir}")
-    log(f"Diretorio bronze planejado: {plan.bronze_dir}")
-    log(f"Diretorio silver planejado: {plan.silver_dir}")
-    return {
-        "version": plan.version,
-        "temp_dir": str(plan.temp_dir),
-        "bronze_dir": str(plan.bronze_dir),
-        "silver_dir": str(plan.silver_dir),
-    }
-
-
-def log_download_queue_summary(summary, issues):
-    log("Resumo da fila de downloads:")
-    log(f"  Registros lidos: {summary['total_records']}")
-    log(f"  Status elegivel: {summary['download_status']}")
-    log(f"  Registros com status elegivel: {summary['download_candidates']}")
-    log(f"  Registros aptos para download: {summary['eligible_records']}")
-    log(f"  Registros ignorados com excecao: {summary['issues']}")
-    if issues:
-        log("Excecoes encontradas na fila de downloads:")
-        for issue in issues:
-            log(
-                "  Linha "
-                f"{issue.sheet_row} | ID={issue.record_id} | "
-                f"theme_folder={issue.theme_folder} | motivo: {issue.reason}"
-            )
 
 
 def data_download_flow_run_name():
@@ -359,5 +228,6 @@ def run_download_publish_direct(*args, **kwargs):
 __all__ = [
     "build_download_flow_options",
     "data_download_flow",
+    "data_download_flow_run_name",
     "run_download_publish_direct",
 ]

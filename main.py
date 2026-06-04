@@ -1,6 +1,6 @@
 # main.py
 
-from core.prefect_flow import data_pipeline_flow
+from core.flow.flows import data_pipeline_flow
 from core.utils import configure_text_output, log
 
 

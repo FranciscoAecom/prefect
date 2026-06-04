@@ -451,7 +451,7 @@ partir da ingest, processa a base e publica os arquivos gerados em seguida.
 Execucao direta em um unico terminal:
 
 ```powershell
-$env:PUBLISH_GEOSERVER_USERNAME="admin"; $env:PUBLISH_GEOSERVER_PASSWORD="<senha>"; $env:PUBLISH_GEONETWORK_USERNAME="admin"; $env:PUBLISH_GEONETWORK_PASSWORD="<senha>"; .\.venv\Scripts\python.exe -c "from core.publish.pipeline_flow import run_pipeline_publish_direct; run_pipeline_publish_direct(theme_folders=['autos_infracao'], environment='qas', workspace='gold', dry_run_publish=False)"
+$env:PUBLISH_GEOSERVER_USERNAME="admin"; $env:PUBLISH_GEOSERVER_PASSWORD="<senha>"; $env:PUBLISH_GEONETWORK_USERNAME="admin"; $env:PUBLISH_GEONETWORK_PASSWORD="<senha>"; .\.venv\Scripts\python.exe -c "from core.flow.pipeline_publish import run_pipeline_publish_direct; run_pipeline_publish_direct(theme_folders=['autos_infracao'], environment='qas', workspace='gold', dry_run_publish=False)"
 ```
 
 Esse modo direto nao depende do Prefect Server estar aberto.
