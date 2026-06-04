@@ -1,4 +1,4 @@
-from core.processing.context import replace_context
+from core.treatment.context import replace_treatment_context as replace_context
 from core.transforms.attribute_transforms import is_normalized_columns, normalize_columns
 from core.utils import log
 from core.validation.tabular_schema import coerce_input_schema_types, get_tabular_schema

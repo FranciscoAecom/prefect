@@ -1,22 +1,44 @@
-from dataclasses import dataclass
+import warnings
 
-import geopandas as gpd
+from core.treatment.result import (
+    TreatmentRecordResult,
+    treatment_failure_result,
+    treatment_success_result,
+)
 
 
-@dataclass(frozen=True)
-class ProcessRecordResult:
-    processed_count: int
-    output_path: str | None
-    final_gdf: gpd.GeoDataFrame | None
+warnings.warn(
+    "core.processing.result esta depreciado; use core.treatment.result.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+ProcessRecordResult = TreatmentRecordResult
 
 
 def failure_result():
-    return ProcessRecordResult(0, None, None)
+    warnings.warn(
+        "failure_result() esta depreciado; use treatment_failure_result().",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return treatment_failure_result()
 
 
 def success_result(context):
-    return ProcessRecordResult(
-        len(context.final_gdf),
-        context.output_path,
-        context.final_gdf,
+    warnings.warn(
+        "success_result() esta depreciado; use treatment_success_result().",
+        DeprecationWarning,
+        stacklevel=2,
     )
+    return treatment_success_result(context)
+
+
+__all__ = [
+    "ProcessRecordResult",
+    "TreatmentRecordResult",
+    "failure_result",
+    "success_result",
+    "treatment_failure_result",
+    "treatment_success_result",
+]

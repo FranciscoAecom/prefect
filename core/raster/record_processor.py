@@ -2,7 +2,7 @@ from pathlib import Path
 
 from core.bronze import ensure_bronze_dataset
 from core.output.paths import resolve_output_path
-from core.processing.result import ProcessRecordResult
+from core.treatment.result import TreatmentRecordResult
 from core.processing.stages import (
     FLOW_STAGE_BRONZE_AND_XML,
     FLOW_STAGE_SAVE_SILVER,
@@ -49,7 +49,7 @@ def process_raster_record(record, output_dir, use_configured_final_name=False):
         result = process_raster_request(request)
 
     log(f"{FLOW_STAGE_SILVER_AND_XML}: raster tratado salvo no silver: {result.output_raster}")
-    return ProcessRecordResult(
+    return TreatmentRecordResult(
         processed_count=1,
         output_path=result.output_raster,
         final_gdf=None,

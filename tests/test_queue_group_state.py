@@ -1,7 +1,7 @@
 import unittest
 from types import SimpleNamespace
 
-from core.processing.result import ProcessRecordResult
+from core.treatment.result import TreatmentRecordResult
 from core.treatment.group_state import QueueGroupState
 
 
@@ -23,7 +23,7 @@ class QueueGroupStateTests(unittest.TestCase):
         self.assertTrue(state.is_grouped_consolidation(first))
         self.assertEqual(state.id_start_for(first), 1)
 
-        state.register_result(first, ProcessRecordResult(3, None, "gdf1"))
+        state.register_result(first, TreatmentRecordResult(3, None, "gdf1"))
 
         self.assertEqual(state.id_start_for(second), 4)
 
@@ -52,7 +52,7 @@ class QueueGroupStateTests(unittest.TestCase):
         self.assertTrue(
             state.should_append_consolidated_output(
                 record,
-                ProcessRecordResult(1, None, "gdf"),
+                TreatmentRecordResult(1, None, "gdf"),
             )
         )
         state.mark_append_started(record)

@@ -1,7 +1,7 @@
 import geopandas as gpd
 
 from core.processing.batch import process_in_batches
-from core.processing.context import replace_context
+from core.treatment.context import replace_treatment_context as replace_context
 from core.utils import log
 
 

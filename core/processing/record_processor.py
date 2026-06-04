@@ -1,19 +1,30 @@
-from core.processing.result import ProcessRecordResult
-from core.processing.service import ProcessingService
+import warnings
+
+from core.treatment.record_processor import process_treatment_record
+from core.treatment.result import TreatmentRecordResult
 
 
-def process_record(
-    record,
-    output_dir,
-    id_start=1,
-    use_configured_final_name=False,
-    persist_individual_output=True,
-):
-    service = ProcessingService()
-    return service.process(
-        record,
-        output_dir,
-        id_start=id_start,
-        use_configured_final_name=use_configured_final_name,
-        persist_individual_output=persist_individual_output,
+warnings.warn(
+    "core.processing.record_processor esta depreciado; use core.treatment.record_processor.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+ProcessRecordResult = TreatmentRecordResult
+
+
+def process_record(*args, **kwargs):
+    warnings.warn(
+        "process_record() esta depreciado; use process_treatment_record().",
+        DeprecationWarning,
+        stacklevel=2,
     )
+    return process_treatment_record(*args, **kwargs)
+
+
+__all__ = [
+    "ProcessRecordResult",
+    "TreatmentRecordResult",
+    "process_record",
+    "process_treatment_record",
+]

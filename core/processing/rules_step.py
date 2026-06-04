@@ -1,4 +1,4 @@
-from core.processing.context import replace_context
+from core.treatment.context import replace_treatment_context as replace_context
 from core.rules.engine import load_rule_profile
 
 

@@ -3,7 +3,7 @@ from pathlib import Path
 from core.bronze import ensure_bronze_dataset
 from core.metadata.xml import load_dictionary_descriptions, persist_bronze_metadata_xml
 from core.output.naming import build_final_output_base_name
-from core.processing.context import replace_context
+from core.treatment.context import replace_treatment_context as replace_context
 from core.processing.stages import (
     FLOW_STAGE_COPY_BRONZE,
     FLOW_STAGE_CREATE_BRONZE_XML,

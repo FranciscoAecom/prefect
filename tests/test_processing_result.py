@@ -4,7 +4,11 @@ from types import SimpleNamespace
 import geopandas as gpd
 from shapely.geometry import Point
 
-from core.processing.result import ProcessRecordResult, failure_result, success_result
+from core.treatment.result import (
+    TreatmentRecordResult,
+    treatment_failure_result,
+    treatment_success_result,
+)
 
 
 def _gdf():
@@ -15,9 +19,9 @@ def _gdf():
     )
 
 
-class ProcessingResultTests(unittest.TestCase):
+class TreatmentResultTests(unittest.TestCase):
     def test_failure_result_returns_empty_result(self):
-        self.assertEqual(failure_result(), ProcessRecordResult(0, None, None))
+        self.assertEqual(treatment_failure_result(), TreatmentRecordResult(0, None, None))
 
     def test_success_result_from_context(self):
         final_gdf = _gdf()
@@ -26,7 +30,7 @@ class ProcessingResultTests(unittest.TestCase):
             output_path="tests/_tmp_output/saida.gpkg",
         )
 
-        result = success_result(context)
+        result = treatment_success_result(context)
 
         self.assertEqual(result.processed_count, 1)
         self.assertEqual(result.output_path, "tests/_tmp_output/saida.gpkg")

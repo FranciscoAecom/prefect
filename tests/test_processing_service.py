@@ -5,8 +5,8 @@ from unittest.mock import Mock, patch
 import geopandas as gpd
 from shapely.geometry import Point
 
-from core.processing.result import ProcessRecordResult
-from core.processing.service import ProcessingService
+from core.treatment.result import TreatmentRecordResult
+from core.treatment.service import TreatmentService
 from core.validation.session import ValidationSession
 
 
@@ -44,30 +44,30 @@ def _gdf():
     )
 
 
-class ProcessingServiceTests(unittest.TestCase):
-    @patch("core.processing.service.run_processing_pipeline")
-    @patch("core.processing.service.build_processing_context")
+class TreatmentServiceTests(unittest.TestCase):
+    @patch("core.treatment.service.run_treatment_steps")
+    @patch("core.treatment.service.build_treatment_context")
     def test_returns_zero_when_pipeline_fails(
         self,
-        mock_build_processing_context,
-        mock_run_processing_pipeline,
+        mock_build_treatment_context,
+        mock_run_treatment_steps,
     ):
         record = _record()
         context = _context(record)
-        mock_build_processing_context.return_value = context
-        mock_run_processing_pipeline.return_value = None
+        mock_build_treatment_context.return_value = context
+        mock_run_treatment_steps.return_value = None
 
-        result = ProcessingService().process(record, output_dir="tests/_tmp_output")
+        result = TreatmentService().process(record, output_dir="tests/_tmp_output")
 
-        self.assertEqual(result, ProcessRecordResult(0, None, None))
-        mock_run_processing_pipeline.assert_called_once()
+        self.assertEqual(result, TreatmentRecordResult(0, None, None))
+        mock_run_treatment_steps.assert_called_once()
 
-    @patch("core.processing.service.run_processing_pipeline")
-    @patch("core.processing.service.build_processing_context")
+    @patch("core.treatment.service.run_treatment_steps")
+    @patch("core.treatment.service.build_treatment_context")
     def test_processes_record_and_returns_final_gdf(
         self,
-        mock_build_processing_context,
-        mock_run_processing_pipeline,
+        mock_build_treatment_context,
+        mock_run_treatment_steps,
     ):
         record = _record()
         context = _context(record)
@@ -80,10 +80,10 @@ class ProcessingServiceTests(unittest.TestCase):
             }
         )
         autofix_service = Mock()
-        mock_build_processing_context.return_value = context
-        mock_run_processing_pipeline.return_value = final_context
+        mock_build_treatment_context.return_value = context
+        mock_run_treatment_steps.return_value = final_context
 
-        result = ProcessingService(autofix_service=autofix_service).process(
+        result = TreatmentService(autofix_service=autofix_service).process(
             record,
             output_dir="tests/_tmp_output",
             id_start=5,
@@ -94,23 +94,23 @@ class ProcessingServiceTests(unittest.TestCase):
         self.assertEqual(result.processed_count, 1)
         self.assertEqual(result.output_path, "tests/_tmp_output/saida.gpkg")
         self.assertTrue(result.final_gdf.equals(final_gdf))
-        mock_build_processing_context.assert_called_once_with(
+        mock_build_treatment_context.assert_called_once_with(
             record,
             "tests/_tmp_output",
             id_start=5,
         )
-        mock_run_processing_pipeline.assert_called_once_with(
+        mock_run_treatment_steps.assert_called_once_with(
             context,
             autofix_service,
             use_configured_final_name=True,
             persist_individual_output=False,
         )
 
-    @patch("core.processing.service.build_processing_context")
-    def test_returns_zero_when_context_build_fails(self, mock_build_processing_context):
+    @patch("core.treatment.service.build_treatment_context")
+    def test_returns_zero_when_context_build_fails(self, mock_build_treatment_context):
         record = _record()
-        mock_build_processing_context.side_effect = RuntimeError("config invalida")
+        mock_build_treatment_context.side_effect = RuntimeError("config invalida")
 
-        result = ProcessingService().process(record, output_dir="tests/_tmp_output")
+        result = TreatmentService().process(record, output_dir="tests/_tmp_output")
 
-        self.assertEqual(result, ProcessRecordResult(0, None, None))
+        self.assertEqual(result, TreatmentRecordResult(0, None, None))

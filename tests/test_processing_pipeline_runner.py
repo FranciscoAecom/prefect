@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 import geopandas as gpd
 from shapely.geometry import Point
 
-from core.processing.pipeline_runner import run_processing_pipeline
+from core.treatment.steps_runner import run_treatment_steps
 from core.validation.session import ValidationSession
 
 
@@ -47,9 +47,9 @@ def _gdf():
     )
 
 
-class ProcessingPipelineRunnerTests(unittest.TestCase):
-    @patch("core.processing.pipeline_runner.attach_rule_profile_step")
-    @patch("core.processing.pipeline_runner.load_input_step")
+class TreatmentStepsRunnerTests(unittest.TestCase):
+    @patch("core.treatment.steps_runner.attach_rule_profile_step")
+    @patch("core.treatment.steps_runner.load_input_step")
     def test_returns_none_when_input_loading_fails(
         self,
         mock_load_input_step,
@@ -57,16 +57,16 @@ class ProcessingPipelineRunnerTests(unittest.TestCase):
     ):
         mock_load_input_step.side_effect = RuntimeError("falha na carga")
 
-        result = run_processing_pipeline(_context(), autofix_service=Mock())
+        result = run_treatment_steps(_context(), autofix_service=Mock())
 
         self.assertIsNone(result)
         mock_attach_rule_profile_step.assert_not_called()
 
-    @patch("core.processing.pipeline_runner.log_dataset_overview")
-    @patch("core.processing.pipeline_runner.validate_input_schema_step")
-    @patch("core.processing.pipeline_runner.attach_rule_profile_step")
-    @patch("core.processing.pipeline_runner.persist_bronze_step")
-    @patch("core.processing.pipeline_runner.load_input_step")
+    @patch("core.treatment.steps_runner.log_dataset_overview")
+    @patch("core.treatment.steps_runner.validate_input_schema_step")
+    @patch("core.treatment.steps_runner.attach_rule_profile_step")
+    @patch("core.treatment.steps_runner.persist_bronze_step")
+    @patch("core.treatment.steps_runner.load_input_step")
     def test_returns_none_when_tabular_schema_validation_fails(
         self,
         mock_load_input_step,
@@ -85,20 +85,20 @@ class ProcessingPipelineRunnerTests(unittest.TestCase):
         mock_attach_rule_profile_step.return_value = context_with_profile
         mock_validate_input_schema_step.side_effect = RuntimeError("schema invalido")
 
-        result = run_processing_pipeline(context, autofix_service=Mock())
+        result = run_treatment_steps(context, autofix_service=Mock())
 
         self.assertIsNone(result)
         mock_log_dataset_overview.assert_not_called()
 
-    @patch("core.processing.pipeline_runner.persist_outputs_step")
-    @patch("core.processing.pipeline_runner.postprocess_step")
-    @patch("core.processing.pipeline_runner.run_pipeline_step")
-    @patch("core.processing.pipeline_runner.prepare_mapping_step")
-    @patch("core.processing.pipeline_runner.log_dataset_overview")
-    @patch("core.processing.pipeline_runner.validate_input_schema_step")
-    @patch("core.processing.pipeline_runner.attach_rule_profile_step")
-    @patch("core.processing.pipeline_runner.persist_bronze_step")
-    @patch("core.processing.pipeline_runner.load_input_step")
+    @patch("core.treatment.steps_runner.persist_outputs_step")
+    @patch("core.treatment.steps_runner.postprocess_step")
+    @patch("core.treatment.steps_runner.run_pipeline_step")
+    @patch("core.treatment.steps_runner.prepare_mapping_step")
+    @patch("core.treatment.steps_runner.log_dataset_overview")
+    @patch("core.treatment.steps_runner.validate_input_schema_step")
+    @patch("core.treatment.steps_runner.attach_rule_profile_step")
+    @patch("core.treatment.steps_runner.persist_bronze_step")
+    @patch("core.treatment.steps_runner.load_input_step")
     def test_runs_steps_and_returns_persisted_context(
         self,
         mock_load_input_step,
@@ -144,7 +144,7 @@ class ProcessingPipelineRunnerTests(unittest.TestCase):
         mock_postprocess_step.return_value = context_with_final
         mock_persist_outputs_step.return_value = persisted_context
 
-        result = run_processing_pipeline(
+        result = run_treatment_steps(
             context,
             autofix_service,
             use_configured_final_name=True,

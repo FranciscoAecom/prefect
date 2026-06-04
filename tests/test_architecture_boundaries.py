@@ -161,6 +161,31 @@ class ArchitectureBoundaryTests(unittest.TestCase):
 
         self.assertEqual(offenders, [])
 
+    def test_runtime_code_uses_treatment_names_instead_of_processing_facades(self):
+        offenders = []
+        forbidden_terms = [
+            "from core.processing.context",
+            "from core.processing.context_factory",
+            "from core.processing.pipeline_runner",
+            "from core.processing.record_processor",
+            "from core.processing.result",
+            "from core.processing.service",
+            "import core.processing.context",
+            "import core.processing.context_factory",
+            "import core.processing.pipeline_runner",
+            "import core.processing.record_processor",
+            "import core.processing.result",
+            "import core.processing.service",
+        ]
+        for path in Path("core").rglob("*.py"):
+            if path.is_relative_to(Path("core/processing")):
+                continue
+            text = path.read_text(encoding="utf-8")
+            if any(term in text for term in forbidden_terms):
+                offenders.append(str(path))
+
+        self.assertEqual(offenders, [])
+
     def test_prefect_decorators_stay_in_flow_and_tasks_packages(self):
         allowed_roots = {Path("core/flow"), Path("core/tasks")}
         offenders = []

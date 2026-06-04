@@ -1,37 +1,28 @@
-from dataclasses import dataclass, is_dataclass, replace
-from types import SimpleNamespace
+import warnings
 
-import geopandas as gpd
-
-
-@dataclass(frozen=True)
-class ProcessingContext:
-    record: object
-    output_dir: str
-    project_config: dict
-    rule_profile_name: str
-    rule_profile: dict | None
-    optional_functions: dict
-    id_start: int = 1
-    gdf: gpd.GeoDataFrame | None = None
-    final_gdf: gpd.GeoDataFrame | None = None
-    mapping: dict | None = None
-    output_path: str | None = None
-    bronze_dataset_path: str | None = None
-    validation_session: object | None = None
-
-    @property
-    def project_name(self):
-        return self.project_config["project_name"]
+from core.treatment.context import (
+    TreatmentContext,
+    TreatmentExecutionContext,
+    replace_treatment_context,
+)
 
 
-ProcessingExecutionContext = ProcessingContext
+warnings.warn(
+    "core.processing.context esta depreciado; use core.treatment.context.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+ProcessingContext = TreatmentContext
+ProcessingExecutionContext = TreatmentExecutionContext
+replace_context = replace_treatment_context
 
 
-def replace_context(context, **changes):
-    if is_dataclass(context):
-        return replace(context, **changes)
-    return SimpleNamespace(**{**context.__dict__, **changes})
-
-
-__all__ = ["ProcessingContext", "ProcessingExecutionContext", "replace_context"]
+__all__ = [
+    "ProcessingContext",
+    "ProcessingExecutionContext",
+    "TreatmentContext",
+    "TreatmentExecutionContext",
+    "replace_context",
+    "replace_treatment_context",
+]

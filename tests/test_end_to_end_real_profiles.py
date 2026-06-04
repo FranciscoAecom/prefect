@@ -7,7 +7,7 @@ import geopandas as gpd
 import pandas as pd
 from shapely.geometry import Point
 
-from core.processing.record_processor import process_record
+from core.treatment.record_processor import process_treatment_record
 
 
 def _record(input_path, theme_folder, rule_profile, theme):
@@ -46,7 +46,7 @@ class EndToEndRealProfilesTests(unittest.TestCase):
             )
             source_gdf.to_file(input_path, driver="GPKG")
 
-            result = process_record(
+            result = process_treatment_record(
                 _record(
                     input_path=input_path,
                     theme_folder="auth_supn",
@@ -101,7 +101,7 @@ class EndToEndRealProfilesTests(unittest.TestCase):
             )
             source_gdf.to_file(input_path, driver="GPKG")
 
-            result = process_record(
+            result = process_treatment_record(
                 _record(
                     input_path=input_path,
                     theme_folder="app_car_ac",
@@ -143,7 +143,7 @@ class EndToEndRealProfilesTests(unittest.TestCase):
             )
             source_gdf.to_file(input_path, driver="GPKG")
 
-            result = process_record(
+            result = process_treatment_record(
                 _record(
                     input_path=input_path,
                     theme_folder="rl_car_ac",

@@ -2,8 +2,8 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from core.processing.result import ProcessRecordResult
-from core.processing.record_processor import process_record
+from core.treatment.result import TreatmentRecordResult
+from core.treatment.record_processor import process_treatment_record
 
 
 def _record():
@@ -19,14 +19,14 @@ def _record():
     )
 
 
-class RecordProcessorTests(unittest.TestCase):
-    @patch("core.processing.record_processor.ProcessingService")
-    def test_delegates_to_processing_service(self, mock_service_cls):
+class TreatmentRecordProcessorTests(unittest.TestCase):
+    @patch("core.treatment.record_processor.TreatmentService")
+    def test_delegates_to_treatment_service(self, mock_service_cls):
         record = _record()
         mock_service = mock_service_cls.return_value
-        mock_service.process.return_value = ProcessRecordResult(1, "saida.gpkg", "gdf")
+        mock_service.process.return_value = TreatmentRecordResult(1, "saida.gpkg", "gdf")
 
-        result = process_record(
+        result = process_treatment_record(
             record,
             output_dir="tests/_tmp_output",
             id_start=5,
@@ -34,7 +34,7 @@ class RecordProcessorTests(unittest.TestCase):
             persist_individual_output=False,
         )
 
-        self.assertEqual(result, ProcessRecordResult(1, "saida.gpkg", "gdf"))
+        self.assertEqual(result, TreatmentRecordResult(1, "saida.gpkg", "gdf"))
         mock_service.process.assert_called_once_with(
             record,
             "tests/_tmp_output",

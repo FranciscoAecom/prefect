@@ -45,6 +45,40 @@ class DeprecatedTreatmentAliasesTests(unittest.TestCase):
         self.assertTrue(callable(run_queue_record))
         self.assertTrue(any(item.category is DeprecationWarning for item in caught))
 
+    def test_processing_result_alias_warns(self):
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            from core.processing.result import ProcessRecordResult, failure_result
+
+            result = failure_result()
+
+        self.assertEqual(result, ProcessRecordResult(0, None, None))
+        self.assertTrue(any(item.category is DeprecationWarning for item in caught))
+
+    def test_processing_context_factory_alias_warns(self):
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            from core.processing.context_factory import build_processing_context
+
+        self.assertTrue(callable(build_processing_context))
+        self.assertTrue(any(item.category is DeprecationWarning for item in caught))
+
+    def test_processing_pipeline_runner_alias_warns(self):
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            from core.processing.pipeline_runner import run_processing_pipeline
+
+        self.assertTrue(callable(run_processing_pipeline))
+        self.assertTrue(any(item.category is DeprecationWarning for item in caught))
+
+    def test_processing_record_processor_alias_warns(self):
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            from core.processing.record_processor import process_record
+
+        self.assertTrue(callable(process_record))
+        self.assertTrue(any(item.category is DeprecationWarning for item in caught))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -2,7 +2,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import call, patch
 
-from core.processing.result import ProcessRecordResult
+from core.treatment.result import TreatmentRecordResult
 from core.treatment.group_state import QueueGroupState
 from core.treatment.record_runner import run_treatment_record
 
@@ -38,8 +38,8 @@ class QueueRecordRunnerTests(unittest.TestCase):
         ]
         group_state = QueueGroupState(records, enable_group_consolidation=True)
         mock_process_by_kind.side_effect = [
-            ProcessRecordResult(3, None, "gdf1"),
-            ProcessRecordResult(2, None, "gdf2"),
+            TreatmentRecordResult(3, None, "gdf1"),
+            TreatmentRecordResult(2, None, "gdf2"),
         ]
 
         run_treatment_record(
@@ -103,7 +103,7 @@ class QueueRecordRunnerTests(unittest.TestCase):
         record.dataset_kind = "raster"
         record.input_path = "chuva.tif"
         group_state = QueueGroupState([record], enable_group_consolidation=True)
-        mock_process_by_kind.return_value = ProcessRecordResult(
+        mock_process_by_kind.return_value = TreatmentRecordResult(
             processed_count=1,
             output_path="saida.tif",
             final_gdf=None,

@@ -1,4 +1,4 @@
-from core.processing.context import replace_context
+from core.treatment.context import replace_treatment_context as replace_context
 from core.spatial.repair import repair_invalid_geometries
 from core.output.identifiers import assign_output_identifiers
 from core.processing.postprocess_functions import apply_postprocess_functions

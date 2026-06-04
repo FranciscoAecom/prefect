@@ -7,7 +7,7 @@ from unittest.mock import patch
 import geopandas as gpd
 from shapely.geometry import Point, Polygon
 
-from core.processing.context import ProcessingContext
+from core.treatment.context import TreatmentContext
 from core.processing.postprocess_step import postprocess_step
 from core.spatial.municipality_intersection import (
     OUTSIDE_TERRITORIAL_LIMIT_MESSAGE,
@@ -151,7 +151,7 @@ class MunicipalityIntersectionTests(unittest.TestCase):
         enriched = gdf.copy()
         enriched["acm_cod_munici"] = ["1234567"]
         mock_enrich.return_value = enriched
-        context = ProcessingContext(
+        context = TreatmentContext(
             record=SimpleNamespace(theme_folder="autos_infracao"),
             output_dir="tests/_tmp_output",
             project_config={"project_name": "autos_infracao"},

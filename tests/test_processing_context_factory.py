@@ -2,7 +2,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from core.processing.context_factory import build_processing_context
+from core.treatment.context_factory import build_treatment_context
 from core.validation.session import ValidationSession
 
 
@@ -13,10 +13,10 @@ def _record():
     )
 
 
-class ProcessingContextFactoryTests(unittest.TestCase):
-    @patch("core.processing.context_factory.get_project_optional_functions")
-    @patch("core.processing.context_factory.resolve_project_config")
-    def test_builds_processing_context_from_record(
+class TreatmentContextFactoryTests(unittest.TestCase):
+    @patch("core.treatment.context_factory.get_project_optional_functions")
+    @patch("core.treatment.context_factory.resolve_project_config")
+    def test_builds_treatment_context_from_record(
         self,
         mock_resolve_project_config,
         mock_get_project_optional_functions,
@@ -27,7 +27,7 @@ class ProcessingContextFactoryTests(unittest.TestCase):
         mock_resolve_project_config.return_value = project_config
         mock_get_project_optional_functions.return_value = optional_functions
 
-        context = build_processing_context(
+        context = build_treatment_context(
             record,
             "tests/_tmp_output",
             id_start=5,
