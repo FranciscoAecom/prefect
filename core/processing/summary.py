@@ -1,8 +1,10 @@
-from core.utils import log
+import warnings
+
+from core.treatment.steps.summary import *
 
 
-def log_dataset_overview(gdf):
-    columns = list(gdf.columns)
-    log(f"Atributos encontrados: {len(columns)}")
-    for column in columns:
-        log(f"  - {column} ({gdf[column].dtype})")
+warnings.warn(
+    "core.processing.summary esta depreciado; use core.treatment.steps.summary.",
+    DeprecationWarning,
+    stacklevel=2,
+)

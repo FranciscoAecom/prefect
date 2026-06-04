@@ -1,10 +1,10 @@
-from core.treatment.context import replace_treatment_context as replace_context
-from core.rules.engine import load_rule_profile
+import warnings
+
+from core.treatment.steps.rules_step import *
 
 
-def attach_rule_profile_step(context):
-    rule_profile = load_rule_profile(
-        context.rule_profile_name,
-        optional_functions=context.optional_functions,
-    )
-    return replace_context(context, rule_profile=rule_profile)
+warnings.warn(
+    "core.processing.rules_step esta depreciado; use core.treatment.steps.rules_step.",
+    DeprecationWarning,
+    stacklevel=2,
+)

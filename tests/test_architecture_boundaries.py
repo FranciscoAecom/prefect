@@ -163,20 +163,7 @@ class ArchitectureBoundaryTests(unittest.TestCase):
 
     def test_runtime_code_uses_treatment_names_instead_of_processing_facades(self):
         offenders = []
-        forbidden_terms = [
-            "from core.processing.context",
-            "from core.processing.context_factory",
-            "from core.processing.pipeline_runner",
-            "from core.processing.record_processor",
-            "from core.processing.result",
-            "from core.processing.service",
-            "import core.processing.context",
-            "import core.processing.context_factory",
-            "import core.processing.pipeline_runner",
-            "import core.processing.record_processor",
-            "import core.processing.result",
-            "import core.processing.service",
-        ]
+        forbidden_terms = ["from core.processing", "import core.processing"]
         for path in Path("core").rglob("*.py"):
             if path.is_relative_to(Path("core/processing")):
                 continue

@@ -8,7 +8,7 @@ import geopandas as gpd
 from shapely.geometry import Point, Polygon
 
 from core.treatment.context import TreatmentContext
-from core.processing.postprocess_step import postprocess_step
+from core.treatment.steps.postprocess_step import postprocess_step
 from core.spatial.municipality_intersection import (
     OUTSIDE_TERRITORIAL_LIMIT_MESSAGE,
     assign_municipality_fields_by_intersection,

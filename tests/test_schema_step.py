@@ -4,7 +4,7 @@ from types import SimpleNamespace
 import geopandas as gpd
 from shapely.geometry import Point
 
-from core.processing.schema_step import validate_input_schema_step
+from core.treatment.steps.schema_step import validate_input_schema_step
 
 
 class SchemaStepTests(unittest.TestCase):

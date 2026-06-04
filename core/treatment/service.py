@@ -2,8 +2,8 @@ from contextlib import ExitStack
 
 from core.execution_locks import named_execution_lock
 from core.ingest.run_request import IngestRunRequest
-from core.processing.errors import log_processing_error
-from core.processing.events import emit_project_resolved_event, emit_record_start_events
+from core.treatment.steps.errors import log_processing_error
+from core.treatment.steps.events import emit_project_resolved_event, emit_record_start_events
 from core.rules.autofix_service import RuleAutofixService
 from core.treatment.context_factory import build_treatment_context
 from core.treatment.group_state import QueueGroupState

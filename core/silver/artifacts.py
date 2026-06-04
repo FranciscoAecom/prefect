@@ -1,5 +1,5 @@
 from core.metadata import persist_stage_metadata_xmls
-from core.processing.stages import FLOW_STAGE_CREATE_SILVER_XML
+from core.treatment.steps.stages import FLOW_STAGE_CREATE_SILVER_XML
 from core.sld import persist_stage_slds
 from core.utils import log
 

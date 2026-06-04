@@ -3,7 +3,7 @@ from pathlib import Path
 from core.bronze import ensure_bronze_dataset
 from core.output.paths import resolve_output_path
 from core.treatment.result import TreatmentRecordResult
-from core.processing.stages import (
+from core.treatment.steps.stages import (
     FLOW_STAGE_BRONZE_AND_XML,
     FLOW_STAGE_SAVE_SILVER,
     FLOW_STAGE_SILVER_AND_XML,

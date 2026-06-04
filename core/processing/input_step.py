@@ -1,6 +1,10 @@
-from core.treatment.context import replace_treatment_context as replace_context
-from core.input.preparation import load_and_prepare_input
+import warnings
+
+from core.treatment.steps.input_step import *
 
 
-def load_input_step(context):
-    return replace_context(context, gdf=load_and_prepare_input(context.record))
+warnings.warn(
+    "core.processing.input_step esta depreciado; use core.treatment.steps.input_step.",
+    DeprecationWarning,
+    stacklevel=2,
+)

@@ -1,27 +1,10 @@
-FLOW_STAGE_READ_TEMP = "Fluxo 1/7 - Ler arquivo no temp"
-FLOW_STAGE_COPY_BRONZE = "Fluxo 2/7 - Copiando arquivo bruto do temp para bronze"
-FLOW_STAGE_BRONZE_AND_XML = "Fluxo 2/7 a 4/7 - Bronze e XML do bronze"
-FLOW_STAGE_CREATE_BRONZE_XML = "Fluxo 3/7 - Criando XML do bronze"
-FLOW_STAGE_SAVE_BRONZE_XML = "Fluxo 4/7 - XML do bronze salvo"
-FLOW_STAGE_TREATMENTS = "Fluxo 5/7 - Fazer tratamentos"
-FLOW_STAGE_SAVE_SILVER = "Fluxo 6/7 - Salvando dado tratado no silver"
-FLOW_STAGE_SILVER_AND_XML = "Fluxo 6/7 e 7/7 - Salvar silver e XML do silver"
-FLOW_STAGE_CREATE_SILVER_XML = "Fluxo 7/7 - Criando XML do silver"
+import warnings
+
+from core.treatment.steps.stages import *
 
 
-def stage_message(stage, message):
-    return f"{stage}: {message}"
-
-
-__all__ = [
-    "FLOW_STAGE_BRONZE_AND_XML",
-    "FLOW_STAGE_COPY_BRONZE",
-    "FLOW_STAGE_CREATE_BRONZE_XML",
-    "FLOW_STAGE_CREATE_SILVER_XML",
-    "FLOW_STAGE_READ_TEMP",
-    "FLOW_STAGE_SAVE_BRONZE_XML",
-    "FLOW_STAGE_SAVE_SILVER",
-    "FLOW_STAGE_SILVER_AND_XML",
-    "FLOW_STAGE_TREATMENTS",
-    "stage_message",
-]
+warnings.warn(
+    "core.processing.stages esta depreciado; use core.treatment.steps.stages.",
+    DeprecationWarning,
+    stacklevel=2,
+)

@@ -2,7 +2,7 @@ from core.io.dataset import write_output_gpkg
 from core.output.columns import drop_internal_output_columns
 from core.output.paths import resolve_output_path
 from core.output.quality import build_output_quality_summary, log_output_quality_summary
-from core.processing.stages import FLOW_STAGE_SAVE_SILVER
+from core.treatment.steps.stages import FLOW_STAGE_SAVE_SILVER
 from core.silver.artifacts import persist_silver_artifacts
 from core.silver.manifest import (
     SilverDatasetOutput,

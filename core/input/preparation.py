@@ -12,7 +12,7 @@ LEGACY_COLUMN_ALIASES = {
 
 
 def log_dataset_overview(gdf):
-    from core.processing.summary import log_dataset_overview as _log_dataset_overview
+    from core.treatment.steps.summary import log_dataset_overview as _log_dataset_overview
 
     return _log_dataset_overview(gdf)
 

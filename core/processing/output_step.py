@@ -1,18 +1,10 @@
-from core.treatment.context import replace_treatment_context as replace_context
-from core.silver import save_outputs
+import warnings
+
+from core.treatment.steps.output_step import *
 
 
-def persist_outputs_step(
-    context,
-    use_configured_final_name=False,
-    persist_dataset=True,
-):
-    output_path = save_outputs(
-        context.final_gdf,
-        context.record,
-        context.output_dir,
-        use_configured_final_name=use_configured_final_name,
-        persist_dataset=persist_dataset,
-        rule_profile=context.rule_profile or {},
-    )
-    return replace_context(context, output_path=output_path)
+warnings.warn(
+    "core.processing.output_step esta depreciado; use core.treatment.steps.output_step.",
+    DeprecationWarning,
+    stacklevel=2,
+)
