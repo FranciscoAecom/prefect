@@ -133,6 +133,23 @@ Valide o GDAL no ambiente:
 & "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" run -n prefect-gdal python -m unittest tests.test_raster_gdal_integration
 ```
 
+Quando houver raster na fila, execute tambem o Prefect pelo ambiente
+`prefect-gdal`. Nao use `uv run` nesse caso, pois ele executa o `.venv` padrao
+do projeto; se esse `.venv` nao tiver `osgeo`, o processamento `.tif/.tiff`
+falhara.
+
+```powershell
+& "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" run -n prefect-gdal python -m prefect config set PREFECT_API_URL=http://127.0.0.1:4200/api
+& "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" run -n prefect-gdal python main.py
+```
+
+Atalho equivalente:
+
+```powershell
+.\scripts\run_pipeline_gdal.ps1 -CheckOnly
+.\scripts\run_pipeline_gdal.ps1
+```
+
 ## Como Usar
 
 1. Atualize `input/st_Ingest_parameter.xlsx`.

@@ -61,6 +61,27 @@ Validacao:
 & "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" run -n prefect-gdal python -m unittest tests.test_raster_gdal_integration
 ```
 
+## Execucao com Prefect e GDAL
+
+Quando a fila tiver raster, execute o pipeline pelo mesmo ambiente onde o GDAL
+foi validado. Evite `uv run python main.py` para raster se o `osgeo` foi
+instalado apenas no ambiente conda, porque `uv run` usa o `.venv` padrao do
+projeto.
+
+Com o servidor Prefect ja aberto:
+
+```powershell
+& "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" run -n prefect-gdal python -m prefect config set PREFECT_API_URL=http://127.0.0.1:4200/api
+& "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" run -n prefect-gdal python main.py
+```
+
+Atalho:
+
+```powershell
+.\scripts\run_pipeline_gdal.ps1 -CheckOnly
+.\scripts\run_pipeline_gdal.ps1
+```
+
 ## Integracao com a ingest
 
 O raster pode usar a mesma planilha ingest e os mesmos status operacionais:
