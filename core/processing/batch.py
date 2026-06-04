@@ -1,10 +1,6 @@
-import warnings
+from core.deprecations import warn_deprecated
 
 from core.treatment.steps.batch import *
 
 
-warnings.warn(
-    "core.processing.batch esta depreciado; use core.treatment.steps.batch.",
-    DeprecationWarning,
-    stacklevel=2,
-)
+warn_deprecated("core.processing.batch", "core.treatment.steps.batch")

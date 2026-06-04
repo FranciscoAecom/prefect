@@ -8,7 +8,11 @@ from core.output.naming import (
     resolve_output_reference_date,
     sanitize_output_name,
 )
-from core.output.paths import build_group_log_path, build_processing_group_key
+from core.output.paths import (
+    build_group_log_path,
+    build_processing_group_key,
+    build_treatment_group_key,
+)
 from core.output.quality import (
     OutputQualityConfig,
     OutputQualitySummary,
@@ -31,6 +35,7 @@ __all__ = [
     "assign_output_identifiers",
     "build_group_log_path",
     "build_processing_group_key",
+    "build_treatment_group_key",
     "build_final_output_base_name",
     "build_output_quality_summary",
     "build_theme_output_dir",

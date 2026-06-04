@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-import warnings
 
+from core.deprecations import warn_deprecated
 from core.ingest.dataset_resolver import is_zip_path
 from core.ingest.normalization import stringify
 from core.ingest.plan import build_ingest_execution_plan
@@ -15,9 +15,9 @@ REASON_MISSING_SOURCE_PATH = "missing_source_path"
 REASON_ZIP_SOURCE_PATH = "zip_source_path"
 
 REASON_MESSAGES = {
-    REASON_FORCE_ENABLED: "processamento forcado.",
+    REASON_FORCE_ENABLED: "tratamento forcado.",
     REASON_SOURCE_PATH_OVERRIDDEN: "caminho de origem sobrescrito por parametro.",
-    REASON_STATUS_NOT_ALLOWED: "status fora dos elegiveis para processamento.",
+    REASON_STATUS_NOT_ALLOWED: "status fora dos elegiveis para tratamento.",
     REASON_INVALID_STATUS_FLAGS: "status contem flags invalidas.",
     REASON_THEME_NOT_REQUESTED: "theme_folder fora do escopo solicitado.",
     REASON_MISSING_SOURCE_PATH: "caminho de origem ausente ou inexistente.",
@@ -54,11 +54,7 @@ class IngestEligibility:
 
     @property
     def can_attempt_processing(self):
-        warnings.warn(
-            "can_attempt_processing esta depreciado; use can_attempt_treatment.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
+        warn_deprecated("can_attempt_processing", "can_attempt_treatment")
         return self.can_attempt_treatment
 
     def request_messages(self):

@@ -1,13 +1,9 @@
-import warnings
+from core.deprecations import warn_deprecated
 
 from core.treatment.issue_report import export_queue_issues_report
 
 
-warnings.warn(
-    "core.queue.issue_report esta depreciado; use core.treatment.issue_report.",
-    DeprecationWarning,
-    stacklevel=2,
-)
+warn_deprecated("core.queue.issue_report", "core.treatment.issue_report")
 
 
 __all__ = ["export_queue_issues_report"]

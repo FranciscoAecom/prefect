@@ -1,4 +1,4 @@
-import warnings
+from core.deprecations import warn_deprecated
 
 from core.treatment.context import (
     TreatmentContext,
@@ -7,11 +7,7 @@ from core.treatment.context import (
 )
 
 
-warnings.warn(
-    "core.processing.context esta depreciado; use core.treatment.context.",
-    DeprecationWarning,
-    stacklevel=2,
-)
+warn_deprecated("core.processing.context", "core.treatment.context")
 
 ProcessingContext = TreatmentContext
 ProcessingExecutionContext = TreatmentExecutionContext

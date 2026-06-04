@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 import os
-import warnings
 from pathlib import Path
 
 from core.config.defaults import (
@@ -8,6 +7,7 @@ from core.config.defaults import (
     DEFAULT_DOWNLOAD_ARCHIVE_BASE,
     DEFAULT_DOWNLOAD_EXTRACT_BASE,
 )
+from core.deprecations import warn_deprecated
 
 
 @dataclass(frozen=True)
@@ -50,11 +50,7 @@ class IngestSettings:
 
     @property
     def processing_statuses(self):
-        warnings.warn(
-            "processing_statuses esta depreciado; use treatment_statuses.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
+        warn_deprecated("processing_statuses", "treatment_statuses")
         return self.treatment_statuses
 
 
@@ -66,7 +62,7 @@ class DownloadSettings:
 
 
 @dataclass(frozen=True)
-class ProcessingSettings:
+class TreatmentSettings:
     requires_python: str = ">=3.14"
     batch_size: int = 50000
     spatial_transform_chunk_size: int = 5000
@@ -100,9 +96,17 @@ class AppSettings:
     paths: PathSettings = PathSettings()
     ingest: IngestSettings = IngestSettings()
     downloads: DownloadSettings = DownloadSettings()
-    processing: ProcessingSettings = ProcessingSettings()
+    treatment: TreatmentSettings = TreatmentSettings()
     quality: QualitySettings = QualitySettings()
     default_rule_profile: str = "default"
+
+    @property
+    def processing(self):
+        warn_deprecated("APP_SETTINGS.processing", "APP_SETTINGS.treatment")
+        return self.treatment
+
+
+ProcessingSettings = TreatmentSettings
 
 
 APP_SETTINGS = AppSettings()

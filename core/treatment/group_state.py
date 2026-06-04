@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from core.output.paths import build_processing_group_key
+from core.output.paths import build_treatment_group_key
 
 
 class QueueGroupState:
@@ -15,7 +15,7 @@ class QueueGroupState:
             self.expected_counts[self.group_key(record)] += 1
 
     def group_key(self, record):
-        return build_processing_group_key(record)
+        return build_treatment_group_key(record)
 
     def is_grouped_consolidation(self, record):
         return self.enable_group_consolidation and self.expected_count(record) > 1

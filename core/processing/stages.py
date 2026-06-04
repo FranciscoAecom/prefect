@@ -1,10 +1,6 @@
-import warnings
+from core.deprecations import warn_deprecated
 
 from core.treatment.steps.stages import *
 
 
-warnings.warn(
-    "core.processing.stages esta depreciado; use core.treatment.steps.stages.",
-    DeprecationWarning,
-    stacklevel=2,
-)
+warn_deprecated("core.processing.stages", "core.treatment.steps.stages")

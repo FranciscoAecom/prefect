@@ -14,8 +14,8 @@ from prefect.client.schemas.objects import StateType
 from prefect.client.schemas.schedules import RRuleSchedule
 
 from core.prefect_support.deployment_names import (
-    UR_CAR_PROCESSING_OLD_QUALIFIED_DEPLOYMENT_NAMES,
-    UR_CAR_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
+    UR_CAR_TREATMENT_OLD_QUALIFIED_DEPLOYMENT_NAMES,
+    UR_CAR_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
 )
 from core.ingest.diagnostics import (
     diagnose_ingest_theme,
@@ -37,10 +37,11 @@ from core.prefect_support.schedules import (
 )
 DOWNLOAD_AUTOMATION_NAME = "Dataset baixado -> tratamento de dados"
 DOWNLOAD_AUTOMATION_OLD_NAMES = ("CAR baixado -> tratamento de dados",)
-PROCESSING_DEPLOYMENT_CANDIDATES = (
-    UR_CAR_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
-    *UR_CAR_PROCESSING_OLD_QUALIFIED_DEPLOYMENT_NAMES,
+TREATMENT_DEPLOYMENT_CANDIDATES = (
+    UR_CAR_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
+    *UR_CAR_TREATMENT_OLD_QUALIFIED_DEPLOYMENT_NAMES,
 )
+PROCESSING_DEPLOYMENT_CANDIDATES = TREATMENT_DEPLOYMENT_CANDIDATES
 def main():
     parser = argparse.ArgumentParser(description="Administracao local do Prefect.")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -104,7 +105,7 @@ def main():
 
 def create_download_automation():
     with get_client(sync_client=True) as client:
-        deployment = read_first_existing_deployment(client, PROCESSING_DEPLOYMENT_CANDIDATES)
+        deployment = read_first_existing_deployment(client, TREATMENT_DEPLOYMENT_CANDIDATES)
 
     automation = Automation(
         name=DOWNLOAD_AUTOMATION_NAME,
@@ -157,7 +158,7 @@ def read_existing_automation(names):
 def reschedule_ur_car_daily_17h():
     start_date, hour, minute, timezone = get_ur_car_sequence_config()
     with get_client(sync_client=True) as client:
-        deployment = read_first_existing_deployment(client, PROCESSING_DEPLOYMENT_CANDIDATES)
+        deployment = read_first_existing_deployment(client, TREATMENT_DEPLOYMENT_CANDIDATES)
 
         old_schedules = client.read_deployment_schedules(deployment.id)
         for schedule in old_schedules:
@@ -211,7 +212,7 @@ def diagnose_theme(theme_folder):
 
 def rename_scheduled_runs():
     with get_client(sync_client=True) as client:
-        deployment = read_first_existing_deployment(client, PROCESSING_DEPLOYMENT_CANDIDATES)
+        deployment = read_first_existing_deployment(client, TREATMENT_DEPLOYMENT_CANDIDATES)
         scheduled_runs = read_scheduled_runs(client, deployment.id)
         renamed = 0
         for flow_run in scheduled_runs:

@@ -84,7 +84,7 @@ def run_data_treatment(output_base=None, theme_folders=None, source_path_overrid
                 settings.keep_individual_outputs_when_grouping,
             )
 
-        log("Processamento finalizado")
+        log("Tratamento finalizado")
 
 
 def _queue_filter_locks(queue_filter):

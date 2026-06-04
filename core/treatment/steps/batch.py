@@ -56,11 +56,11 @@ def process_in_batches(
     validation_session=None,
 ):
     total = len(gdf)
-    log(f"Iniciando processamento em batches ({total} registros)")
+    log(f"Iniciando tratamento em batches ({total} registros)")
 
     if total == 0:
         empty_gdf = gpd.GeoDataFrame(gdf.copy(), geometry="geometry", crs=gdf.crs)
-        log("Nenhum registro encontrado para processamento em batch.")
+        log("Nenhum registro encontrado para tratamento em batch.")
         return empty_gdf, {
             "forced_to_2d": 0,
             "reprojected_to_wgs84": 0,
@@ -73,7 +73,7 @@ def process_in_batches(
 
     for start in range(0, total, batch_size):
         end = min(start + batch_size, total)
-        log(f"Processando registros {start} ate {end}")
+        log(f"Tratando registros {start} ate {end}")
 
         batch = gdf.iloc[start:end].copy()
         processed, batch_stats = run_mandatory_treatments(
@@ -100,8 +100,8 @@ def process_in_batches(
 
     final_stats = _finalize_stats(stats_total)
 
-    log(f"Total processado: {len(final_gdf)} registros")
-    log("Resumo final do processamento:")
+    log(f"Total tratado: {len(final_gdf)} registros")
+    log("Resumo final do tratamento:")
     log(f"Funcoes obrigatorias executadas: {', '.join(MANDATORY_FUNCTIONS)}")
     if final_stats["optional_functions"]:
         log(f"Funcoes opcionais executadas: {', '.join(final_stats['optional_functions'])}")

@@ -1,21 +1,13 @@
-import warnings
+from core.deprecations import warn_deprecated
 
 from core.treatment.steps_runner import run_treatment_steps
 
 
-warnings.warn(
-    "core.processing.pipeline_runner esta depreciado; use core.treatment.steps_runner.",
-    DeprecationWarning,
-    stacklevel=2,
-)
+warn_deprecated("core.processing.pipeline_runner", "core.treatment.steps_runner")
 
 
 def run_processing_pipeline(*args, **kwargs):
-    warnings.warn(
-        "run_processing_pipeline() esta depreciado; use run_treatment_steps().",
-        DeprecationWarning,
-        stacklevel=2,
-    )
+    warn_deprecated("run_processing_pipeline()", "run_treatment_steps()")
     return run_treatment_steps(*args, **kwargs)
 
 

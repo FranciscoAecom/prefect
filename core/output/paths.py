@@ -3,13 +3,16 @@ import os
 from core.output.naming import build_final_output_base_name, build_theme_output_dir
 
 
-def build_processing_group_key(record):
+def build_treatment_group_key(record):
     return (
         record.sheet_row,
         str(record.record_id),
         str(record.theme_folder),
         str(record.source_path),
     )
+
+
+build_processing_group_key = build_treatment_group_key
 
 
 def build_group_merged_output_path(record, output_dir):

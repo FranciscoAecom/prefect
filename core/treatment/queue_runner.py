@@ -43,7 +43,7 @@ def run_treatment_queue(
             ),
         )
 
-    log("Processamento finalizado")
+    log("Tratamento finalizado")
 
 
 __all__ = ["run_treatment_queue"]

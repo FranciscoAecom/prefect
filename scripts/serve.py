@@ -11,12 +11,12 @@ from core.flow.flows import (
 )
 from core.prefect_support.admin import scheduled_run_renamer_loop
 from core.prefect_support.deployment_names import (
-    AUTOS_INFRACAO_PROCESSING_DEPLOYMENT_NAME,
-    AUTOS_INFRACAO_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
+    AUTOS_INFRACAO_TREATMENT_DEPLOYMENT_NAME,
+    AUTOS_INFRACAO_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
     DATA_DOWNLOAD_DEPLOYMENT_NAME,
     DATA_PUBLISH_DEPLOYMENT_NAME,
-    UR_CAR_PROCESSING_DEPLOYMENT_NAME,
-    UR_CAR_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
+    UR_CAR_TREATMENT_DEPLOYMENT_NAME,
+    UR_CAR_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
 )
 from core.prefect_support.schedules import build_daily_one_shot_ur_car_schedules
 
@@ -31,8 +31,12 @@ def main():
         help="Serve o deployment de publicacao GeoServer/GeoNetwork.",
     )
     subparsers.add_parser(
-        "ur-car-processing",
+        "ur-car-treatment",
         help="Serve o tratamento agendado de CAR Uso Restrito.",
+    )
+    subparsers.add_parser(
+        "ur-car-processing",
+        help="Alias legado de ur-car-treatment.",
     )
     subparsers.add_parser(
         "auto-infracoes",
@@ -51,8 +55,8 @@ def main():
         serve_data_download()
     elif args.deployment == "data-publish":
         serve_data_publish()
-    elif args.deployment == "ur-car-processing":
-        serve_ur_car_processing()
+    elif args.deployment in {"ur-car-treatment", "ur-car-processing"}:
+        serve_ur_car_treatment()
     elif args.deployment == "auto-infracoes":
         serve_autos_infracao()
     elif args.deployment == "estado":
@@ -83,14 +87,14 @@ def serve_data_publish():
     )
 
 
-def serve_ur_car_processing():
+def serve_ur_car_treatment():
     start_scheduled_run_renamer(
-        deployment_name=UR_CAR_PROCESSING_QUALIFIED_DEPLOYMENT_NAME
+        deployment_name=UR_CAR_TREATMENT_QUALIFIED_DEPLOYMENT_NAME
     )
     data_treatment_flow.serve(
-        name=UR_CAR_PROCESSING_DEPLOYMENT_NAME,
+        name=UR_CAR_TREATMENT_DEPLOYMENT_NAME,
         schedules=build_daily_one_shot_ur_car_schedules(),
-        tags=["ur_car", "processing", "scheduled"],
+        tags=["ur_car", "treatment", "scheduled"],
         description=(
             "Agenda diaria das 27 bases UR CAR para tratamento, "
             "uma base por dia as 17:00."
@@ -98,15 +102,18 @@ def serve_ur_car_processing():
     )
 
 
+serve_ur_car_processing = serve_ur_car_treatment
+
+
 def serve_autos_infracao():
     start_scheduled_run_renamer(
-        deployment_name=AUTOS_INFRACAO_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
+        deployment_name=AUTOS_INFRACAO_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
         interval_seconds=5,
     )
     data_treatment_flow.serve(
-        name=AUTOS_INFRACAO_PROCESSING_DEPLOYMENT_NAME,
+        name=AUTOS_INFRACAO_TREATMENT_DEPLOYMENT_NAME,
         parameters={"theme_folders": ["autos_infracao"]},
-        tags=["autos_infracao", "processing"],
+        tags=["autos_infracao", "treatment"],
         description=(
             "Tratamento da base Autos de Infracao ambiental, com parametros "
             "fixos para executar somente autos_infracao."
@@ -144,7 +151,7 @@ def serve_localidades():
     data_treatment_flow.serve(
         name=deployment_name,
         parameters={"theme_folders": ["localidades"]},
-        tags=["localidades", "processing"],
+        tags=["localidades", "treatment"],
         description="Tratamento da base Localidades do Brasil.",
     )
 

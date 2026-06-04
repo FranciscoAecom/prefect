@@ -1,24 +1,16 @@
-import warnings
+from core.deprecations import warn_deprecated
 
 from core.treatment.record_processor import process_treatment_record
 from core.treatment.result import TreatmentRecordResult
 
 
-warnings.warn(
-    "core.processing.record_processor esta depreciado; use core.treatment.record_processor.",
-    DeprecationWarning,
-    stacklevel=2,
-)
+warn_deprecated("core.processing.record_processor", "core.treatment.record_processor")
 
 ProcessRecordResult = TreatmentRecordResult
 
 
 def process_record(*args, **kwargs):
-    warnings.warn(
-        "process_record() esta depreciado; use process_treatment_record().",
-        DeprecationWarning,
-        stacklevel=2,
-    )
+    warn_deprecated("process_record()", "process_treatment_record()")
     return process_treatment_record(*args, **kwargs)
 
 

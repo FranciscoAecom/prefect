@@ -1,10 +1,6 @@
-import warnings
+from core.deprecations import warn_deprecated
 
 from core.treatment.steps.mapping_step import *
 
 
-warnings.warn(
-    "core.processing.mapping_step esta depreciado; use core.treatment.steps.mapping_step.",
-    DeprecationWarning,
-    stacklevel=2,
-)
+warn_deprecated("core.processing.mapping_step", "core.treatment.steps.mapping_step")

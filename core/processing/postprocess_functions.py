@@ -1,10 +1,6 @@
-import warnings
+from core.deprecations import warn_deprecated
 
 from core.treatment.steps.postprocess_functions import *
 
 
-warnings.warn(
-    "core.processing.postprocess_functions esta depreciado; use core.treatment.steps.postprocess_functions.",
-    DeprecationWarning,
-    stacklevel=2,
-)
+warn_deprecated("core.processing.postprocess_functions", "core.treatment.steps.postprocess_functions")

@@ -25,20 +25,20 @@ CAR_DOWNLOAD_EXTRACT_BASE = DOWNLOAD_EXTRACT_BASE
 RULES_BASE = APP_SETTINGS.paths.rules_base
 DEFAULT_RULE_PROFILE = APP_SETTINGS.default_rule_profile
 
-REQUIRES_PYTHON = APP_SETTINGS.processing.requires_python
+REQUIRES_PYTHON = APP_SETTINGS.treatment.requires_python
 
-BATCH_SIZE = APP_SETTINGS.processing.batch_size
-SPATIAL_TRANSFORM_CHUNK_SIZE = APP_SETTINGS.processing.spatial_transform_chunk_size
+BATCH_SIZE = APP_SETTINGS.treatment.batch_size
+SPATIAL_TRANSFORM_CHUNK_SIZE = APP_SETTINGS.treatment.spatial_transform_chunk_size
 
-CRS_WGS84 = APP_SETTINGS.processing.crs_wgs84
-CRS_EQUAL_AREA = APP_SETTINGS.processing.crs_equal_area
-DEFAULT_INPUT_CRS = APP_SETTINGS.processing.default_input_crs
+CRS_WGS84 = APP_SETTINGS.treatment.crs_wgs84
+CRS_EQUAL_AREA = APP_SETTINGS.treatment.crs_equal_area
+DEFAULT_INPUT_CRS = APP_SETTINGS.treatment.default_input_crs
 
-ID_FIELD = APP_SETTINGS.processing.id_field
-AREA_FIELD = APP_SETTINGS.processing.area_field
-PERIMETER_FIELD = APP_SETTINGS.processing.perimeter_field
-LONGITUDE_FIELD = APP_SETTINGS.processing.longitude_field
-LATITUDE_FIELD = APP_SETTINGS.processing.latitude_field
+ID_FIELD = APP_SETTINGS.treatment.id_field
+AREA_FIELD = APP_SETTINGS.treatment.area_field
+PERIMETER_FIELD = APP_SETTINGS.treatment.perimeter_field
+LONGITUDE_FIELD = APP_SETTINGS.treatment.longitude_field
+LATITUDE_FIELD = APP_SETTINGS.treatment.latitude_field
 
 GEOM_DUPLICATES_LAYER = APP_SETTINGS.quality.geom_duplicates_layer
 OGC_INVALID_LAYER = APP_SETTINGS.quality.ogc_invalid_layer
@@ -53,5 +53,5 @@ KEEP_INDIVIDUAL_OUTPUTS_WHEN_GROUPING = (
     APP_SETTINGS.quality.keep_individual_outputs_when_grouping
 )
 
-USE_ARROW_IO = APP_SETTINGS.processing.use_arrow_io
-INTERACTIVE_ATTRIBUTE_REVIEW = APP_SETTINGS.processing.interactive_attribute_review
+USE_ARROW_IO = APP_SETTINGS.treatment.use_arrow_io
+INTERACTIVE_ATTRIBUTE_REVIEW = APP_SETTINGS.treatment.interactive_attribute_review

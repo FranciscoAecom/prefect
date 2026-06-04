@@ -1,13 +1,9 @@
-import warnings
+from core.deprecations import warn_deprecated
 
 from core.treatment.summary import log_queue_summary
 
 
-warnings.warn(
-    "core.queue.summary esta depreciado; use core.treatment.summary.",
-    DeprecationWarning,
-    stacklevel=2,
-)
+warn_deprecated("core.queue.summary", "core.treatment.summary")
 
 
 __all__ = ["log_queue_summary"]

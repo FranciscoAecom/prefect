@@ -9,7 +9,7 @@ def log_queue_summary(summary, issues):
     log(f"  Registros lidos: {summary['total_records']}")
     log(f"  Status elegiveis: {_format_treatment_statuses(summary)}")
     log(f"  Registros com status elegivel: {summary['ready_candidates']}")
-    log(f"  Arquivos aptos para processamento: {summary['eligible_records']}")
+    log(f"  Arquivos aptos para tratamento: {summary['eligible_records']}")
     log(f"  Registros ignorados com excecao: {summary['issues']}")
 
     if issues:

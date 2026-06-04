@@ -1,13 +1,9 @@
-import warnings
+from core.deprecations import warn_deprecated
 
 from core.ingest.filters import QueueFilter
 
 
-warnings.warn(
-    "core.queue.filters esta depreciado; use core.ingest.filters.",
-    DeprecationWarning,
-    stacklevel=2,
-)
+warn_deprecated("core.queue.filters", "core.ingest.filters")
 
 
 __all__ = ["QueueFilter"]

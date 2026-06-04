@@ -1,10 +1,6 @@
-import warnings
+from core.deprecations import warn_deprecated
 
 from core.treatment.steps.mandatory_pipeline import *
 
 
-warnings.warn(
-    "core.processing.mandatory_pipeline esta depreciado; use core.treatment.steps.mandatory_pipeline.",
-    DeprecationWarning,
-    stacklevel=2,
-)
+warn_deprecated("core.processing.mandatory_pipeline", "core.treatment.steps.mandatory_pipeline")

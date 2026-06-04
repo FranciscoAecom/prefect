@@ -15,7 +15,7 @@ def run_configured_treatment_step(context):
         optional_functions=context.optional_functions,
         validation_session=getattr(context, "validation_session", None),
     )
-    log(f"Resultado final: {len(final_gdf)} registros processados")
+    log(f"Resultado final: {len(final_gdf)} registros tratados")
     return replace_context(context, final_gdf=_ensure_final_geodataframe(final_gdf))
 
 

@@ -1,4 +1,4 @@
-import warnings
+from core.deprecations import warn_deprecated
 
 from core.treatment.result import (
     TreatmentRecordResult,
@@ -7,30 +7,18 @@ from core.treatment.result import (
 )
 
 
-warnings.warn(
-    "core.processing.result esta depreciado; use core.treatment.result.",
-    DeprecationWarning,
-    stacklevel=2,
-)
+warn_deprecated("core.processing.result", "core.treatment.result")
 
 ProcessRecordResult = TreatmentRecordResult
 
 
 def failure_result():
-    warnings.warn(
-        "failure_result() esta depreciado; use treatment_failure_result().",
-        DeprecationWarning,
-        stacklevel=2,
-    )
+    warn_deprecated("failure_result()", "treatment_failure_result()")
     return treatment_failure_result()
 
 
 def success_result(context):
-    warnings.warn(
-        "success_result() esta depreciado; use treatment_success_result().",
-        DeprecationWarning,
-        stacklevel=2,
-    )
+    warn_deprecated("success_result()", "treatment_success_result()")
     return treatment_success_result(context)
 
 

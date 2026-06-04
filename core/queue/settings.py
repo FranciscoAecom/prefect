@@ -1,13 +1,9 @@
-import warnings
+from core.deprecations import warn_deprecated
 
 from core.treatment.settings import QueueRunSettings
 
 
-warnings.warn(
-    "core.queue.settings esta depreciado; use core.treatment.settings.",
-    DeprecationWarning,
-    stacklevel=2,
-)
+warn_deprecated("core.queue.settings", "core.treatment.settings")
 
 
 __all__ = ["QueueRunSettings"]

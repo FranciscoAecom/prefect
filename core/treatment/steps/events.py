@@ -20,7 +20,7 @@ def emit_record_start_events(record):
     emit_processing_event("record.blank_line", "")
     emit_processing_event(
         "record.start",
-        f"Processando linha {record.sheet_row} da ingest | "
+        f"Tratando linha {record.sheet_row} da ingest | "
         f"ID={record.record_id} | theme_folder={record.theme_folder}",
         sheet_row=record.sheet_row,
         record_id=record.record_id,
