@@ -40,7 +40,9 @@ class ProcessingDispatcherTests(unittest.TestCase):
         mock_process_raster_record,
     ):
         record = SimpleNamespace(dataset_kind="raster")
-        group_state = SimpleNamespace()
+        group_state = SimpleNamespace(
+            use_configured_final_name=lambda _record: True,
+        )
         mock_process_raster_record.return_value = "raster-result"
 
         result = process_record_by_dataset_kind(
@@ -51,7 +53,11 @@ class ProcessingDispatcherTests(unittest.TestCase):
         )
 
         self.assertEqual(result, "raster-result")
-        mock_process_raster_record.assert_called_once_with(record, "out")
+        mock_process_raster_record.assert_called_once_with(
+            record,
+            "out",
+            use_configured_final_name=True,
+        )
         mock_process_record.assert_not_called()
 
 

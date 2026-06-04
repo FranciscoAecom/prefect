@@ -10,7 +10,11 @@ def process_record_by_dataset_kind(
     keep_individual_outputs_when_grouping,
 ):
     if getattr(record, "dataset_kind", "") == DATASET_KIND_RASTER:
-        return process_raster_record(record, output_dir)
+        return process_raster_record(
+            record,
+            output_dir,
+            use_configured_final_name=group_state.use_configured_final_name(record),
+        )
 
     return process_record(
         record,

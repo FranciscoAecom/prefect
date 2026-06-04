@@ -117,7 +117,7 @@ def find_first_geographic_dataset(directory):
     directory = Path(directory)
     if not directory.exists():
         return None
-    for suffix in (".gpkg", ".shp"):
+    for suffix in (".gpkg", ".shp", ".tif", ".tiff"):
         matches = sorted(
             candidate
             for candidate in directory.rglob(f"*{suffix}")

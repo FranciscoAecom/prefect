@@ -108,3 +108,15 @@ Colunas opcionais para raster:
 Registros raster entram no mesmo `Data Pipeline`, mas sao despachados para o
 processador raster em vez do processador vetorial. Rules vetoriais nao sao
 exigidas para raster nesta primeira integracao.
+
+## Saidas bronze e silver
+
+O raster segue a mesma organizacao operacional de pastas do pipeline vetorial:
+
+- bronze: copia do dado bruto `.tif/.tiff` em `bronze_dir`.
+- silver: raster tratado com GDAL em `output_dir`/silver, usando o padrao de
+  nome final do projeto raster.
+
+Nesta integracao, o XML/SLD automatico continua restrito aos produtos
+vetoriais. Para raster, o pipeline garante a preservacao do bruto no bronze e a
+entrega do GeoTIFF tratado no silver.
