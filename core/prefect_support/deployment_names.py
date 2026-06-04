@@ -2,17 +2,9 @@ DATA_DOWNLOAD_DEPLOYMENT_NAME = "Download de Dados"
 DATA_PUBLISH_DEPLOYMENT_NAME = "Publish GeoServer GeoNetwork"
 CAR_DOWNLOAD_DEPLOYMENT_NAME = DATA_DOWNLOAD_DEPLOYMENT_NAME
 SCHEDULED_TREATMENT_DEPLOYMENT_NAME = "Treatment Agendado pela Ingest"
-UR_CAR_TREATMENT_DEPLOYMENT_NAME = "CAR - Uso Restrito"
-AUTOS_INFRACAO_TREATMENT_DEPLOYMENT_NAME = "Autos de Infracao"
 
 DATA_TREATMENT_FLOW_NAME = "Data Treatment"
 DATA_PUBLISH_FLOW_NAME = "Data Publish"
-
-CAR_DOWNLOAD_OLD_DEPLOYMENT_NAMES = (
-    "CAR - Download",
-    "CAR - Uso Restrito - Download",
-)
-UR_CAR_TREATMENT_OLD_DEPLOYMENT_NAMES = ("CAR - Uso Restrito - Tratamento",)
 
 
 def qualified_deployment_name(flow_name, deployment_name):
@@ -27,36 +19,19 @@ def qualified_data_publish_deployment_name(deployment_name):
     return qualified_deployment_name(DATA_PUBLISH_FLOW_NAME, deployment_name)
 
 
-UR_CAR_TREATMENT_QUALIFIED_DEPLOYMENT_NAME = qualified_data_treatment_deployment_name(
-    UR_CAR_TREATMENT_DEPLOYMENT_NAME
-)
 SCHEDULED_TREATMENT_QUALIFIED_DEPLOYMENT_NAME = (
     qualified_data_treatment_deployment_name(SCHEDULED_TREATMENT_DEPLOYMENT_NAME)
-)
-AUTOS_INFRACAO_TREATMENT_QUALIFIED_DEPLOYMENT_NAME = (
-    qualified_data_treatment_deployment_name(AUTOS_INFRACAO_TREATMENT_DEPLOYMENT_NAME)
-)
-UR_CAR_TREATMENT_OLD_QUALIFIED_DEPLOYMENT_NAMES = tuple(
-    qualified_data_treatment_deployment_name(name)
-    for name in UR_CAR_TREATMENT_OLD_DEPLOYMENT_NAMES
 )
 
 
 __all__ = [
-    "AUTOS_INFRACAO_TREATMENT_DEPLOYMENT_NAME",
-    "AUTOS_INFRACAO_TREATMENT_QUALIFIED_DEPLOYMENT_NAME",
     "CAR_DOWNLOAD_DEPLOYMENT_NAME",
-    "CAR_DOWNLOAD_OLD_DEPLOYMENT_NAMES",
     "DATA_DOWNLOAD_DEPLOYMENT_NAME",
     "DATA_PUBLISH_DEPLOYMENT_NAME",
     "DATA_PUBLISH_FLOW_NAME",
     "DATA_TREATMENT_FLOW_NAME",
     "SCHEDULED_TREATMENT_DEPLOYMENT_NAME",
     "SCHEDULED_TREATMENT_QUALIFIED_DEPLOYMENT_NAME",
-    "UR_CAR_TREATMENT_DEPLOYMENT_NAME",
-    "UR_CAR_TREATMENT_OLD_DEPLOYMENT_NAMES",
-    "UR_CAR_TREATMENT_OLD_QUALIFIED_DEPLOYMENT_NAMES",
-    "UR_CAR_TREATMENT_QUALIFIED_DEPLOYMENT_NAME",
     "qualified_data_publish_deployment_name",
     "qualified_data_treatment_deployment_name",
     "qualified_deployment_name",

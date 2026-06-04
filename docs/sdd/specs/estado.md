@@ -211,7 +211,7 @@ Observacoes:
 Deployment:
 
 ```text
-Data Treatment/Estado
+Data Treatment/Treatment Agendado pela Ingest
 ```
 
 Comando para servir o deployment:
@@ -223,7 +223,7 @@ Comando para servir o deployment:
 Comando para disparar pelo Prefect:
 
 ```powershell
-.\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/Estado"
+'{"theme_folders":["estado"]}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/Treatment Agendado pela Ingest" --params -
 ```
 
 Parametros fixos do deployment:
@@ -272,7 +272,7 @@ Arquivos atualizados pelo processo:
 - [ ] As funcoes obrigatorias aparecem no log.
 - [ ] As funcoes opcionais configuradas aparecem no log.
 - [ ] As verificacoes obrigatorias de qualidade aparecem no log.
-- [ ] O deployment `Estado` recebe `theme_folders=["estado"]`.
+- [ ] O deployment generico recebe `theme_folders=["estado"]`.
 - [ ] Testes automatizados relevantes passam.
 
 ## Validacao

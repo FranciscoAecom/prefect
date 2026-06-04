@@ -267,8 +267,6 @@ Exemplos disponiveis:
 
 ```powershell
 uv run python scripts/serve.py scheduled-treatment
-uv run python scripts/serve.py estado
-.\.venv\Scripts\python.exe scripts\serve.py auto-infracoes
 uv run python scripts/serve.py data-download
 uv run python scripts/serve.py data-publish
 ```
@@ -517,10 +515,10 @@ Para executar uma lista de bases, informe todos os `theme_folders` desejados:
 '{"theme_folders":["<theme_folder_1>","<theme_folder_2>"]}' | uv run python -m prefect deployment run "Data Treatment/<deployment>" --params -
 ```
 
-Deployments sem parametros manuais tambem podem ser disparados diretamente:
+Para executar uma base especifica, use o deployment generico com parametros:
 
 ```powershell
-uv run python -m prefect deployment run "Data Treatment/Autos de Infracao"
+'{"theme_folders":["autos_infracao"]}' | uv run python -m prefect deployment run "Data Treatment/Treatment Agendado pela Ingest" --params -
 ```
 
 Para listar flow runs:

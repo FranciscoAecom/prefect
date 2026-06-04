@@ -2,8 +2,6 @@ import argparse
 import logging
 import threading
 
-from prefect.schedules import Cron
-
 from core.flow.flows import (
     data_download_flow,
     data_treatment_flow,
@@ -11,8 +9,6 @@ from core.flow.flows import (
 )
 from core.prefect_support.admin import scheduled_run_renamer_loop
 from core.prefect_support.deployment_names import (
-    AUTOS_INFRACAO_TREATMENT_DEPLOYMENT_NAME,
-    AUTOS_INFRACAO_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
     DATA_DOWNLOAD_DEPLOYMENT_NAME,
     DATA_PUBLISH_DEPLOYMENT_NAME,
     SCHEDULED_TREATMENT_DEPLOYMENT_NAME,
@@ -36,15 +32,6 @@ def main():
         "scheduled-treatment",
         help="Serve o tratamento agendado pelas linhas schedule da ingest.",
     )
-    subparsers.add_parser(
-        "auto-infracoes",
-        help="Serve o tratamento da base Autos de Infracao.",
-    )
-    subparsers.add_parser("estado", help="Serve o tratamento agendado da base Estado.")
-    subparsers.add_parser(
-        "localidades",
-        help="Serve o tratamento da base Localidades.",
-    )
 
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
@@ -55,12 +42,6 @@ def main():
         serve_data_publish()
     elif args.deployment == "scheduled-treatment":
         serve_scheduled_treatment()
-    elif args.deployment == "auto-infracoes":
-        serve_autos_infracao()
-    elif args.deployment == "estado":
-        serve_estado()
-    elif args.deployment == "localidades":
-        serve_localidades()
 
 
 def serve_data_download():
@@ -98,57 +79,6 @@ def serve_scheduled_treatment():
             "Tratamento agendado a partir do status da planilha ingest no "
             "formato: schedule YYYY-MM-DD HH:MM."
         ),
-    )
-
-
-def serve_autos_infracao():
-    start_scheduled_run_renamer(
-        deployment_name=AUTOS_INFRACAO_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
-        interval_seconds=5,
-    )
-    data_treatment_flow.serve(
-        name=AUTOS_INFRACAO_TREATMENT_DEPLOYMENT_NAME,
-        parameters={"theme_folders": ["autos_infracao"]},
-        tags=["autos_infracao", "treatment"],
-        description=(
-            "Tratamento da base Autos de Infracao ambiental, com parametros "
-            "fixos para executar somente autos_infracao."
-        ),
-    )
-
-
-def serve_estado():
-    deployment_name = "Estado"
-    start_scheduled_run_renamer(
-        deployment_name=f"Data Treatment/{deployment_name}",
-        interval_seconds=5,
-    )
-    data_treatment_flow.serve(
-        name=deployment_name,
-        schedules=[
-            Cron(
-                "0 2 * * *",
-                timezone="America/Sao_Paulo",
-                slug="estado",
-                parameters={"theme_folders": ["estado"]},
-            )
-        ],
-        tags=["estado", "scheduled"],
-        description="Agenda da base de estados.",
-    )
-
-
-def serve_localidades():
-    deployment_name = "Localidades"
-    start_scheduled_run_renamer(
-        deployment_name=f"Data Treatment/{deployment_name}",
-        interval_seconds=5,
-    )
-    data_treatment_flow.serve(
-        name=deployment_name,
-        parameters={"theme_folders": ["localidades"]},
-        tags=["localidades", "treatment"],
-        description="Tratamento da base Localidades do Brasil.",
     )
 
 

@@ -13,8 +13,6 @@ from prefect.client.schemas.objects import StateType
 
 from core.prefect_support.deployment_names import (
     SCHEDULED_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
-    UR_CAR_TREATMENT_OLD_QUALIFIED_DEPLOYMENT_NAMES,
-    UR_CAR_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
 )
 from core.ingest.diagnostics import (
     diagnose_ingest_theme,
@@ -30,8 +28,6 @@ DOWNLOAD_AUTOMATION_NAME = "Dataset baixado -> tratamento de dados"
 DOWNLOAD_AUTOMATION_OLD_NAMES = ("CAR baixado -> tratamento de dados",)
 TREATMENT_DEPLOYMENT_CANDIDATES = (
     SCHEDULED_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
-    UR_CAR_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
-    *UR_CAR_TREATMENT_OLD_QUALIFIED_DEPLOYMENT_NAMES,
 )
 
 

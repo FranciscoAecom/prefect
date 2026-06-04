@@ -279,19 +279,19 @@ md_pcd_enov_20260514.xml
 Deployment:
 
 ```text
-Data Treatment/Autos de Infracao
+Data Treatment/Treatment Agendado pela Ingest
 ```
 
 Comando para servir o deployment:
 
 ```powershell
-.\.venv\Scripts\python.exe scripts\serve.py auto-infracoes
+.\.venv\Scripts\python.exe scripts\serve.py scheduled-treatment
 ```
 
 Comando para disparar pelo Prefect:
 
 ```powershell
-.\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/Autos de Infracao"
+'{"theme_folders":["autos_infracao"]}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/Treatment Agendado pela Ingest" --params -
 ```
 
 Parametros fixos do deployment:

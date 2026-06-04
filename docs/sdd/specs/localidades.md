@@ -244,7 +244,7 @@ md_loc_loc_br_20251119.xml
 Deployment:
 
 ```text
-Data Treatment/Localidades
+Data Treatment/Treatment Agendado pela Ingest
 ```
 
 Comando para servir o deployment:
@@ -256,7 +256,7 @@ Comando para servir o deployment:
 Comando para disparar pelo Prefect:
 
 ```powershell
-.\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/Localidades"
+'{"theme_folders":["localidades"]}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/Treatment Agendado pela Ingest" --params -
 ```
 
 Parametros fixos do deployment:
@@ -309,7 +309,7 @@ O script atualiza:
 - [ ] O XML do bronze e do silver usa prefixo `md_`.
 - [ ] O bronze preserva o bruto sem alterar dados nem nome do arquivo.
 - [ ] O SLD categorizado por `sdb_ct_localidade` e gerado somente no silver.
-- [ ] O deployment `Localidades` recebe `theme_folders=["localidades"]`.
+- [ ] O deployment generico recebe `theme_folders=["localidades"]`.
 - [ ] Testes automatizados relevantes passam.
 
 ## Validacao
