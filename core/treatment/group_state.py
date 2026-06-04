@@ -3,7 +3,7 @@ from collections import defaultdict
 from core.output.paths import build_treatment_group_key
 
 
-class QueueGroupState:
+class TreatmentGroupState:
     def __init__(self, records, enable_group_consolidation):
         self.enable_group_consolidation = enable_group_consolidation
         self.expected_counts = defaultdict(int)

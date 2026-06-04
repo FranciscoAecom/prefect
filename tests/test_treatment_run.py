@@ -1,10 +1,10 @@
-from pathlib import Path
+﻿from pathlib import Path
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
-from core.treatment.queue_loader import TreatmentQueueRunContext
-from core.treatment.queue_runner import run_treatment_queue
+from core.treatment.run_loader import TreatmentRunContext
+from core.treatment.run import run_treatment_queue
 
 
 def _record(sheet_row, record_id, theme_folder, source_path):
@@ -20,12 +20,12 @@ def _record(sheet_row, record_id, theme_folder, source_path):
     )
 
 
-class QueueRunnerTests(unittest.TestCase):
+class TreatmentRunTests(unittest.TestCase):
     def setUp(self):
         self.output_base = str(Path("tests") / "_tmp_output")
 
-    @patch("core.treatment.queue_runner.run_treatment_record")
-    @patch("core.treatment.queue_runner.prepare_treatment_queue")
+    @patch("core.treatment.run.run_treatment_record")
+    @patch("core.treatment.run.prepare_treatment_queue")
     def test_runs_each_record_with_group_state(
         self,
         mock_prepare_treatment_queue,
@@ -35,7 +35,7 @@ class QueueRunnerTests(unittest.TestCase):
             _record(2, 10, "rl_car_ac", "origem_a"),
             _record(2, 10, "rl_car_ac", "origem_a"),
         ]
-        mock_prepare_treatment_queue.return_value = TreatmentQueueRunContext(
+        mock_prepare_treatment_queue.return_value = TreatmentRunContext(
             records=records,
             output_dir=self.output_base,
         )
@@ -54,15 +54,15 @@ class QueueRunnerTests(unittest.TestCase):
             {"keep_individual_outputs_when_grouping": False},
         )
 
-    @patch("core.treatment.queue_runner.run_treatment_record", side_effect=RuntimeError("boom"))
-    @patch("core.treatment.queue_runner.prepare_treatment_queue")
+    @patch("core.treatment.run.run_treatment_record", side_effect=RuntimeError("boom"))
+    @patch("core.treatment.run.prepare_treatment_queue")
     def test_propagates_record_processing_errors(
         self,
         mock_prepare_treatment_queue,
         mock_run_treatment_record,
     ):
         records = [_record(2, 10, "rl_car_ac", "origem_a")]
-        mock_prepare_treatment_queue.return_value = TreatmentQueueRunContext(
+        mock_prepare_treatment_queue.return_value = TreatmentRunContext(
             records=records,
             output_dir=self.output_base,
         )
@@ -74,9 +74,9 @@ class QueueRunnerTests(unittest.TestCase):
         self.assertEqual(mock_prepare_treatment_queue.call_args.args, (self.output_base,))
         mock_run_treatment_record.assert_called_once()
 
-    @patch("core.treatment.queue_runner.run_treatment_record")
-    @patch("core.treatment.queue_runner.prepare_treatment_queue", return_value=None)
-    def test_returns_when_queue_cannot_be_prepared(
+    @patch("core.treatment.run.run_treatment_record")
+    @patch("core.treatment.run.prepare_treatment_queue", return_value=None)
+    def test_returns_when_treatment_cannot_be_prepared(
         self,
         mock_prepare_treatment_queue,
         mock_run_treatment_record,
@@ -86,3 +86,4 @@ class QueueRunnerTests(unittest.TestCase):
         mock_prepare_treatment_queue.assert_called_once()
         self.assertEqual(mock_prepare_treatment_queue.call_args.args, (self.output_base,))
         mock_run_treatment_record.assert_not_called()
+

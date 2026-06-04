@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-from core.deprecations import warn_deprecated
 from core.ingest.dataset_resolver import is_zip_path
 from core.ingest.normalization import stringify
 from core.ingest.plan import build_ingest_execution_plan
@@ -51,11 +50,6 @@ class IngestEligibility:
             and not self.missing_source_path
             and not self.zip_source_path
         )
-
-    @property
-    def can_attempt_processing(self):
-        warn_deprecated("can_attempt_processing", "can_attempt_treatment")
-        return self.can_attempt_treatment
 
     def request_messages(self):
         return tuple(reason_message(reason) for reason in self.request_reasons)

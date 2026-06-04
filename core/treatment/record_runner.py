@@ -36,7 +36,4 @@ def run_treatment_record(
         clear_context_log()
 
 
-run_queue_record = run_treatment_record
-
-
-__all__ = ["run_queue_record", "run_treatment_record"]
+__all__ = ["run_treatment_record"]

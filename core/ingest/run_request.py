@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 
-from core.deprecations import warn_deprecated
 from core.ingest.plan import build_ingest_execution_plan
 from core.ingest.normalization import normalize_status, normalize_theme_folder, stringify
 from core.ingest.filters import QueueFilter
@@ -62,10 +61,6 @@ class IngestRunRequest:
 
     def treatment_statuses_display(self):
         return status_flags_display((self.required_status_flag,))
-
-    def processing_statuses_display(self):
-        warn_deprecated("processing_statuses_display()", "treatment_statuses_display()")
-        return self.treatment_statuses_display()
 
     def to_diagnostic_context(self):
         return {

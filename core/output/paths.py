@@ -11,10 +11,6 @@ def build_treatment_group_key(record):
         str(record.source_path),
     )
 
-
-build_processing_group_key = build_treatment_group_key
-
-
 def build_group_merged_output_path(record, output_dir):
     theme_output_dir = resolve_theme_output_dir(record, output_dir)
     os.makedirs(theme_output_dir, exist_ok=True)

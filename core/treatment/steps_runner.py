@@ -1,5 +1,5 @@
 from core.treatment.steps.bronze_step import persist_bronze_step
-from core.treatment.steps.errors import log_processing_error
+from core.treatment.steps.errors import log_treatment_error
 from core.treatment.steps.input_step import load_input_step
 from core.treatment.steps.mapping_step import prepare_mapping_step
 from core.treatment.steps.output_step import persist_outputs_step
@@ -86,7 +86,7 @@ def _run_timed_step(label, error_message, operation):
         with timed_log_step(label):
             return operation()
     except Exception as exc:
-        log_processing_error(error_message, exc)
+        log_treatment_error(error_message, exc)
         return None
 
 

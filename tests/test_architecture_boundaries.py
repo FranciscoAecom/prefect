@@ -90,7 +90,7 @@ class ArchitectureBoundaryTests(unittest.TestCase):
 
         self.assertEqual(existing_facades, [])
 
-    def test_runtime_code_uses_new_queue_and_processing_modules(self):
+    def test_runtime_code_uses_current_modules_instead_of_removed_root_facades(self):
         offenders = self._files_containing(
             Path("core"),
             "*.py",
@@ -125,7 +125,6 @@ class ArchitectureBoundaryTests(unittest.TestCase):
         shim_paths = [
             Path("core/flow/pipeline.py"),
             Path("core/tasks/pipeline.py"),
-            Path("core/processing/dispatcher.py"),
         ]
 
         existing_shims = [str(path) for path in shim_paths if path.exists()]
@@ -141,20 +140,20 @@ class ArchitectureBoundaryTests(unittest.TestCase):
                 "import core.flow.pipeline",
                 "from core.tasks.pipeline",
                 "import core.tasks.pipeline",
-                "from core.processing.dispatcher",
-                "import core.processing.dispatcher",
                 "data_pipeline_flow",
             ],
         )
 
         self.assertEqual(offenders, [])
 
+    def test_processing_and_queue_compatibility_packages_have_been_removed(self):
+        self.assertFalse(Path("core/processing").exists())
+        self.assertFalse(Path("core/queue").exists())
+
     def test_runtime_code_does_not_import_core_queue_compatibility_package(self):
         offenders = []
         forbidden_terms = ["from core.queue", "import core.queue"]
         for path in Path("core").rglob("*.py"):
-            if path.is_relative_to(Path("core/queue")):
-                continue
             text = path.read_text(encoding="utf-8")
             if any(term in text for term in forbidden_terms):
                 offenders.append(str(path))
@@ -165,8 +164,6 @@ class ArchitectureBoundaryTests(unittest.TestCase):
         offenders = []
         forbidden_terms = ["from core.processing", "import core.processing"]
         for path in Path("core").rglob("*.py"):
-            if path.is_relative_to(Path("core/processing")):
-                continue
             text = path.read_text(encoding="utf-8")
             if any(term in text for term in forbidden_terms):
                 offenders.append(str(path))
@@ -181,20 +178,7 @@ class ArchitectureBoundaryTests(unittest.TestCase):
             "can_attempt_processing",
             "processing_queue",
         ]
-        allowed_paths = {
-            Path("core/config/settings.py"),
-            Path("core/ingest/__init__.py"),
-            Path("core/ingest/eligibility.py"),
-            Path("core/ingest/loader.py"),
-            Path("core/ingest/run_request.py"),
-            Path("core/queue/__init__.py"),
-            Path("core/queue/queue_loader.py"),
-            Path("core/queue/runner.py"),
-            Path("core/treatment/summary.py"),
-        }
         for path in Path("core").rglob("*.py"):
-            if path in allowed_paths:
-                continue
             text = path.read_text(encoding="utf-8")
             if any(term in text for term in forbidden_terms):
                 offenders.append(str(path))

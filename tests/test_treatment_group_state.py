@@ -1,8 +1,8 @@
-import unittest
+﻿import unittest
 from types import SimpleNamespace
 
 from core.treatment.result import TreatmentRecordResult
-from core.treatment.group_state import QueueGroupState
+from core.treatment.group_state import TreatmentGroupState
 
 
 def _record(theme_folder, source_path):
@@ -14,11 +14,11 @@ def _record(theme_folder, source_path):
     )
 
 
-class QueueGroupStateTests(unittest.TestCase):
+class TreatmentGroupStateTests(unittest.TestCase):
     def test_tracks_group_counts_and_id_start(self):
         first = _record("rl_car_ac", "origem_a")
         second = _record("rl_car_ac", "origem_a")
-        state = QueueGroupState([first, second], enable_group_consolidation=True)
+        state = TreatmentGroupState([first, second], enable_group_consolidation=True)
 
         self.assertTrue(state.is_grouped_consolidation(first))
         self.assertEqual(state.id_start_for(first), 1)
@@ -29,7 +29,7 @@ class QueueGroupStateTests(unittest.TestCase):
 
     def test_output_flags_for_single_record(self):
         record = _record("auth_supn", "origem_b")
-        state = QueueGroupState([record], enable_group_consolidation=True)
+        state = TreatmentGroupState([record], enable_group_consolidation=True)
 
         self.assertFalse(state.is_grouped_consolidation(record))
         self.assertTrue(state.use_configured_final_name(record))
@@ -42,7 +42,7 @@ class QueueGroupStateTests(unittest.TestCase):
 
     def test_context_log_and_append_flags(self):
         record = _record("rl_car_ac", "origem_a")
-        state = QueueGroupState([record, record], enable_group_consolidation=True)
+        state = TreatmentGroupState([record, record], enable_group_consolidation=True)
 
         self.assertTrue(state.should_reset_context_log(record))
         state.mark_context_log_started(record)
@@ -57,3 +57,4 @@ class QueueGroupStateTests(unittest.TestCase):
         )
         state.mark_append_started(record)
         self.assertTrue(state.append_started_for(record))
+

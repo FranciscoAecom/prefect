@@ -19,7 +19,6 @@ from core.prefect_support.variables import set_prefect_variable
 
 
 DEFAULT_WORK_POOLS = ("local-treatment", "local-publish")
-LEGACY_WORK_POOLS = ("local-processing",)
 
 
 def set_default_variables(print_fn=print):
@@ -50,7 +49,7 @@ def set_default_blocks(print_fn=print):
 def set_default_work_pools(print_fn=print):
     env = dict(os.environ)
     env.setdefault("PYTHONIOENCODING", "utf-8")
-    for work_pool in (*DEFAULT_WORK_POOLS, *LEGACY_WORK_POOLS):
+    for work_pool in DEFAULT_WORK_POOLS:
         subprocess.run(
             [
                 sys.executable,
@@ -78,7 +77,6 @@ def bootstrap_prefect(create_automation, print_fn=print):
 
 __all__ = [
     "DEFAULT_WORK_POOLS",
-    "LEGACY_WORK_POOLS",
     "bootstrap_prefect",
     "set_default_blocks",
     "set_default_variables",

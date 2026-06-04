@@ -8,7 +8,7 @@ from settings import (
 
 
 @dataclass(frozen=True)
-class QueueRunSettings:
+class TreatmentRunSettings:
     output_base: object = OUTPUT_BASE
     enable_group_consolidation: bool = ENABLE_GROUP_CONSOLIDATION
     keep_individual_outputs_when_grouping: bool = KEEP_INDIVIDUAL_OUTPUTS_WHEN_GROUPING

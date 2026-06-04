@@ -1,4 +1,4 @@
-from core.io.dataset import read_input_dataset
+﻿from core.io.dataset import read_input_dataset
 from core.rules.engine import load_rule_profile
 from core.transforms.attribute_transforms import clean_whitespace, normalize_columns
 from core.utils import log
@@ -17,10 +17,10 @@ def log_dataset_overview(gdf):
     return _log_dataset_overview(gdf)
 
 
-def log_queue_summary(summary, issues):
-    from core.treatment.summary import log_queue_summary as _log_queue_summary
+def log_treatment_summary(summary, issues):
+    from core.treatment.summary import log_treatment_summary as _log_treatment_summary
 
-    return _log_queue_summary(summary, issues)
+    return _log_treatment_summary(summary, issues)
 
 
 def log_input_schema_validation(record, input_attributes):
@@ -83,3 +83,4 @@ def apply_legacy_column_aliases(gdf, record=None):
             + ", ".join(f"{old}->{new}" for old, new in sorted(rename_map.items()))
         )
     return gdf
+

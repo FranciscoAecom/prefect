@@ -1,14 +1,14 @@
-import tempfile
+﻿import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from core.treatment.issue_report import export_queue_issues_report
+from core.treatment.issue_report import export_treatment_issues_report
 
 
-class QueueIssueReportTests(unittest.TestCase):
-    def test_exports_queue_issues_to_xlsx(self):
+class TreatmentIssueReportTests(unittest.TestCase):
+    def test_exports_treatment_issues_to_xlsx(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             issue = SimpleNamespace(
                 sheet_row=2,
@@ -20,7 +20,7 @@ class QueueIssueReportTests(unittest.TestCase):
                 reason="perfil ausente",
             )
 
-            path = export_queue_issues_report(
+            path = export_treatment_issues_report(
                 [issue],
                 temp_dir,
                 timestamp="20260526_154500",
@@ -28,7 +28,7 @@ class QueueIssueReportTests(unittest.TestCase):
 
             self.assertEqual(
                 path,
-                str(Path(temp_dir) / "queue_issues_20260526_154500.xlsx"),
+                str(Path(temp_dir) / "treatment_issues_20260526_154500.xlsx"),
             )
             self.assertTrue(Path(path).exists())
 
@@ -45,7 +45,7 @@ class QueueIssueReportTests(unittest.TestCase):
                 reason="perfil ausente",
             )
 
-            path = export_queue_issues_report(
+            path = export_treatment_issues_report(
                 [issue],
                 temp_dir,
                 timestamp="20260526_154500",
@@ -53,10 +53,11 @@ class QueueIssueReportTests(unittest.TestCase):
 
             self.assertEqual(
                 path,
-                str(Path(temp_dir) / "queue_issues_20260526_154500.csv"),
+                str(Path(temp_dir) / "treatment_issues_20260526_154500.csv"),
             )
             self.assertTrue(Path(path).exists())
 
 
 if __name__ == "__main__":
     unittest.main()
+

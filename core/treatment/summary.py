@@ -2,7 +2,7 @@ from core.utils import log
 from settings import INGEST_TREATMENT_STATUSES, INGEST_SHEET_NAME, INGEST_WORKBOOK_PATH
 
 
-def log_queue_summary(summary, issues):
+def log_treatment_summary(summary, issues):
     log("Resumo da planilha ingest:")
     log(f"  Aba analisada: {INGEST_SHEET_NAME}")
     log(f"  Caminho da planilha: {INGEST_WORKBOOK_PATH}")
@@ -13,7 +13,7 @@ def log_queue_summary(summary, issues):
     log(f"  Registros ignorados com excecao: {summary['issues']}")
 
     if issues:
-        log("Excecoes encontradas na fila ingest:")
+        log("Excecoes encontradas para tratamento:")
         for issue in issues:
             log(
                 "  "
@@ -25,15 +25,8 @@ def log_queue_summary(summary, issues):
 
 
 def _format_treatment_statuses(summary):
-    statuses = (
-        summary.get("treatment_statuses")
-        or summary.get("processing_statuses")
-        or INGEST_TREATMENT_STATUSES
-    )
+    statuses = summary.get("treatment_statuses") or INGEST_TREATMENT_STATUSES
     return ", ".join(str(status) for status in statuses)
-
-
-_format_processing_statuses = _format_treatment_statuses
 
 
 def _format_issue_code(issue):

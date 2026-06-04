@@ -35,10 +35,6 @@ def main():
         help="Serve o tratamento agendado de CAR Uso Restrito.",
     )
     subparsers.add_parser(
-        "ur-car-processing",
-        help="Alias legado de ur-car-treatment.",
-    )
-    subparsers.add_parser(
         "auto-infracoes",
         help="Serve o tratamento da base Autos de Infracao.",
     )
@@ -55,7 +51,7 @@ def main():
         serve_data_download()
     elif args.deployment == "data-publish":
         serve_data_publish()
-    elif args.deployment in {"ur-car-treatment", "ur-car-processing"}:
+    elif args.deployment == "ur-car-treatment":
         serve_ur_car_treatment()
     elif args.deployment == "auto-infracoes":
         serve_autos_infracao()
@@ -100,9 +96,6 @@ def serve_ur_car_treatment():
             "uma base por dia as 17:00."
         ),
     )
-
-
-serve_ur_car_processing = serve_ur_car_treatment
 
 
 def serve_autos_infracao():

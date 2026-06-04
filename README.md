@@ -5,11 +5,12 @@ em lote, orientado pela planilha de ingestao `input/st_Ingest_parameter.xlsx`.
 
 O projeto processa bases `.shp` e `.gpkg`, valida schemas e dominios,
 normaliza atributos, repara geometrias, calcula metricas espaciais e grava
-saidas finais em GeoPackage.
+saidas finais em GeoPackage. Bases `.tif` e `.tiff` usam tratamento raster
+com GDAL.
 
 ## Objetivo
 
-- Ler uma fila de tratamento a partir da aba `datas` da planilha de ingestao.
+- Ler registros de tratamento a partir da aba `datas` da planilha de ingestao.
 - Processar arquivos geoespaciais por perfil de regras em `rules/`.
 - Validar estrutura tabular contra o `input_schema.json` do perfil de regras.
 - Preservar atributos originais com prefixo `sdb_*`.
@@ -25,7 +26,7 @@ saidas finais em GeoPackage.
 
 Arquivos `.zip` nao sao processados diretamente.
 
-Uma linha entra na fila quando:
+Uma linha entra no tratamento quando:
 
 - `status` contem `treatment` para tratamento;
 - `status` contem `download` para download automatico;
@@ -46,9 +47,7 @@ data-pipeline/
 |   |-- downloads/
 |   |-- ingest/
 |   |-- metadata/
-|   |-- processing/
 |   |-- publish/
-|   |-- queue/
 |   |-- rules/
 |   |-- spatial/
 |   |-- treatment/
@@ -72,11 +71,11 @@ data-pipeline/
 
 Componentes principais:
 
-- `main.py`: ponto de entrada da fila automatica.
+- `main.py`: ponto de entrada do tratamento por planilha ingest.
 - `settings.py`: configuracoes centrais do pipeline.
 - `core/`: motor de ingestao, validacao, tratamento, regras e escrita.
 - `core/downloads/`: catalogo, conectores e utilitarios de download.
-- `core/treatment/`: servico, fila, dispatcher e handlers vetorial/raster do tratamento.
+- `core/treatment/`: servico, execucao, dispatcher e handlers vetorial/raster do tratamento.
 - `core/publish/`: descoberta, publicacao, titulos, SLD e XML para catalogo.
 - `core/silver/`: persistencia da camada silver, saida principal, XML, SLD e qualidade.
 - `core/rules/contracts.py`: contrato tecnico das chaves aceitas nos perfis JSON.
@@ -136,7 +135,7 @@ Valide o GDAL no ambiente:
 & "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" run -n prefect-gdal python -m unittest tests.test_raster_gdal_integration
 ```
 
-Quando houver raster na fila, execute tambem o Prefect pelo ambiente
+Quando houver raster nos registros de tratamento, execute tambem o Prefect pelo ambiente
 `prefect-gdal`. Nao use `uv run` nesse caso, pois ele executa o `.venv` padrao
 do projeto; se esse `.venv` nao tiver `osgeo`, o processamento `.tif/.tiff`
 falhara.
@@ -166,7 +165,7 @@ uv run python main.py
 ```
 
 O comando acima executa o flow Prefect `Data Treatment`, com uma task para
-preparar a fila e uma task para cada registro processado.
+preparar o tratamento e uma task para cada registro processado.
 
 Ou, usando o Python instalado diretamente:
 
@@ -267,7 +266,7 @@ uv run python scripts/serve.py <deployment>
 Exemplos disponiveis:
 
 ```powershell
-uv run python scripts/serve.py ur-car-processing
+uv run python scripts/serve.py ur-car-treatment
 uv run python scripts/serve.py estado
 .\.venv\Scripts\python.exe scripts\serve.py auto-infracoes
 uv run python scripts/serve.py data-download
@@ -734,10 +733,10 @@ As constantes principais ficam em `settings.py`, incluindo:
 - `INGEST_WORKBOOK_PATH`
 - `INGEST_SHEET_NAME`
 - `DICTIONARIES_SHEET_NAME`
-- `INGEST_READY_STATUS`
 - `INGEST_DOWNLOAD_STATUS`
-- `INGEST_REPROCESSING_STATUS`
-- `INGEST_PROCESSING_STATUSES`
+- `INGEST_TREATMENT_STATUS`
+- `INGEST_PUBLISH_STATUS`
+- `INGEST_TREATMENT_STATUSES`
 - `OUTPUT_BASE`
 - `RULES_BASE`
 - `BATCH_SIZE`

@@ -10,7 +10,6 @@ from core.output.naming import (
 )
 from core.output.paths import (
     build_group_log_path,
-    build_processing_group_key,
     build_treatment_group_key,
 )
 from core.output.quality import (
@@ -34,7 +33,6 @@ __all__ = [
     "append_group_consolidated_output",
     "assign_output_identifiers",
     "build_group_log_path",
-    "build_processing_group_key",
     "build_treatment_group_key",
     "build_final_output_base_name",
     "build_output_quality_summary",

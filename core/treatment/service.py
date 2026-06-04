@@ -2,13 +2,13 @@ from contextlib import ExitStack
 
 from core.execution_locks import named_execution_lock
 from core.ingest.run_request import IngestRunRequest
-from core.treatment.steps.errors import log_processing_error
+from core.treatment.steps.errors import log_treatment_error
 from core.treatment.steps.events import emit_project_resolved_event, emit_record_start_events
 from core.rules.autofix_service import RuleAutofixService
 from core.treatment.context_factory import build_treatment_context
-from core.treatment.group_state import QueueGroupState
+from core.treatment.group_state import TreatmentGroupState
 from core.treatment.result import treatment_failure_result, treatment_success_result
-from core.treatment.settings import QueueRunSettings
+from core.treatment.settings import TreatmentRunSettings
 from core.treatment.steps_runner import run_treatment_steps
 from core.utils import log
 
@@ -33,7 +33,7 @@ class TreatmentService:
         try:
             context = build_treatment_context(record, output_dir, id_start=id_start)
         except Exception as exc:
-            log_processing_error("Erro ao resolver configuracao do projeto", exc)
+            log_treatment_error("Erro ao resolver configuracao do projeto", exc)
             return self._failure_result()
 
         emit_project_resolved_event(context)
@@ -53,7 +53,7 @@ class TreatmentService:
 def run_data_treatment(output_base=None, theme_folders=None, source_path_overrides=None, force=False):
     from core.tasks.treatment import prepare_treatment_queue_task, run_treatment_record_task
 
-    settings = QueueRunSettings.from_output_base(output_base)
+    settings = TreatmentRunSettings.from_output_base(output_base)
     run_request = IngestRunRequest.from_legacy(
         theme_folders=theme_folders,
         source_path_overrides=source_path_overrides,
@@ -62,24 +62,24 @@ def run_data_treatment(output_base=None, theme_folders=None, source_path_overrid
     queue_filter = run_request.queue_filter
 
     with _queue_filter_locks(queue_filter):
-        queue_context = prepare_treatment_queue_task(
+        treatment_context = prepare_treatment_queue_task(
             settings.output_base,
             theme_folders,
             source_path_overrides,
             force,
         )
-        if queue_context is None:
+        if treatment_context is None:
             return
 
-        group_state = QueueGroupState(
-            queue_context.records,
+        group_state = TreatmentGroupState(
+            treatment_context.records,
             enable_group_consolidation=settings.enable_group_consolidation,
         )
 
-        for record in queue_context.records:
+        for record in treatment_context.records:
             run_treatment_record_task(
                 record,
-                queue_context.output_dir,
+                treatment_context.output_dir,
                 group_state,
                 settings.keep_individual_outputs_when_grouping,
             )
@@ -90,7 +90,7 @@ def run_data_treatment(output_base=None, theme_folders=None, source_path_overrid
 def _queue_filter_locks(queue_filter):
     stack = ExitStack()
     for theme_folder in sorted(queue_filter.theme_folders):
-        stack.enter_context(named_execution_lock(f"queue-{theme_folder}"))
+        stack.enter_context(named_execution_lock(f"treatment-{theme_folder}"))
     return stack
 
 

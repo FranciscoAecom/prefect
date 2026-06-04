@@ -1,13 +1,13 @@
-import unittest
+﻿import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from core.treatment.summary import log_queue_summary
+from core.treatment.summary import log_treatment_summary
 
 
-class QueueSummaryTests(unittest.TestCase):
+class TreatmentSummaryTests(unittest.TestCase):
     @patch("core.treatment.summary.log")
-    def test_logs_queue_summary_and_issues(self, mock_log):
+    def test_logs_treatment_summary_and_issues(self, mock_log):
         summary = {
             "total_records": 2,
             "ready_candidates": 1,
@@ -25,7 +25,7 @@ class QueueSummaryTests(unittest.TestCase):
             )
         ]
 
-        log_queue_summary(summary, issues)
+        log_treatment_summary(summary, issues)
 
         messages = [call.args[0] for call in mock_log.call_args_list]
         self.assertIn("Resumo da planilha ingest:", messages)
@@ -34,7 +34,7 @@ class QueueSummaryTests(unittest.TestCase):
             "  Status elegiveis: treatment, treatment",
             messages,
         )
-        self.assertIn("Excecoes encontradas na fila ingest:", messages)
+        self.assertIn("Excecoes encontradas para tratamento:", messages)
         self.assertIn(
             "  Linha 3 | ID=20 | theme_folder=<vazio> | "
             "codigo=missing_source_path | motivo=arquivo ausente",
@@ -42,7 +42,7 @@ class QueueSummaryTests(unittest.TestCase):
         )
 
     @patch("core.treatment.summary.log")
-    def test_logs_queue_issue_without_code(self, mock_log):
+    def test_logs_treatment_issue_without_code(self, mock_log):
         summary = {
             "total_records": 1,
             "ready_candidates": 1,
@@ -58,10 +58,11 @@ class QueueSummaryTests(unittest.TestCase):
             )
         ]
 
-        log_queue_summary(summary, issues)
+        log_treatment_summary(summary, issues)
 
         messages = [call.args[0] for call in mock_log.call_args_list]
         self.assertIn(
             "  Linha 2 | ID=10 | theme_folder=localidades | motivo=erro legado",
             messages,
         )
+

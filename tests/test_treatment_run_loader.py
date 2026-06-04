@@ -1,10 +1,10 @@
-import unittest
+﻿import unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
 from core.ingest.run_request import IngestRunRequest
-from core.treatment.queue_loader import TreatmentQueueRunContext, prepare_treatment_queue
+from core.treatment.run_loader import TreatmentRunContext, prepare_treatment_queue
 
 
 def _record():
@@ -16,19 +16,19 @@ def _record():
     )
 
 
-class QueueLoaderTests(unittest.TestCase):
+class TreatmentRunLoaderTests(unittest.TestCase):
     def setUp(self):
         self.output_base = str(Path("tests") / "_tmp_output")
 
-    @patch("core.treatment.queue_loader.os.makedirs")
-    @patch("core.treatment.queue_loader.export_queue_issues_report")
-    @patch("core.treatment.queue_loader.log_queue_summary")
-    @patch("core.treatment.queue_loader.load_treatment_queue")
-    def test_prepares_queue_context(
+    @patch("core.treatment.run_loader.os.makedirs")
+    @patch("core.treatment.run_loader.export_treatment_issues_report")
+    @patch("core.treatment.run_loader.log_treatment_summary")
+    @patch("core.treatment.run_loader.load_treatment_queue")
+    def test_prepares_treatment_context(
         self,
         mock_load_treatment_queue,
-        mock_log_queue_summary,
-        mock_export_queue_issues_report,
+        mock_log_treatment_summary,
+        mock_export_treatment_issues_report,
         mock_makedirs,
     ):
         records = [_record()]
@@ -40,21 +40,21 @@ class QueueLoaderTests(unittest.TestCase):
 
         self.assertEqual(
             result,
-            TreatmentQueueRunContext(records=records, output_dir=self.output_base),
+            TreatmentRunContext(records=records, output_dir=self.output_base),
         )
-        mock_log_queue_summary.assert_called_once_with(summary, issues)
-        mock_export_queue_issues_report.assert_not_called()
+        mock_log_treatment_summary.assert_called_once_with(summary, issues)
+        mock_export_treatment_issues_report.assert_not_called()
         mock_makedirs.assert_called_once_with(self.output_base, exist_ok=True)
 
-    @patch("core.treatment.queue_loader.log")
-    @patch("core.treatment.queue_loader.export_queue_issues_report")
-    @patch("core.treatment.queue_loader.log_queue_summary")
-    @patch("core.treatment.queue_loader.load_treatment_queue")
-    def test_returns_none_for_empty_queue(
+    @patch("core.treatment.run_loader.log")
+    @patch("core.treatment.run_loader.export_treatment_issues_report")
+    @patch("core.treatment.run_loader.log_treatment_summary")
+    @patch("core.treatment.run_loader.load_treatment_queue")
+    def test_returns_none_for_empty_treatment(
         self,
         mock_load_treatment_queue,
-        mock_log_queue_summary,
-        mock_export_queue_issues_report,
+        mock_log_treatment_summary,
+        mock_export_treatment_issues_report,
         mock_log,
     ):
         summary = {"total_records": 0}
@@ -64,19 +64,21 @@ class QueueLoaderTests(unittest.TestCase):
         result = prepare_treatment_queue(self.output_base)
 
         self.assertIsNone(result)
-        mock_log_queue_summary.assert_called_once_with(summary, issues)
-        mock_export_queue_issues_report.assert_not_called()
-        mock_log.assert_called_once_with("Nenhum arquivo elegivel encontrado para iniciar a esteira.")
+        mock_log_treatment_summary.assert_called_once_with(summary, issues)
+        mock_export_treatment_issues_report.assert_not_called()
+        mock_log.assert_called_once_with(
+            "Nenhum arquivo elegivel encontrado para iniciar o tratamento."
+        )
 
-    @patch("core.treatment.queue_loader.log")
-    @patch("core.treatment.queue_loader.export_queue_issues_report")
-    @patch("core.treatment.queue_loader.log_queue_summary")
-    @patch("core.treatment.queue_loader.load_treatment_queue")
-    def test_exports_queue_issues_report(
+    @patch("core.treatment.run_loader.log")
+    @patch("core.treatment.run_loader.export_treatment_issues_report")
+    @patch("core.treatment.run_loader.log_treatment_summary")
+    @patch("core.treatment.run_loader.load_treatment_queue")
+    def test_exports_treatment_issues_report(
         self,
         mock_load_treatment_queue,
-        _mock_log_queue_summary,
-        mock_export_queue_issues_report,
+        _mock_log_treatment_summary,
+        mock_export_treatment_issues_report,
         mock_log,
     ):
         records = [_record()]
@@ -94,24 +96,24 @@ class QueueLoaderTests(unittest.TestCase):
             [issue],
             {"total_records": 1},
         )
-        mock_export_queue_issues_report.return_value = (
-            r"C:\tmp\queue_issues_20260526_154500.xlsx"
+        mock_export_treatment_issues_report.return_value = (
+            r"C:\tmp\treatment_issues_20260526_154500.xlsx"
         )
 
         prepare_treatment_queue(self.output_base)
 
-        mock_export_queue_issues_report.assert_called_once_with(
+        mock_export_treatment_issues_report.assert_called_once_with(
             [issue],
             self.output_base,
         )
         mock_log.assert_called_once_with(
-            "Relatorio de issues da fila ingest gerado: "
-            r"C:\tmp\queue_issues_20260526_154500.xlsx"
+            "Relatorio de issues do tratamento gerado: "
+            r"C:\tmp\treatment_issues_20260526_154500.xlsx"
         )
 
-    @patch("core.treatment.queue_loader.log")
-    @patch("core.treatment.queue_loader.load_treatment_queue")
-    def test_returns_none_when_queue_loading_fails(
+    @patch("core.treatment.run_loader.log")
+    @patch("core.treatment.run_loader.load_treatment_queue")
+    def test_returns_none_when_treatment_loading_fails(
         self,
         mock_load_treatment_queue,
         mock_log,
@@ -121,15 +123,17 @@ class QueueLoaderTests(unittest.TestCase):
         result = prepare_treatment_queue(self.output_base)
 
         self.assertIsNone(result)
-        mock_log.assert_called_once_with("Erro ao carregar a fila ingest: boom")
+        mock_log.assert_called_once_with(
+            "Erro ao carregar registros de tratamento da ingest: boom"
+        )
 
-    @patch("core.treatment.queue_loader.os.makedirs")
-    @patch("core.treatment.queue_loader.log_queue_summary")
-    @patch("core.treatment.queue_loader.load_treatment_queue")
+    @patch("core.treatment.run_loader.os.makedirs")
+    @patch("core.treatment.run_loader.log_treatment_summary")
+    @patch("core.treatment.run_loader.load_treatment_queue")
     def test_passes_run_request_to_loader(
         self,
         mock_load_treatment_queue,
-        _mock_log_queue_summary,
+        _mock_log_treatment_summary,
         _mock_makedirs,
     ):
         records = [_record()]
@@ -142,3 +146,4 @@ class QueueLoaderTests(unittest.TestCase):
         prepare_treatment_queue(self.output_base, run_request=run_request)
 
         self.assertIs(mock_load_treatment_queue.call_args.kwargs["run_request"], run_request)
+

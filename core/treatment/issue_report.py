@@ -6,7 +6,7 @@ import pandas as pd
 from core.ingest.issues import issues_to_dicts
 
 
-def export_queue_issues_report(issues, output_base, timestamp=None):
+def export_treatment_issues_report(issues, output_base, timestamp=None):
     if not issues:
         return ""
 
@@ -14,7 +14,7 @@ def export_queue_issues_report(issues, output_base, timestamp=None):
     output_dir.mkdir(parents=True, exist_ok=True)
 
     timestamp = timestamp or datetime.now().strftime("%Y%m%d_%H%M%S")
-    xlsx_path = output_dir / f"queue_issues_{timestamp}.xlsx"
+    xlsx_path = output_dir / f"treatment_issues_{timestamp}.xlsx"
     dataframe = pd.DataFrame(issues_to_dicts(issues))
 
     try:
@@ -26,4 +26,4 @@ def export_queue_issues_report(issues, output_base, timestamp=None):
         return str(csv_path)
 
 
-__all__ = ["export_queue_issues_report"]
+__all__ = ["export_treatment_issues_report"]

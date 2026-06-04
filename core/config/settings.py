@@ -7,7 +7,6 @@ from core.config.defaults import (
     DEFAULT_DOWNLOAD_ARCHIVE_BASE,
     DEFAULT_DOWNLOAD_EXTRACT_BASE,
 )
-from core.deprecations import warn_deprecated
 
 
 @dataclass(frozen=True)
@@ -47,11 +46,6 @@ class IngestSettings:
     @property
     def treatment_statuses(self):
         return (self.treatment_status,)
-
-    @property
-    def processing_statuses(self):
-        warn_deprecated("processing_statuses", "treatment_statuses")
-        return self.treatment_statuses
 
 
 @dataclass(frozen=True)
@@ -99,14 +93,6 @@ class AppSettings:
     treatment: TreatmentSettings = TreatmentSettings()
     quality: QualitySettings = QualitySettings()
     default_rule_profile: str = "default"
-
-    @property
-    def processing(self):
-        warn_deprecated("APP_SETTINGS.processing", "APP_SETTINGS.treatment")
-        return self.treatment
-
-
-ProcessingSettings = TreatmentSettings
 
 
 APP_SETTINGS = AppSettings()

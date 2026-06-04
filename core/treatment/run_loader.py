@@ -8,13 +8,13 @@ from core.ingest.diagnostics import (
 from core.ingest.loader import load_treatment_queue
 from core.ingest.run_request import IngestRunRequest
 from core.ingest.filters import QueueFilter
-from core.treatment.issue_report import export_queue_issues_report
-from core.treatment.summary import log_queue_summary
+from core.treatment.issue_report import export_treatment_issues_report
+from core.treatment.summary import log_treatment_summary
 from core.utils import log
 
 
 @dataclass(frozen=True)
-class QueueRunContext:
+class TreatmentRunContext:
     records: list
     output_dir: str
 
@@ -34,39 +34,36 @@ def prepare_treatment_queue(
         force=force,
     )
     try:
-        treatment_queue, queue_issues, queue_summary = load_treatment_queue(
+        treatment_records, treatment_issues, treatment_summary = load_treatment_queue(
             run_request=run_request,
         )
     except Exception as exc:
-        log(f"Erro ao carregar a fila ingest: {exc}")
+        log(f"Erro ao carregar registros de tratamento da ingest: {exc}")
         return None
 
-    log_queue_summary(queue_summary, queue_issues)
-    _export_queue_issues(output_base, queue_issues)
+    log_treatment_summary(treatment_summary, treatment_issues)
+    _export_treatment_issues(output_base, treatment_issues)
 
-    if not treatment_queue:
-        log("Nenhum arquivo elegivel encontrado para iniciar a esteira.")
-        log_empty_queue_diagnostics(run_request=run_request)
+    if not treatment_records:
+        log("Nenhum arquivo elegivel encontrado para iniciar o tratamento.")
+        log_empty_treatment_diagnostics(run_request=run_request)
         return None
 
     output_dir = str(output_base)
-    if not all(getattr(record, "output_dir", "") for record in treatment_queue):
+    if not all(getattr(record, "output_dir", "") for record in treatment_records):
         os.makedirs(output_dir, exist_ok=True)
-    return QueueRunContext(records=treatment_queue, output_dir=output_dir)
+    return TreatmentRunContext(records=treatment_records, output_dir=output_dir)
 
 
-TreatmentQueueRunContext = QueueRunContext
-
-
-def _export_queue_issues(output_base, queue_issues):
-    if not queue_issues:
+def _export_treatment_issues(output_base, treatment_issues):
+    if not treatment_issues:
         return
-    report_path = export_queue_issues_report(queue_issues, output_base)
+    report_path = export_treatment_issues_report(treatment_issues, output_base)
     if report_path:
-        log(f"Relatorio de issues da fila ingest gerado: {report_path}")
+        log(f"Relatorio de issues do tratamento gerado: {report_path}")
 
 
-def log_empty_queue_diagnostics(theme_folders=None, queue_filter=None, run_request=None):
+def log_empty_treatment_diagnostics(theme_folders=None, queue_filter=None, run_request=None):
     run_request = run_request or IngestRunRequest.from_legacy(
         theme_folders=theme_folders,
         queue_filter=queue_filter,
@@ -83,8 +80,7 @@ def log_empty_queue_diagnostics(theme_folders=None, queue_filter=None, run_reque
 
 
 __all__ = [
-    "QueueRunContext",
-    "TreatmentQueueRunContext",
-    "log_empty_queue_diagnostics",
+    "TreatmentRunContext",
+    "log_empty_treatment_diagnostics",
     "prepare_treatment_queue",
 ]

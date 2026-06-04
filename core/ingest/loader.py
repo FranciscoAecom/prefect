@@ -24,7 +24,6 @@ from core.rules.engine import (
     resolve_rule_profile_for_theme,
 )
 from core.versioning import resolve_dataset_version_plan
-import warnings
 from settings import (
     INGEST_TREATMENT_STATUSES,
     INGEST_SHEET_NAME,
@@ -93,15 +92,6 @@ def load_treatment_queue(
 
     summary = _build_summary(total_records, ready_candidates, eligible_records, issues, run_request)
     return eligible_records, issues, summary
-
-
-def load_processing_queue(*args, **kwargs):
-    warnings.warn(
-        "load_processing_queue() esta depreciado; use load_treatment_queue().",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return load_treatment_queue(*args, **kwargs)
 
 
 def _build_run_request(
@@ -234,7 +224,6 @@ def _build_summary(total_records, ready_candidates, eligible_records, issues, ru
         "eligible_records": len(eligible_records),
         "issues": len(issues),
         "treatment_statuses": run_request.treatment_statuses_display(),
-        "processing_statuses": run_request.treatment_statuses_display(),
         "force": run_request.force,
     }
 
@@ -330,4 +319,4 @@ def _resolve_versioned_dirs(record):
         "temp_dir": str(plan.temp_dir),
     }
 
-__all__ = ["load_processing_queue", "load_treatment_queue"]
+__all__ = ["load_treatment_queue"]

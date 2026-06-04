@@ -1,9 +1,9 @@
-import unittest
+﻿import unittest
 from types import SimpleNamespace
 from unittest.mock import call, patch
 
 from core.treatment.result import TreatmentRecordResult
-from core.treatment.group_state import QueueGroupState
+from core.treatment.group_state import TreatmentGroupState
 from core.treatment.record_runner import run_treatment_record
 
 
@@ -36,7 +36,7 @@ class QueueRecordRunnerTests(unittest.TestCase):
             _record(2, 10, "rl_car_ac", "origem_a"),
             _record(2, 10, "rl_car_ac", "origem_a"),
         ]
-        group_state = QueueGroupState(records, enable_group_consolidation=True)
+        group_state = TreatmentGroupState(records, enable_group_consolidation=True)
         mock_process_by_kind.side_effect = [
             TreatmentRecordResult(3, None, "gdf1"),
             TreatmentRecordResult(2, None, "gdf2"),
@@ -76,7 +76,7 @@ class QueueRecordRunnerTests(unittest.TestCase):
         mock_clear_context_log,
     ):
         record = _record(2, 10, "rl_car_ac", "origem_a")
-        group_state = QueueGroupState([record], enable_group_consolidation=True)
+        group_state = TreatmentGroupState([record], enable_group_consolidation=True)
 
         with self.assertRaisesRegex(RuntimeError, "boom"):
             run_treatment_record(
@@ -102,7 +102,7 @@ class QueueRecordRunnerTests(unittest.TestCase):
         record = _record(2, 10, "raster_precipitacao", "chuva")
         record.dataset_kind = "raster"
         record.input_path = "chuva.tif"
-        group_state = QueueGroupState([record], enable_group_consolidation=True)
+        group_state = TreatmentGroupState([record], enable_group_consolidation=True)
         mock_process_by_kind.return_value = TreatmentRecordResult(
             processed_count=1,
             output_path="saida.tif",
@@ -124,3 +124,4 @@ class QueueRecordRunnerTests(unittest.TestCase):
         )
         mock_set_context_log.assert_called_once()
         mock_clear_context_log.assert_called_once()
+

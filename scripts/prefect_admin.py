@@ -41,7 +41,8 @@ TREATMENT_DEPLOYMENT_CANDIDATES = (
     UR_CAR_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
     *UR_CAR_TREATMENT_OLD_QUALIFIED_DEPLOYMENT_NAMES,
 )
-PROCESSING_DEPLOYMENT_CANDIDATES = TREATMENT_DEPLOYMENT_CANDIDATES
+
+
 def main():
     parser = argparse.ArgumentParser(description="Administracao local do Prefect.")
     subparsers = parser.add_subparsers(dest="command", required=True)
