@@ -76,7 +76,7 @@ def _issue_context():
         "sheet_row": 2,
         "record_id": 10,
         "theme_folder": "localidades",
-        "status": "Waiting Update",
+        "status": "treatment",
         "source_path": r"L:\base.gpkg",
     }
 

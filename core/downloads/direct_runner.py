@@ -1,8 +1,7 @@
 from pathlib import Path
 
 from core.downloads.config import DownloadRunOptions
-from core.flow.pipeline import data_pipeline_flow
-from core.flow.pipeline_publish import publish_record_outputs_direct
+from core.flow.publish import publish_record_outputs_direct
 from core.utils import log
 
 
@@ -148,15 +147,6 @@ def run_single_download_direct(
 
     if run_options.emit_download_event:
         emit_dataset_downloaded_event_task.fn(extracted)
-
-    if run_options.process_after_download:
-        data_pipeline_flow.fn(
-            output_base=run_options.output_base,
-            theme_folders=[extracted["theme_folder"]],
-            source_path_overrides={
-                extracted["theme_folder"]: extracted["extract_dir"],
-            },
-        )
 
     return extracted
 

@@ -13,7 +13,7 @@ from core.versioning.paths import (
 
 def _record(**overrides):
     values = {
-        "status": "Waiting Update",
+        "status": "treatment",
         "access_constraints": "restricted",
         "category_acronym": "pcd",
         "theme_folder": "autos_infracao",
@@ -41,7 +41,7 @@ class VersioningPathsTests(unittest.TestCase):
         self.assertEqual(plan.bronze_dir, base / "bronze_data" / expected_tail)
         self.assertEqual(plan.silver_dir, base / "silver_data" / expected_tail)
 
-    def test_waiting_update_uses_next_version_when_bronze_has_geographic_file(self):
+    def test_treatment_uses_next_version_when_bronze_has_geographic_file(self):
         with self.subTest("gpkg conflict"):
             base = Path("tests") / "_tmp_versioning_gpkg"
             self.addCleanup(lambda: _remove_tree(base))
@@ -82,7 +82,7 @@ class VersioningPathsTests(unittest.TestCase):
 
         self.assertEqual(plan.version, "00")
 
-    def test_reprocessing_reuses_latest_existing_version(self):
+    def test_treatment_does_not_reuse_existing_version(self):
         base = Path("tests") / "_tmp_versioning_reprocess"
         self.addCleanup(lambda: _remove_tree(base))
         date_root = (
@@ -97,15 +97,11 @@ class VersioningPathsTests(unittest.TestCase):
         (date_root / "00").mkdir(parents=True)
         (date_root / "02").mkdir(parents=True)
 
-        plan = resolve_dataset_version_plan(
-            _record(status="Reprocessing"),
-            base_path=base,
-            create=False,
-        )
+        plan = resolve_dataset_version_plan(_record(), base_path=base, create=False)
 
-        self.assertEqual(plan.version, "02")
+        self.assertEqual(plan.version, "00")
 
-    def test_reprocessing_uses_latest_existing_version(self):
+    def test_treatment_uses_next_available_version(self):
         base = Path("tests") / "_tmp_versioning_reprocess_latest"
         self.addCleanup(lambda: _remove_tree(base))
         date_root = (
@@ -122,10 +118,10 @@ class VersioningPathsTests(unittest.TestCase):
 
         version = resolve_next_available_version(
             date_root,
-            status="Reprocessing",
+            status="treatment",
         )
 
-        self.assertEqual(version, "02")
+        self.assertEqual(version, "00")
 
     def test_contains_geographic_dataset_detects_shp_or_gpkg(self):
         base = Path("tests") / "_tmp_versioning_geo"

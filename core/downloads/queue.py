@@ -6,7 +6,8 @@ from core.downloads.catalog import (
     resolve_download_target_for_theme_folder,
     resolve_region_from_theme_folder,
 )
-from core.ingest.normalization import normalize_status, normalize_theme_folder, stringify
+from core.ingest.normalization import normalize_theme_folder, stringify
+from core.ingest.status_flags import has_download_flag, invalid_status_flags
 from core.queue.filters import QueueFilter
 from settings import INGEST_DOWNLOAD_STATUS, INGEST_SHEET_NAME, INGEST_WORKBOOK_PATH
 
@@ -44,7 +45,6 @@ def load_download_queue(
     queue_filter=None,
 ):
     dataframe = pd.read_excel(workbook_path, sheet_name=sheet_name)
-    download_status_normalized = normalize_status(download_status)
     queue_filter = queue_filter or QueueFilter.from_theme_folders(theme_folders)
 
     eligible_records = []
@@ -59,10 +59,23 @@ def load_download_queue(
         status = stringify(row.get("status"))
         versioning_metadata = _extract_versioning_metadata(row)
 
-        if normalize_status(status) != download_status_normalized:
+        if not has_download_flag(status):
             continue
 
         download_candidates += 1
+
+        invalid_flags = invalid_status_flags(status)
+        if invalid_flags:
+            issues.append(
+                DownloadQueueIssue(
+                    sheet_row=sheet_row,
+                    record_id=record_id,
+                    theme_folder=theme_folder,
+                    status=status,
+                    reason=f"Status contem flags invalidas: {', '.join(invalid_flags)}",
+                )
+            )
+            continue
 
         if not queue_filter.matches_theme_folder(theme_folder):
             continue

@@ -11,8 +11,8 @@ from core.tasks.pipeline import prepare_queue_task, run_queue_record_task
 from core.utils import log
 
 
-@flow(name="Data Pipeline", flow_run_name=flow_run_name, log_prints=True)
-def data_pipeline_flow(output_base=None, theme_folders=None, source_path_overrides=None, force=False):
+@flow(name="Data Treatment", flow_run_name=flow_run_name, log_prints=True)
+def data_treatment_flow(output_base=None, theme_folders=None, source_path_overrides=None, force=False):
     settings = QueueRunSettings.from_output_base(output_base)
     run_request = IngestRunRequest.from_legacy(
         theme_folders=theme_folders,
@@ -54,4 +54,7 @@ def _queue_filter_locks(queue_filter):
     return stack
 
 
-__all__ = ["data_pipeline_flow"]
+data_pipeline_flow = data_treatment_flow
+
+
+__all__ = ["data_pipeline_flow", "data_treatment_flow"]

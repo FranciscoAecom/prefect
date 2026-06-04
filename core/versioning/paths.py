@@ -4,19 +4,17 @@ from pathlib import Path
 
 import pandas as pd
 
-from core.ingest.normalization import normalize_status, normalize_theme_folder, stringify
+from core.ingest.normalization import normalize_theme_folder, stringify
+from core.ingest.status_flags import has_download_flag, has_treatment_flag
 from settings import (
     DATA_LAKE_BASE,
     DATA_LAKE_BRONZE_STAGE,
     DATA_LAKE_SILVER_STAGE,
     DATA_LAKE_TEMP_STAGE,
-    INGEST_DOWNLOAD_STATUS,
-    INGEST_READY_STATUS,
-    INGEST_REPROCESSING_STATUS,
 )
 
 
-GEOGRAPHIC_SUFFIXES = {".gpkg", ".shp"}
+GEOGRAPHIC_SUFFIXES = {".gpkg", ".shp", ".tif", ".tiff"}
 VERSION_START = "00"
 VERSION_WIDTH = 2
 
@@ -34,10 +32,6 @@ class DatasetVersionPlan:
     temp_dir: Path
     bronze_dir: Path
     silver_dir: Path
-
-    @property
-    def is_reprocessing(self):
-        return normalize_status(self.status) == normalize_status(INGEST_REPROCESSING_STATUS)
 
 
 def resolve_dataset_version_plan(record, base_path=DATA_LAKE_BASE, create=True):
@@ -118,18 +112,10 @@ def build_stage_root(
 
 def resolve_next_available_version(date_root, status):
     date_root = Path(date_root)
-    normalized_status = normalize_status(status)
-
-    if normalized_status == normalize_status(INGEST_REPROCESSING_STATUS):
-        return resolve_reprocessing_version(date_root)
-
-    if normalized_status not in {
-        normalize_status(INGEST_READY_STATUS),
-        normalize_status(INGEST_DOWNLOAD_STATUS),
-    }:
+    if not (has_treatment_flag(status) or has_download_flag(status)):
         raise ValueError(
             "Status sem regra de versionamento: "
-            f"{status}. Use Download, Waiting Update ou Reprocessing."
+            f"{status}. Use download, treatment ou download-treatment."
         )
 
     version_number = int(VERSION_START)
@@ -139,21 +125,6 @@ def resolve_next_available_version(date_root, status):
         if not contains_geographic_dataset(candidate_dir):
             return candidate
         version_number += 1
-
-
-def resolve_reprocessing_version(date_root):
-    date_root = Path(date_root)
-    existing_versions = sorted(
-        candidate.name
-        for candidate in date_root.iterdir()
-        if candidate.is_dir() and candidate.name.isdigit()
-    ) if date_root.exists() else []
-    if existing_versions:
-        return existing_versions[-1]
-
-    raise FileNotFoundError(
-        "Reprocessing exige uma versao existente em bronze_data para a data informada."
-    )
 
 
 def contains_geographic_dataset(path):

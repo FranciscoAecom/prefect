@@ -1,4 +1,4 @@
-﻿# Spec: autos_infracao/autos_infracao
+# Spec: autos_infracao/autos_infracao
 
 Status: Implementado
 Responsavel: Ribeiro / Codex
@@ -18,7 +18,7 @@ completa `pnt_pcd_enov_20260514.gpkg`.
 - Status esperado na ingest: `waiting update`
 - Formato esperado: camada vetorial de pontos
 - Geometria esperada: ponto
-- Base de referencia usada para montar dominios: `C:\Temp\Repositórios\explorer\teste.xlsx`
+- Base de referencia usada para montar dominios: `C:\Temp\Reposit�rios\explorer\teste.xlsx`
 - Atributos considerados em `domains.json`: apenas campos marcados em verde na planilha de referencia.
 
 ## Configuracao Do Projeto
@@ -279,7 +279,7 @@ md_pcd_enov_20260514.xml
 Deployment:
 
 ```text
-Data Pipeline/Autos de Infracao
+Data Treatment/Autos de Infracao
 ```
 
 Comando para servir o deployment:
@@ -291,7 +291,7 @@ Comando para servir o deployment:
 Comando para disparar pelo Prefect:
 
 ```powershell
-.\.venv\Scripts\python.exe -m prefect deployment run "Data Pipeline/Autos de Infracao"
+.\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/Autos de Infracao"
 ```
 
 Parametros fixos do deployment:
@@ -322,12 +322,11 @@ Arquivos atualizados pelo processo:
 - Dataset key: nao registrado
 - Conector/script registrado: nao
 - Deve tratar automaticamente apos baixar: nao
-- Observacao: como nao existe conector de download para `autos_infracao`, a base deve usar `status = Waiting Update` quando o dado ja estiver disponivel para tratamento.
+- Observacao: como nao existe conector de download para `autos_infracao`, a base deve usar `status = treatment` quando o dado ja estiver disponivel para tratamento.
 
 ## Versionamento
 
-- `Waiting Update`: pode criar nova versao quando houver novo bruto.
-- `Reprocessing`: deve reutilizar a ultima versao existente e nao criar nova versao.
+- `treatment`: trata/padroniza/valida a base e pode criar nova versao quando houver novo bruto.
 - A versao nao vem da ingest; ela e calculada pela existencia de arquivos em `bronze_data`.
 - Campos obrigatorios para caminho: `access_constraints`, `category_acronym`, `theme_folder`, `citation`, `date`.
 - Modulo responsavel: `core.versioning`.

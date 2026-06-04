@@ -13,8 +13,6 @@ class DownloadFlowTests(unittest.TestCase):
         self.assertNotIn("region", signature.parameters)
         self.assertIn("theme_folders", signature.parameters)
 
-    @patch("core.flow.downloads.data_pipeline_flow")
-    @patch("core.flow.downloads.data_publish_flow")
     @patch("core.flow.downloads.emit_dataset_downloaded_event_task")
     @patch("core.flow.downloads.extract_download_task")
     @patch("core.flow.downloads.resolve_download_version_plan_task")
@@ -27,14 +25,12 @@ class DownloadFlowTests(unittest.TestCase):
         mock_resolve_plan,
         mock_extract,
         mock_emit_event,
-        mock_publish,
-        mock_pipeline,
     ):
         mock_load_queue.return_value = [
             {
                 "dataset_key": "car_app",
                 "region": "AC",
-                "status": "Download",
+                "status": "download-treatment",
                 "access_constraints": "restricted",
                 "category_acronym": "pcd",
                 "theme_folder": "app_car_ac",
@@ -44,7 +40,7 @@ class DownloadFlowTests(unittest.TestCase):
             {
                 "dataset_key": "car_uso_restrito",
                 "region": "ES",
-                "status": "Download",
+                "status": "download",
                 "access_constraints": "restricted",
                 "category_acronym": "pcd",
                 "theme_folder": "ur_car_es",
@@ -96,16 +92,7 @@ class DownloadFlowTests(unittest.TestCase):
         self.assertEqual(mock_resolve_plan.call_count, 2)
         self.assertEqual(mock_extract.call_count, 2)
         self.assertEqual(mock_emit_event.call_count, 2)
-        self.assertEqual(mock_pipeline.call_count, 2)
         self.assertEqual(len(result), 2)
-        self.assertEqual(
-            mock_pipeline.call_args_list[0].kwargs["theme_folders"],
-            ["app_car_ac"],
-        )
-        self.assertEqual(
-            mock_pipeline.call_args_list[1].kwargs["source_path_overrides"],
-            {"ur_car_es": r"L:\base\temp\restricted\pcd\ur_car_es\SICAR\20260301\00\raw"},
-        )
         self.assertEqual(
             mock_extract.call_args_list[0].kwargs["extract_dir"],
             r"L:\base\temp\restricted\pcd\app_car_ac\SICAR\20260301\00\raw",
@@ -114,30 +101,25 @@ class DownloadFlowTests(unittest.TestCase):
             mock_download.call_args_list[0].kwargs["output_dir"],
             r"L:\base\temp\restricted\pcd\app_car_ac\SICAR\20260301\00\_downloads",
         )
-        mock_publish.assert_not_called()
 
-    @patch("core.flow.downloads.data_pipeline_flow")
-    @patch("core.flow.downloads.data_publish_flow")
     @patch("core.flow.downloads.emit_dataset_downloaded_event_task")
     @patch("core.flow.downloads.extract_download_task")
     @patch("core.flow.downloads.resolve_download_version_plan_task")
     @patch("core.flow.downloads.download_dataset_task")
     @patch("core.flow.downloads.load_download_queue_task")
-    def test_flow_can_publish_after_download_processing(
+    def test_download_flow_does_not_call_other_flows(
         self,
         mock_load_queue,
         mock_download,
         mock_resolve_plan,
         mock_extract,
         mock_emit_event,
-        mock_publish,
-        mock_pipeline,
     ):
         mock_load_queue.return_value = [
             {
                 "dataset_key": "car_uso_restrito",
                 "region": "AC",
-                "status": "Download",
+                "status": "download-treatment-publish",
                 "access_constraints": "restricted",
                 "category_acronym": "pcd",
                 "theme_folder": "ur_car_ac",
@@ -164,7 +146,7 @@ class DownloadFlowTests(unittest.TestCase):
             "region": "AC",
         }
 
-        data_download_flow.fn(
+        result = data_download_flow.fn(
             theme_folders=["ur_car_ac"],
             publish_after_process=True,
             publish_geoserver_username="admin",
@@ -173,14 +155,10 @@ class DownloadFlowTests(unittest.TestCase):
             publish_geonetwork_password="senha",
         )
 
-        mock_pipeline.assert_called_once()
-        mock_publish.assert_called_once()
-        self.assertEqual(
-            mock_publish.call_args.kwargs["folder"],
-            r"L:\base\silver_data\restricted\pcd\ur_car_ac\SICAR\20260514\00",
-        )
-        self.assertEqual(mock_publish.call_args.kwargs["environment"], "qas")
-        self.assertEqual(mock_publish.call_args.kwargs["workspace"], "gold")
+        self.assertEqual(len(result), 1)
+        self.assertEqual(mock_download.call_count, 1)
+        self.assertEqual(mock_extract.call_count, 1)
+        self.assertEqual(mock_emit_event.call_count, 1)
 
     @patch("core.flow.downloads.load_download_queue_task")
     def test_default_flow_returns_empty_when_no_download_records(self, mock_load_queue):

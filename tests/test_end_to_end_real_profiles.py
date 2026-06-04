@@ -16,7 +16,7 @@ def _record(input_path, theme_folder, rule_profile, theme):
         record_id=10,
         theme=theme,
         theme_folder=theme_folder,
-        status="Waiting Update",
+        status="treatment",
         source_path=input_path,
         input_path=input_path,
         rule_profile=rule_profile,

@@ -13,7 +13,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
     @patch("core.ingest.loader.resolve_dataset_version_plan")
     @patch("core.ingest.loader.resolve_rule_profile_for_theme")
     @patch("core.ingest.repository.pd.read_excel")
-    def test_processing_queue_accepts_waiting_update_and_reprocessing(
+    def test_processing_queue_accepts_treatment_flags(
         self,
         mock_read_excel,
         mock_resolve_rule_profile,
@@ -26,7 +26,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
                     "ID": 1,
                     "theme": "UR",
                     "theme_folder": "ur_car_ac",
-                    "status": "Waiting Update",
+                    "status": "treatment",
                     "path_shapefile_temp": "ur_ac",
                     "access_constraints": "restricted",
                     "category_acronym": "pcd",
@@ -37,7 +37,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
                     "ID": 2,
                     "theme": "UR",
                     "theme_folder": "ur_car_es",
-                    "status": "Reprocessing",
+                    "status": "download-treatment",
                     "path_shapefile_temp": "ur_es",
                     "access_constraints": "restricted",
                     "category_acronym": "pcd",
@@ -48,7 +48,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
                     "ID": 3,
                     "theme": "UR",
                     "theme_folder": "ur_car_mg",
-                    "status": "Download",
+                    "status": "download",
                     "path_shapefile_temp": "ur_mg",
                 },
             ]
@@ -72,7 +72,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
         self.assertEqual(summary["eligible_records"], 2)
         self.assertEqual(
             summary["processing_statuses"],
-            ["Waiting Update", "Reprocessing"],
+            ["treatment"],
         )
         self.assertEqual(
             [record.theme_folder for record in records],
@@ -80,7 +80,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
         )
         self.assertEqual(
             [record.status for record in records],
-            ["Waiting Update", "Reprocessing"],
+            ["treatment", "download-treatment"],
         )
         self.assertEqual(records[0].access_constraints, "restricted")
         self.assertEqual(records[0].category_acronym, "pcd")
@@ -203,7 +203,7 @@ class IngestLoaderStatusTests(unittest.TestCase):
                     "ID": 1,
                     "theme": "Raster",
                     "theme_folder": "raster_precipitacao",
-                    "status": "Waiting Update",
+                    "status": "treatment",
                     "path_shapefile_temp": "chuva.tif",
                     "raster_source_epsg": 4674,
                     "raster_nodata_mode": "custom",

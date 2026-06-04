@@ -6,15 +6,13 @@ from prefect.schedules import Cron
 
 from core.flow.flows import (
     data_download_flow,
-    data_pipeline_flow,
-    data_pipeline_publish_flow,
+    data_treatment_flow,
     data_publish_flow,
 )
 from core.prefect_support.admin import scheduled_run_renamer_loop
 from core.prefect_support.deployment_names import (
     AUTOS_INFRACAO_PROCESSING_DEPLOYMENT_NAME,
     AUTOS_INFRACAO_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
-    AUTOS_INFRACAO_PIPELINE_PUBLISH_DEPLOYMENT_NAME,
     DATA_DOWNLOAD_DEPLOYMENT_NAME,
     DATA_PUBLISH_DEPLOYMENT_NAME,
     UR_CAR_PROCESSING_DEPLOYMENT_NAME,
@@ -40,10 +38,6 @@ def main():
         "auto-infracoes",
         help="Serve o tratamento da base Autos de Infracao.",
     )
-    subparsers.add_parser(
-        "auto-infracoes-publish",
-        help="Serve tratamento e publicacao automatica de Autos de Infracao.",
-    )
     subparsers.add_parser("estado", help="Serve o tratamento agendado da base Estado.")
     subparsers.add_parser(
         "localidades",
@@ -61,8 +55,6 @@ def main():
         serve_ur_car_processing()
     elif args.deployment == "auto-infracoes":
         serve_autos_infracao()
-    elif args.deployment == "auto-infracoes-publish":
-        serve_autos_infracao_publish()
     elif args.deployment == "estado":
         serve_estado()
     elif args.deployment == "localidades":
@@ -95,7 +87,7 @@ def serve_ur_car_processing():
     start_scheduled_run_renamer(
         deployment_name=UR_CAR_PROCESSING_QUALIFIED_DEPLOYMENT_NAME
     )
-    data_pipeline_flow.serve(
+    data_treatment_flow.serve(
         name=UR_CAR_PROCESSING_DEPLOYMENT_NAME,
         schedules=build_daily_one_shot_ur_car_schedules(),
         tags=["ur_car", "processing", "scheduled"],
@@ -111,7 +103,7 @@ def serve_autos_infracao():
         deployment_name=AUTOS_INFRACAO_PROCESSING_QUALIFIED_DEPLOYMENT_NAME,
         interval_seconds=5,
     )
-    data_pipeline_flow.serve(
+    data_treatment_flow.serve(
         name=AUTOS_INFRACAO_PROCESSING_DEPLOYMENT_NAME,
         parameters={"theme_folders": ["autos_infracao"]},
         tags=["autos_infracao", "processing"],
@@ -122,29 +114,13 @@ def serve_autos_infracao():
     )
 
 
-def serve_autos_infracao_publish():
-    data_pipeline_publish_flow.serve(
-        name=AUTOS_INFRACAO_PIPELINE_PUBLISH_DEPLOYMENT_NAME,
-        parameters={
-            "theme_folders": ["autos_infracao"],
-            "environment": "qas",
-            "workspace": "gold",
-        },
-        tags=["autos_infracao", "processing", "publish", "geoserver", "geonetwork"],
-        description=(
-            "Trata a base Autos de Infracao e publica automaticamente os "
-            "arquivos silver no GeoServer/GeoNetwork."
-        ),
-    )
-
-
 def serve_estado():
     deployment_name = "Estado"
     start_scheduled_run_renamer(
-        deployment_name=f"Data Pipeline/{deployment_name}",
+        deployment_name=f"Data Treatment/{deployment_name}",
         interval_seconds=5,
     )
-    data_pipeline_flow.serve(
+    data_treatment_flow.serve(
         name=deployment_name,
         schedules=[
             Cron(
@@ -162,10 +138,10 @@ def serve_estado():
 def serve_localidades():
     deployment_name = "Localidades"
     start_scheduled_run_renamer(
-        deployment_name=f"Data Pipeline/{deployment_name}",
+        deployment_name=f"Data Treatment/{deployment_name}",
         interval_seconds=5,
     )
-    data_pipeline_flow.serve(
+    data_treatment_flow.serve(
         name=deployment_name,
         parameters={"theme_folders": ["localidades"]},
         tags=["localidades", "processing"],

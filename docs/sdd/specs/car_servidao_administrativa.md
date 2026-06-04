@@ -1,4 +1,4 @@
-﻿# Spec: car_servidao_administrativa/sa_car_*
+# Spec: car_servidao_administrativa/sa_car_*
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -13,7 +13,7 @@ comum para todos os perfis `sa_car_*`.
 
 - Theme folder: `sa_car_*`
 - Projeto: `car_servidao_administrativa`
-- Status esperado na ingest para tratamento: `Waiting Update` ou `Reprocessing`
+- Status esperado na ingest para tratamento: `treatment`, podendo combinar com `download` e/ou `publish`.
 - Status esperado na ingest para download: `Download`
 - Registro(s) de referencia na ingest: um registro por UF
 - Formato esperado: camada vetorial poligonal
@@ -206,7 +206,7 @@ Observacoes:
 Deployment:
 
 ```text
-Data Pipeline/CAR - Uso Restrito
+Data Treatment/CAR - Uso Restrito
 ```
 
 Comando para servir o deployment:
@@ -218,7 +218,7 @@ Comando para servir o deployment:
 Comando para disparar pelo Prefect:
 
 ```powershell
-.\.venv\Scripts\python.exe -m prefect deployment run "Data Pipeline/CAR - Uso Restrito"
+.\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/CAR - Uso Restrito"
 ```
 
 Parametros fixos do deployment:
@@ -253,8 +253,7 @@ Arquivos atualizados pelo processo:
 
 ## Versionamento
 
-- `Waiting Update`: pode criar nova versao quando houver novo bruto.
-- `Reprocessing`: deve reutilizar a ultima versao existente e nao criar nova versao.
+- `treatment`: trata/padroniza/valida a base e pode criar nova versao quando houver novo bruto.
 - A versao nao vem da ingest; ela e calculada pela existencia de arquivos em `bronze_data`.
 - Campos obrigatorios para caminho: `access_constraints`, `category_acronym`, `theme_folder`, `citation`, `date`.
 - Modulo responsavel: `core.versioning`.

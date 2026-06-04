@@ -3,13 +3,49 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from core.publish.metadata import MultiplePublishItemsError
-from core.flow.pipeline_publish import publish_record_outputs
-from core.flow.pipeline_publish import publish_record_outputs_direct
+from core.flow.publish import publish_record_outputs
+from core.flow.publish import publish_record_outputs_direct
 
 
 class PipelinePublishFlowTests(unittest.TestCase):
-    @patch("core.flow.pipeline_publish.publish_item_task")
-    @patch("core.flow.pipeline_publish.discover_publish_items_task")
+    @patch("core.flow.publish.publish_item_task")
+    @patch("core.flow.publish.discover_publish_items_task")
+    @patch("core.flow.publish.load_publish_queue")
+    def test_data_publish_flow_uses_ingest_when_folder_is_not_provided(
+        self,
+        mock_load_queue,
+        mock_discover,
+        mock_publish,
+    ):
+        item = SimpleNamespace(layer="pnt_pcd_enov_20260514")
+        mock_load_queue.return_value = (
+            [SimpleNamespace(silver_dir=r"L:\silver\autos\01")],
+            [],
+            {
+                "total_records": 1,
+                "publish_candidates": 1,
+                "eligible_records": 1,
+                "issues": 0,
+            },
+        )
+        mock_discover.return_value = [item]
+
+        from core.flow.publish import data_publish_flow
+
+        data_publish_flow.fn(theme_folders=["autos_infracao"], dry_run=True)
+
+        mock_load_queue.assert_called_once_with(theme_folders=["autos_infracao"])
+        mock_discover.assert_called_once_with(
+            r"L:\silver\autos\01",
+            store=None,
+            layer=None,
+            style=None,
+            layer_title=None,
+        )
+        mock_publish.assert_called_once()
+
+    @patch("core.flow.publish.publish_item_task")
+    @patch("core.flow.publish.discover_publish_items_task")
     def test_publish_record_outputs_uses_record_output_dir(
         self,
         mock_discover,

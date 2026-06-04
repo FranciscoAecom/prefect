@@ -13,7 +13,7 @@ class QueueSummaryTests(unittest.TestCase):
             "ready_candidates": 1,
             "eligible_records": 1,
             "issues": 1,
-            "processing_statuses": ["Waiting Update", "Reprocessing"],
+            "processing_statuses": ["treatment", "treatment"],
         }
         issues = [
             SimpleNamespace(
@@ -31,7 +31,7 @@ class QueueSummaryTests(unittest.TestCase):
         self.assertIn("Resumo da planilha ingest:", messages)
         self.assertIn("  Registros lidos: 2", messages)
         self.assertIn(
-            "  Status elegiveis: Waiting Update, Reprocessing",
+            "  Status elegiveis: treatment, treatment",
             messages,
         )
         self.assertIn("Excecoes encontradas na fila ingest:", messages)

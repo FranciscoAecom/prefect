@@ -1,4 +1,4 @@
-﻿# Data Pipeline
+# Data Treatment Pipeline
 
 Pipeline de validacao, transformacao e padronizacao de arquivos geoespaciais
 em lote, orientado pela planilha de ingestao `input/st_Ingest_parameter.xlsx`.
@@ -27,8 +27,9 @@ Arquivos `.zip` nao sao processados diretamente.
 
 Uma linha entra na fila quando:
 
-- `status = Waiting Update` ou `status = Reprocessing` para tratamento;
-- `status = Download` para download automatico;
+- `status` contem `treatment` para tratamento;
+- `status` contem `download` para download automatico;
+- `status` contem `publish` para publicacao;
 - `path_shapefile_temp` aponta para um arquivo ou pasta suportada;
 - `theme_folder` encontra um perfil correspondente em `rules/`.
 
@@ -153,16 +154,16 @@ Atalho equivalente:
 ## Como Usar
 
 1. Atualize `input/st_Ingest_parameter.xlsx`.
-2. Na aba `datas`, defina `status = Waiting Update` para bases novas ja disponiveis ou `status = Reprocessing` para retratamento sem nova versao.
+2. Na aba `datas`, defina `status = treatment` para tratar bases ja disponiveis.
 3. Preencha `path_shapefile_temp`, `theme_folder` e `theme`.
 4. Confira se existe um perfil correspondente em `rules/`.
-5. Execute o pipeline:
+5. Execute o tratamento:
 
 ```powershell
 uv run python main.py
 ```
 
-O comando acima executa o flow Prefect `Data Pipeline`, com uma task para
+O comando acima executa o flow Prefect `Data Treatment`, com uma task para
 preparar a fila e uma task para cada registro processado.
 
 Ou, usando o Python instalado diretamente:
@@ -267,7 +268,6 @@ Exemplos disponiveis:
 uv run python scripts/serve.py ur-car-processing
 uv run python scripts/serve.py estado
 .\.venv\Scripts\python.exe scripts\serve.py auto-infracoes
-.\.venv\Scripts\python.exe scripts\serve.py auto-infracoes-publish
 uv run python scripts/serve.py data-download
 uv run python scripts/serve.py data-publish
 ```
@@ -347,12 +347,11 @@ uv run python scripts/serve.py data-download
 
 Esse comando cria o deployment `Download de Dados`. Sem parametros manuais, o
 flow le a aba `datas` da planilha ingest e baixa apenas linhas com
-`status = Download`. Depois de extrair a base, o proprio flow dispara o
-`Data Pipeline` apenas para o `theme_folder` baixado.
+flag `download` no `status`.
 
-Bases marcadas como `Download` que nao possuem conector/script registrado no
+Bases marcadas com `download` que nao possuem conector/script registrado no
 catalogo de downloads sao ignoradas com mensagem no log. Para essas bases, use
-`status = Waiting Update` quando o dado ja estiver disponivel para tratamento.
+`status = treatment` quando o dado ja estiver disponivel para tratamento.
 
 Quando a fonte retorna HTML, pagina de certificado/proxy, login, acesso negado
 ou URL assinada expirada no lugar do ZIP, o conector CAR registra um diagnostico
@@ -361,9 +360,17 @@ no erro e remove a assinatura da URL antes de exibir no log.
 Status oficiais na coluna `status`:
 
 ```text
-Download: baixa a base, salva bruto e dispara tratamento.
-Waiting Update: trata uma base ja disponivel e pode criar nova versao.
-Reprocessing: retrata uma versao existente sem criar nova versao.
+download: baixa a base quando ha conector/script registrado.
+treatment: copia temp para bronze, trata/padroniza/valida e salva silver.
+publish: publica a ultima versao silver disponivel.
+```
+
+As flags podem ser combinadas com hifen, por exemplo:
+
+```text
+download-treatment
+treatment-publish
+download-treatment-publish
 ```
 
 O flow aceita os principais parametros:
@@ -371,23 +378,21 @@ O flow aceita os principais parametros:
 ```text
 source_root: base opcional da API/fonte do conector
 force: baixa novamente mesmo se o ZIP ja existir
-process_after_download: quando true, dispara o Data Pipeline automaticamente
 emit_download_event: quando true, emite o evento Prefect dataset.downloaded
-theme_folders: filtro opcional para baixar apenas alguns theme_folders com status Download
+theme_folders: filtro opcional para baixar apenas alguns theme_folders com flag download
 ```
 
 Fluxo padrao:
 
 ```text
 Data Download
-  -> le linhas status = Download na ingest
+  -> le linhas com flag download na ingest
   -> resolve o dataset no catalogo pelo theme_folder
   -> ignora bases sem conector/script registrado
   -> chama o conector de download das bases elegiveis
   -> salva/cacheia o ZIP em <temp>/<...>/<version>/_downloads/<dataset_key>/<theme_folder>
   -> extrai o arquivo em <temp>/<...>/<version>/raw
   -> emite dataset.downloaded
-  -> chama Data Pipeline apenas para a base baixada
 ```
 
 Para usar Prefect Automations em vez do encadeamento direto, configure
@@ -485,31 +490,11 @@ O flow publica o arquivo de dados no GeoServer, cria ou atualiza o SLD, associa
 o estilo a camada, le os tipos dos atributos publicados e importa o XML no
 GeoNetwork com o link do dicionario de dados.
 
-### Tratamento + Publicacao Em Um Comando
+### Execucao Por Etapas
 
-Para rodar o tratamento e publicar automaticamente, sem informar a pasta silver
-manualmente, use o flow `Data Pipeline Publish`. Ele calcula a pasta silver a
-partir da ingest, processa a base e publica os arquivos gerados em seguida.
-
-Execucao direta em um unico terminal:
-
-```powershell
-$env:PUBLISH_GEOSERVER_USERNAME="admin"; $env:PUBLISH_GEOSERVER_PASSWORD="<senha>"; $env:PUBLISH_GEONETWORK_USERNAME="admin"; $env:PUBLISH_GEONETWORK_PASSWORD="<senha>"; .\.venv\Scripts\python.exe -c "from core.flow.pipeline_publish import run_pipeline_publish_direct; run_pipeline_publish_direct(theme_folders=['autos_infracao'], environment='qas', workspace='gold', dry_run_publish=False)"
-```
-
-Esse modo direto nao depende do Prefect Server estar aberto.
-
-Para acompanhar no Prefect UI, sirva o deployment:
-
-```powershell
-.\.venv\Scripts\python.exe scripts\serve.py auto-infracoes-publish
-```
-
-E dispare:
-
-```powershell
-'{"geoserver_username":"admin","geoserver_password":"<senha>","geonetwork_username":"admin","geonetwork_password":"<senha>"}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Pipeline Publish/Autos de Infracao - Tratar e Publicar" --params -
-```
+Quando a ingest usar combinacoes como `download-treatment-publish`, execute os
+flows na ordem operacional: `Data Download`, `Data Treatment` e `Data Publish`.
+Cada flow seleciona apenas as linhas que contem a sua flag.
 
 ### Execucao Manual Pelo Terminal
 
@@ -517,25 +502,25 @@ Para executar uma base especifica por um deployment parametrizado, envie
 `theme_folders`:
 
 ```powershell
-'{"theme_folders":["<theme_folder>"]}' | uv run python -m prefect deployment run "Data Pipeline/<deployment>" --params -
+'{"theme_folders":["<theme_folder>"]}' | uv run python -m prefect deployment run "Data Treatment/<deployment>" --params -
 ```
 
 Exemplo:
 
 ```powershell
-'{"theme_folders":["ur_car_pi"]}' | uv run python -m prefect deployment run "Data Pipeline/CAR - Uso Restrito" --params -
+'{"theme_folders":["ur_car_pi"]}' | uv run python -m prefect deployment run "Data Treatment/CAR - Uso Restrito" --params -
 ```
 
 Para executar uma lista de bases, informe todos os `theme_folders` desejados:
 
 ```powershell
-'{"theme_folders":["<theme_folder_1>","<theme_folder_2>"]}' | uv run python -m prefect deployment run "Data Pipeline/<deployment>" --params -
+'{"theme_folders":["<theme_folder_1>","<theme_folder_2>"]}' | uv run python -m prefect deployment run "Data Treatment/<deployment>" --params -
 ```
 
 Deployments sem parametros manuais tambem podem ser disparados diretamente:
 
 ```powershell
-uv run python -m prefect deployment run "Data Pipeline/Autos de Infracao"
+uv run python -m prefect deployment run "Data Treatment/Autos de Infracao"
 ```
 
 Para listar flow runs:
@@ -731,7 +716,6 @@ Estrutura:
 
 `date` e convertido para `YYYYMMDD`. A versao nao vem da ingest: ela e
 calculada pela existencia de arquivos em `bronze_data`, iniciando em `00`.
-`Reprocessing` reutiliza a ultima versao existente sem criar uma nova.
 
 ## Configuracao
 

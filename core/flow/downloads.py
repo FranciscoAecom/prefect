@@ -3,8 +3,6 @@ from pathlib import Path
 from prefect import flow
 
 from core.downloads.config import DownloadFlowOptions, DownloadRunOptions
-from core.flow.pipeline import data_pipeline_flow
-from core.flow.publish import data_publish_flow
 from core.publish.config import PublishOptions
 from core.queue.filters import QueueFilter
 from core.tasks.downloads import (
@@ -39,7 +37,7 @@ def data_download_flow(
     output_base=None,
     force=False,
     emit_download_event=True,
-    process_after_download=True,
+    process_after_download=False,
     publish_after_process=False,
     publish_environment="qas",
     publish_workspace="gold",
@@ -199,22 +197,6 @@ def _run_single_download(
 
     if run_options.emit_download_event:
         emit_dataset_downloaded_event_task(extracted)
-
-    if run_options.process_after_download:
-        data_pipeline_flow(
-            output_base=run_options.output_base,
-            theme_folders=[extracted["theme_folder"]],
-            source_path_overrides={
-                extracted["theme_folder"]: extracted["extract_dir"],
-            },
-        )
-
-    if run_options.publish_after_process:
-        publish_options = publish_options or PublishOptions()
-        data_publish_flow(
-            folder=extracted["silver_dir"],
-            **publish_options.task_kwargs(),
-        )
 
     return extracted
 

@@ -15,7 +15,7 @@ class DownloadQueueTests(unittest.TestCase):
                     "ID": 1,
                     "theme": "CAR APP",
                     "theme_folder": "app_car_ac",
-                    "status": "Download",
+                    "status": "download",
                     "access_constraints": "restricted",
                     "category_acronym": "pcd",
                     "citation": "SICAR",
@@ -25,13 +25,13 @@ class DownloadQueueTests(unittest.TestCase):
                     "ID": 2,
                     "theme": "Autos",
                     "theme_folder": "autos_infracao",
-                    "status": "Download",
+                    "status": "download-publish",
                 },
                 {
                     "ID": 3,
                     "theme": "UR",
                     "theme_folder": "ur_car_es",
-                    "status": "Waiting Update",
+                    "status": "treatment",
                 },
             ]
         )
@@ -59,13 +59,13 @@ class DownloadQueueTests(unittest.TestCase):
                     "ID": 1,
                     "theme": "CAR APP",
                     "theme_folder": "app_car_ac",
-                    "status": "Download",
+                    "status": "download",
                 },
                 {
                     "ID": 2,
                     "theme": "UR",
                     "theme_folder": "ur_car_es",
-                    "status": "Download",
+                    "status": "download-treatment",
                 },
             ]
         )

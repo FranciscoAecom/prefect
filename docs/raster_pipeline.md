@@ -7,7 +7,7 @@ O tratamento raster fica centralizado em:
 
 ## Execucao
 
-Raster entra pelo mesmo `Data Pipeline` usado para SHP/GPKG. Preencha a planilha
+Raster entra pelo mesmo `Data Treatment` usado para SHP/GPKG. Preencha a planilha
 ingest com `status` elegivel e `path_shapefile_temp` apontando para `.tif` ou
 `.tiff`.
 
@@ -84,11 +84,11 @@ Atalho:
 
 ## Integracao com a ingest
 
-O raster pode usar a mesma planilha ingest e os mesmos status operacionais:
+O raster pode usar a mesma planilha ingest e as mesmas flags operacionais:
 
-- `Waiting Update`
-- `Reprocessing`
-- `Download` para a etapa de download, quando houver conector configurado
+- `treatment`
+- `download-treatment`, quando houver conector configurado
+- `treatment-publish`, quando houver publicacao configurada
 
 Para processamento, informe `theme_folder`, `status` e o caminho do arquivo em
 `path_shapefile_temp`, seguindo o mesmo padrao ja usado para SHP e GPKG.
@@ -105,7 +105,7 @@ Colunas opcionais para raster:
 - `raster_custom_nodata` ou `custom_nodata`: valor NoData quando o modo e `custom`.
 - `raster_resampling_mode`: `auto`, `near`, `bilinear` ou `cubic`.
 
-Registros raster entram no mesmo `Data Pipeline`, mas sao despachados para o
+Registros raster entram no mesmo `Data Treatment`, mas sao despachados para o
 processador raster em vez do processador vetorial. Rules vetoriais nao sao
 exigidas para raster nesta primeira integracao.
 

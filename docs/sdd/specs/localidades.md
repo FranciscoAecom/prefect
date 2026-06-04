@@ -1,4 +1,4 @@
-﻿# Spec: localidades/localidades
+# Spec: localidades/localidades
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -15,7 +15,7 @@ tipo de localidade.
 
 - Theme folder: `localidades`
 - Projeto: `localidades`
-- Status esperado na ingest para tratamento: `Waiting Update`
+- Status esperado na ingest para tratamento: `treatment`.
 - Registro de referencia na ingest: `ID 641`
 - Formato esperado: camada vetorial de pontos
 - Geometria esperada: ponto
@@ -244,7 +244,7 @@ md_loc_loc_br_20251119.xml
 Deployment:
 
 ```text
-Data Pipeline/Localidades
+Data Treatment/Localidades
 ```
 
 Comando para servir o deployment:
@@ -256,7 +256,7 @@ Comando para servir o deployment:
 Comando para disparar pelo Prefect:
 
 ```powershell
-.\.venv\Scripts\python.exe -m prefect deployment run "Data Pipeline/Localidades"
+.\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/Localidades"
 ```
 
 Parametros fixos do deployment:
@@ -288,12 +288,11 @@ O script atualiza:
 - Dataset key: nao registrado
 - Conector/script registrado: nao
 - Deve tratar automaticamente apos baixar: nao
-- Observacao: como nao existe conector de download para `localidades`, a base deve usar `status = Waiting Update` quando o dado ja estiver disponivel para tratamento.
+- Observacao: como nao existe conector de download para `localidades`, a base deve usar `status = treatment` quando o dado ja estiver disponivel para tratamento.
 
 ## Versionamento
 
-- `Waiting Update`: pode criar nova versao quando houver novo bruto.
-- `Reprocessing`: deve reutilizar a ultima versao existente e nao criar nova versao.
+- `treatment`: trata/padroniza/valida a base e pode criar nova versao quando houver novo bruto.
 - A versao nao vem da ingest; ela e calculada pela existencia de arquivos em `bronze_data`.
 - Campos obrigatorios para caminho: `access_constraints`, `category_acronym`, `theme_folder`, `citation`, `date`.
 - Modulo responsavel: `core.versioning`.

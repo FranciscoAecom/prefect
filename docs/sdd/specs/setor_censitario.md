@@ -15,7 +15,7 @@ somente na camada silver.
 
 - Theme folder: `setor_censitario`
 - Projeto: `setor_censitario`
-- Status esperado na ingest para tratamento: `Waiting Update` ou `Reprocessing`
+- Status esperado na ingest para tratamento: `treatment`, podendo combinar com `download` e/ou `publish`.
 - Status esperado na ingest para download: nao aplicavel no momento
 - Registro de referencia na ingest: `ID 644`
 - Formato esperado: camada vetorial poligonal em GPKG
@@ -328,12 +328,11 @@ Arquivos atualizados pelo processo:
 - Dataset key: nao registrado
 - Conector/script registrado: nao
 - Deve tratar automaticamente apos baixar: nao
-- Observacao: como nao existe conector de download para `setor_censitario`, a base deve usar `status = Waiting Update` quando o dado ja estiver disponivel para tratamento.
+- Observacao: como nao existe conector de download para `setor_censitario`, a base deve usar `status = treatment` quando o dado ja estiver disponivel para tratamento.
 
 ## Versionamento
 
-- `Waiting Update`: pode criar nova versao quando houver novo bruto.
-- `Reprocessing`: deve reutilizar a ultima versao existente e nao criar nova versao.
+- `treatment`: trata/padroniza/valida a base e pode criar nova versao quando houver novo bruto.
 - A versao nao vem da ingest; ela e calculada pela existencia de arquivos em `bronze_data`.
 - Campos obrigatorios para caminho: `access_constraints`, `category_acronym`, `theme_folder`, `citation`, `date`.
 - Modulo responsavel: `core.versioning`.

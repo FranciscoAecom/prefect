@@ -1,4 +1,4 @@
-﻿# Spec: <projeto>/<theme_folder>
+# Spec: <projeto>/<theme_folder>
 
 Status: Draft
 Responsavel: <nome>
@@ -12,7 +12,7 @@ Descrever o que esta base representa e qual resultado o pipeline deve entregar.
 
 - Theme folder:
 - Projeto:
-- Status esperado na ingest para tratamento: `Waiting Update` ou `Reprocessing`
+- Status esperado na ingest para tratamento: `treatment`, podendo combinar com `download` e/ou `publish`.
 - Status esperado na ingest para download: `Download` ou nao aplicavel
 - Registro(s) de referencia na ingest:
 - Formato esperado:
@@ -253,8 +253,7 @@ Arquivos atualizados pelo processo:
 
 ## Versionamento
 
-- `Waiting Update`: pode criar nova versao quando houver novo bruto.
-- `Reprocessing`: deve reutilizar a ultima versao existente e nao criar nova versao.
+- `treatment`: trata/padroniza/valida a base e pode criar nova versao quando houver novo bruto.
 - A versao nao vem da ingest; ela e calculada pela existencia de arquivos em `bronze_data`.
 - Campos obrigatorios para caminho: `access_constraints`, `category_acronym`, `theme_folder`, `citation`, `date`.
 - Modulo responsavel: `core.versioning`.

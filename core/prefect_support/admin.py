@@ -7,7 +7,7 @@ from prefect.client.orchestration import get_client
 from core.prefect_support.run_names import scheduled_flow_run_name
 
 
-DEPLOYMENT_NAME = "Data Pipeline/CAR - Uso Restrito"
+DEPLOYMENT_NAME = "Data Treatment/CAR - Uso Restrito"
 LOGGER = logging.getLogger(__name__)
 
 

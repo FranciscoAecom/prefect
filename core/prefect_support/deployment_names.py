@@ -1,13 +1,11 @@
 DATA_DOWNLOAD_DEPLOYMENT_NAME = "Download de Dados"
 DATA_PUBLISH_DEPLOYMENT_NAME = "Publish GeoServer GeoNetwork"
-AUTOS_INFRACAO_PIPELINE_PUBLISH_DEPLOYMENT_NAME = "Autos de Infracao - Tratar e Publicar"
 CAR_DOWNLOAD_DEPLOYMENT_NAME = DATA_DOWNLOAD_DEPLOYMENT_NAME
 UR_CAR_PROCESSING_DEPLOYMENT_NAME = "CAR - Uso Restrito"
 AUTOS_INFRACAO_PROCESSING_DEPLOYMENT_NAME = "Autos de Infracao"
 
-DATA_PIPELINE_FLOW_NAME = "Data Pipeline"
+DATA_PIPELINE_FLOW_NAME = "Data Treatment"
 DATA_PUBLISH_FLOW_NAME = "Data Publish"
-DATA_PIPELINE_PUBLISH_FLOW_NAME = "Data Pipeline Publish"
 
 CAR_DOWNLOAD_OLD_DEPLOYMENT_NAMES = (
     "CAR - Download",
@@ -28,10 +26,6 @@ def qualified_data_publish_deployment_name(deployment_name):
     return qualified_deployment_name(DATA_PUBLISH_FLOW_NAME, deployment_name)
 
 
-def qualified_data_pipeline_publish_deployment_name(deployment_name):
-    return qualified_deployment_name(DATA_PIPELINE_PUBLISH_FLOW_NAME, deployment_name)
-
-
 UR_CAR_PROCESSING_QUALIFIED_DEPLOYMENT_NAME = qualified_data_pipeline_deployment_name(
     UR_CAR_PROCESSING_DEPLOYMENT_NAME
 )
@@ -47,20 +41,17 @@ UR_CAR_PROCESSING_OLD_QUALIFIED_DEPLOYMENT_NAMES = tuple(
 __all__ = [
     "AUTOS_INFRACAO_PROCESSING_DEPLOYMENT_NAME",
     "AUTOS_INFRACAO_PROCESSING_QUALIFIED_DEPLOYMENT_NAME",
-    "AUTOS_INFRACAO_PIPELINE_PUBLISH_DEPLOYMENT_NAME",
     "CAR_DOWNLOAD_DEPLOYMENT_NAME",
     "CAR_DOWNLOAD_OLD_DEPLOYMENT_NAMES",
     "DATA_DOWNLOAD_DEPLOYMENT_NAME",
     "DATA_PIPELINE_FLOW_NAME",
     "DATA_PUBLISH_DEPLOYMENT_NAME",
     "DATA_PUBLISH_FLOW_NAME",
-    "DATA_PIPELINE_PUBLISH_FLOW_NAME",
     "UR_CAR_PROCESSING_DEPLOYMENT_NAME",
     "UR_CAR_PROCESSING_OLD_DEPLOYMENT_NAMES",
     "UR_CAR_PROCESSING_OLD_QUALIFIED_DEPLOYMENT_NAMES",
     "UR_CAR_PROCESSING_QUALIFIED_DEPLOYMENT_NAME",
     "qualified_data_pipeline_deployment_name",
     "qualified_data_publish_deployment_name",
-    "qualified_data_pipeline_publish_deployment_name",
     "qualified_deployment_name",
 ]

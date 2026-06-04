@@ -12,7 +12,7 @@ def _record(sheet_row, record_id, theme_folder, source_path):
         sheet_row=sheet_row,
         record_id=record_id,
         theme="tema_teste",
-        status="Waiting Update",
+        status="treatment",
         theme_folder=theme_folder,
         source_path=source_path,
         input_path=f"{source_path}.gpkg",

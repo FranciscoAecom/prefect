@@ -39,13 +39,13 @@ class PathSettings:
 
 @dataclass(frozen=True)
 class IngestSettings:
-    ready_status: str = "Waiting Update"
-    download_status: str = "Download"
-    reprocessing_status: str = "Reprocessing"
+    download_status: str = "download"
+    treatment_status: str = "treatment"
+    publish_status: str = "publish"
 
     @property
     def processing_statuses(self):
-        return (self.ready_status, self.reprocessing_status)
+        return (self.treatment_status,)
 
 
 @dataclass(frozen=True)

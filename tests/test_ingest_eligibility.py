@@ -2,6 +2,7 @@ import unittest
 
 from core.ingest.eligibility import (
     REASON_FORCE_ENABLED,
+    REASON_INVALID_STATUS_FLAGS,
     REASON_MISSING_SOURCE_PATH,
     REASON_SOURCE_PATH_OVERRIDDEN,
     REASON_STATUS_NOT_ALLOWED,
@@ -17,7 +18,7 @@ class IngestEligibilityTests(unittest.TestCase):
         eligibility = evaluate_ingest_row(
             {
                 "theme_folder": "localidades",
-                "status": "Waiting Update",
+                "status": "treatment",
                 "path_shapefile_temp": r"L:\base.gpkg",
             },
             IngestRunRequest.from_legacy(theme_folders=["localidades"]),
@@ -40,8 +41,22 @@ class IngestEligibilityTests(unittest.TestCase):
         )
 
         self.assertFalse(eligibility.selected_by_request)
-        self.assertIn(REASON_STATUS_NOT_ALLOWED, eligibility.blocking_reasons)
+        self.assertIn(REASON_INVALID_STATUS_FLAGS, eligibility.blocking_reasons)
         self.assertIn(REASON_THEME_NOT_REQUESTED, eligibility.blocking_reasons)
+
+    def test_reports_invalid_status_flags(self):
+        eligibility = evaluate_ingest_row(
+            {
+                "theme_folder": "localidades",
+                "status": "treatment-foo",
+                "path_shapefile_temp": r"L:\base.gpkg",
+            },
+            IngestRunRequest.from_legacy(theme_folders=["localidades"]),
+        )
+
+        self.assertFalse(eligibility.status_allowed)
+        self.assertEqual(eligibility.invalid_status_flags, ("foo",))
+        self.assertIn(REASON_INVALID_STATUS_FLAGS, eligibility.blocking_reasons)
 
     def test_force_allows_status_and_keeps_request_reason(self):
         eligibility = evaluate_ingest_row(
@@ -79,7 +94,7 @@ class IngestEligibilityTests(unittest.TestCase):
 
     def test_reports_missing_source_path(self):
         eligibility = evaluate_ingest_row(
-            {"theme_folder": "localidades", "status": "Waiting Update"},
+            {"theme_folder": "localidades", "status": "treatment"},
             IngestRunRequest.from_legacy(theme_folders=["localidades"]),
         )
 
@@ -90,7 +105,7 @@ class IngestEligibilityTests(unittest.TestCase):
         eligibility = evaluate_ingest_row(
             {
                 "theme_folder": "localidades",
-                "status": "Waiting Update",
+                "status": "treatment",
                 "path_shapefile_temp": r"L:\base.zip",
             },
             IngestRunRequest.from_legacy(theme_folders=["localidades"]),

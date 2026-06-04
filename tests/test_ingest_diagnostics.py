@@ -47,20 +47,20 @@ class IngestDiagnosticsTests(unittest.TestCase):
         self.assertEqual(len(diagnostic["matches"]), 1)
         self.assertFalse(diagnostic["matches"][0]["status_eligible"])
         self.assertIn(
-            "status_not_allowed",
+            "invalid_status_flags",
             diagnostic["matches"][0]["issue_codes"],
         )
         self.assertIn("    status: Complete | elegivel: nao", lines)
-        self.assertIn("    codigos: status_not_allowed", lines)
+        self.assertIn("    codigos: invalid_status_flags", lines)
         self.assertIn(
-            "    motivo: status fora dos elegiveis para processamento.",
+            "    motivo: status contem flags invalidas.",
             lines,
         )
 
     @patch("core.ingest.repository.pd.read_excel")
     def test_diagnoses_missing_theme_folder(self, mock_read_excel):
         mock_read_excel.return_value = pd.DataFrame(
-            [{"theme_folder": "estado", "status": "Waiting Update"}]
+            [{"theme_folder": "estado", "status": "treatment"}]
         )
 
         diagnostic = diagnose_ingest_theme("localidades")

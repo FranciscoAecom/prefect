@@ -12,7 +12,7 @@ def _record():
         record_id=10,
         theme="tema_teste",
         theme_folder="rl_car_ac",
-        status="Waiting Update",
+        status="treatment",
         source_path="origem_a",
         input_path="origem_a.gpkg",
         rule_profile="car_reserva_legal/rl_car_ac",

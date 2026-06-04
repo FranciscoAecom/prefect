@@ -3,10 +3,12 @@ from dataclasses import dataclass
 from core.ingest.dataset_resolver import is_zip_path
 from core.ingest.normalization import stringify
 from core.ingest.run_request import IngestRunRequest
+from core.ingest.status_flags import invalid_status_flags as find_invalid_status_flags
 
 REASON_FORCE_ENABLED = "force_enabled"
 REASON_SOURCE_PATH_OVERRIDDEN = "source_path_overridden"
 REASON_STATUS_NOT_ALLOWED = "status_not_allowed"
+REASON_INVALID_STATUS_FLAGS = "invalid_status_flags"
 REASON_THEME_NOT_REQUESTED = "theme_not_requested"
 REASON_MISSING_SOURCE_PATH = "missing_source_path"
 REASON_ZIP_SOURCE_PATH = "zip_source_path"
@@ -15,6 +17,7 @@ REASON_MESSAGES = {
     REASON_FORCE_ENABLED: "processamento forcado.",
     REASON_SOURCE_PATH_OVERRIDDEN: "caminho de origem sobrescrito por parametro.",
     REASON_STATUS_NOT_ALLOWED: "status fora dos elegiveis para processamento.",
+    REASON_INVALID_STATUS_FLAGS: "status contem flags invalidas.",
     REASON_THEME_NOT_REQUESTED: "theme_folder fora do escopo solicitado.",
     REASON_MISSING_SOURCE_PATH: "caminho de origem ausente ou inexistente.",
     REASON_ZIP_SOURCE_PATH: "Base ignorada porque o caminho informado e um arquivo ZIP.",
@@ -32,6 +35,7 @@ class IngestEligibility:
     source_path_overridden: bool
     missing_source_path: bool
     zip_source_path: bool
+    invalid_status_flags: tuple[str, ...]
     request_reasons: tuple[str, ...]
     blocking_reasons: tuple[str, ...]
 
@@ -66,6 +70,7 @@ def evaluate_ingest_row(row, run_request):
     source_path_overridden = bool(override_source_path)
     missing_source_path = not bool(source_path)
     zip_source_path = bool(source_path and is_zip_path(source_path))
+    invalid_flags = find_invalid_status_flags(status)
 
     request_reasons = []
     blocking_reasons = []
@@ -73,7 +78,9 @@ def evaluate_ingest_row(row, run_request):
         request_reasons.append(REASON_FORCE_ENABLED)
     if source_path_overridden:
         request_reasons.append(REASON_SOURCE_PATH_OVERRIDDEN)
-    if not status_allowed:
+    if invalid_flags:
+        blocking_reasons.append(REASON_INVALID_STATUS_FLAGS)
+    elif not status_allowed:
         blocking_reasons.append(REASON_STATUS_NOT_ALLOWED)
     if not theme_requested:
         blocking_reasons.append(REASON_THEME_NOT_REQUESTED)
@@ -92,6 +99,7 @@ def evaluate_ingest_row(row, run_request):
         source_path_overridden=source_path_overridden,
         missing_source_path=missing_source_path,
         zip_source_path=zip_source_path,
+        invalid_status_flags=invalid_flags,
         request_reasons=tuple(request_reasons),
         blocking_reasons=tuple(blocking_reasons),
     )
@@ -104,6 +112,7 @@ def reason_message(reason):
 __all__ = [
     "IngestEligibility",
     "REASON_FORCE_ENABLED",
+    "REASON_INVALID_STATUS_FLAGS",
     "REASON_MESSAGES",
     "REASON_MISSING_SOURCE_PATH",
     "REASON_SOURCE_PATH_OVERRIDDEN",

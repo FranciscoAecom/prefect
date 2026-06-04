@@ -8,14 +8,21 @@ class IngestRunRequestTests(unittest.TestCase):
     def test_builds_from_legacy_parameters(self):
         request = IngestRunRequest.from_legacy(
             theme_folders="localidades",
-            ready_status="Waiting Update",
+            ready_status="treatment",
             source_path_overrides={"Localidades": r"L:\base"},
         )
 
         self.assertEqual(request.theme_folders, ("localidades",))
-        self.assertEqual(request.ready_statuses, ("Waiting Update",))
+        self.assertEqual(request.ready_statuses, ("treatment",))
         self.assertEqual(request.source_path_overrides, {"localidades": r"L:\base"})
         self.assertTrue(request.matches_theme_folder("localidades"))
+
+    def test_status_flag_combinations_are_eligible_for_treatment(self):
+        request = IngestRunRequest.from_legacy()
+
+        self.assertTrue(request.is_status_eligible("download-treatment-publish"))
+        self.assertFalse(request.is_status_eligible("download-publish"))
+        self.assertFalse(request.is_status_eligible("download-treatment-foo"))
 
     def test_accepts_queue_filter(self):
         request = IngestRunRequest.from_legacy(

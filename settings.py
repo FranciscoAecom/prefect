@@ -9,9 +9,9 @@ DATA_LAKE_SILVER_STAGE = APP_SETTINGS.paths.data_lake_silver_stage
 INGEST_WORKBOOK_PATH = APP_SETTINGS.paths.ingest_workbook_path
 INGEST_SHEET_NAME = APP_SETTINGS.paths.ingest_sheet_name
 DICTIONARIES_SHEET_NAME = APP_SETTINGS.paths.dictionaries_sheet_name
-INGEST_READY_STATUS = APP_SETTINGS.ingest.ready_status
 INGEST_DOWNLOAD_STATUS = APP_SETTINGS.ingest.download_status
-INGEST_REPROCESSING_STATUS = APP_SETTINGS.ingest.reprocessing_status
+INGEST_TREATMENT_STATUS = APP_SETTINGS.ingest.treatment_status
+INGEST_PUBLISH_STATUS = APP_SETTINGS.ingest.publish_status
 INGEST_PROCESSING_STATUSES = APP_SETTINGS.ingest.processing_statuses
 
 OUTPUT_BASE = APP_SETTINGS.paths.output_base

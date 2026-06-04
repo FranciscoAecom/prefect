@@ -26,7 +26,6 @@ from core.rules.engine import (
 from core.versioning import resolve_dataset_version_plan
 from settings import (
     INGEST_PROCESSING_STATUSES,
-    INGEST_READY_STATUS,
     INGEST_SHEET_NAME,
     INGEST_WORKBOOK_PATH,
 )

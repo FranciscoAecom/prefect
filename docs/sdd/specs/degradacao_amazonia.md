@@ -16,7 +16,7 @@ espacial.
 - Theme folder: `degradacao_amazonia`
 - Projeto: `degradacao_amazonia`
 - Pasta fisica das rules: `rules/degradacao_amazonia/degradacao_amazonia`
-- Status esperado na ingest para tratamento: `Waiting Update` ou `Reprocessing`
+- Status esperado na ingest para tratamento: `treatment`, podendo combinar com `download` e/ou `publish`.
 - Status esperado na ingest para download: nao aplicavel no momento
 - Registro(s) de referencia na ingest: ainda nao cadastrado
 - Formato esperado: shapefile
@@ -269,7 +269,7 @@ Observacoes:
 Deployment:
 
 ```text
-Data Pipeline
+Data Treatment
 ```
 
 Comando para servir o deployment:
@@ -281,7 +281,7 @@ nao configurado especificamente para degradacao_amazonia
 Comando para disparar pelo Prefect:
 
 ```powershell
-.\.venv\Scripts\python.exe -m prefect deployment run "Data Pipeline/<deployment>" --param theme_folders='["degradacao_amazonia"]'
+.\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/<deployment>" --param theme_folders='["degradacao_amazonia"]'
 ```
 
 Parametros fixos do deployment:
@@ -312,13 +312,12 @@ Arquivo de referencia gerado:
 - Dataset key: nao registrado
 - Conector/script registrado: nao
 - Deve tratar automaticamente apos baixar: nao
-- Observacao para bases sem download automatico: usar `status = Waiting Update`
+- Observacao para bases sem download automatico: usar `status = treatment`
   quando o dado ja estiver disponivel para tratamento.
 
 ## Versionamento
 
-- `Waiting Update`: pode criar nova versao quando houver novo bruto.
-- `Reprocessing`: deve reutilizar a ultima versao existente e nao criar nova versao.
+- `treatment`: trata/padroniza/valida a base e pode criar nova versao quando houver novo bruto.
 - A versao nao vem da ingest; ela e calculada pela existencia de arquivos em `bronze_data`.
 - Campos obrigatorios para caminho: `access_constraints`, `category_acronym`, `theme_folder`, `citation`, `date`.
 - Modulo responsavel: `core.versioning`.

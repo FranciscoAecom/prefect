@@ -69,14 +69,15 @@ o XML de metadados.
 
 ## Download Pela Ingest
 
-O flow `Data Download` usa `status = Download` na aba `datas` para selecionar
-bases a baixar automaticamente. Apos o download e extracao, ele dispara o
-`Data Pipeline` apenas para o `theme_folder` baixado.
+O flow `Data Download` usa a flag `download` na aba `datas` para selecionar
+bases a baixar automaticamente. Apos o download e extracao, o tratamento deve
+ser executado pelo flow `Data Treatment` quando a linha tambem tiver a flag
+`treatment`.
 
 Nem toda base tem download automatico. Para entrar na fila de download, o
 `theme_folder` precisa resolver para um dataset em `core/downloads/catalog.py` e
 um conector implementado em `core/downloads/connectors/`. Bases sem conector
-devem ser tratadas manualmente com `status = Waiting Update` quando o arquivo ja
+devem ser tratadas manualmente com `status = treatment` quando o arquivo ja
 estiver disponivel.
 
 O download deve gravar o arquivo baixado dentro da camada `temp`, na versao
@@ -107,9 +108,9 @@ o GeoServer retornar os tipos dos atributos.
 
 A coluna `status` e a unica coluna de controle operacional da ingest:
 
-- `Download`: baixa a base, salva bruto e dispara tratamento.
-- `Waiting Update`: trata uma base ja disponivel e pode criar nova versao.
-- `Reprocessing`: retrata uma versao existente sem criar nova versao.
+- `download`: baixa a base quando houver conector/script implementado.
+- `treatment`: trata/padroniza/valida uma base ja disponivel e pode criar nova versao.
+- `publish`: publica a ultima versao apta encontrada no `silver_data`.
 
 Nao criar uma coluna separada para modo de processamento.
 
@@ -135,9 +136,8 @@ Regras:
 - `date` e normalizado para `YYYYMMDD`.
 - A versao nao vem da ingest: ela e calculada pela existencia de arquivos em
   `bronze_data`, iniciando em `00`.
-- `Download` e `Waiting Update` usam a proxima versao disponivel quando a
+- `download` e `treatment` usam a proxima versao disponivel quando a
   versao atual ja contem `.shp` ou `.gpkg` em `bronze_data`.
-- `Reprocessing` reutiliza a ultima versao existente e nao cria uma nova versao.
 - A versao decidida deve ser a mesma para `temp`, `bronze_data` e `silver_data`.
 
 ## Verificacoes Obrigatorias De Qualidade

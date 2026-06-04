@@ -14,7 +14,7 @@ def flow_run_name():
         return theme_folders[0]
     if theme_folders:
         return f"{len(theme_folders)} bases"
-    return "Data Pipeline"
+    return "Data Treatment"
 
 
 def record_task_run_name(parameters):
@@ -30,7 +30,7 @@ def scheduled_flow_run_name(parameters):
         return theme_folders[0]
     if theme_folders:
         return f"{len(theme_folders)} bases"
-    return "Data Pipeline"
+    return "Data Treatment"
 
 
 __all__ = [

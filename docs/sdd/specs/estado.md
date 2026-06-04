@@ -1,4 +1,4 @@
-﻿# Spec: estado/estado
+# Spec: estado/estado
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -12,7 +12,7 @@ Processar a base de limites das unidades da federacao do Brasil.
 
 - Theme folder: `estado`
 - Projeto: `estado`
-- Status esperado na ingest para tratamento: `Waiting Update` ou `Reprocessing`
+- Status esperado na ingest para tratamento: `treatment`, podendo combinar com `download` e/ou `publish`.
 - Status esperado na ingest para download: nao aplicavel no momento
 - Registro(s) de referencia na ingest: nao registrado nesta spec
 - Formato esperado: camada vetorial poligonal
@@ -211,7 +211,7 @@ Observacoes:
 Deployment:
 
 ```text
-Data Pipeline/Estado
+Data Treatment/Estado
 ```
 
 Comando para servir o deployment:
@@ -223,7 +223,7 @@ Comando para servir o deployment:
 Comando para disparar pelo Prefect:
 
 ```powershell
-.\.venv\Scripts\python.exe -m prefect deployment run "Data Pipeline/Estado"
+.\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/Estado"
 ```
 
 Parametros fixos do deployment:
@@ -254,12 +254,11 @@ Arquivos atualizados pelo processo:
 - Dataset key: nao registrado
 - Conector/script registrado: nao
 - Deve tratar automaticamente apos baixar: nao
-- Observacao para bases sem download automatico: usar `status = Waiting Update` quando o dado ja estiver disponivel para tratamento.
+- Observacao para bases sem download automatico: usar `status = treatment` quando o dado ja estiver disponivel para tratamento.
 
 ## Versionamento
 
-- `Waiting Update`: pode criar nova versao quando houver novo bruto.
-- `Reprocessing`: deve reutilizar a ultima versao existente e nao criar nova versao.
+- `treatment`: trata/padroniza/valida a base e pode criar nova versao quando houver novo bruto.
 - A versao nao vem da ingest; ela e calculada pela existencia de arquivos em `bronze_data`.
 - Campos obrigatorios para caminho: `access_constraints`, `category_acronym`, `theme_folder`, `citation`, `date`.
 - Modulo responsavel: `core.versioning`.

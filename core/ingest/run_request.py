@@ -2,13 +2,20 @@ from dataclasses import dataclass, field
 
 from core.ingest.normalization import normalize_status, normalize_theme_folder, stringify
 from core.queue.filters import QueueFilter
-from settings import INGEST_PROCESSING_STATUSES, INGEST_READY_STATUS
+from core.ingest.status_flags import (
+    STATUS_FLAG_TREATMENT,
+    has_status_flag,
+    invalid_status_flags,
+    status_flags_display,
+)
+from settings import INGEST_PROCESSING_STATUSES
 
 
 @dataclass(frozen=True)
 class IngestRunRequest:
     theme_folders: tuple[str, ...] = ()
     ready_statuses: tuple[str, ...] = INGEST_PROCESSING_STATUSES
+    required_status_flag: str = STATUS_FLAG_TREATMENT
     source_path_overrides: dict[str, str] = field(default_factory=dict)
     force: bool = False
 
@@ -28,6 +35,7 @@ class IngestRunRequest:
         return cls(
             theme_folders=tuple(sorted(effective_filter.theme_folders)),
             ready_statuses=normalize_ready_statuses_for_request(ready_status),
+            required_status_flag=STATUS_FLAG_TREATMENT,
             source_path_overrides=normalize_source_path_overrides(source_path_overrides),
             force=bool(force),
         )
@@ -47,14 +55,12 @@ class IngestRunRequest:
             return True
         if theme_folder and self.source_path_override_for(theme_folder):
             return True
-        return normalize_status(status) in {
-            normalize_status(value)
-            for value in self.ready_statuses
-            if normalize_status(value)
-        }
+        if invalid_status_flags(status):
+            return False
+        return has_status_flag(status, self.required_status_flag)
 
     def processing_statuses_display(self):
-        return [stringify(status) for status in self.ready_statuses if stringify(status)]
+        return status_flags_display((self.required_status_flag,))
 
     def to_diagnostic_context(self):
         return {
@@ -69,7 +75,7 @@ def normalize_ready_statuses_for_request(ready_status):
     if isinstance(ready_status, str):
         statuses = [ready_status]
     else:
-        statuses = list(ready_status or [INGEST_READY_STATUS])
+        statuses = list(ready_status or [STATUS_FLAG_TREATMENT])
     return tuple(stringify(status) for status in statuses if stringify(status))
 
 

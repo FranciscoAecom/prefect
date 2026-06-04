@@ -1,4 +1,4 @@
-﻿# Spec: default/default
+# Spec: default/default
 
 Status: Baseline atual
 Responsavel: Ribeiro / Codex
@@ -13,7 +13,7 @@ Definir o comportamento de fallback para bases sem projeto especifico em
 
 - Theme folder: variavel
 - Projeto: `default`
-- Status esperado na ingest para tratamento: `Waiting Update` ou `Reprocessing`
+- Status esperado na ingest para tratamento: `treatment`, podendo combinar com `download` e/ou `publish`.
 - Status esperado na ingest para download: nao aplicavel por padrao
 - Registro(s) de referencia na ingest: variavel
 - Formato esperado: camada vetorial suportada pelo pipeline
@@ -196,7 +196,7 @@ Observacoes:
 Deployment:
 
 ```text
-Data Pipeline
+Data Treatment
 ```
 
 Comando para servir o deployment:
@@ -208,7 +208,7 @@ nao configurado especificamente para default
 Comando para disparar pelo Prefect:
 
 ```powershell
-.\.venv\Scripts\python.exe -m prefect deployment run "Data Pipeline/<deployment>"
+.\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/<deployment>"
 ```
 
 Parametros fixos do deployment:
@@ -243,8 +243,7 @@ Arquivos atualizados pelo processo:
 
 ## Versionamento
 
-- `Waiting Update`: pode criar nova versao quando houver novo bruto.
-- `Reprocessing`: deve reutilizar a ultima versao existente e nao criar nova versao.
+- `treatment`: trata/padroniza/valida a base e pode criar nova versao quando houver novo bruto.
 - A versao nao vem da ingest; ela e calculada pela existencia de arquivos em `bronze_data`.
 - Campos obrigatorios para caminho: `access_constraints`, `category_acronym`, `theme_folder`, `citation`, `date`.
 - Modulo responsavel: `core.versioning`.

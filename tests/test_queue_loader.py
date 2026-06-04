@@ -84,7 +84,7 @@ class QueueLoaderTests(unittest.TestCase):
             sheet_row=3,
             record_id=20,
             theme_folder="localidades",
-            status="Waiting Update",
+            status="treatment",
             source_path="",
             code="missing_source_path",
             reason="caminho vazio",
