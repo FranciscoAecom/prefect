@@ -5,11 +5,22 @@ import re
 from core.ingest.normalization import stringify
 
 
-SUPPORTED_DATASET_SUFFIXES = {".shp", ".gpkg"}
+VECTOR_DATASET_SUFFIXES = {".shp", ".gpkg"}
+RASTER_DATASET_SUFFIXES = {".tif", ".tiff"}
+SUPPORTED_DATASET_SUFFIXES = VECTOR_DATASET_SUFFIXES | RASTER_DATASET_SUFFIXES
+DATASET_KIND_VECTOR = "vector"
+DATASET_KIND_RASTER = "raster"
 
 
 def is_zip_path(path_value):
     return stringify(path_value).lower().endswith(".zip")
+
+
+def dataset_kind_for_path(path_value):
+    suffix = Path(stringify(path_value)).suffix.lower()
+    if suffix in RASTER_DATASET_SUFFIXES:
+        return DATASET_KIND_RASTER
+    return DATASET_KIND_VECTOR
 
 
 def resolve_numbered_sibling_datasets(path, supported_suffixes=SUPPORTED_DATASET_SUFFIXES):
@@ -41,7 +52,7 @@ def resolve_numbered_sibling_datasets(path, supported_suffixes=SUPPORTED_DATASET
 def resolve_input_dataset_paths(path_value):
     raw_path = stringify(path_value)
     if not raw_path:
-        raise FileNotFoundError("Campo path_shapefile_temp vazio.")
+        raise FileNotFoundError("Campo de caminho de entrada vazio.")
 
     if is_zip_path(raw_path):
         raise ValueError("Caminho aponta para arquivo ZIP; leitura desabilitada.")
@@ -78,7 +89,7 @@ def resolve_input_dataset_paths(path_value):
     )
 
     if not dataset_files:
-        raise FileNotFoundError(f"Nenhum shapefile ou gpkg encontrado dentro de: {path}")
+        raise FileNotFoundError(f"Nenhum dataset suportado encontrado dentro de: {path}")
 
     return [str(candidate) for candidate in dataset_files]
 
@@ -89,7 +100,12 @@ def resolve_input_dataset_paths_cached(path_value):
 
 
 __all__ = [
+    "DATASET_KIND_RASTER",
+    "DATASET_KIND_VECTOR",
+    "RASTER_DATASET_SUFFIXES",
     "SUPPORTED_DATASET_SUFFIXES",
+    "VECTOR_DATASET_SUFFIXES",
+    "dataset_kind_for_path",
     "is_zip_path",
     "resolve_input_dataset_paths",
     "resolve_input_dataset_paths_cached",

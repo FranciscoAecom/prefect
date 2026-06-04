@@ -97,3 +97,36 @@ class QueueRecordRunnerTests(unittest.TestCase):
         mock_set_context_log.assert_called_once()
         mock_process_record.assert_called_once()
         mock_clear_context_log.assert_called_once()
+
+    @patch("core.queue.record_runner.clear_context_log")
+    @patch("core.queue.record_runner.process_raster_record")
+    @patch("core.queue.record_runner.process_record")
+    @patch("core.queue.record_runner.set_context_log")
+    def test_dispatches_raster_records_to_raster_processor(
+        self,
+        mock_set_context_log,
+        mock_process_record,
+        mock_process_raster_record,
+        mock_clear_context_log,
+    ):
+        record = _record(2, 10, "raster_precipitacao", "chuva")
+        record.dataset_kind = "raster"
+        record.input_path = "chuva.tif"
+        group_state = QueueGroupState([record], enable_group_consolidation=True)
+        mock_process_raster_record.return_value = ProcessRecordResult(
+            processed_count=1,
+            output_path="saida.tif",
+            final_gdf=None,
+        )
+
+        run_queue_record(
+            record,
+            "tests/_tmp_output",
+            group_state,
+            keep_individual_outputs_when_grouping=False,
+        )
+
+        mock_process_raster_record.assert_called_once_with(record, "tests/_tmp_output")
+        mock_process_record.assert_not_called()
+        mock_set_context_log.assert_called_once()
+        mock_clear_context_log.assert_called_once()

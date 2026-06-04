@@ -186,6 +186,54 @@ class IngestLoaderStatusTests(unittest.TestCase):
         self.assertEqual(records[0].source_path, "base_nova")
         mock_resolve_paths.assert_called_once_with("base_nova")
 
+    @patch("core.ingest.loader.resolve_input_dataset_paths_cached")
+    @patch("core.ingest.loader.resolve_dataset_version_plan")
+    @patch("core.ingest.loader.resolve_rule_profile_for_theme")
+    @patch("core.ingest.repository.pd.read_excel")
+    def test_processing_queue_accepts_raster_without_rule_profile(
+        self,
+        mock_read_excel,
+        mock_resolve_rule_profile,
+        mock_resolve_version_plan,
+        mock_resolve_paths,
+    ):
+        mock_read_excel.return_value = pd.DataFrame(
+            [
+                {
+                    "ID": 1,
+                    "theme": "Raster",
+                    "theme_folder": "raster_precipitacao",
+                    "status": "Waiting Update",
+                    "path_shapefile_temp": "chuva.tif",
+                    "raster_source_epsg": 4674,
+                    "raster_nodata_mode": "custom",
+                    "raster_custom_nodata": -9999,
+                    "raster_resampling_mode": "bilinear",
+                    "access_constraints": "public",
+                    "category_acronym": "ras",
+                    "citation": "Fonte",
+                    "date": "2026-01-01",
+                },
+            ]
+        )
+        mock_resolve_paths.return_value = ("chuva.tif",)
+        mock_resolve_version_plan.return_value.silver_dir = r"L:\silver\raster"
+        mock_resolve_version_plan.return_value.bronze_dir = r"L:\bronze\raster"
+        mock_resolve_version_plan.return_value.temp_dir = r"L:\temp\raster"
+
+        records, issues, summary = load_processing_queue()
+
+        self.assertEqual(issues, [])
+        self.assertEqual(summary["eligible_records"], 1)
+        self.assertEqual(records[0].dataset_kind, "raster")
+        self.assertEqual(records[0].rule_profile, "")
+        self.assertEqual(records[0].input_path, "chuva.tif")
+        self.assertEqual(records[0].raster_source_epsg, 4674)
+        self.assertEqual(records[0].raster_nodata_mode, "custom")
+        self.assertEqual(records[0].raster_custom_nodata, -9999.0)
+        self.assertEqual(records[0].raster_resampling_mode, "bilinear")
+        mock_resolve_rule_profile.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

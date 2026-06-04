@@ -80,6 +80,13 @@ PROJECT_CONFIGS = {
         "output_name_template": "pol_dfaab_imb_{date_yyyymmdd}",
         "reference_date": None,
     },
+    "raster": {
+        "project_name": "raster",
+        "display_name": "Processamento raster",
+        "theme_prefixes": ("raster",),
+        "output_name_template": "{input_stem}_wgs84_lzw",
+        "reference_date": None,
+    },
 }
 
 

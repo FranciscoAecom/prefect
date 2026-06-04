@@ -57,3 +57,10 @@ class ProjectConfigsTests(unittest.TestCase):
         self.assertEqual(config["project_name"], "degradacao_amazonia")
         self.assertEqual(config["theme_prefixes"], ("dfaab",))
         self.assertEqual(config["output_name_template"], "pol_dfaab_imb_{date_yyyymmdd}")
+
+    def test_resolve_raster_project_config(self):
+        config = resolve_project_config("raster_precipitacao")
+
+        self.assertEqual(resolve_project_name("raster_precipitacao"), "raster")
+        self.assertEqual(config["project_name"], "raster")
+        self.assertEqual(config["output_name_template"], "{input_stem}_wgs84_lzw")

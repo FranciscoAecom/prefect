@@ -1,4 +1,8 @@
-from core.ingest.dataset_resolver import resolve_input_dataset_paths_cached
+from core.ingest.dataset_resolver import (
+    DATASET_KIND_VECTOR,
+    dataset_kind_for_path,
+    resolve_input_dataset_paths_cached,
+)
 from core.ingest.eligibility import evaluate_ingest_row
 from core.ingest.issues import (
     incomplete_rule_profile_issue,
@@ -68,15 +72,18 @@ def load_processing_queue(
             issues.append(input_issue)
             continue
 
-        rule_resolution, rule_issue = _resolve_rule_profile(queue_entry)
-        if rule_issue:
-            issues.append(rule_issue)
-            continue
-
         input_paths, dataset_issue = _resolve_input_paths(queue_entry)
         if dataset_issue:
             issues.append(dataset_issue)
             continue
+
+        input_kinds = {dataset_kind_for_path(input_path) for input_path in input_paths}
+        rule_resolution = None
+        if DATASET_KIND_VECTOR in input_kinds:
+            rule_resolution, rule_issue = _resolve_rule_profile(queue_entry)
+            if rule_issue:
+                issues.append(rule_issue)
+                continue
 
         eligible_records.extend(
             _build_records_for_input_paths(queue_entry, rule_resolution, input_paths)
@@ -125,6 +132,7 @@ def _build_queue_entry(catalog_row, run_request):
         "status": status,
         "source_path": source_path,
         "versioning_metadata": _extract_versioning_metadata(row),
+        "raster_options": _extract_raster_options(row),
         "xml_metadata": _extract_xml_metadata(row),
         "eligibility": eligibility,
         "issue_context": {
@@ -178,6 +186,7 @@ def _resolve_input_paths(queue_entry):
 def _build_records_for_input_paths(queue_entry, rule_resolution, input_paths):
     records = []
     for input_path in input_paths:
+        dataset_kind = _resolve_dataset_kind(input_path)
         versioned_dirs = _resolve_versioned_dirs(
             {
                 "status": queue_entry["status"],
@@ -194,7 +203,9 @@ def _build_records_for_input_paths(queue_entry, rule_resolution, input_paths):
                 status=queue_entry["status"],
                 source_path=queue_entry["source_path"],
                 input_path=input_path,
-                rule_profile=rule_resolution.profile_name,
+                rule_profile=(rule_resolution.profile_name if rule_resolution else ""),
+                dataset_kind=dataset_kind,
+                **queue_entry["raster_options"],
                 **queue_entry["versioning_metadata"],
                 **queue_entry["xml_metadata"],
                 output_dir=versioned_dirs["output_dir"],
@@ -223,6 +234,41 @@ def _extract_versioning_metadata(row):
         "citation": stringify(row.get("citation")),
         "date": stringify(row.get("date")),
     }
+
+
+def _extract_raster_options(row):
+    return {
+        "raster_source_epsg": _optional_int(row.get("raster_source_epsg") or row.get("source_epsg")),
+        "raster_nodata_mode": stringify(row.get("raster_nodata_mode")) or "auto",
+        "raster_custom_nodata": _optional_float(
+            row.get("raster_custom_nodata") or row.get("custom_nodata")
+        ),
+        "raster_resampling_mode": stringify(row.get("raster_resampling_mode")) or "auto",
+    }
+
+
+def _resolve_dataset_kind(input_path):
+    return dataset_kind_for_path(input_path)
+
+
+def _optional_int(value):
+    text = stringify(value)
+    if not text:
+        return None
+    try:
+        return int(float(text))
+    except ValueError:
+        return None
+
+
+def _optional_float(value):
+    text = stringify(value)
+    if not text:
+        return None
+    try:
+        return float(text.replace(",", "."))
+    except ValueError:
+        return None
 
 
 def _extract_xml_metadata(row):
