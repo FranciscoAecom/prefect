@@ -197,6 +197,10 @@ cd "C:\Temp\Repositorios\prefect"
 .\scripts\start_prefect_local.ps1 -StopExisting
 ```
 
+O agendamento aparece no deployment em `Schedules`. Ele pode nao aparecer ainda
+na lista de flow runs agendados quando a data estiver muito distante, pois o
+Prefect materializa runs futuros dentro de uma janela propria do scheduler.
+
 Para recriar os agendamentos com banco zerado:
 
 ```powershell

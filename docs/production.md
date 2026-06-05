@@ -95,6 +95,10 @@ Para recriar tudo com banco zerado:
 .\scripts\start_prefect_local.ps1 -StopExisting -ResetDatabase
 ```
 
+O schedule fica cadastrado no deployment em `Schedules`. Datas muito distantes
+podem nao aparecer imediatamente na lista de flow runs agendados, porque o
+Prefect materializa runs futuros apenas dentro da janela do scheduler.
+
 ## Execucao Manual
 
 Rodar tratamento local:
