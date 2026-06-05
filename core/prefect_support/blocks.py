@@ -16,8 +16,8 @@ from core.publish.config import config_for_environment
 from settings import DATA_LAKE_BASE
 
 
-class DataPipelinePaths(Block):
-    """Shared filesystem paths used by the data pipeline."""
+class DataTreatmentPaths(Block):
+    """Shared filesystem paths used by data treatment."""
 
     data_lake_base: str = Field(description="Base folder for temp, bronze and silver data.")
     municipios_base_path: str = Field(description="Municipalities reference dataset.")
@@ -26,7 +26,7 @@ class DataPipelinePaths(Block):
     download_archive_base: str = Field(description="Folder used to cache downloaded archives.")
 
 
-class DataPipelineEndpoints(Block):
+class DataTreatmentEndpoints(Block):
     """External service endpoints used by data acquisition."""
 
     car_public_api_base: str = Field(description="Base URL for the public CAR API.")
@@ -60,7 +60,7 @@ def save_default_blocks(overwrite=True):
 
     blocks = [
         (
-            DataPipelinePaths(
+            DataTreatmentPaths(
                 data_lake_base=str(DATA_LAKE_BASE),
                 municipios_base_path=str(DEFAULT_MUNICIPALITIES_BASE_PATH),
                 brazil_bbox_path=str(DEFAULT_BRAZIL_BBOX_PATH),
@@ -70,7 +70,7 @@ def save_default_blocks(overwrite=True):
             DEFAULT_BLOCKS["paths"],
         ),
         (
-            DataPipelineEndpoints(car_public_api_base=DEFAULT_CAR_PUBLIC_API_BASE),
+            DataTreatmentEndpoints(car_public_api_base=DEFAULT_CAR_PUBLIC_API_BASE),
             DEFAULT_BLOCKS["endpoints"],
         ),
         (
@@ -113,12 +113,12 @@ def save_default_blocks(overwrite=True):
     return {"saved": saved, "skipped": skipped}
 
 
-def load_data_pipeline_paths(name=DEFAULT_BLOCKS["paths"]):
-    return DataPipelinePaths.load(name)
+def load_data_treatment_paths(name=DEFAULT_BLOCKS["paths"]):
+    return DataTreatmentPaths.load(name)
 
 
-def load_data_pipeline_endpoints(name=DEFAULT_BLOCKS["endpoints"]):
-    return DataPipelineEndpoints.load(name)
+def load_data_treatment_endpoints(name=DEFAULT_BLOCKS["endpoints"]):
+    return DataTreatmentEndpoints.load(name)
 
 
 def load_publish_environment(environment="qas"):
@@ -132,12 +132,12 @@ def block_path(name, block_type_slug):
 
 __all__ = [
     "DEFAULT_BLOCKS",
-    "DataPipelineEndpoints",
-    "DataPipelinePaths",
+    "DataTreatmentEndpoints",
+    "DataTreatmentPaths",
     "PublishEnvironment",
     "block_path",
-    "load_data_pipeline_endpoints",
-    "load_data_pipeline_paths",
+    "load_data_treatment_endpoints",
+    "load_data_treatment_paths",
     "load_publish_environment",
     "save_default_blocks",
 ]

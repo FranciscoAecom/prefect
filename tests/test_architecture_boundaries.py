@@ -218,6 +218,20 @@ class ArchitectureBoundaryTests(unittest.TestCase):
 
         self.assertEqual(offenders, [])
 
+    def test_prefect_support_uses_treatment_block_names(self):
+        offenders = self._files_containing(
+            Path("core/prefect_support"),
+            "*.py",
+            [
+                "DataPipelinePaths",
+                "DataPipelineEndpoints",
+                "load_data_pipeline_paths",
+                "load_data_pipeline_endpoints",
+            ],
+        )
+
+        self.assertEqual(offenders, [])
+
     def test_prefect_decorators_stay_in_flow_and_tasks_packages(self):
         allowed_roots = {Path("core/flow"), Path("core/tasks")}
         offenders = []
