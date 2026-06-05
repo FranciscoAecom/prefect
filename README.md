@@ -191,6 +191,8 @@ Apagar o banco local do Prefect e recriar tudo do zero:
 
 Depois de alterar ou inserir linhas `schedule YYYY-MM-DD HH:MM` na planilha
 ingest, recrie os deployments para o Prefect carregar os novos agendamentos:
+Após rodar o comando abaixo, não feche o terminal, para que os agendamentos
+entrem em execução no devido momento.
 
 ```powershell
 cd "C:\Temp\Repositorios\prefect"
