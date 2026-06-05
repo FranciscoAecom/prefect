@@ -1,6 +1,6 @@
-﻿# Data Treatment Pipeline
+﻿# Data Treatment
 
-Pipeline de validacao, transformacao e padronizacao de arquivos geoespaciais
+Tratamento de validacao, transformacao e padronizacao de arquivos geoespaciais
 em lote, orientado pela planilha de ingestao `input/st_Ingest_parameter.xlsx`.
 
 O projeto processa bases `.shp` e `.gpkg`, valida schemas e dominios,
@@ -72,7 +72,7 @@ data-pipeline/
 Componentes principais:
 
 - `main.py`: ponto de entrada do tratamento por planilha ingest.
-- `settings.py`: configuracoes centrais do pipeline.
+- `settings.py`: configuracoes centrais do tratamento.
 - `core/`: motor de ingestao, validacao, tratamento, regras e escrita.
 - `core/downloads/`: catalogo, conectores e utilitarios de download.
 - `core/treatment/`: servico, execucao, dispatcher e handlers vetorial/raster do tratamento.
@@ -89,7 +89,7 @@ Componentes principais:
 - Python 3.14 ou superior.
 - Dependencias declaradas em `pyproject.toml`.
 - Ambiente recomendado com `uv`.
-- Prefect 3 para orquestracao do pipeline.
+- Prefect 3 para orquestracao do tratamento.
 - GDAL/`osgeo` apenas para processamento raster (`.tif`/`.tiff`).
 
 Clone do repositorio:
@@ -184,8 +184,8 @@ output/<theme_folder>/
 O projeto usa Prefect 3 para visualizar execucoes, agendar rotinas e disparar
 bases especificas pelo painel.
 
-O processamento raster com GDAL esta documentado em
-`docs/raster_pipeline.md`.
+O tratamento raster com GDAL esta documentado em
+`docs/raster_treatment.md`.
 
 ### Painel Local
 
@@ -216,7 +216,7 @@ Configure a API local do Prefect, se ainda nao estiver configurada:
 uv run python -m prefect config set PREFECT_API_URL=http://127.0.0.1:4200/api
 ```
 
-Depois execute o pipeline:
+Depois execute o tratamento:
 
 ```powershell
 uv run python main.py
@@ -394,7 +394,7 @@ Data Download
 ```
 
 Para usar Prefect Automations em vez do encadeamento direto, configure
-`process_after_download=false` no deployment de download e crie a Automation:
+`treatment_after_download=false` no deployment de download e crie a Automation:
 
 ```powershell
 uv run python scripts/prefect_admin.py create-download-automation
@@ -563,7 +563,7 @@ Exemplo para rodar todo dia 16 as 15:19:
 
 O agendamento usa o fuso `America/Sao_Paulo`.
 
-Quando uma base e filtrada, o pipeline cria um lock local por base para evitar
+Quando uma base e filtrada, a execucao cria um lock local por base para evitar
 duas execucoes concorrentes da mesma saida.
 
 ## Regras Modulares
@@ -650,7 +650,7 @@ arquivo e ignora campos gerados pelo tratamento, como `acm_*`, `fid` e
 
 ## Geometria
 
-O pipeline:
+O tratamento:
 
 - achata geometrias para 2D;
 - repara geometrias invalidas quando possivel;
@@ -789,4 +789,5 @@ Documentacao complementar:
 - Se a entrada estiver em `EPSG:4326`, nao ha reprojecao desnecessaria.
 - Em bases grandes, transformacoes espaciais sao feitas em fatias para reduzir
   risco de estouro de memoria.
+
 

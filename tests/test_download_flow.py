@@ -148,7 +148,7 @@ class DownloadFlowTests(unittest.TestCase):
 
         result = data_download_flow.fn(
             theme_folders=["ur_car_ac"],
-            publish_after_process=True,
+            publish_after_treatment=True,
             publish_geoserver_username="admin",
             publish_geoserver_password="senha",
             publish_geonetwork_username="admin",

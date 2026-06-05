@@ -12,8 +12,8 @@ def run_download_publish_direct(
     output_base=None,
     force=False,
     emit_download_event=False,
-    process_after_download=True,
-    publish_after_process=True,
+    treatment_after_download=True,
+    publish_after_treatment=True,
     publish_environment="qas",
     publish_workspace="gold",
     publish_geoserver=None,
@@ -47,8 +47,8 @@ def run_download_publish_direct(
         output_base=output_base,
         force=force,
         emit_download_event=emit_download_event,
-        process_after_download=process_after_download,
-        publish_after_process=publish_after_process,
+        treatment_after_download=treatment_after_download,
+        publish_after_treatment=publish_after_treatment,
         publish_environment=publish_environment,
         publish_workspace=publish_workspace,
         publish_geoserver=publish_geoserver,
@@ -78,7 +78,7 @@ def run_download_publish_direct(
             region=record["region"],
             run_options=options.run,
         )
-        if options.run.publish_after_process:
+        if options.run.publish_after_treatment:
             publish_record_outputs_direct(
                 extracted["silver_dir"],
                 config,
@@ -99,7 +99,7 @@ def run_single_download_direct(
     output_base=None,
     force=False,
     emit_download_event=False,
-    process_after_download=True,
+    treatment_after_download=True,
     run_options=None,
 ):
     from core.tasks.downloads import (
@@ -116,7 +116,7 @@ def run_single_download_direct(
         output_base=output_base,
         force=force,
         emit_download_event=emit_download_event,
-        process_after_download=process_after_download,
+        treatment_after_download=treatment_after_download,
     )
     version_plan = resolve_download_version_plan_task.fn(record)
     temp_dir = Path(version_plan["temp_dir"])

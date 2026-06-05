@@ -1,4 +1,4 @@
-# Raster Processing
+# Raster Treatment
 
 O tratamento raster fica centralizado em:
 
@@ -28,7 +28,7 @@ e lazy apenas para manter o restante do repositorio importavel e testavel em
 ambientes que ainda nao tenham GDAL instalado.
 
 Quem for processar apenas `.shp` e `.gpkg` nao precisa instalar GDAL. Quem for
-processar `.tif` ou `.tiff` precisa executar o pipeline em um ambiente com
+processar `.tif` ou `.tiff` precisa executar o tratamento em um ambiente com
 `osgeo/gdal` disponivel.
 
 O extra `raster` declara os bindings Python:
@@ -64,7 +64,7 @@ Validacao:
 
 ## Execucao com Prefect e GDAL
 
-Quando a fila tiver raster, execute o pipeline pelo mesmo ambiente onde o GDAL
+Quando a fila tiver raster, execute o tratamento pelo mesmo ambiente onde o GDAL
 foi validado. Evite `uv run python main.py` para raster se o `osgeo` foi
 instalado apenas no ambiente conda, porque `uv run` usa o `.venv` padrao do
 projeto.
@@ -112,12 +112,12 @@ exigidas para raster nesta primeira integracao.
 
 ## Saidas bronze e silver
 
-O raster segue a mesma organizacao operacional de pastas do pipeline vetorial:
+O raster segue a mesma organizacao operacional de pastas do tratamento vetorial:
 
 - bronze: copia do dado bruto `.tif/.tiff` em `bronze_dir`.
 - silver: raster tratado com GDAL em `output_dir`/silver, usando o padrao de
   nome final do projeto raster.
 
 Nesta integracao, o XML/SLD automatico continua restrito aos produtos
-vetoriais. Para raster, o pipeline garante a preservacao do bruto no bronze e a
+vetoriais. Para raster, o tratamento garante a preservacao do bruto no bronze e a
 entrega do GeoTIFF tratado no silver.

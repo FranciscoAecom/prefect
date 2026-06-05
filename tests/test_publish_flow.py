@@ -7,7 +7,7 @@ from core.publish.service import publish_record_outputs
 from core.publish.service import publish_record_outputs_direct
 
 
-class PipelinePublishFlowTests(unittest.TestCase):
+class PublishFlowTests(unittest.TestCase):
     @patch("core.flow.publish.run_data_publish")
     @patch("core.flow.publish.load_publish_folders_from_ingest")
     def test_data_publish_flow_uses_ingest_when_folder_is_not_provided(

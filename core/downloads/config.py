@@ -12,8 +12,8 @@ class DownloadRunOptions:
     output_base: str | Path | None = None
     force: bool = False
     emit_download_event: bool = True
-    process_after_download: bool = True
-    publish_after_process: bool = False
+    treatment_after_download: bool = True
+    publish_after_treatment: bool = False
 
 
 @dataclass(frozen=True)

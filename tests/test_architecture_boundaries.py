@@ -186,6 +186,18 @@ class ArchitectureBoundaryTests(unittest.TestCase):
 
         self.assertEqual(offenders, [])
 
+    def test_download_code_uses_treatment_step_names(self):
+        offenders = self._files_containing(
+            Path("core"),
+            "*.py",
+            [
+                "process_after_download",
+                "publish_after_process",
+            ],
+        )
+
+        self.assertEqual(offenders, [])
+
     def test_prefect_decorators_stay_in_flow_and_tasks_packages(self):
         allowed_roots = {Path("core/flow"), Path("core/tasks")}
         offenders = []

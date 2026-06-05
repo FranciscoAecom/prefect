@@ -15,7 +15,7 @@ if (-not (Test-Path $CondaBat)) {
 & $CondaBat run -n $EnvName python -c "from osgeo import gdal; print(gdal.VersionInfo('--version'))"
 
 if ($CheckOnly) {
-    Write-Host "Ambiente $EnvName validado. Pipeline nao executado porque -CheckOnly foi informado."
+    Write-Host "Ambiente $EnvName validado. Tratamento nao executado porque -CheckOnly foi informado."
     exit 0
 }
 
