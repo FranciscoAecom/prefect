@@ -201,6 +201,14 @@ O agendamento aparece no deployment em `Schedules`. Ele pode nao aparecer ainda
 na lista de flow runs agendados quando a data estiver muito distante, pois o
 Prefect materializa runs futuros dentro de uma janela propria do scheduler.
 
+Para apagar os agendamentos criados
+
+```powershell
+cd "C:\Temp\Repositórios\prefect"
+$env:PREFECT_API_URL="http://127.0.0.1:4200/api"
+.\.venv\Scripts\python.exe -m prefect deployment schedule clear "Data Treatment/Treatment Agendado pela Ingest" -y
+```
+
 Para recriar os agendamentos com banco zerado:
 
 ```powershell
