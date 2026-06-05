@@ -1,5 +1,6 @@
 from core.publish.execution import publish_folder_items
 from core.publish.records import load_publish_records
+from core.reporting.log_summary import log_summary
 from core.tasks.publish import discover_publish_items_task, publish_item_task
 from core.utils import log
 
@@ -26,18 +27,23 @@ def run_data_publish(
 
 def load_publish_folders_from_ingest(theme_folders=None):
     records, issues, summary = load_publish_records(theme_folders=theme_folders)
-    log("Resumo da planilha ingest para publicacao:")
-    log(f"  Registros lidos: {summary['total_records']}")
-    log("  Flag elegivel: publish")
-    log(f"  Registros com flag publish: {summary['publish_candidates']}")
-    log(f"  Pastas aptas para publicacao: {summary['eligible_records']}")
-    log(f"  Registros ignorados com excecao: {summary['issues']}")
-    for issue in issues:
-        log(
-            "  Issue publicacao | "
-            f"linha={issue.sheet_row} | theme_folder={issue.theme_folder} | "
-            f"motivo={issue.reason}"
-        )
+    log_summary(
+        "Resumo da planilha ingest para publicacao",
+        [
+            ("Registros lidos", summary["total_records"]),
+            ("Flag elegivel", "publish"),
+            ("Registros com flag publish", summary["publish_candidates"]),
+            ("Pastas aptas para publicacao", summary["eligible_records"]),
+            ("Registros ignorados com excecao", summary["issues"]),
+        ],
+        issues_title="Excecoes encontradas para publicacao",
+        issues=issues,
+        format_issue=lambda issue: (
+            "  Linha "
+            f"{issue.sheet_row} | ID={issue.record_id} | "
+            f"theme_folder={issue.theme_folder} | motivo={issue.reason}"
+        ),
+    )
     return [record.silver_dir for record in records]
 
 

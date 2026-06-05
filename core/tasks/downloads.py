@@ -10,6 +10,7 @@ from core.downloads.catalog import get_download_target
 from core.downloads.connectors.car_public_api import download_car_public_api_target
 from core.downloads.records import load_download_records
 from core.prefect_support.variables import get_path_variable
+from core.reporting.log_summary import log_summary
 from core.utils import log
 from core.versioning import resolve_dataset_version_plan
 
@@ -106,7 +107,7 @@ def emit_dataset_downloaded_event_task(download_result):
 @task(name="Carregar registros de download", log_prints=True)
 def load_download_records_task(theme_folders=None):
     records, issues, summary = load_download_records(theme_folders=theme_folders)
-    log_download_records_summary(summary, issues)
+    log_download_summary(summary, issues)
     return [record.__dict__ for record in records]
 
 
@@ -124,21 +125,24 @@ def resolve_download_version_plan_task(record):
     }
 
 
-def log_download_records_summary(summary, issues):
-    log("Resumo dos registros de download:")
-    log(f"  Registros lidos: {summary['total_records']}")
-    log(f"  Status elegivel: {summary['download_status']}")
-    log(f"  Registros com status elegivel: {summary['download_candidates']}")
-    log(f"  Registros aptos para download: {summary['eligible_records']}")
-    log(f"  Registros ignorados com excecao: {summary['issues']}")
-    if issues:
-        log("Excecoes encontradas nos registros de download:")
-        for issue in issues:
-            log(
-                "  Linha "
-                f"{issue.sheet_row} | ID={issue.record_id} | "
-                f"theme_folder={issue.theme_folder} | motivo: {issue.reason}"
-            )
+def log_download_summary(summary, issues):
+    log_summary(
+        "Resumo dos registros de download",
+        [
+            ("Registros lidos", summary["total_records"]),
+            ("Status elegivel", summary["download_status"]),
+            ("Registros com status elegivel", summary["download_candidates"]),
+            ("Registros aptos para download", summary["eligible_records"]),
+            ("Registros ignorados com excecao", summary["issues"]),
+        ],
+        issues_title="Excecoes encontradas nos registros de download",
+        issues=issues,
+        format_issue=lambda issue: (
+            "  Linha "
+            f"{issue.sheet_row} | ID={issue.record_id} | "
+            f"theme_folder={issue.theme_folder} | motivo={issue.reason}"
+        ),
+    )
 
 
 __all__ = [
@@ -146,6 +150,6 @@ __all__ = [
     "emit_dataset_downloaded_event_task",
     "extract_download_task",
     "load_download_records_task",
-    "log_download_records_summary",
+    "log_download_summary",
     "resolve_download_version_plan_task",
 ]

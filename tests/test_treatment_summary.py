@@ -6,7 +6,7 @@ from core.treatment.summary import log_treatment_summary
 
 
 class TreatmentSummaryTests(unittest.TestCase):
-    @patch("core.treatment.summary.log")
+    @patch("core.reporting.log_summary.log")
     def test_logs_treatment_summary_and_issues(self, mock_log):
         summary = {
             "total_records": 2,
@@ -41,7 +41,7 @@ class TreatmentSummaryTests(unittest.TestCase):
             messages,
         )
 
-    @patch("core.treatment.summary.log")
+    @patch("core.reporting.log_summary.log")
     def test_logs_treatment_issue_without_code(self, mock_log):
         summary = {
             "total_records": 1,

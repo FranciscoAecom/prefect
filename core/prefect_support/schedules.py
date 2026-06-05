@@ -6,7 +6,7 @@ from settings import INGEST_SHEET_NAME, INGEST_WORKBOOK_PATH
 DEFAULT_SCHEDULE_TIMEZONE = "America/Sao_Paulo"
 
 
-def build_ingest_scheduled_treatment_schedules(
+def build_treatment_schedules(
     workbook_path=INGEST_WORKBOOK_PATH,
     sheet_name=INGEST_SHEET_NAME,
     theme_folders=None,
@@ -47,8 +47,8 @@ def single_run_rrule(scheduled_at):
 
 __all__ = [
     "DEFAULT_SCHEDULE_TIMEZONE",
-    "build_ingest_scheduled_treatment_schedules",
     "build_scheduled_treatment_schedule",
+    "build_treatment_schedules",
     "scheduled_treatment_slug",
     "single_run_rrule",
 ]

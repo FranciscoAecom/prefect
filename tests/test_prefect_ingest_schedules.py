@@ -3,8 +3,8 @@ from datetime import datetime
 
 from core.ingest.schedule import ScheduledTreatmentEntry
 from core.prefect_support.schedules import (
-    build_ingest_scheduled_treatment_schedules,
     build_scheduled_treatment_schedule,
+    build_treatment_schedules,
 )
 
 
@@ -39,7 +39,7 @@ class PrefectIngestScheduleTests(unittest.TestCase):
             )
         ]
 
-        schedules = build_ingest_scheduled_treatment_schedules(
+        schedules = build_treatment_schedules(
             load_entries=lambda **_kwargs: entries
         )
 

@@ -15,7 +15,7 @@ from core.prefect_support.deployment_names import (
     SCHEDULED_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
 )
 from core.prefect_support.schedules import (
-    build_ingest_scheduled_treatment_schedules,
+    build_treatment_schedules,
 )
 
 
@@ -73,7 +73,7 @@ def serve_scheduled_treatment():
     )
     data_treatment_flow.serve(
         name=SCHEDULED_TREATMENT_DEPLOYMENT_NAME,
-        schedules=build_ingest_scheduled_treatment_schedules(),
+        schedules=build_treatment_schedules(),
         tags=["treatment", "scheduled", "ingest"],
         description=(
             "Tratamento agendado a partir do status da planilha ingest no "

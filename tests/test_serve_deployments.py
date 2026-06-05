@@ -20,7 +20,7 @@ class ServeDeploymentsTest(unittest.TestCase):
         self.assertIn("geoserver", kwargs["tags"])
         self.assertIn("geonetwork", kwargs["tags"])
 
-    @patch("scripts.serve.build_ingest_scheduled_treatment_schedules")
+    @patch("scripts.serve.build_treatment_schedules")
     @patch("scripts.serve.start_scheduled_run_renamer")
     @patch("scripts.serve.data_treatment_flow.serve")
     def test_scheduled_treatment_serves_ingest_schedules(
