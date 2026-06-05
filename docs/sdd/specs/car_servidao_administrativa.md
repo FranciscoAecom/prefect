@@ -20,7 +20,7 @@ comum para todos os perfis `sa_car_*`.
 - Geometria esperada: poligono ou multipoligono
 - Fonte declarada: CAR publico por UF
 - Caminho temporario declarado: calculado pela ingest/versionamento
-- Sistema de referencia declarado: variavel por fonte, reprojetado pelo pipeline
+- Sistema de referencia declarado: variavel por fonte, reprojetado pelo tratamento
 - Base de referencia usada para dominios: rules estaduais existentes
 - Base de referencia usada para relacoes: rules estaduais existentes
 

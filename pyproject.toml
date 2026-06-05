@@ -3,9 +3,9 @@ requires = ["setuptools>=69"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "data-pipeline"
+name = "geodata-workflow"
 version = "0.1.0"
-description = "Pipeline de validacao e transformacao de arquivos geoespaciais."
+description = "Workflow de validacao e transformacao de arquivos geoespaciais."
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [

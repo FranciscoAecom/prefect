@@ -1,1 +1,1 @@
-# Core package for generic pipeline modules.
+# Core package for geospatial workflow modules.

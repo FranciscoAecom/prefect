@@ -8,7 +8,7 @@ from prefect.events import emit_event
 from core.config.defaults import DEFAULT_DOWNLOAD_EXTRACT_BASE
 from core.downloads.catalog import get_download_target
 from core.downloads.connectors.car_public_api import download_car_public_api_target
-from core.downloads.queue import load_download_queue
+from core.downloads.records import load_download_records
 from core.prefect_support.variables import get_path_variable
 from core.utils import log
 from core.versioning import resolve_dataset_version_plan
@@ -103,10 +103,10 @@ def emit_dataset_downloaded_event_task(download_result):
     return str(event.id) if event else None
 
 
-@task(name="Carregar fila de downloads", log_prints=True)
-def load_download_queue_task(theme_folders=None):
-    records, issues, summary = load_download_queue(theme_folders=theme_folders)
-    log_download_queue_summary(summary, issues)
+@task(name="Carregar registros de download", log_prints=True)
+def load_download_records_task(theme_folders=None):
+    records, issues, summary = load_download_records(theme_folders=theme_folders)
+    log_download_records_summary(summary, issues)
     return [record.__dict__ for record in records]
 
 
@@ -124,15 +124,15 @@ def resolve_download_version_plan_task(record):
     }
 
 
-def log_download_queue_summary(summary, issues):
-    log("Resumo da fila de downloads:")
+def log_download_records_summary(summary, issues):
+    log("Resumo dos registros de download:")
     log(f"  Registros lidos: {summary['total_records']}")
     log(f"  Status elegivel: {summary['download_status']}")
     log(f"  Registros com status elegivel: {summary['download_candidates']}")
     log(f"  Registros aptos para download: {summary['eligible_records']}")
     log(f"  Registros ignorados com excecao: {summary['issues']}")
     if issues:
-        log("Excecoes encontradas na fila de downloads:")
+        log("Excecoes encontradas nos registros de download:")
         for issue in issues:
             log(
                 "  Linha "
@@ -145,7 +145,7 @@ __all__ = [
     "download_dataset_task",
     "emit_dataset_downloaded_event_task",
     "extract_download_task",
-    "load_download_queue_task",
-    "log_download_queue_summary",
+    "load_download_records_task",
+    "log_download_records_summary",
     "resolve_download_version_plan_task",
 ]

@@ -2,7 +2,7 @@ from core.tasks.downloads import (
     download_dataset_task,
     emit_dataset_downloaded_event_task,
     extract_download_task,
-    load_download_queue_task,
+    load_download_records_task,
     resolve_download_version_plan_task,
 )
 from core.tasks.treatment import (
@@ -16,7 +16,7 @@ __all__ = [
     "download_dataset_task",
     "emit_dataset_downloaded_event_task",
     "extract_download_task",
-    "load_download_queue_task",
+    "load_download_records_task",
     "prepare_treatment_run_task",
     "publish_item_task",
     "resolve_download_version_plan_task",

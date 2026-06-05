@@ -6,7 +6,7 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 
 
-USER_AGENT = "data-pipeline-prefect/1.0"
+USER_AGENT = "geodata-workflow-prefect/1.0"
 
 
 def read_text_url(url, timeout=120):

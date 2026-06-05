@@ -5,11 +5,11 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from core.publish.queue import load_publish_queue
+from core.publish.records import load_publish_records
 
 
-class PublishQueueTests(unittest.TestCase):
-    @patch("core.publish.queue.pd.read_excel")
+class PublishRecordsTests(unittest.TestCase):
+    @patch("core.publish.records.pd.read_excel")
     def test_loads_publish_flags_and_latest_silver_version(self, mock_read_excel):
         with tempfile.TemporaryDirectory() as temp_dir:
             base = Path(temp_dir)
@@ -44,8 +44,8 @@ class PublishQueueTests(unittest.TestCase):
             (silver / "01").mkdir()
             (silver / "01" / "pnt_pcd_enov_20260514.gpkg").write_text("", encoding="utf-8")
 
-            with patch("core.publish.queue.DATA_LAKE_BASE", base):
-                records, issues, summary = load_publish_queue()
+            with patch("core.publish.records.DATA_LAKE_BASE", base):
+                records, issues, summary = load_publish_records()
 
             self.assertEqual(issues, [])
             self.assertEqual(summary["publish_candidates"], 1)

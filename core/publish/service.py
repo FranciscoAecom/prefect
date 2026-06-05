@@ -1,5 +1,5 @@
 from core.publish.execution import publish_folder_items
-from core.publish.queue import load_publish_queue
+from core.publish.records import load_publish_records
 from core.tasks.publish import discover_publish_items_task, publish_item_task
 from core.utils import log
 
@@ -25,7 +25,7 @@ def run_data_publish(
 
 
 def load_publish_folders_from_ingest(theme_folders=None):
-    records, issues, summary = load_publish_queue(theme_folders=theme_folders)
+    records, issues, summary = load_publish_records(theme_folders=theme_folders)
     log("Resumo da planilha ingest para publicacao:")
     log(f"  Registros lidos: {summary['total_records']}")
     log("  Flag elegivel: publish")

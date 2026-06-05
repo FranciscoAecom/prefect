@@ -33,9 +33,9 @@ def run_download_publish_direct(
     theme_folders=None,
 ):
     from core.flow.downloads import build_download_flow_options
-    from core.tasks.downloads import load_download_queue_task
+    from core.tasks.downloads import load_download_records_task
 
-    records = load_download_queue_task.fn(theme_folders=theme_folders)
+    records = load_download_records_task.fn(theme_folders=theme_folders)
     if not records:
         log("Nenhum registro elegivel para download.")
         return []

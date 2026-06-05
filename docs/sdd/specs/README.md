@@ -1,7 +1,7 @@
 # Specs Existentes
 
 Esta pasta guarda as especificacoes SDD das bases e familias de bases do
-pipeline.
+tratamento.
 
 ## Padrao
 

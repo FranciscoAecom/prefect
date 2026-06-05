@@ -42,7 +42,7 @@ def get_date_variable(name, default):
 def set_prefect_variable(name, value, tags=None):
     from prefect.variables import Variable
 
-    return Variable.set(name, value, tags=tags or ["data-pipeline"], overwrite=True)
+    return Variable.set(name, value, tags=tags or ["geodata-workflow"], overwrite=True)
 
 
 __all__ = [

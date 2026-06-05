@@ -12,7 +12,7 @@ LOCK_WAIT_SECONDS = 30 * 60
 
 @contextmanager
 def named_execution_lock(name, lock_dir=None):
-    lock_root = Path(lock_dir or PROJECT_ROOT / ".pipeline-locks")
+    lock_root = Path(lock_dir or PROJECT_ROOT / ".workflow-locks")
     lock_root.mkdir(parents=True, exist_ok=True)
     lock_path = lock_root / f"{_safe_lock_name(name)}.lock"
     started = time()
@@ -47,7 +47,7 @@ def _safe_lock_name(name):
     return "".join(
         character if character.isalnum() or character in {"_", "-", "."} else "_"
         for character in str(name)
-    ).strip("_") or "pipeline"
+    ).strip("_") or "workflow"
 
 
 __all__ = ["named_execution_lock"]

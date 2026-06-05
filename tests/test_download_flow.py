@@ -17,16 +17,16 @@ class DownloadFlowTests(unittest.TestCase):
     @patch("core.downloads.service.extract_download_task")
     @patch("core.downloads.service.resolve_download_version_plan_task")
     @patch("core.downloads.service.download_dataset_task")
-    @patch("core.flow.downloads.load_download_queue_task")
-    def test_default_flow_uses_download_queue(
+    @patch("core.flow.downloads.load_download_records_task")
+    def test_default_flow_uses_download_records(
         self,
-        mock_load_queue,
+        mock_load_records,
         mock_download,
         mock_resolve_plan,
         mock_extract,
         mock_emit_event,
     ):
-        mock_load_queue.return_value = [
+        mock_load_records.return_value = [
             {
                 "dataset_key": "car_app",
                 "region": "AC",
@@ -87,7 +87,7 @@ class DownloadFlowTests(unittest.TestCase):
 
         result = data_download_flow.fn()
 
-        mock_load_queue.assert_called_once_with(theme_folders=None)
+        mock_load_records.assert_called_once_with(theme_folders=None)
         self.assertEqual(mock_download.call_count, 2)
         self.assertEqual(mock_resolve_plan.call_count, 2)
         self.assertEqual(mock_extract.call_count, 2)
@@ -106,16 +106,16 @@ class DownloadFlowTests(unittest.TestCase):
     @patch("core.downloads.service.extract_download_task")
     @patch("core.downloads.service.resolve_download_version_plan_task")
     @patch("core.downloads.service.download_dataset_task")
-    @patch("core.flow.downloads.load_download_queue_task")
+    @patch("core.flow.downloads.load_download_records_task")
     def test_download_flow_does_not_call_other_flows(
         self,
-        mock_load_queue,
+        mock_load_records,
         mock_download,
         mock_resolve_plan,
         mock_extract,
         mock_emit_event,
     ):
-        mock_load_queue.return_value = [
+        mock_load_records.return_value = [
             {
                 "dataset_key": "car_uso_restrito",
                 "region": "AC",
@@ -160,9 +160,9 @@ class DownloadFlowTests(unittest.TestCase):
         self.assertEqual(mock_extract.call_count, 1)
         self.assertEqual(mock_emit_event.call_count, 1)
 
-    @patch("core.flow.downloads.load_download_queue_task")
-    def test_default_flow_returns_empty_when_no_download_records(self, mock_load_queue):
-        mock_load_queue.return_value = []
+    @patch("core.flow.downloads.load_download_records_task")
+    def test_default_flow_returns_empty_when_no_download_records(self, mock_load_records):
+        mock_load_records.return_value = []
 
         self.assertEqual(data_download_flow.fn(), [])
 

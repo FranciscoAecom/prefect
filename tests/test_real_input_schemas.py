@@ -97,7 +97,7 @@ class RealInputSchemaTests(unittest.TestCase):
 
         self.assertEqual(offenders, [])
 
-    def test_all_real_profiles_have_registered_pipeline_functions(self):
+    def test_all_real_profiles_have_registered_treatment_functions(self):
         for profile_name in list_rule_profiles():
             with self.subTest(profile=profile_name):
                 profile = load_rule_profile(profile_name)

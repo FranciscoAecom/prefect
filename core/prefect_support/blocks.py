@@ -45,8 +45,8 @@ class PublishEnvironment(Block):
 
 
 DEFAULT_BLOCKS = {
-    "paths": "data-pipeline-paths",
-    "endpoints": "data-pipeline-endpoints",
+    "paths": "geodata-workflow-paths",
+    "endpoints": "geodata-workflow-endpoints",
     "publish_qas": "publish-qas",
     "publish_prod": "publish-prod",
     "geoserver_credentials": "publish-geoserver-credentials",

@@ -4,7 +4,7 @@ from core.downloads.config import DownloadFlowOptions, DownloadRunOptions
 from core.downloads.service import run_data_download
 from core.ingest.filters import ThemeFolderFilter
 from core.publish.config import PublishOptions
-from core.tasks.downloads import load_download_queue_task
+from core.tasks.downloads import load_download_records_task
 
 
 def data_download_flow_run_name():
@@ -75,7 +75,7 @@ def data_download_flow(
         publish_skip_data=publish_skip_data,
         publish_skip_catalog=publish_skip_catalog,
     )
-    records = load_download_queue_task(theme_folders=theme_folders)
+    records = load_download_records_task(theme_folders=theme_folders)
     return run_data_download(records, run_options=options.run)
 
 

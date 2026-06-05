@@ -16,7 +16,7 @@ Definir o comportamento de fallback para bases sem projeto especifico em
 - Status esperado na ingest para tratamento: `treatment`, podendo combinar com `download` e/ou `publish`.
 - Status esperado na ingest para download: nao aplicavel por padrao
 - Registro(s) de referencia na ingest: variavel
-- Formato esperado: camada vetorial suportada pelo pipeline
+- Formato esperado: camada vetorial suportada pelo tratamento
 - Geometria esperada: depende da base
 - Fonte declarada: variavel
 - Caminho temporario declarado: variavel

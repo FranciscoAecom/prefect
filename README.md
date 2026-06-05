@@ -35,7 +35,7 @@ Uma linha entra no tratamento quando:
 ## Estrutura
 
 ```text
-data-pipeline/
+geodata-workflow/
 |-- main.py
 |-- settings.py
 |-- input/
@@ -73,7 +73,7 @@ Componentes principais:
 - `settings.py`: configuracoes centrais do tratamento.
 - `core/`: motor de ingestao, validacao, tratamento, regras e escrita.
 - `core/downloads/`: catalogo, conectores e utilitarios de download.
-- `core/treatment/`: servico, execucao e handler vetorial do tratamento.
+- `core/treatment/`: servico, execucao e processador vetorial do tratamento.
 - `core/publish/`: descoberta, publicacao, titulos, SLD e XML para catalogo.
 - `core/silver/`: persistencia da camada silver, saida principal, XML, SLD e qualidade.
 - `core/rules/contracts.py`: contrato tecnico das chaves aceitas nos perfis JSON.

@@ -20,7 +20,7 @@ def _record(sheet_row, record_id, theme_folder, source_path):
     )
 
 
-class QueueRecordRunnerTests(unittest.TestCase):
+class TreatmentRecordRunnerTests(unittest.TestCase):
     @patch("core.treatment.record_runner.clear_context_log")
     @patch("core.treatment.record_runner.append_group_consolidated_output")
     @patch("core.treatment.record_runner.process_treatment_record")

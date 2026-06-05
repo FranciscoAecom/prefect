@@ -3,11 +3,11 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from core.downloads.queue import load_download_queue
+from core.downloads.records import load_download_records
 
 
-class DownloadQueueTests(unittest.TestCase):
-    @patch("core.downloads.queue.pd.read_excel")
+class DownloadRecordsTests(unittest.TestCase):
+    @patch("core.downloads.records.pd.read_excel")
     def test_loads_only_download_status_with_registered_connector(self, mock_read_excel):
         mock_read_excel.return_value = pd.DataFrame(
             [
@@ -36,7 +36,7 @@ class DownloadQueueTests(unittest.TestCase):
             ]
         )
 
-        records, issues, summary = load_download_queue()
+        records, issues, summary = load_download_records()
 
         self.assertEqual(summary["download_candidates"], 2)
         self.assertEqual(summary["eligible_records"], 1)
@@ -51,7 +51,7 @@ class DownloadQueueTests(unittest.TestCase):
         self.assertEqual(issues[0].theme_folder, "autos_infracao")
         self.assertIn("nao existe conector/script", issues[0].reason)
 
-    @patch("core.downloads.queue.pd.read_excel")
+    @patch("core.downloads.records.pd.read_excel")
     def test_filters_by_theme_folder(self, mock_read_excel):
         mock_read_excel.return_value = pd.DataFrame(
             [
@@ -70,7 +70,7 @@ class DownloadQueueTests(unittest.TestCase):
             ]
         )
 
-        records, issues, summary = load_download_queue(theme_folders=["ur_car_es"])
+        records, issues, summary = load_download_records(theme_folders=["ur_car_es"])
 
         self.assertEqual(summary["download_candidates"], 2)
         self.assertEqual(summary["eligible_records"], 1)

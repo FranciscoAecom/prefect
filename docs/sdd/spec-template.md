@@ -6,7 +6,7 @@ Data: <AAAA-MM-DD>
 
 ## Objetivo
 
-Descrever o que esta base representa e qual resultado o pipeline deve entregar.
+Descrever o que esta base representa e qual resultado o tratamento deve entregar.
 
 ## Entrada
 

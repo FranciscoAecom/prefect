@@ -24,7 +24,7 @@ def set_default_variables(print_fn=print):
     if DEFAULT_MUNICIPALITIES_BASE_PATH:
         variables["municipios_base_path"] = str(DEFAULT_MUNICIPALITIES_BASE_PATH)
     for name, value in variables.items():
-        set_prefect_variable(name, value, tags=["data-pipeline", "config"])
+        set_prefect_variable(name, value, tags=["geodata-workflow", "config"])
         print_fn(f"Variable definida: {name}={value}")
 
 

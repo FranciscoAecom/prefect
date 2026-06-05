@@ -3,6 +3,9 @@ from pathlib import Path
 
 
 class ArchitectureBoundaryTests(unittest.TestCase):
+    LEGACY_TREATMENT_NAME = "pipe" + "line"
+    LEGACY_RECORD_NAME = "qu" + "eue"
+
     def test_car_projects_use_single_shared_optional_functions_module(self):
         from projects.functions.car_common import CAR_PROJECT_OPERATIONS
         from projects.registry import PROJECT_FUNCTION_MODULES
@@ -69,14 +72,14 @@ class ArchitectureBoundaryTests(unittest.TestCase):
             Path("core/geometry_repair.py"),
             Path("core/helper_unique_values.py"),
             Path("core/naming.py"),
-            Path("core/pipeline.py"),
-            Path("core/pipeline_operations.py"),
+            Path("core") / f"{self.LEGACY_TREATMENT_NAME}.py",
+            Path("core") / f"{self.LEGACY_TREATMENT_NAME}_operations.py",
             Path("core/processing_service.py"),
             Path("core/processing_steps.py"),
             Path("core/processing_events.py"),
             Path("core/processing_errors.py"),
             Path("core/record_processor.py"),
-            Path("core/queue_runner.py"),
+            Path("core") / f"{self.LEGACY_RECORD_NAME}_runner.py",
             Path("core/rule_runtime.py"),
             Path("core/schema.py"),
             Path("core/output_manager.py"),
@@ -101,9 +104,9 @@ class ArchitectureBoundaryTests(unittest.TestCase):
                 "from core.geometry_repair import",
                 "from core.helper_unique_values import",
                 "from core.naming import",
-                "from core.pipeline import",
-                "from core.pipeline_operations import",
-                "from core.queue_runner import",
+                f"from core.{self.LEGACY_TREATMENT_NAME} import",
+                f"from core.{self.LEGACY_TREATMENT_NAME}_operations import",
+                f"from core.{self.LEGACY_RECORD_NAME}_runner import",
                 "from core.record_processor import",
                 "from core.processing_service import",
                 "from core.processing_steps import",
@@ -121,10 +124,10 @@ class ArchitectureBoundaryTests(unittest.TestCase):
 
         self.assertEqual(offenders, [])
 
-    def test_legacy_pipeline_treatment_shims_have_been_removed(self):
+    def test_legacy_treatment_shims_have_been_removed(self):
         shim_paths = [
-            Path("core/flow/pipeline.py"),
-            Path("core/tasks/pipeline.py"),
+            Path("core/flow") / f"{self.LEGACY_TREATMENT_NAME}.py",
+            Path("core/tasks") / f"{self.LEGACY_TREATMENT_NAME}.py",
             Path("core/tasks/tasks.py"),
         ]
 
@@ -132,25 +135,25 @@ class ArchitectureBoundaryTests(unittest.TestCase):
 
         self.assertEqual(existing_shims, [])
 
-    def test_runtime_code_uses_treatment_modules_instead_of_legacy_pipeline_imports(self):
+    def test_runtime_code_uses_treatment_modules_instead_of_legacy_imports(self):
         offenders = self._files_containing(
             Path("core"),
             "*.py",
             [
-                "from core.flow.pipeline",
-                "import core.flow.pipeline",
-                "from core.tasks.pipeline",
-                "import core.tasks.pipeline",
-                "data_pipeline_flow",
+                f"from core.flow.{self.LEGACY_TREATMENT_NAME}",
+                f"import core.flow.{self.LEGACY_TREATMENT_NAME}",
+                f"from core.tasks.{self.LEGACY_TREATMENT_NAME}",
+                f"import core.tasks.{self.LEGACY_TREATMENT_NAME}",
+                f"data_{self.LEGACY_TREATMENT_NAME}_flow",
             ],
         )
 
         self.assertEqual(offenders, [])
 
-    def test_treatment_steps_do_not_use_pipeline_module_names(self):
+    def test_treatment_steps_do_not_use_legacy_module_names(self):
         forbidden_paths = [
-            Path("core/treatment/steps/pipeline_step.py"),
-            Path("core/treatment/steps/mandatory_pipeline.py"),
+            Path("core/treatment/steps") / f"{self.LEGACY_TREATMENT_NAME}_step.py",
+            Path("core/treatment/steps") / f"mandatory_{self.LEGACY_TREATMENT_NAME}.py",
         ]
         existing_paths = [str(path) for path in forbidden_paths if path.exists()]
 
@@ -160,20 +163,23 @@ class ArchitectureBoundaryTests(unittest.TestCase):
             Path("core/treatment"),
             "*.py",
             [
-                "core.treatment.steps.pipeline_step",
-                "core.treatment.steps.mandatory_pipeline",
+                f"core.treatment.steps.{self.LEGACY_TREATMENT_NAME}_step",
+                f"core.treatment.steps.mandatory_{self.LEGACY_TREATMENT_NAME}",
             ],
         )
 
         self.assertEqual(offenders, [])
 
-    def test_processing_and_queue_compatibility_packages_have_been_removed(self):
+    def test_processing_and_record_compatibility_packages_have_been_removed(self):
         self.assertFalse(Path("core/processing").exists())
-        self.assertFalse(Path("core/queue").exists())
+        self.assertFalse((Path("core") / self.LEGACY_RECORD_NAME).exists())
 
-    def test_runtime_code_does_not_import_core_queue_compatibility_package(self):
+    def test_runtime_code_does_not_import_core_record_compatibility_package(self):
         offenders = []
-        forbidden_terms = ["from core.queue", "import core.queue"]
+        forbidden_terms = [
+            f"from core.{self.LEGACY_RECORD_NAME}",
+            f"import core.{self.LEGACY_RECORD_NAME}",
+        ]
         for path in Path("core").rglob("*.py"):
             text = path.read_text(encoding="utf-8")
             if any(term in text for term in forbidden_terms):
@@ -197,7 +203,7 @@ class ArchitectureBoundaryTests(unittest.TestCase):
             "INGEST_PROCESSING_STATUSES",
             "processing_statuses_display",
             "can_attempt_processing",
-            "processing_queue",
+            "processing_" + self.LEGACY_RECORD_NAME,
         ]
         for path in Path("core").rglob("*.py"):
             text = path.read_text(encoding="utf-8")
@@ -225,8 +231,8 @@ class ArchitectureBoundaryTests(unittest.TestCase):
             [
                 "DataPipelinePaths",
                 "DataPipelineEndpoints",
-                "load_data_pipeline_paths",
-                "load_data_pipeline_endpoints",
+                f"load_data_{self.LEGACY_TREATMENT_NAME}_paths",
+                f"load_data_{self.LEGACY_TREATMENT_NAME}_endpoints",
             ],
         )
 

@@ -13,7 +13,7 @@ from settings import INGEST_DOWNLOAD_STATUS, INGEST_SHEET_NAME, INGEST_WORKBOOK_
 
 
 @dataclass(frozen=True)
-class DownloadQueueRecord:
+class DownloadRecord:
     sheet_row: int
     record_id: object
     theme: str
@@ -29,7 +29,7 @@ class DownloadQueueRecord:
 
 
 @dataclass(frozen=True)
-class DownloadQueueIssue:
+class DownloadIssue:
     sheet_row: int
     record_id: object
     theme_folder: str
@@ -37,15 +37,15 @@ class DownloadQueueIssue:
     reason: str
 
 
-def load_download_queue(
+def load_download_records(
     workbook_path=INGEST_WORKBOOK_PATH,
     sheet_name=INGEST_SHEET_NAME,
     download_status=INGEST_DOWNLOAD_STATUS,
     theme_folders=None,
-    queue_filter=None,
+    record_filter=None,
 ):
     dataframe = pd.read_excel(workbook_path, sheet_name=sheet_name)
-    queue_filter = queue_filter or ThemeFolderFilter.from_theme_folders(theme_folders)
+    record_filter = record_filter or ThemeFolderFilter.from_theme_folders(theme_folders)
 
     eligible_records = []
     issues = []
@@ -68,7 +68,7 @@ def load_download_queue(
         invalid_flags = execution_plan.invalid_flags
         if invalid_flags:
             issues.append(
-                DownloadQueueIssue(
+                DownloadIssue(
                     sheet_row=sheet_row,
                     record_id=record_id,
                     theme_folder=theme_folder,
@@ -78,13 +78,13 @@ def load_download_queue(
             )
             continue
 
-        if not queue_filter.matches_theme_folder(theme_folder):
+        if not record_filter.matches_theme_folder(theme_folder):
             continue
 
         target = resolve_download_target_for_theme_folder(theme_folder)
         if target is None:
             issues.append(
-                DownloadQueueIssue(
+                DownloadIssue(
                     sheet_row=sheet_row,
                     record_id=record_id,
                     theme_folder=theme_folder,
@@ -101,7 +101,7 @@ def load_download_queue(
             region = resolve_region_from_theme_folder(target, theme_folder)
         except ValueError as exc:
             issues.append(
-                DownloadQueueIssue(
+                DownloadIssue(
                     sheet_row=sheet_row,
                     record_id=record_id,
                     theme_folder=theme_folder,
@@ -112,7 +112,7 @@ def load_download_queue(
             continue
 
         eligible_records.append(
-            DownloadQueueRecord(
+            DownloadRecord(
                 sheet_row=sheet_row,
                 record_id=record_id,
                 theme=theme,
@@ -144,5 +144,5 @@ def _extract_versioning_metadata(row):
     }
 
 
-__all__ = ["DownloadQueueIssue", "DownloadQueueRecord", "load_download_queue"]
+__all__ = ["DownloadIssue", "DownloadRecord", "load_download_records"]
 

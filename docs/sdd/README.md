@@ -1,7 +1,7 @@
 ﻿# Spec-Driven Development do Projeto
 
 Neste projeto, SDD significa registrar a regra da base antes de implementar ou
-alterar codigo. A especificacao vira o contrato entre ingest, regras, pipeline,
+alterar codigo. A especificacao vira o contrato entre ingest, regras, tratamento,
 saida, testes e agendamento.
 
 ## Quando Criar Uma Spec

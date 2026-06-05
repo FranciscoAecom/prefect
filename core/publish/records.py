@@ -17,7 +17,7 @@ from settings import (
 
 
 @dataclass(frozen=True)
-class PublishQueueRecord:
+class PublishRecord:
     sheet_row: int
     record_id: object
     theme_folder: str
@@ -26,7 +26,7 @@ class PublishQueueRecord:
 
 
 @dataclass(frozen=True)
-class PublishQueueIssue:
+class PublishIssue:
     sheet_row: int
     record_id: object
     theme_folder: str
@@ -34,14 +34,14 @@ class PublishQueueIssue:
     reason: str
 
 
-def load_publish_queue(
+def load_publish_records(
     workbook_path=INGEST_WORKBOOK_PATH,
     sheet_name=INGEST_SHEET_NAME,
     theme_folders=None,
-    queue_filter=None,
+    record_filter=None,
 ):
     dataframe = pd.read_excel(workbook_path, sheet_name=sheet_name)
-    queue_filter = queue_filter or ThemeFolderFilter.from_theme_folders(theme_folders)
+    record_filter = record_filter or ThemeFolderFilter.from_theme_folders(theme_folders)
     records = []
     issues = []
     publish_candidates = 0
@@ -60,7 +60,7 @@ def load_publish_queue(
         invalid_flags = execution_plan.invalid_flags
         if invalid_flags:
             issues.append(
-                PublishQueueIssue(
+                PublishIssue(
                     sheet_row=sheet_row,
                     record_id=record_id,
                     theme_folder=theme_folder,
@@ -70,7 +70,7 @@ def load_publish_queue(
             )
             continue
 
-        if not queue_filter.matches_theme_folder(theme_folder):
+        if not record_filter.matches_theme_folder(theme_folder):
             continue
 
         try:
@@ -78,7 +78,7 @@ def load_publish_queue(
             silver_dir = find_latest_publishable_silver_dir(silver_root)
         except (ValueError, FileNotFoundError) as exc:
             issues.append(
-                PublishQueueIssue(
+                PublishIssue(
                     sheet_row=sheet_row,
                     record_id=record_id,
                     theme_folder=theme_folder,
@@ -89,7 +89,7 @@ def load_publish_queue(
             continue
 
         records.append(
-            PublishQueueRecord(
+            PublishRecord(
                 sheet_row=sheet_row,
                 record_id=record_id,
                 theme_folder=normalize_theme_folder(theme_folder),
@@ -151,10 +151,10 @@ def _required(row, field):
 
 
 __all__ = [
-    "PublishQueueIssue",
-    "PublishQueueRecord",
+    "PublishIssue",
+    "PublishRecord",
     "build_publish_silver_root",
     "find_latest_publishable_silver_dir",
-    "load_publish_queue",
+    "load_publish_records",
 ]
 
