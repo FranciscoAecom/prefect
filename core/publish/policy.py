@@ -1,5 +1,5 @@
-DATA_SUFFIXES = {".gpkg", ".rst", ".tif"}
-SPATIAL_PREFIXES = {"pnt", "pol", "lin", "rst"}
+DATA_SUFFIXES = {".gpkg"}
+SPATIAL_PREFIXES = {"pnt", "pol", "lin"}
 
 
 class MultiplePublishItemsError(RuntimeError):

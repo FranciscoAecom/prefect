@@ -89,7 +89,7 @@ e a extracao fica em `raw`, sempre abaixo do diretorio `temp` planejado.
 A publicacao e uma etapa separada da geracao da camada `silver_data`. A pasta
 publicada deve conter exatamente um conjunto:
 
-- um arquivo de dados (`.gpkg`, `.rst` ou `.tif`);
+- um arquivo de dados (`.gpkg`);
 - um arquivo `.sld` com nome iniciado por `sld_`;
 - um XML de metadados correspondente.
 
@@ -162,4 +162,6 @@ specs devem manter a mesma ordem de secoes, mesmo quando uma secao for marcada
 como `nao aplicavel` ou `nao configurado`.
 
 As especificacoes existentes ficam listadas em `docs/sdd/specs/README.md`.
+
+
 

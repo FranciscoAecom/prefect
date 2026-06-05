@@ -3,17 +3,17 @@ __all__ = [
     "TreatmentService",
     "load_treatment_records",
     "prepare_treatment_run",
-    "process_treatment_record_by_dataset_kind",
+    "process_treatment_record",
     "run_data_treatment",
     "run_treatment_record",
 ]
 
 
 def __getattr__(name):
-    if name == "process_treatment_record_by_dataset_kind":
-        from core.treatment.dispatcher import process_treatment_record_by_dataset_kind
+    if name == "process_treatment_record":
+        from core.treatment.record_processor import process_treatment_record
 
-        return process_treatment_record_by_dataset_kind
+        return process_treatment_record
     if name in {
         "TreatmentRunContext",
         "load_treatment_records",

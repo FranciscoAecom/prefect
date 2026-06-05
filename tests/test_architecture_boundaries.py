@@ -232,6 +232,48 @@ class ArchitectureBoundaryTests(unittest.TestCase):
 
         self.assertEqual(offenders, [])
 
+    def test_runtime_code_does_not_include_raster_support(self):
+        self.assertFalse(Path("core/raster").exists())
+        self.assertFalse(Path("core/treatment/handlers/raster.py").exists())
+
+        offenders = self._files_containing(
+            Path("core"),
+            "*.py",
+            [
+                "core.raster",
+                "osgeo",
+                "GDAL",
+                ".tif",
+                ".tiff",
+                "DATASET_KIND_RASTER",
+            ],
+        )
+
+        self.assertEqual(offenders, [])
+
+    def test_treatment_uses_direct_record_processor_without_dataset_dispatch(self):
+        removed_paths = [
+            Path("core/ingest/dataset_types.py"),
+            Path("core/treatment/dispatcher.py"),
+            Path("core/treatment/handlers"),
+        ]
+
+        self.assertEqual([str(path) for path in removed_paths if path.exists()], [])
+
+        offenders = self._files_containing(
+            Path("core"),
+            "*.py",
+            [
+                "dataset_kind",
+                "dataset_types",
+                "process_treatment_record_by_dataset_kind",
+                "core.treatment.dispatcher",
+                "core.treatment.handlers",
+            ],
+        )
+
+        self.assertEqual(offenders, [])
+
     def test_prefect_decorators_stay_in_flow_and_tasks_packages(self):
         allowed_roots = {Path("core/flow"), Path("core/tasks")}
         offenders = []

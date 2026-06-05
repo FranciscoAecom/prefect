@@ -5,8 +5,7 @@ em lote, orientado pela planilha de ingestao `input/st_Ingest_parameter.xlsx`.
 
 O projeto processa bases `.shp` e `.gpkg`, valida schemas e dominios,
 normaliza atributos, repara geometrias, calcula metricas espaciais e grava
-saidas finais em GeoPackage. Bases `.tif` e `.tiff` usam tratamento raster
-com GDAL.
+saidas finais em GeoPackage.
 
 ## Objetivo
 
@@ -21,8 +20,7 @@ com GDAL.
 
 - Arquivos `.shp`.
 - Arquivos `.gpkg`.
-- Arquivos `.tif` e `.tiff` para tratamento raster com GDAL.
-- Pastas contendo `.shp`, `.gpkg`, `.tif` e `.tiff`, inclusive em subpastas.
+- Pastas contendo `.shp` e `.gpkg`, inclusive em subpastas.
 
 Arquivos `.zip` nao sao processados diretamente.
 
@@ -75,7 +73,7 @@ Componentes principais:
 - `settings.py`: configuracoes centrais do tratamento.
 - `core/`: motor de ingestao, validacao, tratamento, regras e escrita.
 - `core/downloads/`: catalogo, conectores e utilitarios de download.
-- `core/treatment/`: servico, execucao, dispatcher e handlers vetorial/raster do tratamento.
+- `core/treatment/`: servico, execucao e handler vetorial do tratamento.
 - `core/publish/`: descoberta, publicacao, titulos, SLD e XML para catalogo.
 - `core/silver/`: persistencia da camada silver, saida principal, XML, SLD e qualidade.
 - `core/rules/contracts.py`: contrato tecnico das chaves aceitas nos perfis JSON.
@@ -90,7 +88,6 @@ Componentes principais:
 - Dependencias declaradas em `pyproject.toml`.
 - Ambiente recomendado com `uv`.
 - Prefect 3 para orquestracao do tratamento.
-- GDAL/`osgeo` apenas para processamento raster (`.tif`/`.tiff`).
 
 Clone do repositorio:
 
@@ -112,44 +109,6 @@ py -3.14 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 py -3.14 -m pip install --upgrade pip
 py -3.14 -m pip install -e .
-```
-
-### GDAL Para Raster
-
-O GDAL nao e necessario para processar apenas `.shp` e `.gpkg`. Ele passa a ser
-obrigatorio quando a ingest tiver `.tif` ou `.tiff` em `path_shapefile_temp`.
-
-No Windows, evite depender de `pip install -e ".[raster]"` como primeira opcao,
-porque o `pip` pode tentar compilar GDAL localmente e exigir Microsoft C++ Build
-Tools. Para raster, a instalacao recomendada e um ambiente conda-forge separado:
-
-```powershell
-& "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" create -n prefect-gdal -c conda-forge python=3.14 gdal geopandas pandas numpy pyarrow pyproj shapely openpyxl prefect pyogrio -y
-& "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" run -n prefect-gdal python -m pip install -e .
-```
-
-Valide o GDAL no ambiente:
-
-```powershell
-& "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" run -n prefect-gdal python -c "from osgeo import gdal; print(gdal.VersionInfo('--version'))"
-& "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" run -n prefect-gdal python -m unittest tests.test_raster_gdal_integration
-```
-
-Quando houver raster nos registros de tratamento, execute tambem o Prefect pelo ambiente
-`prefect-gdal`. Nao use `uv run` nesse caso, pois ele executa o `.venv` padrao
-do projeto; se esse `.venv` nao tiver `osgeo`, o processamento `.tif/.tiff`
-falhara.
-
-```powershell
-& "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" run -n prefect-gdal python -m prefect config set PREFECT_API_URL=http://127.0.0.1:4200/api
-& "$env:LOCALAPPDATA\miniforge3\condabin\conda.bat" run -n prefect-gdal python main.py
-```
-
-Atalho equivalente:
-
-```powershell
-.\scripts\run_treatment_gdal.ps1 -CheckOnly
-.\scripts\run_treatment_gdal.ps1
 ```
 
 ## Como Usar
@@ -184,8 +143,6 @@ output/<theme_folder>/
 O projeto usa Prefect 3 para visualizar execucoes, agendar rotinas e disparar
 bases especificas pelo painel.
 
-O tratamento raster com GDAL esta documentado em
-`docs/raster_treatment.md`.
 
 ### Painel Local
 
@@ -422,7 +379,7 @@ Esse flow recebe uma pasta silver e publica exatamente um conjunto formado por:
 md_<restante_do_nome>.xml
 ```
 
-Se a pasta tiver mais de um arquivo publicavel (`.gpkg`, `.rst` ou `.tif`), o
+Se a pasta tiver mais de um arquivo publicavel (`.gpkg`), o
 flow nao publica nada e registra no log que existe mais de um conjunto na mesma
 pasta. Nesse caso, separe os conjuntos em pastas diferentes ou publique uma
 pasta por vez.
@@ -789,5 +746,7 @@ Documentacao complementar:
 - Se a entrada estiver em `EPSG:4326`, nao ha reprojecao desnecessaria.
 - Em bases grandes, transformacoes espaciais sao feitas em fatias para reduzir
   risco de estouro de memoria.
+
+
 
 

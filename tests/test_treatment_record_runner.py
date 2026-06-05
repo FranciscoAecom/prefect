@@ -23,12 +23,12 @@ def _record(sheet_row, record_id, theme_folder, source_path):
 class QueueRecordRunnerTests(unittest.TestCase):
     @patch("core.treatment.record_runner.clear_context_log")
     @patch("core.treatment.record_runner.append_group_consolidated_output")
-    @patch("core.treatment.record_runner.process_treatment_record_by_dataset_kind")
+    @patch("core.treatment.record_runner.process_treatment_record")
     @patch("core.treatment.record_runner.set_context_log")
     def test_processes_record_and_updates_group_state(
         self,
         mock_set_context_log,
-        mock_process_by_kind,
+        mock_process_record,
         mock_append_group_consolidated_output,
         mock_clear_context_log,
     ):
@@ -37,7 +37,7 @@ class QueueRecordRunnerTests(unittest.TestCase):
             _record(2, 10, "rl_car_ac", "origem_a"),
         ]
         group_state = TreatmentGroupState(records, enable_group_consolidation=True)
-        mock_process_by_kind.side_effect = [
+        mock_process_record.side_effect = [
             TreatmentRecordResult(3, None, "gdf1"),
             TreatmentRecordResult(2, None, "gdf2"),
         ]
@@ -55,7 +55,7 @@ class QueueRecordRunnerTests(unittest.TestCase):
             keep_individual_outputs_when_grouping=False,
         )
 
-        self.assertEqual(mock_process_by_kind.call_count, 2)
+        self.assertEqual(mock_process_record.call_count, 2)
         self.assertEqual(
             mock_append_group_consolidated_output.call_args_list,
             [
@@ -67,12 +67,12 @@ class QueueRecordRunnerTests(unittest.TestCase):
         self.assertEqual(mock_clear_context_log.call_count, 2)
 
     @patch("core.treatment.record_runner.clear_context_log")
-    @patch("core.treatment.record_runner.process_treatment_record_by_dataset_kind", side_effect=RuntimeError("boom"))
+    @patch("core.treatment.record_runner.process_treatment_record", side_effect=RuntimeError("boom"))
     @patch("core.treatment.record_runner.set_context_log")
     def test_clears_context_log_even_when_record_processing_fails(
         self,
         mock_set_context_log,
-        mock_process_by_kind,
+        mock_process_record,
         mock_clear_context_log,
     ):
         record = _record(2, 10, "rl_car_ac", "origem_a")
@@ -87,25 +87,23 @@ class QueueRecordRunnerTests(unittest.TestCase):
             )
 
         mock_set_context_log.assert_called_once()
-        mock_process_by_kind.assert_called_once()
+        mock_process_record.assert_called_once()
         mock_clear_context_log.assert_called_once()
 
     @patch("core.treatment.record_runner.clear_context_log")
-    @patch("core.treatment.record_runner.process_treatment_record_by_dataset_kind")
+    @patch("core.treatment.record_runner.process_treatment_record")
     @patch("core.treatment.record_runner.set_context_log")
-    def test_delegates_processing_to_dispatcher(
+    def test_delegates_processing_to_record_processor(
         self,
         mock_set_context_log,
-        mock_process_by_kind,
+        mock_process_record,
         mock_clear_context_log,
     ):
-        record = _record(2, 10, "raster_precipitacao", "chuva")
-        record.dataset_kind = "raster"
-        record.input_path = "chuva.tif"
+        record = _record(2, 10, "rl_car_ac", "chuva")
         group_state = TreatmentGroupState([record], enable_group_consolidation=True)
-        mock_process_by_kind.return_value = TreatmentRecordResult(
+        mock_process_record.return_value = TreatmentRecordResult(
             processed_count=1,
-            output_path="saida.tif",
+            output_path="saida.gpkg",
             final_gdf=None,
         )
 
@@ -116,11 +114,12 @@ class QueueRecordRunnerTests(unittest.TestCase):
             keep_individual_outputs_when_grouping=False,
         )
 
-        mock_process_by_kind.assert_called_once_with(
+        mock_process_record.assert_called_once_with(
             record,
             "tests/_tmp_output",
-            group_state,
-            False,
+            id_start=1,
+            use_configured_final_name=True,
+            persist_individual_output=True,
         )
         mock_set_context_log.assert_called_once()
         mock_clear_context_log.assert_called_once()

@@ -52,24 +52,5 @@ class BronzePersistenceTests(unittest.TestCase):
             self.assertEqual(bronze_dataset, bronze_dir / "existing.gpkg")
             self.assertFalse((bronze_dir / "source.gpkg").exists())
 
-    def test_copies_raster_to_bronze_when_empty(self):
-        with tempfile.TemporaryDirectory() as temp_dir:
-            temp_dir = Path(temp_dir)
-            source_path = temp_dir / "temp" / "chuva.tif"
-            bronze_dir = temp_dir / "bronze"
-            source_path.parent.mkdir()
-            source_path.write_bytes(b"raster")
-            record = SimpleNamespace(
-                source_path=str(source_path),
-                input_path=str(source_path),
-                bronze_dir=str(bronze_dir),
-            )
-
-            bronze_dataset = ensure_bronze_dataset(record)
-
-            self.assertEqual(bronze_dataset, bronze_dir / "chuva.tif")
-            self.assertTrue((bronze_dir / "chuva.tif").exists())
-
-
 if __name__ == "__main__":
     unittest.main()

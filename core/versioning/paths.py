@@ -14,7 +14,7 @@ from settings import (
 )
 
 
-GEOGRAPHIC_SUFFIXES = {".gpkg", ".shp", ".tif", ".tiff"}
+GEOGRAPHIC_SUFFIXES = {".gpkg", ".shp"}
 VERSION_START = "00"
 VERSION_WIDTH = 2
 

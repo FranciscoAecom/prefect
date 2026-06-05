@@ -11,11 +11,6 @@ class IngestRecord:
     source_path: str
     input_path: str
     rule_profile: str
-    dataset_kind: str = "vector"
-    raster_source_epsg: object = None
-    raster_nodata_mode: str = "auto"
-    raster_custom_nodata: object = None
-    raster_resampling_mode: str = "auto"
     access_constraints: str = ""
     category_acronym: str = ""
     citation: str = ""

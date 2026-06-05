@@ -10,36 +10,32 @@ import pyogrio
 from shapely.geometry import Point
 
 from core.ingest.dataset_resolver import (
-    DATASET_KIND_RASTER,
-    DATASET_KIND_VECTOR,
-    dataset_kind_for_path,
     resolve_input_dataset_paths,
 )
 from core.io.dataset import _read_dataframe_with_fallback, write_output_gpkg
 
 
 class InputDatasetResolverTest(unittest.TestCase):
-    def test_accepts_raster_files(self):
+    def test_rejects_non_vector_files(self):
         with tempfile.TemporaryDirectory() as tmp:
-            raster_path = Path(tmp) / "chuva.tif"
-            raster_path.write_bytes(b"not-a-real-raster")
+            image_path = Path(tmp) / "chuva.png"
+            image_path.write_bytes(b"not-a-vector-dataset")
 
-            self.assertEqual(resolve_input_dataset_paths(str(raster_path)), [str(raster_path)])
-            self.assertEqual(dataset_kind_for_path(raster_path), DATASET_KIND_RASTER)
-            self.assertEqual(dataset_kind_for_path("base.gpkg"), DATASET_KIND_VECTOR)
+            with self.assertRaisesRegex(ValueError, "Caminho nao suportado"):
+                resolve_input_dataset_paths(str(image_path))
 
-    def test_resolves_vector_and_raster_files_from_same_folder(self):
+    def test_resolves_only_vector_files_from_folder(self):
         with tempfile.TemporaryDirectory() as tmp:
             folder = Path(tmp)
             shp = folder / "base.shp"
             gpkg = folder / "base.gpkg"
-            tif = folder / "chuva.tif"
-            for path in (shp, gpkg, tif):
+            image = folder / "chuva.png"
+            for path in (shp, gpkg, image):
                 path.write_bytes(b"placeholder")
 
             self.assertEqual(
                 resolve_input_dataset_paths(str(folder)),
-                [str(gpkg), str(shp), str(tif)],
+                [str(gpkg), str(shp)],
             )
 
 

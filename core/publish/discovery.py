@@ -48,7 +48,7 @@ def discover_publish_items(folder, store=None, layer=None, style=None, layer_tit
         names = ", ".join(path.name for path in data_paths)
         raise MultiplePublishItemsError(
             "Publicacao ignorada: a pasta possui mais de um conjunto de arquivos "
-            f"publicavel. Mantenha exatamente um GPKG/RST/TIF, um SLD e um XML "
+            f"publicavel. Mantenha exatamente um GPKG, um SLD e um XML "
             f"correspondente na pasta. Dados encontrados: {names}"
         )
 
@@ -252,22 +252,6 @@ def data_publish_info(data_path):
             "endpoint": "datastores",
             "layer_resource": "featuretypes",
             "label": "GPKG",
-        }
-    if suffix == ".rst":
-        return {
-            "type": "rst",
-            "content_type": "application/octet-stream",
-            "endpoint": "coveragestores",
-            "layer_resource": "coverages",
-            "label": "RST",
-        }
-    if suffix == ".tif":
-        return {
-            "type": "geotiff",
-            "content_type": "image/tiff",
-            "endpoint": "coveragestores",
-            "layer_resource": "coverages",
-            "label": "TIFF",
         }
     raise ValueError(f"Tipo de arquivo nao suportado: {suffix}")
 

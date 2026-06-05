@@ -2,15 +2,9 @@ from functools import lru_cache
 from pathlib import Path
 import re
 
-from core.ingest.dataset_types import (
-    DATASET_KIND_RASTER,
-    DATASET_KIND_VECTOR,
-    RASTER_DATASET_SUFFIXES,
-    SUPPORTED_DATASET_SUFFIXES,
-    VECTOR_DATASET_SUFFIXES,
-    dataset_kind_for_path,
-)
 from core.ingest.normalization import stringify
+
+SUPPORTED_DATASET_SUFFIXES = frozenset({".gpkg", ".shp"})
 
 
 def is_zip_path(path_value):
@@ -94,12 +88,7 @@ def resolve_input_dataset_paths_cached(path_value):
 
 
 __all__ = [
-    "DATASET_KIND_RASTER",
-    "DATASET_KIND_VECTOR",
-    "RASTER_DATASET_SUFFIXES",
     "SUPPORTED_DATASET_SUFFIXES",
-    "VECTOR_DATASET_SUFFIXES",
-    "dataset_kind_for_path",
     "is_zip_path",
     "resolve_input_dataset_paths",
     "resolve_input_dataset_paths_cached",

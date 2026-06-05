@@ -11,5 +11,6 @@ __pycache__/
 .ruff_cache/
 .mypy_cache/
 .prefect-local/
+.prefect-logs/
 .pipeline-locks/
 *.lock
