@@ -92,34 +92,6 @@ def _parse_status_flags(status, scheduled_for):
     return frozenset(parts)
 
 
-def parse_status_flags(status):
-    return parse_ingest_status(status).flags
-
-
-def has_status_flag(status, flag):
-    return parse_ingest_status(status).has_flag(flag)
-
-
-def has_download_flag(status):
-    return has_status_flag(status, STATUS_FLAG_DOWNLOAD)
-
-
-def has_treatment_flag(status):
-    return has_status_flag(status, STATUS_FLAG_TREATMENT)
-
-
-def has_publish_flag(status):
-    return has_status_flag(status, STATUS_FLAG_PUBLISH)
-
-
-def has_schedule_flag(status):
-    return has_status_flag(status, STATUS_FLAG_SCHEDULE)
-
-
-def parse_status_schedule(status):
-    return parse_ingest_status(status).scheduled_for
-
-
 def _parse_status_schedule(status):
     text = stringify(status)
     match = SCHEDULE_STATUS_PATTERN.search(text)
@@ -140,14 +112,6 @@ def _status_without_schedule_directive(status):
     return SCHEDULE_STATUS_PATTERN.sub(lambda match: match.group("prefix"), text).strip(" -,;")
 
 
-def invalid_status_flags(status):
-    return parse_ingest_status(status).invalid_flags
-
-
-def find_invalid_status_flags(status):
-    return invalid_status_flags(status)
-
-
 def status_flags_display(flags=STATUS_FLAGS):
     return [stringify(flag) for flag in sorted(flags)]
 
@@ -159,15 +123,6 @@ __all__ = [
     "STATUS_FLAG_TREATMENT",
     "STATUS_FLAGS",
     "IngestStatus",
-    "has_download_flag",
-    "has_publish_flag",
-    "has_schedule_flag",
-    "has_status_flag",
-    "has_treatment_flag",
-    "invalid_status_flags",
-    "find_invalid_status_flags",
     "parse_ingest_status",
-    "parse_status_flags",
-    "parse_status_schedule",
     "status_flags_display",
 ]

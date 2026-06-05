@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 
 from core.ingest.normalization import normalize_theme_folder, stringify
-from core.ingest.status_flags import has_download_flag, has_treatment_flag
+from core.ingest.status_flags import parse_ingest_status
 from settings import (
     DATA_LAKE_BASE,
     DATA_LAKE_BRONZE_STAGE,
@@ -112,7 +112,8 @@ def build_stage_root(
 
 def resolve_next_available_version(date_root, status):
     date_root = Path(date_root)
-    if not (has_treatment_flag(status) or has_download_flag(status)):
+    ingest_status = parse_ingest_status(status)
+    if not (ingest_status.has_treatment or ingest_status.has_download):
         raise ValueError(
             "Status sem regra de versionamento: "
             f"{status}. Use download, treatment ou download-treatment."

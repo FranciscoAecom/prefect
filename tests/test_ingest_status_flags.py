@@ -1,10 +1,6 @@
 import unittest
 
-from core.ingest.status_flags import (
-    parse_ingest_status,
-    parse_status_flags,
-    parse_status_schedule,
-)
+from core.ingest.status_flags import parse_ingest_status
 
 
 class IngestStatusFlagsTests(unittest.TestCase):
@@ -26,15 +22,11 @@ class IngestStatusFlagsTests(unittest.TestCase):
         self.assertTrue(status.is_scheduled_for_treatment)
         self.assertEqual(status.scheduled_for.isoformat(), "2026-05-13T18:49:00")
 
-    def test_keeps_backward_compatible_helpers(self):
-        self.assertEqual(
-            parse_status_flags("download-treatment"),
-            frozenset({"download", "treatment"}),
-        )
-        self.assertEqual(
-            parse_status_schedule("schedule 2026-05-13 18:49").isoformat(),
-            "2026-05-13T18:49:00",
-        )
+    def test_reports_invalid_flags(self):
+        status = parse_ingest_status("download-review")
+
+        self.assertFalse(status.is_valid)
+        self.assertEqual(status.invalid_flags, ("review",))
 
 
 if __name__ == "__main__":
