@@ -1,8 +1,0 @@
-Your flow 'Data Publish' is being served and polling for scheduled runs!
-
-To trigger a run for this flow, use the following command:
-
-        $ prefect deployment run 'Data Publish/Publish GeoServer GeoNetwork'
-
-You can also run your flow via the Prefect UI: http://127.0.0.1:4200/deployments/deployment/8a05f5d6-2641-4c6f-bea0-4d3960602e43
-
