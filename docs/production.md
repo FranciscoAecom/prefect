@@ -80,12 +80,36 @@ Agendamento one-shot:
 schedule 2026-06-05 18:49
 ```
 
+Quando alterar ou inserir linhas `schedule YYYY-MM-DD HH:MM` na planilha
+ingest, rode novamente o script operacional para recriar o deployment e carregar
+os novos agendamentos no Prefect:
+
+```powershell
+cd "C:\Temp\Repositorios\prefect"
+.\scripts\start_prefect_local.ps1 -StopExisting
+```
+
+Para recriar tudo com banco zerado:
+
+```powershell
+.\scripts\start_prefect_local.ps1 -StopExisting -ResetDatabase
+```
+
 ## Execucao Manual
 
 Rodar tratamento local:
 
 ```powershell
+cd "C:\Temp\Repositorios\prefect"
+$env:PREFECT_API_URL="http://127.0.0.1:4200/api"
 uv run python main.py
+```
+
+Confirmar que o servidor Prefect esta ativo:
+
+```powershell
+$env:PREFECT_API_URL="http://127.0.0.1:4200/api"
+.\.venv\Scripts\python.exe -m prefect flow ls
 ```
 
 Rodar uma base especifica pelo deployment:

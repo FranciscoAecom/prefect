@@ -158,6 +158,51 @@ quando necessario, resetar o banco local:
 
 O guia completo de operacao, publicacao, reset do banco e comandos de suporte
 fica em `docs/production.md`.
+
+### Comandos Uteis
+
+Executar o tratamento usando o Prefect local ja iniciado:
+
+```powershell
+cd "C:\Temp\Repositorios\prefect"
+$env:PREFECT_API_URL="http://127.0.0.1:4200/api"
+uv run python main.py
+```
+
+Confirmar que o servidor Prefect esta ativo:
+
+```powershell
+$env:PREFECT_API_URL="http://127.0.0.1:4200/api"
+.\.venv\Scripts\python.exe -m prefect flow ls
+```
+
+Reiniciar o Prefect local de forma limpa, mantendo o banco:
+
+```powershell
+cd "C:\Temp\Repositorios\prefect"
+.\scripts\start_prefect_local.ps1 -StopExisting
+```
+
+Apagar o banco local do Prefect e recriar tudo do zero:
+
+```powershell
+.\scripts\start_prefect_local.ps1 -StopExisting -ResetDatabase
+```
+
+Depois de alterar ou inserir linhas `schedule YYYY-MM-DD HH:MM` na planilha
+ingest, recrie os deployments para o Prefect carregar os novos agendamentos:
+
+```powershell
+cd "C:\Temp\Repositorios\prefect"
+.\scripts\start_prefect_local.ps1 -StopExisting
+```
+
+Para recriar os agendamentos com banco zerado:
+
+```powershell
+.\scripts\start_prefect_local.ps1 -StopExisting -ResetDatabase
+```
+
 ## Regras Modulares
 
 Cada perfil em `rules/` deve conter cinco arquivos obrigatorios e,
