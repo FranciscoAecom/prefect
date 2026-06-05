@@ -1,4 +1,5 @@
 import re
+from dataclasses import dataclass
 from datetime import datetime
 
 from core.ingest.normalization import normalize_status, stringify
@@ -25,24 +26,78 @@ STATUS_FLAGS = frozenset(
 )
 
 
-def parse_status_flags(status):
-    scheduled_at = parse_status_schedule(status)
-    text = _status_without_schedule_directive(status) if scheduled_at else normalize_status(status)
+@dataclass(frozen=True)
+class IngestStatus:
+    raw: str
+    flags: frozenset[str]
+    invalid_flags: tuple[str, ...]
+    scheduled_for: datetime | None = None
+
+    @property
+    def is_valid(self):
+        return not self.invalid_flags
+
+    def has_flag(self, flag):
+        return normalize_status(flag) in self.flags
+
+    @property
+    def has_download(self):
+        return self.has_flag(STATUS_FLAG_DOWNLOAD)
+
+    @property
+    def has_treatment(self):
+        return self.has_flag(STATUS_FLAG_TREATMENT)
+
+    @property
+    def has_publish(self):
+        return self.has_flag(STATUS_FLAG_PUBLISH)
+
+    @property
+    def has_schedule(self):
+        return self.has_flag(STATUS_FLAG_SCHEDULE)
+
+    @property
+    def is_scheduled_for_treatment(self):
+        return self.is_valid and self.has_schedule and bool(self.scheduled_for)
+
+
+def parse_ingest_status(status):
+    raw = stringify(status)
+    scheduled_for = _parse_status_schedule(raw)
+    flags = _parse_status_flags(raw, scheduled_for)
+    return IngestStatus(
+        raw=raw,
+        flags=flags,
+        invalid_flags=tuple(sorted(flags - STATUS_FLAGS)),
+        scheduled_for=scheduled_for,
+    )
+
+
+def _parse_status_flags(status, scheduled_for):
+    text = (
+        _status_without_schedule_directive(status)
+        if scheduled_for
+        else normalize_status(status)
+    )
     if not text:
-        return frozenset({STATUS_FLAG_SCHEDULE}) if scheduled_at else frozenset()
+        return frozenset({STATUS_FLAG_SCHEDULE}) if scheduled_for else frozenset()
 
     parts = [
         part.strip()
         for part in text.replace(",", "-").replace(";", "-").split("-")
         if part.strip()
     ]
-    if scheduled_at:
+    if scheduled_for:
         parts.append(STATUS_FLAG_SCHEDULE)
     return frozenset(parts)
 
 
+def parse_status_flags(status):
+    return parse_ingest_status(status).flags
+
+
 def has_status_flag(status, flag):
-    return normalize_status(flag) in parse_status_flags(status)
+    return parse_ingest_status(status).has_flag(flag)
 
 
 def has_download_flag(status):
@@ -62,6 +117,10 @@ def has_schedule_flag(status):
 
 
 def parse_status_schedule(status):
+    return parse_ingest_status(status).scheduled_for
+
+
+def _parse_status_schedule(status):
     text = stringify(status)
     match = SCHEDULE_STATUS_PATTERN.search(text)
     if not match:
@@ -82,7 +141,7 @@ def _status_without_schedule_directive(status):
 
 
 def invalid_status_flags(status):
-    return tuple(sorted(parse_status_flags(status) - STATUS_FLAGS))
+    return parse_ingest_status(status).invalid_flags
 
 
 def find_invalid_status_flags(status):
@@ -99,6 +158,7 @@ __all__ = [
     "STATUS_FLAG_SCHEDULE",
     "STATUS_FLAG_TREATMENT",
     "STATUS_FLAGS",
+    "IngestStatus",
     "has_download_flag",
     "has_publish_flag",
     "has_schedule_flag",
@@ -106,6 +166,7 @@ __all__ = [
     "has_treatment_flag",
     "invalid_status_flags",
     "find_invalid_status_flags",
+    "parse_ingest_status",
     "parse_status_flags",
     "parse_status_schedule",
     "status_flags_display",

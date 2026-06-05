@@ -1,14 +1,6 @@
 from dataclasses import dataclass
 
-from core.ingest.status_flags import (
-    has_download_flag,
-    has_publish_flag,
-    has_schedule_flag,
-    has_treatment_flag,
-    invalid_status_flags,
-    parse_status_flags,
-    parse_status_schedule,
-)
+from core.ingest.status_flags import parse_ingest_status
 
 
 @dataclass(frozen=True)
@@ -32,16 +24,16 @@ class IngestExecutionPlan:
 
 
 def build_ingest_execution_plan(status):
-    flags = parse_status_flags(status)
+    ingest_status = parse_ingest_status(status)
     return IngestExecutionPlan(
-        status=str(status or ""),
-        flags=flags,
-        invalid_flags=invalid_status_flags(status),
-        should_download=has_download_flag(status),
-        should_treat=has_treatment_flag(status),
-        should_publish=has_publish_flag(status),
-        should_schedule=has_schedule_flag(status),
-        scheduled_for=parse_status_schedule(status),
+        status=ingest_status.raw,
+        flags=ingest_status.flags,
+        invalid_flags=ingest_status.invalid_flags,
+        should_download=ingest_status.has_download,
+        should_treat=ingest_status.has_treatment,
+        should_publish=ingest_status.has_publish,
+        should_schedule=ingest_status.has_schedule,
+        scheduled_for=ingest_status.scheduled_for,
     )
 
 
