@@ -3,7 +3,10 @@ import unittest
 import geopandas as gpd
 from shapely.geometry import Point, Polygon
 
-from core.treatment.steps.mandatory_pipeline import MANDATORY_FUNCTIONS, run_mandatory_treatments
+from core.treatment.steps.mandatory_treatments import (
+    MANDATORY_FUNCTIONS,
+    run_mandatory_treatments,
+)
 
 
 class MandatoryTreatmentsTests(unittest.TestCase):

@@ -3,7 +3,7 @@ from core.treatment.steps.errors import log_treatment_error
 from core.treatment.steps.input_step import load_input_step
 from core.treatment.steps.mapping_step import prepare_mapping_step
 from core.treatment.steps.output_step import persist_outputs_step
-from core.treatment.steps.pipeline_step import run_configured_treatment_step
+from core.treatment.steps.configured_step import run_configured_treatment_step
 from core.treatment.steps.postprocess_step import postprocess_step
 from core.treatment.steps.rules_step import attach_rule_profile_step
 from core.treatment.steps.schema_step import validate_input_schema_step

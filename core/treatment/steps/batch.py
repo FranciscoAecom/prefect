@@ -1,7 +1,7 @@
 import geopandas as gpd
 import pandas as pd
 
-from core.treatment.steps.mandatory_pipeline import (
+from core.treatment.steps.mandatory_treatments import (
     MANDATORY_FUNCTIONS,
     run_mandatory_treatments,
 )

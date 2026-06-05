@@ -147,6 +147,26 @@ class ArchitectureBoundaryTests(unittest.TestCase):
 
         self.assertEqual(offenders, [])
 
+    def test_treatment_steps_do_not_use_pipeline_module_names(self):
+        forbidden_paths = [
+            Path("core/treatment/steps/pipeline_step.py"),
+            Path("core/treatment/steps/mandatory_pipeline.py"),
+        ]
+        existing_paths = [str(path) for path in forbidden_paths if path.exists()]
+
+        self.assertEqual(existing_paths, [])
+
+        offenders = self._files_containing(
+            Path("core/treatment"),
+            "*.py",
+            [
+                "core.treatment.steps.pipeline_step",
+                "core.treatment.steps.mandatory_pipeline",
+            ],
+        )
+
+        self.assertEqual(offenders, [])
+
     def test_processing_and_queue_compatibility_packages_have_been_removed(self):
         self.assertFalse(Path("core/processing").exists())
         self.assertFalse(Path("core/queue").exists())
