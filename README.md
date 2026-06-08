@@ -14,7 +14,8 @@ saidas finais em GeoPackage.
 - Validar estrutura tabular contra o `input_schema.json` do perfil de regras.
 - Preservar atributos originais com prefixo `sdb_*`.
 - Gerar campos tratados e padronizados com prefixo `acm_*`.
-- Produzir saidas em `output/<theme_folder>/` com logs e relatorios auxiliares.
+- Produzir saidas versionadas em `bronze_data` e `silver_data`, com XML, SLD
+  e relatorios auxiliares.
 
 ## Entradas Suportadas
 
@@ -40,7 +41,6 @@ geodata-workflow/
 |-- settings.py
 |-- input/
 |   `-- st_Ingest_parameter.xlsx
-|-- output/
 |-- core/
 |   |-- downloads/
 |   |-- ingest/
@@ -80,7 +80,8 @@ Componentes principais:
 - `projects/`: configuracoes e funcoes especificas por projeto.
 - `rules/`: perfis JSON modulares por tema e UF.
 - `input/`: planilha de ingestao.
-- `output/`: resultados gerados.
+- `DATA_LAKE_BASE`: raiz externa usada para `temp`, `bronze_data` e
+  `silver_data`.
 
 ## Requisitos
 
@@ -132,10 +133,10 @@ Ou, usando o Python instalado diretamente:
 py -3.14 main.py
 ```
 
-As saidas ficam em:
+As saidas ficam na raiz `DATA_LAKE_BASE`, usando a estrutura versionada:
 
 ```text
-output/<theme_folder>/
+<base>\<etapa>\<access_constraints>\<category_acronym>\<theme_folder>\<citation>\<date>\<version>
 ```
 
 ## Prefect
@@ -161,7 +162,9 @@ fica em `docs/production.md`.
 
 ### Comandos Uteis
 
-Entrar na pasta do projeto e apontar o terminal para a API local do Prefect:
+#### Ambiente
+
+Entre na pasta do projeto e aponte o terminal para a API local do Prefect:
 
 ```powershell
 cd "C:\Temp\Repositórios\prefect"
@@ -175,11 +178,21 @@ $env:PREFECT_API_URL="http://127.0.0.1:4200/api"
 .\.venv\Scripts\python.exe -m prefect flow ls
 ```
 
+#### Tratamento
+
 Executar o tratamento diretamente pelo `main.py`, lendo a planilha ingest:
 
 ```powershell
 uv run python main.py
 ```
+
+Executar uma base especifica pelo deployment de tratamento:
+
+```powershell
+'{"theme_folders":["ur_car_pi"]}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/Treatment Agendado pela Ingest" --params -
+```
+
+#### Download
 
 Executar o flow de download pela planilha ingest. Use este comando quando
 existirem linhas com `status` contendo `download`, como `download`,
@@ -203,11 +216,7 @@ Esse encadeamento depende das automacoes criadas pelo script
 `start_prefect_local.ps1`: `dataset.downloaded -> treatment` e
 `dataset.treatment.completed -> publish`.
 
-Executar uma base especifica pelo deployment de tratamento:
-
-```powershell
-'{"theme_folders":["ur_car_pi"]}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/Treatment Agendado pela Ingest" --params -
-```
+#### Prefect Local
 
 Reiniciar o Prefect local de forma limpa, mantendo o banco:
 
@@ -223,9 +232,8 @@ Apagar o banco local do Prefect e recriar tudo do zero:
 ```
 
 Depois de alterar ou inserir linhas `schedule YYYY-MM-DD HH:MM` na planilha
-ingest, recrie os deployments para o Prefect carregar os novos agendamentos:
-Após rodar o comando abaixo, não feche o terminal, para que os agendamentos
-entrem em execução no devido momento.
+ingest, reinicie o Prefect local para recriar os deployments e carregar os
+novos agendamentos:
 
 ```powershell
 cd "C:\Temp\Repositórios\prefect"
@@ -235,6 +243,8 @@ cd "C:\Temp\Repositórios\prefect"
 O agendamento aparece no deployment em `Schedules`. Ele pode nao aparecer ainda
 na lista de flow runs agendados quando a data estiver muito distante, pois o
 Prefect materializa runs futuros dentro de uma janela propria do scheduler.
+
+#### Agendamentos
 
 Para apagar todos os agendamentos do deployment de tratamento:
 
@@ -250,12 +260,16 @@ Para listar os agendamentos carregados no deployment:
 .\.venv\Scripts\python.exe -m prefect deployment schedule ls "Data Treatment/Treatment Agendado pela Ingest"
 ```
 
+#### Automacoes
+
 Para recriar as automacoes padrao manualmente:
 
 ```powershell
 .\.venv\Scripts\python.exe scripts\prefect_admin.py create-download-automation
 .\.venv\Scripts\python.exe scripts\prefect_admin.py create-treatment-publish-automation
 ```
+
+#### Publicacao
 
 Configurar credenciais de publicacao antes de iniciar o Prefect local:
 
@@ -273,12 +287,6 @@ $env:PUBLISH_GEONETWORK_PASSWORD="<sua_senha>"
 
 Nao grave senhas reais no repositorio. Use o placeholder acima na documentacao
 e informe a senha real apenas no terminal/ambiente de execucao.
-
-Para recriar os agendamentos com banco zerado:
-
-```powershell
-.\scripts\start_prefect_local.ps1 -StopExisting -ResetDatabase
-```
 
 ## Regras Modulares
 
@@ -522,8 +530,4 @@ Documentacao complementar:
 - Se a entrada estiver em `EPSG:4326`, nao ha reprojecao desnecessaria.
 - Em bases grandes, transformacoes espaciais sao feitas em fatias para reduzir
   risco de estouro de memoria.
-
-
-
-
 
