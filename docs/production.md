@@ -190,6 +190,23 @@ $env:PUBLISH_GEONETWORK_USERNAME="usuario"
 $env:PUBLISH_GEONETWORK_PASSWORD="senha"
 ```
 
+Para iniciar o Prefect local ja com credenciais de publicacao:
+
+```powershell
+cd "C:\Temp\Repositórios\prefect"
+
+$env:PUBLISH_GEOSERVER_USERNAME="admin"
+$env:PUBLISH_GEOSERVER_PASSWORD="<sua_senha>"
+
+$env:PUBLISH_GEONETWORK_USERNAME="admin"
+$env:PUBLISH_GEONETWORK_PASSWORD="<sua_senha>"
+
+.\scripts\start_prefect_local.ps1 -StopExisting
+```
+
+Nao grave senhas reais no repositorio. Informe a senha real apenas no
+terminal/ambiente de execucao.
+
 Teste sem publicar:
 
 ```powershell

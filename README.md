@@ -257,6 +257,23 @@ Para recriar as automacoes padrao manualmente:
 .\.venv\Scripts\python.exe scripts\prefect_admin.py create-treatment-publish-automation
 ```
 
+Configurar credenciais de publicacao antes de iniciar o Prefect local:
+
+```powershell
+cd "C:\Temp\Repositórios\prefect"
+
+$env:PUBLISH_GEOSERVER_USERNAME="admin"
+$env:PUBLISH_GEOSERVER_PASSWORD="<sua_senha>"
+
+$env:PUBLISH_GEONETWORK_USERNAME="admin"
+$env:PUBLISH_GEONETWORK_PASSWORD="<sua_senha>"
+
+.\scripts\start_prefect_local.ps1 -StopExisting
+```
+
+Nao grave senhas reais no repositorio. Use o placeholder acima na documentacao
+e informe a senha real apenas no terminal/ambiente de execucao.
+
 Para recriar os agendamentos com banco zerado:
 
 ```powershell
