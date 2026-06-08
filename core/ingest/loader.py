@@ -9,6 +9,7 @@ from core.ingest.issues import (
     missing_rule_profile_issue,
     missing_source_path_issue,
     rule_profile_resolution_error_issue,
+    versioning_metadata_incomplete_issue,
     zip_source_path_issue,
 )
 from core.ingest.models import IngestRecord
@@ -77,6 +78,11 @@ def load_treatment_records(
         rule_resolution, rule_issue = _resolve_rule_profile(treatment_entry)
         if rule_issue:
             issues.append(rule_issue)
+            continue
+
+        versioning_issue = _resolve_versioning_issue(treatment_entry)
+        if versioning_issue:
+            issues.append(versioning_issue)
             continue
 
         eligible_records.extend(
@@ -176,6 +182,29 @@ def _resolve_input_paths(treatment_entry):
         )
 
 
+def _resolve_versioning_issue(treatment_entry):
+    missing_fields = [
+        field
+        for field, value in {
+            "access_constraints": treatment_entry["versioning_metadata"].get(
+                "access_constraints"
+            ),
+            "category_acronym": treatment_entry["versioning_metadata"].get(
+                "category_acronym"
+            ),
+            "citation": treatment_entry["versioning_metadata"].get("citation"),
+            "date": treatment_entry["versioning_metadata"].get("date"),
+        }.items()
+        if not stringify(value)
+    ]
+    if not missing_fields:
+        return None
+    return versioning_metadata_incomplete_issue(
+        treatment_entry["issue_context"],
+        missing_fields,
+    )
+
+
 def _build_records_for_input_paths(treatment_entry, rule_resolution, input_paths):
     records = []
     for input_path in input_paths:
@@ -254,18 +283,6 @@ def _extract_xml_metadata(row):
 
 
 def _resolve_versioned_dirs(record):
-    if not all(
-        stringify(record.get(field))
-        for field in (
-            "status",
-            "access_constraints",
-            "category_acronym",
-            "theme_folder",
-            "citation",
-            "date",
-        )
-    ):
-        return {"output_dir": "", "bronze_dir": "", "temp_dir": ""}
     plan = resolve_dataset_version_plan(record)
     return {
         "output_dir": str(plan.silver_dir),

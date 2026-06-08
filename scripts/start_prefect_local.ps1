@@ -6,7 +6,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$ProjectRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
+$ProjectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $Python = Join-Path $ProjectRoot ".venv\Scripts\python.exe"
 $LogDir = Join-Path $ProjectRoot ".prefect-logs"
 $PrefectApiUrl = "http://127.0.0.1:4200/api"
@@ -18,13 +18,16 @@ if (-not (Test-Path $Python)) {
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
 
 function Stop-PrefectLocalProcesses {
+    $normalizedProjectRoot = $ProjectRoot.ToLowerInvariant()
     Get-CimInstance Win32_Process |
         Where-Object {
-            $_.CommandLine -and
-            $_.CommandLine.Contains($ProjectRoot) -and
+            $commandLine = ($_.CommandLine -as [string])
+            $normalizedCommandLine = if ($commandLine) { $commandLine.ToLowerInvariant() } else { "" }
+            $normalizedCommandLine -and
+            $normalizedCommandLine.Contains($normalizedProjectRoot) -and
             (
-                $_.CommandLine.Contains("prefect server start") -or
-                $_.CommandLine.Contains("scripts\serve.py")
+                $normalizedCommandLine.Contains("prefect server start") -or
+                $normalizedCommandLine.Contains("scripts\serve.py")
             )
         } |
         ForEach-Object {

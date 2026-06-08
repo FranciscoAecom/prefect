@@ -11,6 +11,7 @@ ISSUE_RULE_PROFILE_INCOMPLETE = "rule_profile_incomplete"
 ISSUE_RULE_PROFILE_PROJECT_INCONSISTENT = "rule_profile_project_inconsistent"
 ISSUE_RULE_PROFILE_RESOLUTION_ERROR = "rule_profile_resolution_error"
 ISSUE_SOURCE_PATH_NOT_FOUND = "source_path_not_found"
+ISSUE_VERSIONING_METADATA_INCOMPLETE = "versioning_metadata_incomplete"
 
 
 def missing_source_path_issue(issue_context):
@@ -82,6 +83,18 @@ def input_dataset_resolution_error_issue(issue_context, error):
     )
 
 
+def versioning_metadata_incomplete_issue(issue_context, missing_fields):
+    return _ingest_issue(
+        issue_context,
+        code=ISSUE_VERSIONING_METADATA_INCOMPLETE,
+        reason=(
+            "Campos obrigatorios para versionamento temp/bronze/silver ausentes: "
+            + ", ".join(missing_fields)
+            + "."
+        ),
+    )
+
+
 def issue_to_dict(issue):
     return {
         "sheet_row": issue.sheet_row,
@@ -117,6 +130,7 @@ __all__ = [
     "ISSUE_RULE_PROFILE_PROJECT_INCONSISTENT",
     "ISSUE_RULE_PROFILE_RESOLUTION_ERROR",
     "ISSUE_SOURCE_PATH_NOT_FOUND",
+    "ISSUE_VERSIONING_METADATA_INCOMPLETE",
     "incomplete_rule_profile_issue",
     "inconsistent_rule_profile_issue",
     "input_dataset_resolution_error_issue",
@@ -125,5 +139,6 @@ __all__ = [
     "missing_rule_profile_issue",
     "missing_source_path_issue",
     "rule_profile_resolution_error_issue",
+    "versioning_metadata_incomplete_issue",
     "zip_source_path_issue",
 ]

@@ -186,6 +186,52 @@ class IngestLoaderStatusTests(unittest.TestCase):
         self.assertEqual(records[0].source_path, "base_nova")
         mock_resolve_paths.assert_called_once_with("base_nova")
 
+    @patch("core.ingest.loader.resolve_input_dataset_paths_cached")
+    @patch("core.ingest.loader.resolve_dataset_version_plan")
+    @patch("core.ingest.loader.resolve_rule_profile_for_theme")
+    @patch("core.ingest.repository.pd.read_excel")
+    def test_missing_versioning_metadata_blocks_treatment_record(
+        self,
+        mock_read_excel,
+        mock_resolve_rule_profile,
+        mock_resolve_version_plan,
+        mock_resolve_paths,
+    ):
+        mock_read_excel.return_value = pd.DataFrame(
+            [
+                {
+                    "ID": 1,
+                    "theme": "Localidades",
+                    "theme_folder": "localidades",
+                    "status": "treatment",
+                    "path_shapefile_temp": "base",
+                    "access_constraints": "restricted",
+                    "category_acronym": "loc",
+                    "citation": "",
+                    "date": "2025-11-19",
+                },
+            ]
+        )
+        mock_resolve_rule_profile.return_value = RuleProfileResolution(
+            theme_folder="localidades",
+            normalized_theme_folder="localidades",
+            project_name="localidades",
+            expected_profile_name="localidades/localidades",
+            profile_name="localidades/localidades",
+            profile_dir=None,
+            profile_project_name="localidades",
+        )
+        mock_resolve_paths.return_value = ("base.gpkg",)
+
+        records, issues, summary = load_treatment_records()
+
+        self.assertEqual(records, [])
+        self.assertEqual(summary["eligible_records"], 0)
+        self.assertEqual(len(issues), 1)
+        self.assertEqual(issues[0].code, "versioning_metadata_incomplete")
+        self.assertIn("citation", issues[0].reason)
+        mock_resolve_version_plan.assert_not_called()
+
 if __name__ == "__main__":
     unittest.main()
 
