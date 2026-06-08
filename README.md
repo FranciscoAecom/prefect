@@ -423,6 +423,12 @@ O modulo `core.versioning` monta os caminhos padronizados das camadas
 DATA_LAKE_BASE
 ```
 
+Se a variavel nao for informada, o padrao do projeto e:
+
+```text
+L:\Secure_DCS\BRBLH1PINFW001\COE_Digital\coe_digital_data
+```
+
 Estrutura:
 
 ```text
@@ -463,6 +469,19 @@ Os caminhos dependentes do ambiente devem ser informados externamente:
 - `DATA_LAKE_BASE`: raiz das camadas `temp`, `bronze_data` e `silver_data`.
 - `MUNICIPALITIES_BASE_PATH`: arquivo de referencia de municipios.
 - `BRAZIL_BBOX_PATH`: arquivo opcional com o limite Brasil / zona costeira.
+
+No ambiente local, o script de inicializacao tambem define essa raiz para o
+servidor e para os deployments do Prefect:
+
+```powershell
+.\scripts\start_prefect_local.ps1 -StopExisting
+```
+
+Para apontar para outra raiz:
+
+```powershell
+.\scripts\start_prefect_local.ps1 -StopExisting -DataLakeBase "X:\caminho\coe_digital_data"
+```
 
 Configuracoes por projeto ficam em `projects/configs.py`, e funcoes opcionais
 ficam registradas em `projects/registry.py`.

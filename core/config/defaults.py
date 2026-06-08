@@ -5,6 +5,9 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
+DEFAULT_DATA_LAKE_BASE = Path(
+    r"L:\Secure_DCS\BRBLH1PINFW001\COE_Digital\coe_digital_data"
+)
 DEFAULT_CAR_PUBLIC_API_BASE = "https://consulta.car.gov.br/api"
 DEFAULT_DOWNLOAD_EXTRACT_BASE = PROJECT_ROOT / "input" / "downloads"
 DEFAULT_DOWNLOAD_ARCHIVE_BASE = DEFAULT_DOWNLOAD_EXTRACT_BASE / "_archives"
@@ -15,6 +18,7 @@ DEFAULT_BRAZIL_BBOX_PATH = os.getenv("BRAZIL_BBOX_PATH", "")
 __all__ = [
     "DEFAULT_BRAZIL_BBOX_PATH",
     "DEFAULT_CAR_PUBLIC_API_BASE",
+    "DEFAULT_DATA_LAKE_BASE",
     "DEFAULT_DOWNLOAD_ARCHIVE_BASE",
     "DEFAULT_DOWNLOAD_EXTRACT_BASE",
     "DEFAULT_MUNICIPALITIES_BASE_PATH",

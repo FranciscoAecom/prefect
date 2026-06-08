@@ -1,6 +1,7 @@
 param(
     [switch]$ResetDatabase,
-    [switch]$StopExisting
+    [switch]$StopExisting,
+    [string]$DataLakeBase = "L:\Secure_DCS\BRBLH1PINFW001\COE_Digital\coe_digital_data"
 )
 
 $ErrorActionPreference = "Stop"
@@ -51,6 +52,8 @@ if ($StopExisting -or $ResetDatabase) {
 }
 
 $env:PYTHONIOENCODING = "utf-8"
+$env:DATA_LAKE_BASE = $DataLakeBase
+Write-Host "DATA_LAKE_BASE definido: $env:DATA_LAKE_BASE"
 
 if ($ResetDatabase) {
     & $Python -m prefect server database reset -y --no-prompt

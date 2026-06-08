@@ -4,6 +4,7 @@ from pathlib import Path
 
 from core.config.defaults import (
     DEFAULT_CAR_PUBLIC_API_BASE,
+    DEFAULT_DATA_LAKE_BASE,
     DEFAULT_DOWNLOAD_ARCHIVE_BASE,
     DEFAULT_DOWNLOAD_EXTRACT_BASE,
 )
@@ -22,7 +23,7 @@ class PathSettings:
 
     @property
     def data_lake_base(self):
-        return Path(os.getenv("DATA_LAKE_BASE", self.project_root / "output"))
+        return Path(os.getenv("DATA_LAKE_BASE", DEFAULT_DATA_LAKE_BASE))
 
     @property
     def ingest_workbook_path(self):
@@ -30,7 +31,7 @@ class PathSettings:
 
     @property
     def output_base(self):
-        return self.project_root / "output"
+        return self.data_lake_base
 
     @property
     def rules_base(self):
