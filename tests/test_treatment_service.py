@@ -6,7 +6,7 @@ import geopandas as gpd
 from shapely.geometry import Point
 
 from core.treatment.result import TreatmentRecordResult
-from core.treatment.service import TreatmentService
+from core.treatment.service import TreatmentService, run_data_treatment
 from core.validation.session import ValidationSession
 
 
@@ -114,3 +114,54 @@ class TreatmentServiceTests(unittest.TestCase):
         result = TreatmentService().process(record, output_dir="tests/_tmp_output")
 
         self.assertEqual(result, TreatmentRecordResult(0, None, None))
+
+
+class DataTreatmentFlowServiceTests(unittest.TestCase):
+    def _run_record(self, theme_folder, status):
+        record = _record()
+        record.theme_folder = theme_folder
+        record.status = status
+        return record
+
+    @patch("core.tasks.treatment.emit_treatment_completed_event_task")
+    @patch("core.tasks.treatment.run_treatment_record_task")
+    @patch("core.tasks.treatment.prepare_treatment_run_task")
+    def test_emits_publish_event_when_treated_records_request_publish(
+        self,
+        mock_prepare_treatment_run,
+        mock_run_treatment_record,
+        mock_emit_treatment_completed,
+    ):
+        records = [
+            self._run_record("rl_car_ac", "download-treatment-publish"),
+            self._run_record("app_car_ac", "treatment"),
+        ]
+        mock_prepare_treatment_run.return_value = SimpleNamespace(
+            records=records,
+            output_dir="tests/_tmp_output",
+        )
+
+        run_data_treatment()
+
+        self.assertEqual(mock_run_treatment_record.call_count, 2)
+        mock_emit_treatment_completed.assert_called_once_with(["rl_car_ac"])
+
+    @patch("core.tasks.treatment.emit_treatment_completed_event_task")
+    @patch("core.tasks.treatment.run_treatment_record_task")
+    @patch("core.tasks.treatment.prepare_treatment_run_task")
+    def test_does_not_emit_publish_event_without_publish_flag(
+        self,
+        mock_prepare_treatment_run,
+        mock_run_treatment_record,
+        mock_emit_treatment_completed,
+    ):
+        records = [self._run_record("rl_car_ac", "download-treatment")]
+        mock_prepare_treatment_run.return_value = SimpleNamespace(
+            records=records,
+            output_dir="tests/_tmp_output",
+        )
+
+        run_data_treatment()
+
+        mock_run_treatment_record.assert_called_once()
+        mock_emit_treatment_completed.assert_not_called()

@@ -12,6 +12,7 @@ from prefect.client.schemas.filters import (
 from prefect.client.schemas.objects import StateType
 
 from core.prefect_support.deployment_names import (
+    DATA_PUBLISH_QUALIFIED_DEPLOYMENT_NAME,
     SCHEDULED_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
 )
 from core.ingest.diagnostics import (
@@ -26,8 +27,12 @@ from core.prefect_support.bootstrap import (
 )
 DOWNLOAD_AUTOMATION_NAME = "Dataset baixado -> tratamento de dados"
 DOWNLOAD_AUTOMATION_OLD_NAMES = ("CAR baixado -> tratamento de dados",)
+TREATMENT_PUBLISH_AUTOMATION_NAME = "Tratamento concluido -> publicacao"
 TREATMENT_DEPLOYMENT_CANDIDATES = (
     SCHEDULED_TREATMENT_QUALIFIED_DEPLOYMENT_NAME,
+)
+PUBLISH_DEPLOYMENT_CANDIDATES = (
+    DATA_PUBLISH_QUALIFIED_DEPLOYMENT_NAME,
 )
 
 
@@ -38,6 +43,10 @@ def main():
     subparsers.add_parser(
         "create-download-automation",
         help="Cria ou atualiza a automation dataset.downloaded -> tratamento.",
+    )
+    subparsers.add_parser(
+        "create-treatment-publish-automation",
+        help="Cria ou atualiza a automation treatment.completed -> publicacao.",
     )
     subparsers.add_parser(
         "create-car-download-automation",
@@ -72,6 +81,8 @@ def main():
     args = parser.parse_args()
     if args.command in {"create-download-automation", "create-car-download-automation"}:
         create_download_automation()
+    elif args.command == "create-treatment-publish-automation":
+        create_treatment_publish_automation()
     elif args.command == "rename-scheduled-runs":
         rename_scheduled_runs()
     elif args.command == "set-default-variables":
@@ -129,6 +140,46 @@ def create_download_automation():
     print(f"Automation atualizada: {automation.name} ({automation.id})")
 
 
+def create_treatment_publish_automation():
+    with get_client(sync_client=True) as client:
+        deployment = read_first_existing_deployment(client, PUBLISH_DEPLOYMENT_CANDIDATES)
+
+    automation = Automation(
+        name=TREATMENT_PUBLISH_AUTOMATION_NAME,
+        description=(
+            "Quando o flow de tratamento emitir dataset.treatment.completed, "
+            "executa o deployment de publicacao para os mesmos theme_folders."
+        ),
+        enabled=True,
+        tags=["treatment", "publish"],
+        trigger=EventTrigger(
+            expect={"dataset.treatment.completed"},
+            posture=Posture.Reactive,
+            threshold=1,
+            within=timedelta(seconds=10),
+        ),
+        actions=[
+            RunDeployment(
+                deployment_id=deployment.id,
+                parameters={
+                    "theme_folders": "{{ event.payload.theme_folders }}",
+                },
+            )
+        ],
+    )
+
+    try:
+        existing = read_existing_automation((TREATMENT_PUBLISH_AUTOMATION_NAME,))
+    except ValueError:
+        created = automation.create()
+        print(f"Automation criada: {created.name} ({created.id})")
+        return
+
+    automation.id = existing.id
+    automation.update()
+    print(f"Automation atualizada: {automation.name} ({automation.id})")
+
+
 def read_existing_automation(names):
     for name in names:
         try:
@@ -139,7 +190,7 @@ def read_existing_automation(names):
 
 
 def bootstrap_prefect():
-    run_bootstrap_prefect(create_download_automation)
+    run_bootstrap_prefect(create_download_automation, create_treatment_publish_automation)
 
 
 def diagnose_theme(theme_folder):

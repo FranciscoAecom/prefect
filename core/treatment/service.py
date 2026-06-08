@@ -1,6 +1,7 @@
 from contextlib import ExitStack
 
 from core.execution_locks import named_execution_lock
+from core.ingest.plan import build_ingest_execution_plan
 from core.ingest.run_request import IngestRunRequest
 from core.treatment.steps.errors import log_treatment_error
 from core.treatment.steps.events import emit_project_resolved_event, emit_record_start_events
@@ -57,7 +58,11 @@ def run_data_treatment(
     force=False,
     scheduled=False,
 ):
-    from core.tasks.treatment import prepare_treatment_run_task, run_treatment_record_task
+    from core.tasks.treatment import (
+        emit_treatment_completed_event_task,
+        prepare_treatment_run_task,
+        run_treatment_record_task,
+    )
 
     settings = TreatmentRunSettings.from_output_base(output_base)
     run_request = IngestRunRequest.from_parameters(
@@ -92,6 +97,10 @@ def run_data_treatment(
                 settings.keep_individual_outputs_when_grouping,
             )
 
+        publish_theme_folders = _publish_theme_folders(treatment_context.records)
+        if publish_theme_folders:
+            emit_treatment_completed_event_task(publish_theme_folders)
+
         log("Tratamento finalizado")
 
 
@@ -100,6 +109,16 @@ def _theme_filter_locks(theme_filter):
     for theme_folder in sorted(theme_filter.theme_folders):
         stack.enter_context(named_execution_lock(f"treatment-{theme_folder}"))
     return stack
+
+
+def _publish_theme_folders(records):
+    return sorted(
+        {
+            record.theme_folder
+            for record in records
+            if build_ingest_execution_plan(record.status).should_publish
+        }
+    )
 
 
 __all__ = ["TreatmentService", "run_data_treatment"]

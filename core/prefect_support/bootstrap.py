@@ -58,11 +58,12 @@ def set_default_work_pools(print_fn=print):
         print_fn(f"Work Pool definido: {work_pool}")
 
 
-def bootstrap_prefect(create_automation, print_fn=print):
+def bootstrap_prefect(*create_automations, print_fn=print):
     set_default_variables(print_fn=print_fn)
     set_default_blocks(print_fn=print_fn)
     set_default_work_pools(print_fn=print_fn)
-    create_automation()
+    for create_automation in create_automations:
+        create_automation()
 
 
 __all__ = [

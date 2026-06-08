@@ -91,5 +91,6 @@ foreach ($deployment in $deployments) {
 
 Start-Sleep -Seconds 8
 & $Python scripts\prefect_admin.py create-download-automation
+& $Python scripts\prefect_admin.py create-treatment-publish-automation
 
 Write-Host "Prefect local pronto: http://127.0.0.1:4200"

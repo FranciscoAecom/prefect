@@ -1,4 +1,5 @@
 from prefect import task
+from prefect.events import emit_event
 
 from core.ingest.run_request import IngestRunRequest
 from core.prefect_support.run_names import record_task_run_name
@@ -45,7 +46,25 @@ def run_treatment_record_task(
     )
 
 
+@task(name="Emitir evento tratamento concluido", log_prints=True)
+def emit_treatment_completed_event_task(theme_folders):
+    normalized_theme_folders = sorted({str(theme_folder) for theme_folder in theme_folders})
+    if not normalized_theme_folders:
+        return None
+
+    event = emit_event(
+        event="dataset.treatment.completed",
+        resource={
+            "prefect.resource.id": "dataset.treatment.completed",
+            "prefect.resource.name": "Tratamento concluido",
+        },
+        payload={"theme_folders": normalized_theme_folders},
+    )
+    return str(event.id) if event else None
+
+
 __all__ = [
+    "emit_treatment_completed_event_task",
     "prepare_treatment_run_task",
     "run_treatment_record_task",
 ]

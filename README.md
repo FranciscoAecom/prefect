@@ -193,6 +193,16 @@ Observacao: a flag `download` so baixa bases com conector/script registrado no
 catalogo de downloads. Para tratar arquivo ja existente em `path_shapefile_temp`,
 use `treatment` ou `treatment-publish`.
 
+Quando o status for `download-treatment-publish`, o encadeamento esperado e:
+
+```text
+Data Download -> Data Treatment -> Data Publish
+```
+
+Esse encadeamento depende das automacoes criadas pelo script
+`start_prefect_local.ps1`: `dataset.downloaded -> treatment` e
+`dataset.treatment.completed -> publish`.
+
 Executar uma base especifica pelo deployment de tratamento:
 
 ```powershell
@@ -238,6 +248,13 @@ Para listar os agendamentos carregados no deployment:
 
 ```powershell
 .\.venv\Scripts\python.exe -m prefect deployment schedule ls "Data Treatment/Treatment Agendado pela Ingest"
+```
+
+Para recriar as automacoes padrao manualmente:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\prefect_admin.py create-download-automation
+.\.venv\Scripts\python.exe scripts\prefect_admin.py create-treatment-publish-automation
 ```
 
 Para recriar os agendamentos com banco zerado:

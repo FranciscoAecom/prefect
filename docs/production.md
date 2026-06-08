@@ -132,6 +132,27 @@ Use o download quando o `status` contiver `download`, como `download`,
 conector/script registrado no catalogo de downloads. Para arquivo ja existente
 em `path_shapefile_temp`, use `treatment` ou `treatment-publish`.
 
+Para `download-treatment-publish`, o fluxo esperado e:
+
+```text
+Data Download -> Data Treatment -> Data Publish
+```
+
+O encadeamento depende das automacoes padrao:
+
+```text
+dataset.downloaded -> Data Treatment
+dataset.treatment.completed -> Data Publish
+```
+
+O script `start_prefect_local.ps1` cria ou atualiza essas automacoes. Para
+recria-las manualmente:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\prefect_admin.py create-download-automation
+.\.venv\Scripts\python.exe scripts\prefect_admin.py create-treatment-publish-automation
+```
+
 Rodar uma base especifica pelo deployment:
 
 ```powershell
