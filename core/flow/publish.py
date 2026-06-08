@@ -1,5 +1,6 @@
 from prefect import flow
 
+from core.prefect_support.run_names import publish_flow_run_name
 from core.publish.config import PublishOptions
 from core.publish.service import (
     load_publish_folders_from_ingest,
@@ -9,7 +10,7 @@ from core.publish.service import (
 )
 
 
-@flow(name="Data Publish", log_prints=True)
+@flow(name="Data Publish", flow_run_name=publish_flow_run_name, log_prints=True)
 def data_publish_flow(
     folder=None,
     theme_folders=None,

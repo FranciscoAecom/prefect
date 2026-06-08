@@ -5,9 +5,36 @@ from unittest.mock import patch
 from core.publish.metadata import MultiplePublishItemsError
 from core.publish.service import publish_record_outputs
 from core.publish.service import publish_record_outputs_direct
+from core.prefect_support.run_names import publish_flow_run_name_for_parameters
 
 
 class PublishFlowTests(unittest.TestCase):
+    def test_publish_flow_run_name_uses_theme_folder(self):
+        self.assertEqual(
+            publish_flow_run_name_for_parameters({"theme_folders": ["sa_car_ac"]}),
+            "publish_sa_car_ac",
+        )
+
+    def test_publish_flow_run_name_uses_batch_count(self):
+        self.assertEqual(
+            publish_flow_run_name_for_parameters(
+                {"theme_folders": ["rl_car_ac", "sa_car_ac"]}
+            ),
+            "publish_2_bases",
+        )
+
+    def test_publish_flow_run_name_uses_folder_when_manual(self):
+        self.assertEqual(
+            publish_flow_run_name_for_parameters({"folder": r"L:\silver\autos\01"}),
+            "publish_01",
+        )
+
+    def test_publish_flow_run_name_uses_ingest_fallback(self):
+        self.assertEqual(
+            publish_flow_run_name_for_parameters({}),
+            "publish_ingest",
+        )
+
     @patch("core.flow.publish.run_data_publish")
     @patch("core.flow.publish.load_publish_folders_from_ingest")
     def test_data_publish_flow_uses_ingest_when_folder_is_not_provided(
