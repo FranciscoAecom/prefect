@@ -41,6 +41,48 @@ class VersioningPathsTests(unittest.TestCase):
         self.assertEqual(plan.bronze_dir, base / "bronze_data" / expected_tail)
         self.assertEqual(plan.silver_dir, base / "silver_data" / expected_tail)
 
+    def test_schedule_status_resolves_temp_bronze_silver_paths(self):
+        base = Path("L:/base")
+        plan = resolve_dataset_version_plan(
+            _record(status="schedule 2026-06-08 18:10"),
+            base_path=base,
+            create=False,
+        )
+
+        expected_tail = (
+            Path("restricted")
+            / "pcd"
+            / "autos_infracao"
+            / "IBAMA"
+            / "20210915"
+            / "00"
+        )
+        self.assertEqual(plan.version, "00")
+        self.assertEqual(plan.temp_dir, base / "temp" / expected_tail)
+        self.assertEqual(plan.bronze_dir, base / "bronze_data" / expected_tail)
+        self.assertEqual(plan.silver_dir, base / "silver_data" / expected_tail)
+
+    def test_schedule_with_treatment_status_resolves_temp_bronze_silver_paths(self):
+        base = Path("L:/base")
+        plan = resolve_dataset_version_plan(
+            _record(status="schedule 2026-06-08 18:10 treatment"),
+            base_path=base,
+            create=False,
+        )
+
+        expected_tail = (
+            Path("restricted")
+            / "pcd"
+            / "autos_infracao"
+            / "IBAMA"
+            / "20210915"
+            / "00"
+        )
+        self.assertEqual(plan.version, "00")
+        self.assertEqual(plan.temp_dir, base / "temp" / expected_tail)
+        self.assertEqual(plan.bronze_dir, base / "bronze_data" / expected_tail)
+        self.assertEqual(plan.silver_dir, base / "silver_data" / expected_tail)
+
     def test_treatment_uses_next_version_when_bronze_has_geographic_file(self):
         with self.subTest("gpkg conflict"):
             base = Path("tests") / "_tmp_versioning_gpkg"

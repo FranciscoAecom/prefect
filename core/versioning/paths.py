@@ -113,10 +113,14 @@ def build_stage_root(
 def resolve_next_available_version(date_root, status):
     date_root = Path(date_root)
     ingest_status = parse_ingest_status(status)
-    if not (ingest_status.has_treatment or ingest_status.has_download):
+    if not (
+        ingest_status.has_treatment
+        or ingest_status.has_download
+        or ingest_status.is_scheduled_for_treatment
+    ):
         raise ValueError(
             "Status sem regra de versionamento: "
-            f"{status}. Use download, treatment ou download-treatment."
+            f"{status}. Use download, treatment ou schedule YYYY-MM-DD HH:MM."
         )
 
     version_number = int(VERSION_START)
