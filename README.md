@@ -161,12 +161,11 @@ fica em `docs/production.md`.
 
 ### Comandos Uteis
 
-Executar o tratamento usando o Prefect local ja iniciado:
+Entrar na pasta do projeto e apontar o terminal para a API local do Prefect:
 
 ```powershell
-cd "C:\Temp\Repositorios\prefect"
+cd "C:\Temp\Repositórios\prefect"
 $env:PREFECT_API_URL="http://127.0.0.1:4200/api"
-uv run python main.py
 ```
 
 Confirmar que o servidor Prefect esta ativo:
@@ -176,10 +175,34 @@ $env:PREFECT_API_URL="http://127.0.0.1:4200/api"
 .\.venv\Scripts\python.exe -m prefect flow ls
 ```
 
+Executar o tratamento diretamente pelo `main.py`, lendo a planilha ingest:
+
+```powershell
+uv run python main.py
+```
+
+Executar o flow de download pela planilha ingest. Use este comando quando
+existirem linhas com `status` contendo `download`, como `download`,
+`download-treatment` ou `download-treatment-publish`:
+
+```powershell
+.\.venv\Scripts\python.exe -m prefect deployment run "Data Download/Download de Dados"
+```
+
+Observacao: a flag `download` so baixa bases com conector/script registrado no
+catalogo de downloads. Para tratar arquivo ja existente em `path_shapefile_temp`,
+use `treatment` ou `treatment-publish`.
+
+Executar uma base especifica pelo deployment de tratamento:
+
+```powershell
+'{"theme_folders":["ur_car_pi"]}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/Treatment Agendado pela Ingest" --params -
+```
+
 Reiniciar o Prefect local de forma limpa, mantendo o banco:
 
 ```powershell
-cd "C:\Temp\Repositorios\prefect"
+cd "C:\Temp\Repositórios\prefect"
 .\scripts\start_prefect_local.ps1 -StopExisting
 ```
 
@@ -195,7 +218,7 @@ Após rodar o comando abaixo, não feche o terminal, para que os agendamentos
 entrem em execução no devido momento.
 
 ```powershell
-cd "C:\Temp\Repositorios\prefect"
+cd "C:\Temp\Repositórios\prefect"
 .\scripts\start_prefect_local.ps1 -StopExisting
 ```
 
@@ -203,12 +226,18 @@ O agendamento aparece no deployment em `Schedules`. Ele pode nao aparecer ainda
 na lista de flow runs agendados quando a data estiver muito distante, pois o
 Prefect materializa runs futuros dentro de uma janela propria do scheduler.
 
-Para apagar os agendamentos criados
+Para apagar todos os agendamentos do deployment de tratamento:
 
 ```powershell
 cd "C:\Temp\Repositórios\prefect"
 $env:PREFECT_API_URL="http://127.0.0.1:4200/api"
 .\.venv\Scripts\python.exe -m prefect deployment schedule clear "Data Treatment/Treatment Agendado pela Ingest" -y
+```
+
+Para listar os agendamentos carregados no deployment:
+
+```powershell
+.\.venv\Scripts\python.exe -m prefect deployment schedule ls "Data Treatment/Treatment Agendado pela Ingest"
 ```
 
 Para recriar os agendamentos com banco zerado:

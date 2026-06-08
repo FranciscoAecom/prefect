@@ -1,4 +1,4 @@
-# Operacao em Producao
+﻿# Operacao em Producao
 
 Este guia concentra os comandos de operacao diaria do projeto.
 
@@ -101,12 +101,11 @@ Prefect materializa runs futuros apenas dentro da janela do scheduler.
 
 ## Execucao Manual
 
-Rodar tratamento local:
+Entrar na pasta do projeto e apontar o terminal para a API local do Prefect:
 
 ```powershell
 cd "C:\Temp\Repositorios\prefect"
 $env:PREFECT_API_URL="http://127.0.0.1:4200/api"
-uv run python main.py
 ```
 
 Confirmar que o servidor Prefect esta ativo:
@@ -116,10 +115,39 @@ $env:PREFECT_API_URL="http://127.0.0.1:4200/api"
 .\.venv\Scripts\python.exe -m prefect flow ls
 ```
 
+Rodar tratamento local pela planilha ingest:
+
+```powershell
+uv run python main.py
+```
+
+Rodar download pela planilha ingest:
+
+```powershell
+.\.venv\Scripts\python.exe -m prefect deployment run "Data Download/Download de Dados"
+```
+
+Use o download quando o `status` contiver `download`, como `download`,
+`download-treatment` ou `download-treatment-publish`. A base precisa ter
+conector/script registrado no catalogo de downloads. Para arquivo ja existente
+em `path_shapefile_temp`, use `treatment` ou `treatment-publish`.
+
 Rodar uma base especifica pelo deployment:
 
 ```powershell
 '{"theme_folders":["ur_car_pi"]}' | .\.venv\Scripts\python.exe -m prefect deployment run "Data Treatment/Treatment Agendado pela Ingest" --params -
+```
+
+Apagar todos os agendamentos do deployment de tratamento:
+
+```powershell
+.\.venv\Scripts\python.exe -m prefect deployment schedule clear "Data Treatment/Treatment Agendado pela Ingest" -y
+```
+
+Listar agendamentos carregados no deployment:
+
+```powershell
+.\.venv\Scripts\python.exe -m prefect deployment schedule ls "Data Treatment/Treatment Agendado pela Ingest"
 ```
 
 Listar flows e deployments:
@@ -175,3 +203,5 @@ Arquivos locais ignorados pelo Git:
 .prefect-logs/
 .workflow-locks/
 ```
+
+
