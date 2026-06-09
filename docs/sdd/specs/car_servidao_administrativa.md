@@ -41,8 +41,7 @@ Cada UF possui perfil proprio em `rules/car_servidao_administrativa/<theme_folde
 - `rules/car_servidao_administrativa/<theme_folder>/domains.json`
 - `rules/car_servidao_administrativa/<theme_folder>/relations.json`
 - `rules/car_servidao_administrativa/<theme_folder>/treatment.json`
-- `rules/car_servidao_administrativa/style.json`: estilo SLD comum herdado por todos os perfis `sa_car_*`
-- `rules/car_servidao_administrativa/<theme_folder>/style.json`: opcional, somente quando a UF precisar sobrescrever o estilo comum
+- `rules/car_servidao_administrativa/<theme_folder>/style.json`
 
 A validacao estrutural de entrada deve usar o `input_schema.json` do perfil da
 UF, permitindo colunas extras conforme configurado.
@@ -141,7 +140,7 @@ o valor de `EXPORT_OUTPUT_QUALITY_REPORT_FILES`.
 
 ## Estilo SLD
 
-- Arquivo: `rules/car_servidao_administrativa/style.json`
+- Arquivo: `rules/car_servidao_administrativa/<theme_folder>/style.json`
 - Campo de categorizacao: `sdb_nom_tema`
 - Regra principal: `Categorias de servidao administrativa`
 - Cores por categoria:
@@ -210,8 +209,7 @@ sld_pcd_<theme_folder>_20260301.sld
 Observacoes:
 
 - A saida deve respeitar o recorte regional da UF por `enforce_car_state_bounds`.
-- O estilo comum do projeto e usado quando o perfil da UF nao tiver `style.json`
-  proprio.
+- Cada UF deve possuir seu proprio `style.json` dentro da pasta do perfil.
 
 ## Prefect
 

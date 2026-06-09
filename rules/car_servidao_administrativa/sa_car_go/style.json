@@ -1,0 +1,63 @@
+{
+  "sld": {
+    "version": "1.1.0",
+    "rule_name": "Categorias de servidao administrativa",
+    "rules": [
+      {
+        "name": "Area de Servidao Administrativa Total",
+        "title": "Area de Servidao Administrativa Total",
+        "filter": {
+          "property": "sdb_nom_tema",
+          "literal": "Area de Servidao Administrativa Total"
+        },
+        "polygon": {
+          "fill": "#215a82"
+        }
+      },
+      {
+        "name": "Entorno de Reservatorio para Abastecimento ou Geracao de Energia",
+        "title": "Entorno de Reservatorio para Abastecimento ou Geracao de Energia",
+        "filter": {
+          "property": "sdb_nom_tema",
+          "literal": "Entorno de Reservatorio para Abastecimento ou Geracao de Energia"
+        },
+        "polygon": {
+          "fill": "#2b88a9"
+        }
+      },
+      {
+        "name": "Infraestrutura Publica",
+        "title": "Infraestrutura Publica",
+        "filter": {
+          "property": "sdb_nom_tema",
+          "literal": "Infraestrutura Publica"
+        },
+        "polygon": {
+          "fill": "#ffb701"
+        }
+      },
+      {
+        "name": "Reservatorio para Abastecimento ou Geracao de Energia",
+        "title": "Reservatorio para Abastecimento ou Geracao de Energia",
+        "filter": {
+          "property": "sdb_nom_tema",
+          "literal": "Reservatorio para Abastecimento ou Geracao de Energia"
+        },
+        "polygon": {
+          "fill": "#ef8e03"
+        }
+      },
+      {
+        "name": "Utilidade Publica",
+        "title": "Utilidade Publica",
+        "filter": {
+          "property": "sdb_nom_tema",
+          "literal": "Utilidade Publica"
+        },
+        "polygon": {
+          "fill": "#302c38"
+        }
+      }
+    ]
+  }
+}

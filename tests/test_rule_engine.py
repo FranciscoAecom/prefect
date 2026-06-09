@@ -264,32 +264,6 @@ class ValidateRuleProfileTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "style.json"):
                     load_rule_profile("demo/perfil")
 
-    def test_loads_inherited_project_style_when_profile_has_no_style(self):
-        with tempfile.TemporaryDirectory() as temp_dir:
-            rules_base = Path(temp_dir) / "rules"
-            profile_dir = rules_base / "demo" / "perfil"
-            self._write_modular_profile(profile_dir)
-            self._write_json(
-                rules_base / "demo" / "style.json",
-                {
-                    "sld": {
-                        "rules": [
-                            {
-                                "name": "A",
-                                "filter": {"property": "sdb_codigo", "literal": "A"},
-                                "point": {"fill": "#111111"},
-                            },
-                        ]
-                    }
-                },
-            )
-
-            with patch("core.rules.engine.RULES_BASE", str(rules_base)):
-                invalidate_rule_profile_cache()
-                profile = load_rule_profile("demo/perfil")
-
-            self.assertEqual(profile["sld"]["rules"][0]["point"]["fill"], "#111111")
-
     def test_save_rule_profile_updates_modular_components(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             rules_base = Path(temp_dir) / "rules"

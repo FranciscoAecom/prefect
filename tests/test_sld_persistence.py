@@ -181,7 +181,7 @@ class SldPersistenceTests(unittest.TestCase):
         self.assertNotIn("<se:Stroke>", text)
 
     def test_car_servidao_administrativa_style_matches_categorized_model(self):
-        style_path = Path("rules/car_servidao_administrativa/style.json")
+        style_path = Path("rules/car_servidao_administrativa/sa_car_df/style.json")
         style = build_sld_style(json.loads(style_path.read_text(encoding="utf-8")))
         text = render_sld("pol_pcd_sa_car_df_20260301", "polygon", style)
 
