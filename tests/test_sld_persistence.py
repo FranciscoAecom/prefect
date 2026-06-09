@@ -180,6 +180,28 @@ class SldPersistenceTests(unittest.TestCase):
         self.assertIn('<se:SvgParameter name="fill">#c4912b</se:SvgParameter>', text)
         self.assertNotIn("<se:Stroke>", text)
 
+    def test_car_servidao_administrativa_style_matches_categorized_model(self):
+        style_path = Path("rules/car_servidao_administrativa/style.json")
+        style = build_sld_style(json.loads(style_path.read_text(encoding="utf-8")))
+        text = render_sld("pol_pcd_sa_car_df_20260301", "polygon", style)
+
+        self.assertEqual(len(style["rules"]), 5)
+        self.assertEqual(
+            {rule["filter"]["property"] for rule in style["rules"]},
+            {"sdb_nom_tema"},
+        )
+        self.assertIn("<se:Name>pol_pcd_sa_car_df_20260301</se:Name>", text)
+        self.assertIn("<ogc:PropertyName>sdb_nom_tema</ogc:PropertyName>", text)
+        self.assertIn(
+            "<ogc:Literal>Area de Servidao Administrativa Total</ogc:Literal>",
+            text,
+        )
+        for color in ["#215a82", "#2b88a9", "#ffb701", "#ef8e03", "#302c38"]:
+            self.assertIn(
+                f'<se:SvgParameter name="fill">{color}</se:SvgParameter>',
+                text,
+            )
+
     def test_sld_path_uses_same_stem_as_dataset(self):
         self.assertEqual(
             sld_path_for_dataset(Path("saida") / "pnt_pcd_enov_20260514.gpkg"),

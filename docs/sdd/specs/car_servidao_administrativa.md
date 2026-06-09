@@ -41,7 +41,8 @@ Cada UF possui perfil proprio em `rules/car_servidao_administrativa/<theme_folde
 - `rules/car_servidao_administrativa/<theme_folder>/domains.json`
 - `rules/car_servidao_administrativa/<theme_folder>/relations.json`
 - `rules/car_servidao_administrativa/<theme_folder>/treatment.json`
-- `rules/car_servidao_administrativa/<theme_folder>/style.json`: nao configurado
+- `rules/car_servidao_administrativa/style.json`: estilo SLD comum herdado por todos os perfis `sa_car_*`
+- `rules/car_servidao_administrativa/<theme_folder>/style.json`: opcional, somente quando a UF precisar sobrescrever o estilo comum
 
 A validacao estrutural de entrada deve usar o `input_schema.json` do perfil da
 UF, permitindo colunas extras conforme configurado.
@@ -140,9 +141,18 @@ o valor de `EXPORT_OUTPUT_QUALITY_REPORT_FILES`.
 
 ## Estilo SLD
 
-- Arquivo: nao aplicavel
-- Campo de categorizacao: nao aplicavel
-- Regra principal: nao aplicavel
+- Arquivo: `rules/car_servidao_administrativa/style.json`
+- Campo de categorizacao: `sdb_nom_tema`
+- Regra principal: `Categorias de servidao administrativa`
+- Cores por categoria:
+
+| Valor de `sdb_nom_tema` | Cor |
+| --- | --- |
+| Area de Servidao Administrativa Total | `#215a82` |
+| Entorno de Reservatorio para Abastecimento ou Geracao de Energia | `#2b88a9` |
+| Infraestrutura Publica | `#ffb701` |
+| Reservatorio para Abastecimento ou Geracao de Energia | `#ef8e03` |
+| Utilidade Publica | `#302c38` |
 
 ## Saidas Esperadas
 
@@ -165,7 +175,7 @@ md_pcd_<theme_folder>_20260301.xml
 SLD esperado somente no silver:
 
 ```text
-nao aplicavel
+sld_pcd_<theme_folder>_20260301.sld
 ```
 
 Campos `acm_*` obrigatorios:
@@ -194,12 +204,14 @@ Conjunto publicavel esperado:
 ```text
 pol_pcd_<theme_folder>_20260301.gpkg
 md_pcd_<theme_folder>_20260301.xml
+sld_pcd_<theme_folder>_20260301.sld
 ```
 
 Observacoes:
 
 - A saida deve respeitar o recorte regional da UF por `enforce_car_state_bounds`.
-- Se nao houver `style.json`, nao ha SLD para publicacao.
+- O estilo comum do projeto e usado quando o perfil da UF nao tiver `style.json`
+  proprio.
 
 ## Prefect
 

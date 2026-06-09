@@ -62,6 +62,23 @@ class RuleRepository:
             raise ValueError(f"Componente de perfil invalido: {path}")
         return data
 
+    def read_inherited_component(self, profile_dir, component_file):
+        current_dir = Path(profile_dir)
+        while True:
+            path = current_dir / component_file
+            if path.exists():
+                data = self.load_json_file(path)
+                if not isinstance(data, dict):
+                    raise ValueError(f"Componente de perfil invalido: {path}")
+                return data
+            if current_dir == self.rules_base:
+                return {}
+            try:
+                current_dir.relative_to(self.rules_base)
+            except ValueError:
+                return {}
+            current_dir = current_dir.parent
+
     def load_modular_profile(self, profile_dir):
         if not profile_dir.is_dir():
             raise FileNotFoundError(f"Perfil de regras nao encontrado: {profile_dir}")
@@ -75,7 +92,7 @@ class RuleRepository:
         domains = self.read_component(profile_dir, DOMAINS_COMPONENT)
         relations = self.read_component(profile_dir, RELATIONS_COMPONENT)
         treatment = self.read_component(profile_dir, TREATMENT_COMPONENT)
-        style = self.read_component(profile_dir, STYLE_COMPONENT)
+        style = self.read_inherited_component(profile_dir, STYLE_COMPONENT)
         normalized_profile_name = str(profile_dir.relative_to(self.rules_base)).replace("\\", "/")
         validate_modular_components(
             profile,
